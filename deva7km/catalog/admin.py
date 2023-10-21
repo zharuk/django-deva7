@@ -4,27 +4,68 @@ from .models import Product, Color, Size, ProductModification, Image
 from django.db import models
 
 
+# Пропишем админку для модели Image
+@admin.register(Image)
+class ImageAdmin(admin.ModelAdmin):
+    list_display = ('original', 'get_thumbnail')
+
+    # вывод миниатюры изображения
+    def get_thumbnail(self, obj):
+        return mark_safe(f'<img src="{obj.thumbnail.url}"')
+
+    # название колонки в админке
+    get_thumbnail.short_description = 'Миниатюра'
+
+
+# Пропишем админку для модели ProductModification
+@admin.register(ProductModification)
+class ProductModificationAdmin(admin.ModelAdmin):
+    list_display = ('product', 'custom_sku', 'color', 'size', 'stock', 'get_thumbnail', 'price')
+    list_filter = ('product', 'color', 'size')
+
+    # метод получения миниатюр для модификаций товара
+    def get_thumbnail(self, obj):
+        # соберем циклом все изображения модификации товара и выведем их в админке
+        images = ""
+        i = 0
+        for image in obj.images.all():
+            images += f'<img src="{image.thumbnail.url}"> '
+            i += 1
+            # если i красно 5 перенос <br>
+            if i % 6 == 0:
+                images += '<br>'
+        return mark_safe(images)
+    get_thumbnail.short_description = 'Миниатюры'
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    class ProductModificationInline(admin.TabularInline):  # класс модификаций для встраивания в inlines
+    # модель ProductModificationInline для отображения модели ProductModification в админке
+    class ProductModificationInline(admin.TabularInline):
         model = ProductModification
         extra = 0
 
-    class ImageAdminInline(admin.TabularInline):
-        model = Image
-        extra = 3
-        readonly_fields = ('thumbnail',)
+        # метод для отображения миниатюр изображения комплектации
+        def get_thumbnail(self, obj):
+            # соберем циклом все изображения модификации товара и выведем их в админке
+            images = ""
+            i = 0
+            for image in obj.images.all():
+                images += f'<img src="{image.thumbnail.url}"> '
+                i += 1
+                # если i красно 5 перенос <br>
+                if i % 5 == 0:
+                    images += '<br>'
+            return mark_safe(images)
 
-        # Метод для вывода миниатюр в ImageAdminInline
-        def thumbnail(self, obj):
-            return mark_safe(f'<img src="{obj.thumbnail.url}" width="50" height="60" />')
+        get_thumbnail.short_description = 'Миниатюра'
+        readonly_fields = ('get_thumbnail',)
+        fields = ('color', 'size', 'stock', 'images', 'get_thumbnail', 'price')
 
-        thumbnail.short_description = 'Миниатюра'
-
-    list_display = ('title', 'sku', 'price', 'get_colors', 'get_sizes', 'get_stock', 'created_at', 'get_images')
+    list_display = ('title', 'sku', 'price', 'get_colors', 'get_sizes', 'get_stock', 'created_at')
     list_filter = ('colors', 'sizes', 'created_at')
     search_fields = ('title', 'sku')
-    inlines = [ImageAdminInline, ProductModificationInline]
+    inlines = [ProductModificationInline]
 
     def get_colors(self, obj):
         return ", ".join([color.name for color in obj.colors.all()])
@@ -42,26 +83,9 @@ class ProductAdmin(admin.ModelAdmin):
 
     get_stock.short_description = 'Остатки'  # Название колонки в админке
 
-    def get_images(self, obj):
-        # Получаем связанные изображения с товаром
-        images = Image.objects.filter(product=obj)
-        # Создаем HTML для вывода миниатюр
-        image_html = ''.join([f'<img src="{image.thumbnail.url}" width="50" height="60" />' for image in images])
-        return mark_safe(image_html)
 
-    get_images.short_description = 'Изображения'
-
-
-@admin.register(Image)
-class ImageAdmin(admin.ModelAdmin):
-    list_display = ('path', 'thumbnail', 'product', 'get_image')
-
-    def get_image(self, obj):
-        return mark_safe(
-            f'<img src="{obj.thumbnail.url}" width="50" height="60" />')  # Метод для вывода миниатюр в админке
-
-    get_image.short_description = "Изображение"
-
-
+# Зарегистрируем модель изображения
+# admin.site.register(Image)
+# admin.site.register(ProductModification)
 admin.site.register(Size)
 admin.site.register(Color)

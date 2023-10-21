@@ -7,7 +7,7 @@ from catalog.views import get_image_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("catalog/", include("catalog.urls")),
-    path('media/<str:path>', get_image_view, name='image'),
+    #path('media/<str:path>', get_image_view, name='image'),
 ]
 
 if settings.DEBUG:

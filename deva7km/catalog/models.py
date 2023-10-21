@@ -28,11 +28,10 @@ class ProductModification(models.Model):
     color = models.ForeignKey('Color', on_delete=models.CASCADE, verbose_name='Цвет')
     size = models.ForeignKey('Size', on_delete=models.CASCADE, verbose_name='Размер')
     stock = models.PositiveIntegerField(default=0, verbose_name='Остаток')
-    price = models.IntegerField(default=0, verbose_name='Цена')
+    price = models.IntegerField(default=Product.price, verbose_name='Цена')
     custom_sku = models.CharField(max_length=20, verbose_name='Артикул комплектации', blank=True)
-    modifications_images = models.ManyToManyField('Image', blank=True, verbose_name='Изображения комплектаций')
-
-    # images = models.ForeignKey('Image', on_delete=models.CASCADE, related_name='photos')
+    # Свяжем модель Image с моделью ProductModification через ManyToManyField
+    images = models.ManyToManyField('Image', blank=True, verbose_name='Изображения')
 
     def __str__(self):
         return self.custom_sku  # Отображаем свой артикул вместо sku
@@ -49,17 +48,10 @@ class ProductModification(models.Model):
         unique_together = ['product', 'color', 'size']
 
 
-# class Image(models.Model):
-#     images = models.ImageField(upload_to='images/')
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='Изображения')
-
 class Image(models.Model):
-    path = models.ImageField(upload_to='images/', verbose_name='Оригинальное изображение')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='Изображения',
-                                verbose_name='Изображение для товара')
+    original = models.ImageField(upload_to='images/', verbose_name='Оригинальное изображение')
     thumbnail = ImageSpecField(
-        source='path',
+        source='original',
         processors=[ResizeToFit(100, 100)],
         format='JPEG',
         options={'quality': 60},
