@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFill, ResizeToFit
@@ -84,17 +84,22 @@ class Size(models.Model):
         verbose_name_plural = 'Размеры'  # Название модели во множественном числе
 
 
-# Обновление модификации при создании или обновлении
 @receiver(m2m_changed, sender=Product.colors.through)
 @receiver(m2m_changed, sender=Product.sizes.through)
 def update_product_modifications(sender, instance, action, model, pk_set, **kwargs):
+    # если добавляем или изменяем товар - то создаем модификации для каждого цвета и размера
     if action in ['post_add', 'post_remove', 'post_clear']:
+        if action in ['post_remove']:
+            ProductModification.objects.filter(product=instance).delete()
+
         for color in instance.colors.all():
             for size in instance.sizes.all():
-                custom_sku = f"{instance.sku}-{ProductModification.objects.filter(product=instance).count() + 1}"
+                custom_sku = f"{instance.sku}-{color.name}-{size.name}"
                 _, _ = ProductModification.objects.update_or_create(
                     product=instance,
                     color=color,
                     size=size,
                     defaults={'price': instance.price, 'custom_sku': custom_sku}
                 )
+
+

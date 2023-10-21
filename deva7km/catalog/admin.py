@@ -22,6 +22,7 @@ class ImageAdmin(admin.ModelAdmin):
 class ProductModificationAdmin(admin.ModelAdmin):
     list_display = ('product', 'custom_sku', 'color', 'size', 'stock', 'get_thumbnail', 'price')
     list_filter = ('product', 'color', 'size')
+    search_fields = ('product__title', 'custom_sku')
 
     # метод получения миниатюр для модификаций товара
     def get_thumbnail(self, obj):
@@ -35,6 +36,7 @@ class ProductModificationAdmin(admin.ModelAdmin):
             if i % 6 == 0:
                 images += '<br>'
         return mark_safe(images)
+
     get_thumbnail.short_description = 'Миниатюры'
 
 
@@ -62,7 +64,7 @@ class ProductAdmin(admin.ModelAdmin):
         readonly_fields = ('get_thumbnail',)
         fields = ('color', 'size', 'stock', 'images', 'get_thumbnail', 'price')
 
-    list_display = ('title', 'sku', 'price', 'get_colors', 'get_sizes', 'get_stock', 'created_at')
+    list_display = ('title', 'sku', 'price', 'get_colors', 'get_sizes', 'get_stock', 'created_at', 'get_images')
     list_filter = ('colors', 'sizes', 'created_at')
     search_fields = ('title', 'sku')
     inlines = [ProductModificationInline]
@@ -83,9 +85,16 @@ class ProductAdmin(admin.ModelAdmin):
 
     get_stock.short_description = 'Остатки'  # Название колонки в админке
 
+    # выводим миниатюры основного товара, по одной миниатюре для каждой модификации товара
+    def get_images(self, obj):
+        images = ""
+        for mod in obj.productmodification_set.all():
+            # если изображений нет, то пропускаем
+            if not mod.images.all():
+                continue
+            images += f'<img src="{mod.images.all()[0].thumbnail.url}"> '
+        return mark_safe(images)
 
-# Зарегистрируем модель изображения
-# admin.site.register(Image)
-# admin.site.register(ProductModification)
+
 admin.site.register(Size)
 admin.site.register(Color)
