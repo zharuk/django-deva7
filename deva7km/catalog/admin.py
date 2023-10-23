@@ -1,7 +1,22 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
-from .models import Product, Color, Size, ProductModification, Image
+from .models import Product, Color, Size, ProductModification, Image, Category, Sale
 from django.db import models
+
+
+# пропишем админку для модели Sale
+@admin.register(Sale)
+class SaleAdmin(admin.ModelAdmin):
+    list_display = ('product_modification', 'quantity', 'total_sale', 'sale_date', 'sale_time')
+
+    # readonly_fields = ('product', 'product_modification', 'quantity', 'total_sale', 'sale_date', 'sale_time', 'currency')
+
+    def save_model(self, request, obj, form, change):
+        try:
+            obj.save()
+        except ValidationError as e:
+            self.message_user(request, f'Ошибка: {str(e)}', level=messages.ERROR)
 
 
 # Пропишем админку для модели Image
@@ -95,6 +110,12 @@ class ProductAdmin(admin.ModelAdmin):
             images += f'<img src="{mod.images.all()[0].thumbnail.url}"> '
         return mark_safe(images)
 
+    # название колонки get_images в админке
+    get_images.short_description = 'Миниатюры'
 
+
+# зарегистрируем Category, Size, Color и тд.
+admin.site.register(Category)
+# admin.site.register(Product)
 admin.site.register(Size)
 admin.site.register(Color)
