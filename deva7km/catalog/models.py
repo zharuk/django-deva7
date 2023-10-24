@@ -1,8 +1,10 @@
 from django.contrib import messages
-from django.db import models
+from django.db import models, transaction
 from django.core.exceptions import ValidationError
 from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
+from django.http import request
+from django.shortcuts import render
 from django.utils.text import slugify
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFill, ResizeToFit
@@ -126,46 +128,38 @@ class Size(models.Model):
         verbose_name_plural = 'Размеры'  # Название модели во множественном числе
 
 
-@receiver(m2m_changed, sender=Product.colors.through)
-@receiver(m2m_changed, sender=Product.sizes.through)
-def update_product_modifications(sender, instance, action, model, pk_set, **kwargs):
-    # если добавляем или изменяем товар - то создаем модификации для каждого цвета и размера
-    if action in ['post_add', 'post_remove', 'post_clear']:
-        if action in ['post_remove']:
-            ProductModification.objects.filter(product=instance).delete()
-
-        for color in instance.colors.all():
-            for size in instance.sizes.all():
-                custom_sku = f"{instance.sku}-{color.name}-{size.name}"
-                _, _ = ProductModification.objects.update_or_create(
-                    product=instance,
-                    color=color,
-                    size=size,
-                    defaults={'price': instance.price, 'custom_sku': custom_sku}
-                )
-
-
 class Sale(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, verbose_name='Основной товар')
     product_modification = models.ForeignKey('ProductModification', on_delete=models.CASCADE,
                                              verbose_name='Модификация товара')
     quantity = models.PositiveIntegerField(verbose_name='Количество проданных товаров', default=1)
     total_sale = models.IntegerField(verbose_name='Общая сумма продажи', default=0, editable=False)
+    type_of_sale = models.CharField(max_length=20, choices=[('cash', 'Наличная'), ('card', 'Безналичная')],
+                                    default='cash', verbose_name='Тип продажи')
+    currency = models.CharField(max_length=3, choices=Product.CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
     sale_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата продажи', editable=False)
     sale_time = models.TimeField(auto_now_add=True, verbose_name='Время продажи', editable=False)
-    currency = models.CharField(max_length=3, choices=Product.CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
     is_processed = models.BooleanField(default=False, editable=False)  # Флаг обработки продажи
 
-    def save(self, *args, **kwargs):
-        if not self.is_processed:
-            if self.product_modification.stock < self.quantity:
+
+    def process_sale(self):
+        if self.is_processed:
+            return
+
+        with transaction.atomic():
+            product_modification = ProductModification.objects.select_for_update().get(pk=self.product_modification.pk)
+
+            if product_modification.stock < self.quantity:
                 raise ValidationError('Недостаточно товара на складе.')
-            else:
-                self.product_modification.stock -= self.quantity
-                self.product_modification.save()
-                self.total_sale = self.product_modification.price * self.quantity
-                self.is_processed = True
-                return super(Sale, self).save(*args, **kwargs)
+
+            product_modification.stock -= self.quantity
+            product_modification.save()
+            self.total_sale = product_modification.price * self.quantity
+            self.is_processed = True
+
+    def save(self, *args, **kwargs):
+        self.process_sale()
+        super(Sale, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.product.title} - {self.product_modification.custom_sku}'

@@ -8,13 +8,18 @@ from django.db import models
 # пропишем админку для модели Sale
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
-    list_display = ('product_modification', 'quantity', 'total_sale', 'sale_date', 'sale_time')
+    list_display = ('product_modification', 'quantity', 'total_sale', 'currency', 'type_of_sale', 'sale_date', 'sale_time')
 
-    # readonly_fields = ('product', 'product_modification', 'quantity', 'total_sale', 'sale_date', 'sale_time', 'currency')
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # Если объект уже существует (редактирование)
+            return 'product', 'product_modification', 'quantity', 'total_sale', 'type_of_sale', 'sale_date', 'sale_time', 'currency'
+        else:  # Если создается новый объект
+            return ()
 
     def save_model(self, request, obj, form, change):
         try:
             obj.save()
+            self.message_user(request, 'Продажа была успешно добавлена.', level=messages.SUCCESS)
         except ValidationError as e:
             self.message_user(request, f'Ошибка: {str(e)}', level=messages.ERROR)
 
