@@ -1,31 +1,40 @@
-from django.db.models.signals import pre_delete, m2m_changed
+from django.db.models.signals import pre_delete, m2m_changed, post_save, pre_save
 from django.dispatch import receiver
-from .models import Sale, Product, ProductModification
+from django.utils.text import slugify
+from transliterate import translit
+from itertools import product
+from .models import Product, ProductModification, Color
 
 
-# When a sale is deleted, return the products to the stock.
-@receiver(pre_delete, sender=Sale)
-def return_products_on_delete(sender, instance, **kwargs):
-    product_modification = instance.product_modification
-    product_modification.stock += instance.quantity
-    product_modification.save()
+# Функция для генерации слага перед сохранением товара
+@receiver(pre_save, sender=Product)
+def generate_product_slug(sender, instance, **kwargs):
+    if not instance.slug:
+        # Транслитерируем текст на кириллице и затем создаем слаг
+        instance.slug = slugify(translit(instance.title, 'ru', reversed=True))
 
 
-# When a product is added or removed from the colors or sizes, create or update the modifications.
 @receiver(m2m_changed, sender=Product.colors.through)
 @receiver(m2m_changed, sender=Product.sizes.through)
-def update_product_modifications(sender, instance, action, model, pk_set, **kwargs):
-    # если добавляем или изменяем товар - то создаем модификации для каждого цвета и размера
-    if action in ['post_add', 'post_remove', 'post_clear']:
-        if action in ['post_remove']:
-            ProductModification.objects.filter(product=instance).delete()
+def generate_product_modifications_on_m2m_change(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == "post_add":
+        colors = instance.colors.all()
+        sizes = instance.sizes.all()
+        existing_modifications = ProductModification.objects.filter(product=instance)
 
-        for color in instance.colors.all():
-            for size in instance.sizes.all():
-                custom_sku = f"{instance.sku}-{color.name}-{size.name}"
-                _, _ = ProductModification.objects.update_or_create(
+        # Получаем все возможные комбинации цветов и размеров
+        combinations = list(product(colors, sizes))
+
+        for color, size in combinations:
+            if not any(mod.color == color and mod.size == size for mod in existing_modifications):
+                # Создаем модификацию, если такой комбинации еще нет
+                modification = ProductModification(
                     product=instance,
                     color=color,
                     size=size,
-                    defaults={'price': instance.price, 'custom_sku': custom_sku}
+                    stock=0,  # Установите начальный остаток по вашему усмотрению
+                    price=instance.price,  # Установите начальную цену по вашему усмотрению
+                    currency=instance.currency,
+                    custom_sku=f"{instance.sku}-{color.name}-{size.name}",
                 )
+                modification.save()
