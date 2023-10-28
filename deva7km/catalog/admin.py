@@ -1,7 +1,5 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from imagekit.admin import AdminThumbnail
-
 from .models import Product, ProductModification, Category, Image, Color, Size
 
 
@@ -53,7 +51,28 @@ class ProductModificationInline(admin.TabularInline):  # Или использу
 
 
 class ProductAdmin(admin.ModelAdmin):
-    inlines = [ProductModificationInline]  # Добавляем встроенные модификации товара
+    inlines = [ProductModificationInline]
+    list_display = ('title', 'category', 'description', 'sku', 'get_colors', 'get_sizes', 'price', 'created_at',
+                    'thumbnail_image')
+
+    def get_colors(self, obj):
+        return ", ".join([color.name for color in obj.colors.all()])
+
+    get_colors.short_description = 'Цвета'
+
+    def get_sizes(self, obj):
+        return ", ".join([size.name for size in obj.sizes.all()])
+
+    get_sizes.short_description = 'Размеры'
+
+    def thumbnail_image(self, obj):
+        images = Image.objects.filter(modification__product=obj)  # Получаем изображения, связанные с этим товаром
+        if images:
+            return format_html('<img src="{}"/>', images[0].thumbnail.url)
+        return format_html('<p>No Image</p>')
+
+    thumbnail_image.allow_tags = True
+    thumbnail_image.short_description = 'Миниатюра изображения'
 
 
 admin.site.register(Product, ProductAdmin)
