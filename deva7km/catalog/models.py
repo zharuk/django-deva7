@@ -39,7 +39,6 @@ class ProductModification(models.Model):
     price = models.IntegerField(default=0, verbose_name='Цена')
     currency = models.CharField(max_length=3, choices=Product.CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
     custom_sku = models.CharField(max_length=20, verbose_name='Артикул комплектации', blank=True)
-    images = models.ManyToManyField('Image', blank=True, verbose_name='Изображения')
 
     def __str__(self):
         return f"{self.product} - {self.custom_sku}"
@@ -74,9 +73,12 @@ class Category(models.Model):
 
 
 class Image(models.Model):
-    original = models.ImageField(upload_to='images/', verbose_name='Оригинальное изображение')
+    # свяжем модель изображения с моделью модификации товара
+    modification = models.ForeignKey('ProductModification', on_delete=models.CASCADE,
+                                             verbose_name='Модификация товара', related_name='images')
+    image = models.ImageField(upload_to='images/', verbose_name='Оригинальное изображение')
     thumbnail = ImageSpecField(
-        source='original',
+        source='image',
         processors=[ResizeToFit(100, 100)],
         format='JPEG',
         options={'quality': 60},
@@ -107,5 +109,3 @@ class Size(models.Model):
     class Meta:
         verbose_name = 'Размер'  # Название модели в единственном числе
         verbose_name_plural = 'Размеры'  # Название модели во множественном числе
-
-
