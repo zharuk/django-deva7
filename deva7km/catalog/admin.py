@@ -68,6 +68,7 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductModificationInline]
     list_display = ('title', 'sku', 'category', 'description', 'get_colors', 'get_sizes', 'price', 'created_at',
                     'thumbnail_image')
+    search_fields = ('sku',)
 
     def get_colors(self, obj):
         return ", ".join([color.name for color in obj.colors.all()])

@@ -7,8 +7,26 @@ from .models import Product, ProductModification, Color, Image
 
 
 #  Функция для добавления всех изображений для модификаций одного и того же цвета
+@receiver(post_save, sender=Image)
+def associate_images_with_same_color(sender, instance, **kwargs):
+    # Получите модификацию товара, к которой относится данное изображение
+    modification = instance.modification
+    # Получите цвет данной модификации
+    color = modification.color
+    # Получите основной товар (Product), к которому относится данная модификация
+    product = modification.product
+    # Найдите все другие модификации этого товара с таким же цветом, исключая текущую
+    other_modifications = ProductModification.objects.filter(product=product, color=color).exclude(pk=modification.pk)
+    # Создайте список изображений для связывания
+    images_to_create = []
 
+    for other_modification in other_modifications:
+        # Создайте новый объект Image, но не сохраняйте его в базе данных
+        new_image = Image(modification=other_modification, image=instance.image)
+        images_to_create.append(new_image)
 
+    # Используйте bulk_create для создания всех изображений одновременно
+    Image.objects.bulk_create(images_to_create)
 
 # Функция для генерации слага перед сохранением товара
 @receiver(pre_save, sender=Product)
