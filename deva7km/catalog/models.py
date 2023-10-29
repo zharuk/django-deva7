@@ -20,7 +20,7 @@ class Product(models.Model):
         ('EUR', 'Евро (EUR)'),
     )
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
-    slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='Слаг')
+    slug = models.SlugField(max_length=200, unique=False, blank=True, verbose_name='Слаг')  # Сделаем slug неуникальным
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
 
     def __str__(self):
@@ -52,7 +52,7 @@ class ProductModification(models.Model):
 # Модель категории товара
 class Category(models.Model):
     name = models.CharField(max_length=200, verbose_name='Наименование категории')
-    slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='Слаг')
+    slug = models.SlugField(max_length=200, unique=False, blank=True, verbose_name='Слаг')  # Сделаем slug неуникальным
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
 
     def save(self, *args, **kwargs):

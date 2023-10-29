@@ -2,10 +2,13 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import Product, ProductModification, Category, Image, Color, Size
 
+from django.db import models
+
 
 class ImageAdmin(admin.ModelAdmin):
     list_display = ('modification', 'thumbnail_image')
     list_display_links = ('modification', 'thumbnail_image')
+    #extra = 1
 
     def thumbnail_image(self, obj):
         return format_html('<img src="{}"/>', obj.thumbnail.url)
@@ -45,14 +48,25 @@ class ProductModificationAdmin(admin.ModelAdmin):
     thumbnail_image.short_description = 'Миниатюра изображения'
 
 
-class ProductModificationInline(admin.TabularInline):  # Или используйте admin.StackedInline для другого вида отображения
+class ProductModificationInline(admin.TabularInline):
     model = ProductModification
     extra = 0  # Количество пустых форм для добавления модификаций
+    fields = ('product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency', 'get_thumbnail_image')
+    readonly_fields = ('get_thumbnail_image',)  # Добавляем метод get_thumbnail_image в readonly_fields
+
+    def get_thumbnail_image(self, obj):
+        images = Image.objects.filter(modification=obj)  # Получаем изображения, связанные с данной модификацией
+        if images:
+            return format_html('<img src="{}"/>', images[0].thumbnail.url)
+        return format_html('<p>No Image</p>')
+
+    get_thumbnail_image.allow_tags = True
+    get_thumbnail_image.short_description = 'Миниатюра изображения'
 
 
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductModificationInline]
-    list_display = ('title', 'category', 'description', 'sku', 'get_colors', 'get_sizes', 'price', 'created_at',
+    list_display = ('title', 'sku', 'category', 'description', 'get_colors', 'get_sizes', 'price', 'created_at',
                     'thumbnail_image')
 
     def get_colors(self, obj):
