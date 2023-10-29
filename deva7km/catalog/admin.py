@@ -66,9 +66,15 @@ class ProductModificationInline(admin.TabularInline):
 
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductModificationInline]
-    list_display = ('title', 'sku', 'category', 'description', 'get_colors', 'get_sizes', 'price', 'created_at',
-                    'thumbnail_image')
+    list_display = ('title', 'sku', 'category', 'description', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
+                    'created_at', 'thumbnail_image')
     search_fields = ('sku',)
+
+    def get_total_stock(self, obj):
+        total_stock = sum(mod.stock for mod in obj.modifications.all())
+        return total_stock
+
+    get_total_stock.short_description = 'Сумма остатков'
 
     def get_colors(self, obj):
         return ", ".join([color.name for color in obj.colors.all()])
