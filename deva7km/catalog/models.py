@@ -1,10 +1,7 @@
 from django.db import models
 from django.utils.html import format_html
-from django.utils.text import slugify
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFit
-from transliterate import translit
-from unidecode import unidecode
 
 
 # Модель товара
@@ -26,13 +23,6 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     is_active = models.BooleanField(default=True, verbose_name='Включен')
-
-    # # Метод для генерации slug перед сохранением товара
-    # def save(self, *args, **kwargs):
-    #     if not self.slug:
-    #         slug_base = slugify(translit(self.title, 'ru', reversed=True))
-    #         self.slug = f"{slug_base}-{self.sku}"
-    #     super(Product, self).save(*args, **kwargs)
 
     # Метод для получения общего остатка товара
     def get_total_stock(self):
@@ -82,14 +72,6 @@ class ProductModification(models.Model):
     currency = models.CharField(max_length=3, choices=Product.CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
     custom_sku = models.CharField(max_length=30, verbose_name='Артикул комплектации', blank=True)
     slug = models.SlugField(max_length=200, unique=False, blank=True, verbose_name='Слаг модификации')
-
-    # # Метод для генерации slug перед сохранением модификации товара
-    # def save(self, *args, **kwargs):
-    #     if not self.slug:
-    #         # Транслитерируем текст на кириллице и затем создаем слаг
-    #         slug_base = slugify(unidecode(f"{self.product.title} - {self.custom_sku} - {self.color} - {self.size}"))
-    #         self.slug = slug_base
-    #     super(ProductModification, self).save(*args, **kwargs)
 
     # Метод для отображения миниатюры изображения модификации товара
     def thumbnail_image_modification(self):
@@ -147,11 +129,6 @@ class Category(models.Model):
     name = models.CharField(max_length=200, verbose_name='Наименование категории')
     slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='Слаг')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-
-    # def save(self, *args, **kwargs):
-    #     name_translit = unidecode(self.name)
-    #     self.slug = slugify(f"{name_translit}")
-    #     super(Category, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
