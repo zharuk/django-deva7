@@ -3,7 +3,35 @@ from django.dispatch import receiver
 from django.utils.text import slugify
 from transliterate import translit
 from itertools import product
-from .models import Product, ProductModification, Color, Image
+
+from unidecode import unidecode
+
+from .models import Product, ProductModification, Color, Image, Category
+
+
+# Сигнал для генерации slug для модели Product
+@receiver(pre_save, sender=Product)
+def generate_product_slug(sender, instance, **kwargs):
+    if not instance.slug:
+        slug_base = slugify(translit(instance.title, 'ru', reversed=True))
+        instance.slug = f"{slug_base}-{instance.sku}"
+
+
+# Сигнал для генерации slug для модели ProductModification
+@receiver(pre_save, sender=ProductModification)
+def generate_modification_slug(sender, instance, **kwargs):
+    if not instance.slug:
+        slug_base = slugify(
+            unidecode(f"{instance.product.title} - {instance.custom_sku} - {instance.color} - {instance.size}"))
+        instance.slug = slug_base
+
+
+# Сигнал для генерации slug для модели Category
+@receiver(pre_save, sender=Category)
+def generate_category_slug(sender, instance, **kwargs):
+    if not instance.slug:
+        slug_base = slugify(unidecode(instance.name))
+        instance.slug = slug_base
 
 
 #  Функция для добавления всех изображений для модификаций одного и того же цвета
@@ -27,15 +55,6 @@ def associate_images_with_same_color(sender, instance, **kwargs):
 
     # Используйте bulk_create для создания всех изображений одновременно
     Image.objects.bulk_create(images_to_create)
-
-# Функция для генерации слага перед сохранением товара
-@receiver(pre_save, sender=Product)
-def generate_product_slug(sender, instance, **kwargs):
-    if not instance.slug:
-        # Транслитерируем текст на кириллице и затем создаем слаг
-        slug_base = slugify(translit(instance.title, 'ru', reversed=True))
-        # Добавим артикул модели товара в конец slug
-        instance.slug = f"{slug_base}-{instance.sku}"
 
 
 @receiver(m2m_changed, sender=Product.colors.through)
