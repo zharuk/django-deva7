@@ -1,8 +1,7 @@
-# напиши функцию а+б
-def ab(a, b):
-    return a + b
+from catalog.models import Image
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
 
-# тестируем функцию
-print(ab(2, 3))
+# Получите все существующие объекты Image
+images = Image.objects.all()
 
-print(ab(2, 3.5))

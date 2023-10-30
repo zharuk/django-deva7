@@ -29,7 +29,7 @@ class ImageInline(admin.StackedInline):
 
 class ProductModificationAdmin(admin.ModelAdmin):
     list_display = ('product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency', 'thumbnail_image',)
-    list_filter = ('product', 'color', 'size')
+    list_filter = ('color', 'size', 'custom_sku',)
     search_fields = ('product__title', 'color__name', 'size__name', 'custom_sku')
     inlines = [ImageInline]
 
@@ -65,6 +65,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('title', 'sku', 'category', 'description', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
                     'created_at', 'thumbnail_image',)
     search_fields = ('sku',)
+    list_filter = ('sku', 'category', 'colors', 'sizes', )
 
     def get_total_stock(self, obj):
         total_stock = sum(mod.stock for mod in obj.modifications.all())

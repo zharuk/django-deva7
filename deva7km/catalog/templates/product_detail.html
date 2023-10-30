@@ -2,37 +2,61 @@
 <html>
 <head>
     <title>{{ product.title }}</title>
+    <style>
+        /* Пример стилей CSS для улучшения оформления */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        .product-details {
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .product-image {
+            max-width: 400px;
+        }
+    </style>
 </head>
 <body>
+    <div class="product-details">
+        <h1>{{ product.title }}</h1>
+        <p><strong>Категория:</strong> {{ product.category }}</p>
+        <p><strong>Описание:</strong> {{ product.description }}</p>
+        <p><strong>Артикул:</strong> {{ product.sku }}</p>
+        <p><strong>Цвета:</strong>
+            {% for color in product.colors.all %}
+                {{ color.name }},
+            {% empty %}
+                Нет данных
+            {% endfor %}
+        </p>
+        <p><strong>Размеры:</strong>
+            {% for size in product.sizes.all %}
+                {{ size.name }},
+            {% empty %}
+                Нет данных
+            {% endfor %}
+        </p>
+        <p><strong>Цена:</strong> {{ product.price }} {{ product.get_currency_display }}</p>
+        <p><strong>Дата создания:</strong> {{ product.created_at }}</p>
+    </div>
 
-    <!-- Остальная информация о товаре -->
-    <h1>{{ product.title }}</h1>
-    <p>Категория: {{ product.category }}</p>
-    <p>Описание: {{ product.description }}</p>
-    <p>Артикул: {{ product.sku }}</p>
-    <p>Цвета:
-        {% for color in product.colors.all %}
-            {{ color.name }}
-        {% empty %}
-            Нет данных
-        {% endfor %}
-    </p>
-    <p>Размеры:
-        {% for size in product.sizes.all %}
-            {{ size.name }}
-        {% empty %}
-            Нет данных
-        {% endfor %}
-    </p>
-    <p>Цена: {{ product.price }} {{ product.get_currency_display }}</p>
-    <p>Дата создания: {{ product.created_at }}</p>
-    <!-- Здесь можно добавить отображение изображений товара, если они есть -->
     <!-- Отображение изображений товара -->
-    <h2>Изображения товара</h2>
-    {% for image in images %}
-        <img src="{{ image.image.url }}" alt="{{ product.title }}">
-    {% empty %}
-        <p>Нет изображений</p>
-    {% endfor %}
+    <div class="product-image">
+        <h2>Изображения товара</h2>
+        {% for image in images %}
+            <img src="{{ image.large_image.url }}" alt="{{ product.title }}">
+        {% empty %}
+            <p>Нет изображений</p>
+        {% endfor %}
+    </div>
 </body>
 </html>

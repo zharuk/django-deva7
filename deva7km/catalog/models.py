@@ -1,7 +1,7 @@
 from django.db import models, transaction
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
-from imagekit.models import ImageSpecField
+from imagekit.models import ImageSpecField, ProcessedImageField
 from pilkit.processors import ResizeToFit
 from unidecode import unidecode
 
@@ -57,12 +57,18 @@ class Image(models.Model):
         source='image',
         processors=[ResizeToFit(100, 100)],
         format='JPEG',
-        options={'quality': 60},
+        options={'quality': 60},  # Укажите папку для миниатюр
+    )
+    large_image = ImageSpecField(
+        source='image',
+        processors=[ResizeToFit(800, 800)],
+        format='JPEG',
+        options={'quality': 90}  # Укажите папку для больших изображений
     )
 
     class Meta:
-        verbose_name = 'Изображение товара'  # Название модели в единственном числе
-        verbose_name_plural = 'Изображения товара'  # Название модели во множественном числе
+        verbose_name = 'Изображение товара'
+        verbose_name_plural = 'Изображения товара'
 
     def __str__(self):
         return f'{self.image}'
