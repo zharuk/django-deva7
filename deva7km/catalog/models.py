@@ -38,7 +38,7 @@ class ProductModification(models.Model):
     stock = models.PositiveIntegerField(default=0, verbose_name='Остаток')
     price = models.IntegerField(default=0, verbose_name='Цена')
     currency = models.CharField(max_length=3, choices=Product.CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
-    custom_sku = models.CharField(max_length=20, verbose_name='Артикул комплектации', blank=True)
+    custom_sku = models.CharField(max_length=30, verbose_name='Артикул комплектации', blank=True)
 
     def __str__(self):
         return f"{self.product} - {self.custom_sku}"
@@ -47,6 +47,25 @@ class ProductModification(models.Model):
         verbose_name = 'Модификация товара'  # Название модели в единственном числе
         verbose_name_plural = 'Модификации товаров'  # Название модели во множественном числе
         unique_together = ['product', 'color', 'size']
+
+
+class Image(models.Model):
+    modification = models.ForeignKey('ProductModification', on_delete=models.CASCADE,
+                                     verbose_name='Модификация товара', related_name='images')
+    image = models.ImageField(upload_to='images/', verbose_name='Оригинальное изображение')
+    thumbnail = ImageSpecField(
+        source='image',
+        processors=[ResizeToFit(100, 100)],
+        format='JPEG',
+        options={'quality': 60},
+    )
+
+    class Meta:
+        verbose_name = 'Изображение товара'  # Название модели в единственном числе
+        verbose_name_plural = 'Изображения товара'  # Название модели во множественном числе
+
+    def __str__(self):
+        return f'{self.image}'
 
 
 # Модель категории товара
@@ -72,23 +91,6 @@ class Category(models.Model):
         get_latest_by = 'created_at'  # Последние категории будут отображаться первыми
 
 
-class Image(models.Model):
-    # свяжем модель изображения с моделью модификации товара
-    modification = models.ForeignKey('ProductModification', on_delete=models.CASCADE,
-                                             verbose_name='Модификация товара', related_name='images')
-    image = models.ImageField(upload_to='images/', verbose_name='Оригинальное изображение')
-    thumbnail = ImageSpecField(
-        source='image',
-        processors=[ResizeToFit(100, 100)],
-        format='JPEG',
-        options={'quality': 60},
-    )
-
-    class Meta:
-        verbose_name = 'Изображение товара'  # Название модели в единственном числе
-        verbose_name_plural = 'Изображения товара'  # Название модели во множественном числе
-
-
 class Color(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
@@ -98,6 +100,7 @@ class Color(models.Model):
     class Meta:
         verbose_name = 'Цвет'  # Название модели в единственном числе
         verbose_name_plural = 'Цвета'  # Название модели во множественном числе
+        ordering = ['name']
 
 
 class Size(models.Model):
@@ -109,3 +112,4 @@ class Size(models.Model):
     class Meta:
         verbose_name = 'Размер'  # Название модели в единственном числе
         verbose_name_plural = 'Размеры'  # Название модели во множественном числе
+        ordering = ['name']

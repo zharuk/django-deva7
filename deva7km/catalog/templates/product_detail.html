@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ product.title }}</title>
+</head>
+<body>
+
+    <!-- Остальная информация о товаре -->
+    <h1>{{ product.title }}</h1>
+    <p>Категория: {{ product.category }}</p>
+    <p>Описание: {{ product.description }}</p>
+    <p>Артикул: {{ product.sku }}</p>
+    <p>Цвета:
+        {% for color in product.colors.all %}
+            {{ color.name }}
+        {% empty %}
+            Нет данных
+        {% endfor %}
+    </p>
+    <p>Размеры:
+        {% for size in product.sizes.all %}
+            {{ size.name }}
+        {% empty %}
+            Нет данных
+        {% endfor %}
+    </p>
+    <p>Цена: {{ product.price }} {{ product.get_currency_display }}</p>
+    <p>Дата создания: {{ product.created_at }}</p>
+    <!-- Здесь можно добавить отображение изображений товара, если они есть -->
+    <!-- Отображение изображений товара -->
+    <h2>Изображения товара</h2>
+    {% for image in images %}
+        <img src="{{ image.image.url }}" alt="{{ product.title }}">
+    {% empty %}
+        <p>Нет изображений</p>
+    {% endfor %}
+</body>
+</html>

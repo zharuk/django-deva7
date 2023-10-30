@@ -2,13 +2,10 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import Product, ProductModification, Category, Image, Color, Size
 
-from django.db import models
-
 
 class ImageAdmin(admin.ModelAdmin):
     list_display = ('modification', 'thumbnail_image')
     list_display_links = ('modification', 'thumbnail_image')
-    #extra = 1
 
     def thumbnail_image(self, obj):
         return format_html('<img src="{}"/>', obj.thumbnail.url)
@@ -20,6 +17,8 @@ class ImageAdmin(admin.ModelAdmin):
 class ImageInline(admin.StackedInline):
     model = Image
     extra = 1  # Количество пустых форм для добавления изображений
+    fields = [('image', 'thumbnail_image')]  # Добавляем миниатюру в список отображаемых полей
+    readonly_fields = ('thumbnail_image',)
 
     def thumbnail_image(self, obj):
         return format_html('<img src="{}"/>', obj.thumbnail.url)
@@ -27,13 +26,9 @@ class ImageInline(admin.StackedInline):
     thumbnail_image.allow_tags = True
     thumbnail_image.short_description = 'Миниатюра изображения'
 
-    fields = ('thumbnail_image', 'image')  # Добавляем миниатюру в список отображаемых полей
-
-    readonly_fields = ('thumbnail_image',)
-
 
 class ProductModificationAdmin(admin.ModelAdmin):
-    list_display = ('product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency', 'thumbnail_image')
+    list_display = ('product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency', 'thumbnail_image',)
     list_filter = ('product', 'color', 'size')
     search_fields = ('product__title', 'color__name', 'size__name', 'custom_sku')
     inlines = [ImageInline]
@@ -51,11 +46,12 @@ class ProductModificationAdmin(admin.ModelAdmin):
 class ProductModificationInline(admin.TabularInline):
     model = ProductModification
     extra = 0  # Количество пустых форм для добавления модификаций
-    fields = ('product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency', 'get_thumbnail_image')
+    list_display = ('product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency')
     readonly_fields = ('get_thumbnail_image',)  # Добавляем метод get_thumbnail_image в readonly_fields
 
     def get_thumbnail_image(self, obj):
         images = Image.objects.filter(modification=obj)  # Получаем изображения, связанные с данной модификацией
+        # print(images)
         if images:
             return format_html('<img src="{}"/>', images[0].thumbnail.url)
         return format_html('<p>No Image</p>')
@@ -65,9 +61,9 @@ class ProductModificationInline(admin.TabularInline):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    inlines = [ProductModificationInline]
+    inlines = [ProductModificationInline,]
     list_display = ('title', 'sku', 'category', 'description', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
-                    'created_at', 'thumbnail_image')
+                    'created_at', 'thumbnail_image',)
     search_fields = ('sku',)
 
     def get_total_stock(self, obj):

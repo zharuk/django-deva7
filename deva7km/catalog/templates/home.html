@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Главная страница</title>
+</head>
+<body>
+    <h1>Список категорий и товаров</h1>
+    <ul>
+        {% for category in categories %}
+            <li>
+                <strong><a href="{% url 'category_detail' category.slug %}">{{ category.name }}</a></strong>
+                <ul>
+                    {% for product in category.product_set.all %}
+                        <li><a href="{% url 'product_detail' category.slug product.slug %}">{{ product.title }}</a></li>
+                    {% empty %}
+                        <li>Нет товаров в этой категории</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% empty %}
+            <li>Нет категорий</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

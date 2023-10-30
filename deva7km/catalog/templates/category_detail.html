@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ category.name }}</title>
+</head>
+<body>
+    <h1>{{ category.name }}</h1>
+    <ul>
+        {% for product in products %}
+            <li><a href="{% url 'product_detail' category.slug product.slug %}">{{ product.title }}</a></li>
+        {% empty %}
+            <li>Нет товаров в этой категории</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
