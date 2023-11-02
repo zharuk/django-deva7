@@ -1,4 +1,6 @@
+from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 from django.utils.html import format_html
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFit
@@ -72,6 +74,9 @@ class ProductModification(models.Model):
     currency = models.CharField(max_length=3, choices=Product.CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
     custom_sku = models.CharField(max_length=30, verbose_name='Артикул комплектации', blank=True)
     slug = models.SlugField(max_length=200, unique=False, blank=True, verbose_name='Слаг модификации')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    is_active = models.BooleanField(default=True, verbose_name='Включен')
 
     # Метод для отображения миниатюры изображения модификации товара
     def thumbnail_image_modification(self):
@@ -83,7 +88,7 @@ class ProductModification(models.Model):
     thumbnail_image_modification.short_description = 'Миниатюра изображения'
 
     def __str__(self):
-        return f"{self.product} - {self.custom_sku}"
+        return f"{self.custom_sku}"
 
     class Meta:
         verbose_name = 'Модификация товара'
@@ -164,3 +169,87 @@ class Size(models.Model):
         verbose_name = 'Размер'
         verbose_name_plural = 'Размеры'
         ordering = ['name']
+
+
+# Модель продажи (Sale)
+class Sale(models.Model):
+    created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата создания')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Пользователь')
+    comment = models.TextField(blank=True, verbose_name='Комментарий')
+    STATUS_CHOICES = (
+        ('pending', 'В ожидании'),  # Статус "В ожидании"
+        ('completed', 'Завершено'),  # Статус "Завершено"
+        ('canceled', 'Отменено'))  # Статус "Отменено"
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='completed', verbose_name='Статус')
+    PAYMENT_METHOD_CHOICES = (
+        ('cash', 'Наличная оплата'),
+        ('non_cash', 'Безналичная оплата'))
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cash', verbose_name='Способ оплаты')
+    SOURCE_CHOICES = (
+        ('site', 'Сайт'),
+        ('telegram', 'telegram'))
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник продажи')
+
+    def calculate_total_amount(self):
+        total_amount = 0
+        currency = ''
+        for item in self.items.all():
+            total_amount += item.quantity * item.product_modification.price
+            currency = item.product_modification.currency
+        return f'{total_amount} {currency}'
+
+    calculate_total_amount.short_description = 'Общая сумма'
+
+    def calculate_total_quantity(self):
+        total_quantity = 0
+        for item in self.items.all():
+            total_quantity += item.quantity
+        return total_quantity
+    calculate_total_quantity.short_description = 'Общее количество'
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # Если объект Sale ещё не сохранен (не имеет primary key), создадим его
+            super(Sale, self).save(*args, **kwargs)
+        self.total_amount = self.calculate_total_amount()
+        super(Sale, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f'Продажа #{self.id}'
+
+    class Meta:
+        verbose_name = 'Продажа'
+        verbose_name_plural = 'Продажи'
+
+
+# Модель элемента продажи (SaleItem)
+class SaleItem(models.Model):
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name='items', verbose_name='Продажа')
+    product_modification = models.ForeignKey('ProductModification', on_delete=models.CASCADE,
+                                             verbose_name='Модификация товара')
+    quantity = models.PositiveIntegerField(default=1, verbose_name='Количество')
+
+    # Метод для отображения миниатюры изображения модификации товара
+    def thumbnail_image_modification(self):
+        images = Image.objects.filter(modification=self.product_modification)
+        if images:
+            return format_html('<img src="{}"/>', images[0].thumbnail.url)
+        return format_html('<p>No Image</p>')
+
+    thumbnail_image_modification.short_description = 'Миниатюра изображения'
+
+    def total_price(self):
+        return self.quantity * self.product_modification.price
+    total_price.short_description = 'Сумма'
+
+    # метод получения остатка товара
+    def get_stock(self):
+        return self.product_modification.stock
+    get_stock.short_description = 'Остаток'
+
+    def __str__(self):
+        return f'Элемент продажи #{self.id}'
+
+    class Meta:
+        verbose_name = 'Элемент продажи'
+        verbose_name_plural = 'Элементы продажи'

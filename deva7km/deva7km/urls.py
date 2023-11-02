@@ -1,13 +1,9 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
-
+from django.urls import path
 from catalog import views
 
-
-#from catalog import views
-#from catalog.views import get_image_view, index
 
 urlpatterns = [
     path('admin/', admin.site.urls),

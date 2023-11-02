@@ -3,9 +3,7 @@ from django.dispatch import receiver
 from django.utils.text import slugify
 from transliterate import translit
 from itertools import product
-
 from unidecode import unidecode
-
 from .models import Product, ProductModification, Color, Image, Category
 
 
