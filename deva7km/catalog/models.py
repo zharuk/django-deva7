@@ -5,7 +5,8 @@ from django.db import models
 from django.db.models import F
 from django.http import request
 from django.utils import timezone
-from django.utils.html import format_html
+from django.utils.html import format_html, linebreaks
+from django.utils.safestring import mark_safe
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFit
 
@@ -217,8 +218,8 @@ class Sale(models.Model):
         sold_items = []
         for item in self.items.all():
             sold_items.append(
-                f'{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)')
-        return " | ".join(sold_items)
+                f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)<br>")
+        return mark_safe("\n".join(sold_items))
 
     get_sold_items.short_description = 'Проданные товары'
 
