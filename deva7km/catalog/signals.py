@@ -1,10 +1,29 @@
-from django.db.models.signals import pre_delete, m2m_changed, post_save, pre_save
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.db.models.signals import m2m_changed, post_save, pre_save, pre_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
 from transliterate import translit
 from itertools import product
 from unidecode import unidecode
-from .models import Product, ProductModification, Color, Image, Category
+from .models import Product, ProductModification, Image, Category, Sale, SaleItem
+
+
+# метод для продажи вычитает остаток
+@receiver(post_save, sender=SaleItem)
+def update_stock(sender, instance, **kwargs):
+    product_modification = instance.product_modification
+    product_modification.stock -= instance.quantity
+    product_modification.save()
+
+
+# метод для возврата остатка при удалении продажи
+@receiver(pre_delete, sender=Sale)
+def return_stock_on_delete(sender, instance, **kwargs):
+    for item in instance.items.all():
+        product_modification = item.product_modification
+        product_modification.stock += item.quantity
+        product_modification.save()
 
 
 # Сигнал для генерации slug для модели Product

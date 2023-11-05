@@ -1,5 +1,9 @@
+from django.contrib import messages
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import F
+from django.http import request
 from django.utils import timezone
 from django.utils.html import format_html
 from imagekit.models import ImageSpecField
@@ -173,7 +177,7 @@ class Size(models.Model):
 
 # Модель продажи (Sale)
 class Sale(models.Model):
-    created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата создания')
+    created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата продажи')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Пользователь')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
     STATUS_CHOICES = (
@@ -184,7 +188,8 @@ class Sale(models.Model):
     PAYMENT_METHOD_CHOICES = (
         ('cash', 'Наличная оплата'),
         ('non_cash', 'Безналичная оплата'))
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cash', verbose_name='Способ оплаты')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cash',
+                                      verbose_name='Способ оплаты')
     SOURCE_CHOICES = (
         ('site', 'Сайт'),
         ('telegram', 'telegram'))
@@ -205,7 +210,17 @@ class Sale(models.Model):
         for item in self.items.all():
             total_quantity += item.quantity
         return total_quantity
-    calculate_total_quantity.short_description = 'Общее количество'
+
+    calculate_total_quantity.short_description = 'Общее количество проданного товара'
+
+    def get_sold_items(self):
+        sold_items = []
+        for item in self.items.all():
+            sold_items.append(
+                f'{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)')
+        return " | ".join(sold_items)
+
+    get_sold_items.short_description = 'Проданные товары'
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -227,7 +242,15 @@ class SaleItem(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name='items', verbose_name='Продажа')
     product_modification = models.ForeignKey('ProductModification', on_delete=models.CASCADE,
                                              verbose_name='Модификация товара')
-    quantity = models.PositiveIntegerField(default=1, verbose_name='Количество')
+    quantity = models.PositiveIntegerField(default=1, verbose_name='Количество продаваемого')
+
+    def clean(self):
+        super().clean()
+
+        # Проверяем наличие достаточного количества товара на остатке
+        product_modification = self.product_modification
+        if self.quantity > product_modification.stock:
+            raise ValidationError(f"Недостаточно товара {product_modification} на остатке")
 
     # Метод для отображения миниатюры изображения модификации товара
     def thumbnail_image_modification(self):
@@ -240,11 +263,13 @@ class SaleItem(models.Model):
 
     def total_price(self):
         return self.quantity * self.product_modification.price
+
     total_price.short_description = 'Сумма'
 
     # метод получения остатка товара
     def get_stock(self):
         return self.product_modification.stock
+
     get_stock.short_description = 'Остаток'
 
     def __str__(self):

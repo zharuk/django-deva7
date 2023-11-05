@@ -1,6 +1,7 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
+from django.db.models import F
 from .models import Product, ProductModification, Category, Image, Color, Size, SaleItem
-
 from django.contrib import admin
 from .models import Sale
 
@@ -13,8 +14,14 @@ class SaleItemInline(admin.TabularInline):
 
 class SaleAdmin(admin.ModelAdmin):
     inlines = [SaleItemInline]
-    list_display = ('id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
+    list_display = ('get_sold_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
+
+    # метод запрета на редактирование, если продажа завершена
+    def has_change_permission(self, request, obj=None):
+        if obj and obj.status == 'completed':
+            return False  # Завершенные продажи нельзя редактировать
+        return super().has_change_permission(request, obj)
 
 
 # Создаем класс ImageAdmin, настраивающий отображение модели Image в административной панели.
