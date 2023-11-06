@@ -35,7 +35,7 @@ async def command_start_handler(message: Message) -> None:
 async def show_products(message: types.Message):
     products = await sync_to_async(list)(Product.objects.all())
     product_list = "\n".join(
-        [f"{product.title} ({await sync_to_async(product.get_total_stock)()} шт.): {product.price} {product.get_currency_display()}" for product in products])
+        [f"{product.title} {product.sku} ({await sync_to_async(product.get_total_stock)()} шт.): {product.price} {product.get_currency_display()}" for product in products])
     await message.answer(product_list)
 
 
@@ -55,13 +55,18 @@ async def echo_handler(message: types.Message) -> None:
         await message.answer("Nice try!")
 
 
-async def main() -> None:
+async def main():
     # Инициализация обработчика для вывода логов в терминал
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
     # Initialize Bot instance with a default parse mode
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    except asyncio.CancelledError:
+        print("Асинхронная задача была отменена")
+    except KeyboardInterrupt:
+        print("Скрипт был прерван пользователем")
 
 
 if __name__ == "__main__":

@@ -18,9 +18,16 @@ def run_bot():
 
 
 if __name__ == "__main__":
-    # Создание и запуск потока для runserver
-    server_thread = threading.Thread(target=run_server)
-    server_thread.start()
+    try:
+        # Создание и запуск потока для runserver
+        server_thread = threading.Thread(target=run_server)
+        server_thread.start()
 
-    # Запуск runbot в основном потоке
-    run_bot()
+        # Запуск runbot в основном потоке
+        run_bot()
+
+        # Дождитесь завершения потока runserver
+        server_thread.join()
+    except KeyboardInterrupt:
+        # При прерывании скрипта пользователем выполните необходимые действия
+        print("Скрипт был прерван пользователем")
