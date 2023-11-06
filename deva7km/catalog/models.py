@@ -279,3 +279,89 @@ class SaleItem(models.Model):
     class Meta:
         verbose_name = 'Элемент продажи'
         verbose_name_plural = 'Элементы продажи'
+
+
+class Return(models.Model):
+    created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата возврата')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Пользователь')
+    comment = models.TextField(blank=True, verbose_name='Комментарий')
+    SOURCE_CHOICES = (
+        ('site', 'Сайт'),
+        ('telegram', 'telegram'))
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник продажи')
+
+    def get_returned_items(self):
+        returned_items = []
+        for item in self.items.all():
+            returned_items.append(
+                f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)<br>")
+        return mark_safe("\n".join(returned_items))
+
+    def calculate_total_amount(self):
+        total_amount = 0
+        currency = ''
+        for item in self.items.all():
+            total_amount += item.quantity * item.product_modification.price
+            currency = item.product_modification.currency
+        return f'{total_amount} {currency}'
+
+    calculate_total_amount.short_description = 'Общая сумма'
+
+    def calculate_total_quantity(self):
+        total_quantity = 0
+        for item in self.items.all():
+            total_quantity += item.quantity
+        return total_quantity
+
+    calculate_total_quantity.short_description = 'Общее количество возвращенного товара'
+
+    def get_returned_items(self):
+        returned_items = []
+        for item in self.items.all():
+            returned_items.append(
+                f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)<br>")
+        return mark_safe("\n".join(returned_items))
+
+    get_returned_items.short_description = 'Возвращенные товары'
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # Если объект Return ещё не сохранен (не имеет primary key), создадим его
+            super(Return, self).save(*args, **kwargs)
+        self.total_amount = self.calculate_total_amount()
+        super(Return, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f'Возврат #{self.id}'
+
+    class Meta:
+        verbose_name = 'Возврат'
+        verbose_name_plural = 'Возвраты'
+
+
+class ReturnItem(models.Model):
+    return_sale = models.ForeignKey(Return, on_delete=models.CASCADE, related_name='items', verbose_name='Возврат')
+    product_modification = models.ForeignKey(ProductModification, on_delete=models.CASCADE,
+                                             verbose_name='Модификация товара')
+    quantity = models.PositiveIntegerField(default=1, verbose_name='Количество возвращаемого')
+
+    def total_price(self):
+        return self.quantity * self.product_modification.price
+
+    total_price.short_description = 'Сумма возврата'
+
+    # Метод для отображения миниатюры изображения модификации товара
+    def thumbnail_image_modification(self):
+        images = Image.objects.filter(modification=self.product_modification)
+        if images:
+            return format_html('<img src="{}"/>', images[0].thumbnail.url)
+        return format_html('<p>No Image</p>')
+
+    thumbnail_image_modification.short_description = 'Миниатюра изображения'
+
+    def __str__(self):
+        return f'Элемент возврата #{self.id}'
+
+    class Meta:
+        verbose_name = 'Элемент возврата'
+        verbose_name_plural = 'Элементы возврата'

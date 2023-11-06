@@ -6,7 +6,7 @@ from django.utils.text import slugify
 from transliterate import translit
 from itertools import product
 from unidecode import unidecode
-from .models import Product, ProductModification, Image, Category, Sale, SaleItem
+from .models import Product, ProductModification, Image, Category, Sale, SaleItem, ReturnItem, Return
 
 
 # метод для продажи вычитает остаток
@@ -17,12 +17,29 @@ def update_stock(sender, instance, **kwargs):
     product_modification.save()
 
 
+# метод для возврата остатка при возврате
+@receiver(post_save, sender=ReturnItem)
+def add_to_stock(sender, instance, **kwargs):
+    product_modification = instance.product_modification
+    product_modification.stock += instance.quantity
+    product_modification.save()
+
+
 # метод для возврата остатка при удалении продажи
 @receiver(pre_delete, sender=Sale)
 def return_stock_on_delete(sender, instance, **kwargs):
     for item in instance.items.all():
         product_modification = item.product_modification
         product_modification.stock += item.quantity
+        product_modification.save()
+
+
+#  метод для возврата остатка при удалении возврата
+@receiver(pre_delete, sender=Return)
+def return_stock_on_delete_return(sender, instance, **kwargs):
+    for item in instance.items.all():
+        product_modification = item.product_modification
+        product_modification.stock -= item.quantity
         product_modification.save()
 
 

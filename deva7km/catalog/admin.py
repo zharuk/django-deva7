@@ -1,17 +1,35 @@
-from django.contrib import admin, messages
-from django.core.exceptions import ValidationError
-from django.db.models import F
-from .models import Product, ProductModification, Category, Image, Color, Size, SaleItem
+from .models import Product, ProductModification, Category, Image, Color, Size, SaleItem, ReturnItem, Return
 from django.contrib import admin
 from .models import Sale
 
 
+# Создаем класс ReturnItemInline для встраивания модели ReturnItem в административную панель Return.
+class ReturnItemInline(admin.TabularInline):
+    model = ReturnItem
+    extra = 1  # Количество пустых форм для добавления ReturnItem
+    readonly_fields = ('total_price', 'thumbnail_image_modification')
+
+
+# Создаем класс ReturnAdmin для настройки отображения модели Return в административной панели.
+class ReturnAdmin(admin.ModelAdmin):
+    inlines = [ReturnItemInline]
+    list_display = (
+    'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'source')
+    readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
+
+    # Метод для запрета на редактирование, если возврат завершен
+    def has_change_permission(self, request, obj=None):
+        return False  # Завершенные возвраты нельзя редактировать
+
+
+# Создаем класс SaleItemInline для встраивания модели SaleItem в административную панель Sale.
 class SaleItemInline(admin.TabularInline):
     model = SaleItem
     extra = 1  # Количество пустых форм для добавления SaleItem
     readonly_fields = ('total_price', 'thumbnail_image_modification', 'get_stock')
 
 
+# Создаем класс SaleAdmin для настройки отображения модели Sale в административной панели.
 class SaleAdmin(admin.ModelAdmin):
     inlines = [SaleItemInline]
     list_display = ('get_sold_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
@@ -75,3 +93,4 @@ admin.site.register(Product, ProductAdmin)
 admin.site.register(ProductModification, ProductModificationAdmin)
 admin.site.register(Image, ImageAdmin)
 admin.site.register(Sale, SaleAdmin)
+admin.site.register(Return, ReturnAdmin)
