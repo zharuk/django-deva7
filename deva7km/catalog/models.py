@@ -365,3 +365,5 @@ class ReturnItem(models.Model):
     class Meta:
         verbose_name = 'Элемент возврата'
         verbose_name_plural = 'Элементы возврата'
+
+
