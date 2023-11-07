@@ -34,8 +34,8 @@ async def command_start_handler(message: Message) -> None:
 @dp.message(Command(commands='show'))
 async def show_products(message: types.Message):
     products = await sync_to_async(list)(Product.objects.all())
-    product_list = "\n".join(
-        [f"{product.title} {product.sku} ({await sync_to_async(product.get_total_stock)()} шт.): {product.price} {product.get_currency_display()}" for product in products])
+    product_list = "\n".join([f"{product.title} {product.sku} ({await sync_to_async(product.get_total_stock)()} шт.): "
+                              f"{product.price} {product.currency}" for product in products])
     await message.answer(product_list)
 
 
