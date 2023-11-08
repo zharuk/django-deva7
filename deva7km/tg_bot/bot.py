@@ -3,7 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage, Redis
 from deva7km.settings import BOT_TOKEN
-from tg_bot.handlers import handlers_start
+from tg_bot.handlers import handlers_start, handlers_products
 from tg_bot.keyboards.menu import set_main_menu
 
 # Токен бота
@@ -31,6 +31,7 @@ async def main():
     await set_main_menu(bot)
     # Регистрируем роутеры в диспетчере
     dp.include_router(handlers_start.router)
+    dp.include_router(handlers_products.router)
     # Пропускаем накопившиеся апдейты и запускаем polling
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
