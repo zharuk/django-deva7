@@ -1,6 +1,5 @@
 from aiogram.utils.markdown import hbold
 from asgiref.sync import sync_to_async
-
 from catalog.models import Product
 
 

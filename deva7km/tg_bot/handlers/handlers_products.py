@@ -1,9 +1,17 @@
 from aiogram import Router
-from aiogram.types import CallbackQuery
+from aiogram.filters import Command
+from aiogram.types import CallbackQuery, Message
 from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_kb_return_for_products
 from tg_bot.services.products import get_modifications_info
 
 router: Router = Router()
+
+
+# Обработчик команды /products
+@router.message(Command('products'))
+async def command_start_handler(message: Message) -> None:
+    kb = await create_inline_kb_main_sku()
+    await message.answer('Выберите товар 👇', reply_markup=kb)
 
 
 # обработчик который бы отлавливал callback_query=products
