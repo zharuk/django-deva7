@@ -1,22 +1,33 @@
 import asyncio
 import logging
-import sys
-from aiogram import Bot, Dispatcher, Router, types
-from aiogram.enums import ParseMode
+from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 from asgiref.sync import sync_to_async
-
-from bot.keyboards.keyboards import inline_keyboard_main_sku
+from bot.keyboards.keyboards import create_inline_kb_main_sku
+from bot.keyboards.menu import set_main_menu
 from catalog.models import Product
+from aiogram.fsm.storage.redis import RedisStorage, Redis
 from deva7km.settings import BOT_TOKEN
 
-# Bot token can be obtained via https://t.me/BotFather
+# Токен бота
 TOKEN = BOT_TOKEN
-
-# All handlers should be attached to the Router (or Dispatcher)
-dp = Dispatcher()
+# Инициализируем логгер
+logger = logging.getLogger(__name__)
+# Конфигурируем логирование
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(filename)s:%(lineno)d #%(levelname)-8s ''[%(asctime)s] - %(name)s - %(message)s')
+# Выводим в консоль информацию о начале запуска бота
+logger.info('Starting bot')
+# # Создаем подключение к Redis состояний и хранилищу
+redis: Redis = Redis(host='localhost')
+# # Инициализируем хранилище (создаем экземпляр класса RedisStorage)
+storage: RedisStorage = RedisStorage(redis=redis)
+# Инициализируем бот и диспетчер и сервер
+bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
+dp: Dispatcher = Dispatcher(storage=storage, bot=bot)
 
 
 @dp.message(CommandStart())
@@ -24,7 +35,7 @@ async def command_start_handler(message: Message) -> None:
     """
     This handler receives messages with `/start` command
     """
-    kb = await inline_keyboard_main_sku()
+    kb = await create_inline_kb_main_sku()
     await message.answer("Вот ваша клавиатура:", reply_markup=kb)
     await message.answer(f"Hello, {hbold(message.from_user.full_name)}!")
 
@@ -37,34 +48,14 @@ async def show_products(message: types.Message):
     await message.answer(product_list)
 
 
-
-@dp.message()
-async def echo_handler(message: types.Message) -> None:
-    """
-    Handler will forward receive a message back to the sender
-
-    By default, message handler will handle all message types (like a text, photo, sticker etc.)
-    """
-    try:
-        # Send a copy of the received message
-        await message.send_copy(chat_id=message.chat.id)
-    except TypeError:
-        # But not all the types is supported to be copied so need to handle it
-        await message.answer("Nice try!")
-
-
+# Функция конфигурирования и запуска бота
 async def main():
-    # Инициализация обработчика для вывода логов в терминал
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    # Настраиваем меню
+    await set_main_menu(bot)
 
-    # Initialize Bot instance with a default parse mode
-    bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
-    try:
-        await dp.start_polling(bot)
-    except asyncio.CancelledError:
-        print("Асинхронная задача была отменена")
-    except KeyboardInterrupt:
-        print("Скрипт был прерван пользователем")
+    # Пропускаем накопившиеся апдейты и запускаем polling
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
