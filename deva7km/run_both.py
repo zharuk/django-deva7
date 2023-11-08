@@ -19,6 +19,7 @@ def run_bot():
 
 if __name__ == "__main__":
     try:
+
         # Создание и запуск потока для runserver
         server_thread = threading.Thread(target=run_server)
         server_thread.start()

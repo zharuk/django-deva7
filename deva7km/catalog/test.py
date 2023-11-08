@@ -6,8 +6,8 @@ from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 from asgiref.sync import sync_to_async
 
-from bot.keyboards.keyboards import create_inline_kb_main_sku
-from bot.keyboards.menu import set_main_menu
+from tg_bot.keyboards.keyboards import create_inline_kb_main_sku
+from tg_bot.keyboards.menu import set_main_menu
 from catalog.models import Product
 from aiogram.fsm.storage.redis import RedisStorage, Redis
 from deva7km.settings import BOT_TOKEN
@@ -66,7 +66,7 @@ async def main():
                '[%(asctime)s] - %(name)s - %(message)s')
 
     # Выводим в консоль информацию о начале запуска бота
-    logger.info('Starting bot')
+    logger.info('Starting tg_bot')
     # # Создаем подключение к Redis состояний и хранилищу
     redis: Redis = Redis(host='localhost')
     # # Инициализируем хранилище (создаем экземпляр класса RedisStorage)
