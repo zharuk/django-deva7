@@ -180,6 +180,8 @@ class Size(models.Model):
 class Sale(models.Model):
     created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата продажи')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Пользователь')
+    telegram_user = models.ForeignKey('TelegramUser', on_delete=models.SET_NULL, null=True, blank=True,
+                                      verbose_name='Пользователь Telegram')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
     STATUS_CHOICES = (
         ('pending', 'В ожидании'),  # Статус "В ожидании"
@@ -284,6 +286,8 @@ class SaleItem(models.Model):
 class Return(models.Model):
     created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата возврата')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Пользователь')
+    telegram_user = models.ForeignKey('TelegramUser', on_delete=models.SET_NULL, null=True, blank=True,
+                                      verbose_name='Пользователь Telegram')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
     SOURCE_CHOICES = (
         ('site', 'Сайт'),
@@ -386,3 +390,7 @@ class TelegramUser(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}' if self.last_name else self.first_name
+
+    class Meta:
+        verbose_name = 'Пользователь Telegram'
+        verbose_name_plural = 'Пользователи Telegram'
