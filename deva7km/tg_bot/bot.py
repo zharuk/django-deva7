@@ -6,6 +6,7 @@ from deva7km.settings import BOT_TOKEN
 from tg_bot.handlers import handlers_start, handlers_products
 from tg_bot.keyboards.menu import set_main_menu
 
+
 # Токен бота
 TOKEN = BOT_TOKEN
 # Инициализируем логгер

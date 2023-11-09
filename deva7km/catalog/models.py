@@ -367,3 +367,22 @@ class ReturnItem(models.Model):
         verbose_name_plural = 'Элементы возврата'
 
 
+# модель пользователя Telegram
+class TelegramUser(models.Model):
+    user_id = models.BigIntegerField(unique=True, verbose_name='Идентификатор пользователя')
+    username = models.CharField(max_length=255, null=True, blank=True, verbose_name='Имя пользователя')
+    first_name = models.CharField(max_length=255, verbose_name='Имя')
+    last_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Фамилия')
+    is_bot = models.BooleanField(default=False, verbose_name='Бот')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+
+    # Добавляем поле для выбора роли
+    ROLE_CHOICES = [
+        ('admin', 'Админ'),
+        ('seller', 'Продавец'),
+        ('unauthorized', 'Неавторизованный')
+    ]
+    role = models.CharField(max_length=12, choices=ROLE_CHOICES, default='unauthorized', verbose_name='Роль')
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}' if self.last_name else self.first_name

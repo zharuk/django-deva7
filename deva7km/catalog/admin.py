@@ -1,6 +1,17 @@
-from .models import Product, ProductModification, Category, Image, Color, Size, SaleItem, ReturnItem, Return
+from .models import Product, ProductModification, Category, Image, Color, Size, SaleItem, ReturnItem, Return, \
+    TelegramUser
 from django.contrib import admin
 from .models import Sale
+
+
+# Создаем класс TelegramUser для настройки отображения модели TelegramUser в административной панели.
+class TelegramUserAdmin(admin.ModelAdmin):
+    list_display = ('user_id', 'username', 'first_name', 'last_name', 'role', 'created_at')
+    list_filter = ('role', 'created_at')
+    search_fields = ('user_id', 'username', 'first_name', 'last_name')
+
+
+admin.site.register(TelegramUser, TelegramUserAdmin)
 
 
 # Создаем класс ReturnItemInline для встраивания модели ReturnItem в административную панель Return.
@@ -14,7 +25,7 @@ class ReturnItemInline(admin.TabularInline):
 class ReturnAdmin(admin.ModelAdmin):
     inlines = [ReturnItemInline]
     list_display = (
-    'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'source')
+        'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'source')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
 
     # Метод для запрета на редактирование, если возврат завершен
