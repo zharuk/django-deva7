@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
 from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_kb_return
-from tg_bot.services.products import get_modifications_info
+from tg_bot.services.products import get_modifications_info, send_modification_photos
 from tg_bot.services.users import access_control_decorator
 
 router: Router = Router()
@@ -34,5 +34,7 @@ async def process_callback_query_sku(callback: CallbackQuery):
     sku = callback.data.split("_")[0]
     # вызываем функцию для отображения модификаций товара
     string = await get_modifications_info(sku)
+    # Отправляем фотографии модификаций в чат
+    await send_modification_photos(callback.from_user.id, sku)
     await callback.message.answer(string, reply_markup=kb)
     await callback.answer()

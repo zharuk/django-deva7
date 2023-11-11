@@ -33,14 +33,14 @@ async def create_inline_kb_main_sku(callback):
     # Разбиваем список кнопок на ряды
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
     # добавим кнопку 'Назад'
-    rows.append([InlineKeyboardButton(text='❌️ Отмена операции', callback_data='cancel')])
+    rows.append([InlineKeyboardButton(text='⛔️ отмена', callback_data='cancel')])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 # клавиатура с одной кнопкой 'Назад' c callback data 'products'
 async def create_inline_kb_return(callback):
-    button = [InlineKeyboardButton(text='❌️ Отмена операции', callback_data='cancel')]
+    button = [InlineKeyboardButton(text='↩️ Назад', callback_data=callback)]
     return InlineKeyboardMarkup(inline_keyboard=[button])
 
 

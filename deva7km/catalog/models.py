@@ -92,6 +92,13 @@ class ProductModification(models.Model):
 
     thumbnail_image_modification.short_description = 'Миниатюра изображения'
 
+    # Метод для получения ссылки на миниатюру изображения модификации товара
+    def thumbnail_image_modification_url(self):
+        images = Image.objects.filter(modification=self)
+        if images:
+            return images[0].thumbnail.url
+        return None
+
     def __str__(self):
         return f"{self.custom_sku}"
 

@@ -1,14 +1,18 @@
-from aiogram import Router
+from aiogram import Router, Bot
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
+from aiogram.utils.markdown import hbold
+from deva7km.settings import BOT_TOKEN
 from tg_bot.FSM.sell import SellStates
 from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_kb_modifications, \
-    create_inline_kb_numbers, create_payment_type_keyboard, create_inline_kb_cancel, create_main_menu_kb
+    create_inline_kb_numbers, create_payment_type_keyboard, create_main_menu_kb
+from tg_bot.services.products import get_thumbnail_url_input_file
 from tg_bot.services.sells import check_stock_status, create_sale, get_product_modification
 from tg_bot.services.users import access_control_decorator, get_or_create_telegram_user
 
 router: Router = Router()
+bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 
 
 # Обработчик команды /sell
@@ -40,8 +44,10 @@ async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext)
         sku = callback.data.split("_")[0]
         await state.set_state(SellStates.choosingModification)
         await state.update_data(choosingSKU=sku)
+        user_data = await state.get_data()
         kb = await create_inline_kb_modifications(sku, 'sell')
-        await callback.message.answer('выберите модификацию 👇', reply_markup=kb)
+        await callback.message.answer(f'Вы выбрали модель ➡️ {hbold(user_data["choosingSKU"])}\nвыберите модификацию 👇',
+                                      reply_markup=kb)
         await callback.answer()
     else:
         await callback.message.answer('выберите основной товар или нажмите отмена! 👆')
@@ -58,8 +64,13 @@ async def process_callback_query_modifications(callback: CallbackQuery, state: F
         if await check_stock_status(custom_sku):
             await state.set_state(SellStates.enteringQuantity)
             await state.update_data(choosingModification=custom_sku)
+            user_data = await state.get_data()
+            custom_sku = user_data['choosingModification']
+            thumbnail_input_file = await get_thumbnail_url_input_file(custom_sku)
+            await bot.send_photo(chat_id=callback.from_user.id, photo=thumbnail_input_file)
             kb = await create_inline_kb_numbers()
-            await callback.message.answer(f"Введите количество товара для продажи:", reply_markup=kb)
+            await callback.message.answer(f'Вы выбрали модификацию ➡️ {hbold(user_data["choosingModification"])}\n'
+                                          f'Введите количество товара для продажи:', reply_markup=kb)
             await callback.answer()
         else:
             await callback.message.answer('⛔️ Товара на складе нет!')
@@ -77,14 +88,15 @@ async def process_callback_query_numbers(callback: CallbackQuery, state: FSMCont
     user_data = await state.get_data()
     modification = await get_product_modification(user_data['choosingModification'])
     stock = modification.stock
-    print(stock)
-    print(modification)
     if callback.data.isdigit():
         if stock >= int(callback.data):
             await state.set_state(SellStates.choosingPayment)
             await state.update_data(enteringQuantity=callback.data[0])
+            user_data = await state.get_data()
             kb = await create_payment_type_keyboard()
-            await callback.message.answer('Выберите способ оплаты 👇', reply_markup=kb)
+            await callback.message.answer(f'Вы выбрали для продажи ➡️ {hbold(user_data["choosingModification"])}️ в '
+                                          f'количестве {hbold(user_data["enteringQuantity"])}шт.\nВыберите способ '
+                                          f'оплаты 👇', reply_markup=kb)
             await callback.answer()
         else:
             await callback.message.answer(f'⛔️ В наличии только {stock}шт. вы хотите продать {callback.data}шт.')
@@ -109,18 +121,22 @@ async def process_callback_query_finish(callback: CallbackQuery, state: FSMConte
         user_data = await state.get_data()
         # Создание продажи
         sale = await create_sale(user_data, telegram_user)
-        # Создание клавиатуры для ответа
-        kb = await create_main_menu_kb()
         if sale:
             await state.clear()
             payment_types = {
                 'cash': 'наличная 💵',
                 'non_cash': 'безналичная 💳',
             }
+            kb = await create_main_menu_kb()
+            custom_sku = user_data['choosingModification']
+            thumbnail_input_file = await get_thumbnail_url_input_file(custom_sku)
+            await bot.send_photo(chat_id=callback.from_user.id, photo=thumbnail_input_file)
             await callback.message.answer(f'✅ Продажа успешно проведена на сумму {sale.total_amount}\n\n'
                                           f'вы продали {user_data["choosingModification"]}\n'
                                           f'в количестве {user_data["enteringQuantity"]}шт.\n'
-                                          f'тип оплаты - {payment_types[user_data["choosingPayment"]]}', reply_markup=kb)
+                                          f'тип оплаты - {payment_types[user_data["choosingPayment"]]}',
+                                          reply_markup=kb)
+
             await callback.answer()
         else:
             await callback.message.answer('⛔️ ProductModification не найден')
