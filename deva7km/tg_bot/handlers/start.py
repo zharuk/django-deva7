@@ -12,7 +12,6 @@ router: Router = Router()
 
 # Обработчик команды /start с приветствием
 @router.message(CommandStart())
-@access_control_decorator
 async def command_start_handler(message: Message) -> None:
     # данные о пользователе
     user_id = message.from_user.id
@@ -35,7 +34,6 @@ async def command_start_handler(message: Message) -> None:
 
 # Обработчик callback start с приветствием
 @router.callback_query(lambda callback: 'start' == callback.data)
-@access_control_decorator
 async def process_callback_query_start(callback: CallbackQuery):
     # Установите русскую локаль
     locale.setlocale(locale.LC_TIME, 'ru_RU')

@@ -99,6 +99,13 @@ class ProductModification(models.Model):
             return images[0].thumbnail.url
         return None
 
+    # Метод для получения ссылки на изображение большого размера модификации товара
+    def large_image_modification_url(self):
+        images = Image.objects.filter(modification=self)
+        if images:
+            return images[0].large_image.url
+        return None
+
     def __str__(self):
         return f"{self.custom_sku}"
 

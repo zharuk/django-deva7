@@ -7,7 +7,7 @@ from deva7km.settings import BOT_TOKEN
 from tg_bot.FSM.sell import SellStates
 from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_kb_modifications, \
     create_inline_kb_numbers, create_payment_type_keyboard, create_main_menu_kb
-from tg_bot.services.products import get_thumbnail_url_input_file
+from tg_bot.services.products import get_thumbnail_url_input_file, get_large_image_url_input_file
 from tg_bot.services.sells import check_stock_status, create_sale, get_product_modification
 from tg_bot.services.users import access_control_decorator, get_or_create_telegram_user
 
@@ -66,7 +66,7 @@ async def process_callback_query_modifications(callback: CallbackQuery, state: F
             await state.update_data(choosingModification=custom_sku)
             user_data = await state.get_data()
             custom_sku = user_data['choosingModification']
-            thumbnail_input_file = await get_thumbnail_url_input_file(custom_sku)
+            thumbnail_input_file = await get_large_image_url_input_file(custom_sku)
             await bot.send_photo(chat_id=callback.from_user.id, photo=thumbnail_input_file)
             kb = await create_inline_kb_numbers()
             await callback.message.answer(f'Вы выбрали модификацию ➡️ {hbold(user_data["choosingModification"])}\n'
@@ -129,7 +129,7 @@ async def process_callback_query_finish(callback: CallbackQuery, state: FSMConte
             }
             kb = await create_main_menu_kb()
             custom_sku = user_data['choosingModification']
-            thumbnail_input_file = await get_thumbnail_url_input_file(custom_sku)
+            thumbnail_input_file = await get_large_image_url_input_file(custom_sku)
             await bot.send_photo(chat_id=callback.from_user.id, photo=thumbnail_input_file)
             await callback.message.answer(f'✅ Продажа успешно проведена на сумму {sale.total_amount}\n\n'
                                           f'вы продали {user_data["choosingModification"]}\n'
