@@ -2,21 +2,17 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage, Redis
-from deva7km.settings import BOT_TOKEN
+from deva7km.settings import BOT_TOKEN, LOGGING
 from tg_bot.handlers import start, products, sell, cancel
 from tg_bot.keyboards.menu import set_main_menu
 
 
 # Токен бота
 TOKEN = BOT_TOKEN
-# Инициализируем логгер
-logger = logging.getLogger(__name__)
+
 # Конфигурируем логирование
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(filename)s:%(lineno)d #%(levelname)-8s ''[%(asctime)s] - %(name)s - %(message)s')
-# Выводим в консоль информацию о начале запуска бота
-logger.info('Starting tg_bot')
+logging.config.dictConfig(LOGGING)
+
 # # Создаем подключение к Redis состояний и хранилищу
 redis: Redis = Redis(host='localhost')
 # # Инициализируем хранилище (создаем экземпляр класса RedisStorage)

@@ -1,10 +1,5 @@
 import os
 import threading
-import logging
-
-# Настройка логирования в тот же файл, что и у бота
-logging.basicConfig(filename='bot.log', level=logging.INFO,
-                    format='%(asctime)s [%(name)s] [%(levelname)s]: %(message)s')
 
 
 # Функция для запуска runserver

@@ -134,3 +134,55 @@ IMAGEKIT_CACHEFILE_DIR = 'CACHE/'  # Папка для хранения кеши
 IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
 IMAGEKIT_DEFAULT_CACHEFILE_BACKEND = 'imagekit.cachefiles.backends.Simple'
 IMAGEKIT_DEFAULT_CACHEFILE_TIMEOUT = 60 * 60 * 24 * 7  # Неделя
+
+# логирование
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(LOGGING_DIR):
+    os.makedirs(LOGGING_DIR)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} {levelname} {module} {message}',
+            'style': '{',
+            'datefmt': '[%d.%m.%Y | %H:%M:%S]',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'django_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'encoding': 'utf-8',
+            'filename': os.path.join(LOGGING_DIR, 'django.log'),
+            'formatter': 'verbose',
+        },
+        'aiogram_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'encoding': 'utf-8',
+            'filename': os.path.join(LOGGING_DIR, 'aiogram.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'django_file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'aiogram': {
+            'handlers': ['console', 'aiogram_file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
