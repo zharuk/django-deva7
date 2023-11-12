@@ -4,10 +4,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.markdown import hbold
 from deva7km.settings import BOT_TOKEN
-from tg_bot.FSM.sell import SellStates
+from tg_bot.FSM.fsm import SellStates
 from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_kb_modifications, \
     create_inline_kb_numbers, create_payment_type_keyboard, create_main_menu_kb
-from tg_bot.services.products import get_thumbnail_url_input_file, get_large_image_url_input_file
+from tg_bot.services.products import get_large_image_url_input_file
 from tg_bot.services.sells import check_stock_status, create_sale, get_product_modification
 from tg_bot.services.users import access_control_decorator, get_or_create_telegram_user
 
@@ -46,8 +46,8 @@ async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext)
         await state.update_data(choosingSKU=sku)
         user_data = await state.get_data()
         kb = await create_inline_kb_modifications(sku, 'sell')
-        await callback.message.answer(f'Вы выбрали модель ➡️ {hbold(user_data["choosingSKU"])}\nвыберите модификацию 👇',
-                                      reply_markup=kb)
+        await callback.message.answer(f'Вы выбрали для продажи модель ➡️ {hbold(user_data["choosingSKU"])}\nвыберите '
+                                      f'модификацию 👇', reply_markup=kb)
         await callback.answer()
     else:
         await callback.message.answer('выберите основной товар или нажмите отмена! 👆')
@@ -69,7 +69,7 @@ async def process_callback_query_modifications(callback: CallbackQuery, state: F
             thumbnail_input_file = await get_large_image_url_input_file(custom_sku)
             await bot.send_photo(chat_id=callback.from_user.id, photo=thumbnail_input_file)
             kb = await create_inline_kb_numbers()
-            await callback.message.answer(f'Вы выбрали модификацию ➡️ {hbold(user_data["choosingModification"])}\n'
+            await callback.message.answer(f'Вы выбрали для продажи модификацию ➡️ {hbold(user_data["choosingModification"])}\n'
                                           f'Введите количество товара для продажи:', reply_markup=kb)
             await callback.answer()
         else:

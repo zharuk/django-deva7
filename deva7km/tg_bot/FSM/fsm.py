@@ -7,3 +7,10 @@ class SellStates(StatesGroup):
     enteringQuantity = State()
     choosingPayment = State()
     finish = State()
+
+
+class ReturnStates(StatesGroup):
+    choosingSKU = State()
+    choosingModification = State()
+    enteringQuantity = State()
+    finish = State()

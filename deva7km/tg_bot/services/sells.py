@@ -3,6 +3,7 @@ from asgiref.sync import sync_to_async
 from catalog.models import ProductModification, Sale, SaleItem
 
 
+# Чек остатка на складе
 async def check_stock_status(custom_sku):
     try:
         modification = await sync_to_async(ProductModification.objects.get)(custom_sku=custom_sku)
@@ -12,6 +13,7 @@ async def check_stock_status(custom_sku):
         return False
 
 
+#  Получение объекта ProductModification по custom_sku
 async def get_product_modification(custom_sku):
     try:
         modification = await sync_to_async(ProductModification.objects.get)(custom_sku=custom_sku)
@@ -21,6 +23,7 @@ async def get_product_modification(custom_sku):
         return None
 
 
+# создание объекта Sale и его элементов
 async def create_sale(user_data, telegram_user):
     modification_sku = user_data.get('choosingModification', '')
     quantity = int(user_data.get('enteringQuantity', ''))
@@ -31,7 +34,6 @@ async def create_sale(user_data, telegram_user):
     if product_modification:
         sale = Sale(
             telegram_user=telegram_user,
-            comment='',
             status='completed',
             payment_method=payment,
             source='telegram',
