@@ -1,14 +1,11 @@
 from datetime import datetime
-
 from aiogram.utils.markdown import hbold
-
 from catalog.models import Sale, Return
-
 from asgiref.sync import sync_to_async
-
 from collections import defaultdict
 
 
+#  Генерация отчета по продажам за день
 @sync_to_async
 def generate_sales_report_by_day():
     # Получаем текущую дату
@@ -64,7 +61,8 @@ def generate_sales_report_by_day():
         report_str += f"⬅️ {product_modification.product.title}-{product_modification.custom_sku} ({sum(item.quantity for item in items)} шт.)\n"
 
     # Выводим общие суммы
-    report_str += f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f} UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n"
+    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
+                   f" UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n")
     report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
     report_str += f"{hbold('💵 Чистая касса')}: {total_cash_sales_amount - total_returns_amount:.2f} UAH"
 
