@@ -92,3 +92,15 @@ async def create_payment_type_keyboard():
 async def create_inline_kb_cancel():
     button = InlineKeyboardButton(text='❌️ Отмена операции', callback_data='cancel')
     return InlineKeyboardMarkup(inline_keyboard=[[button]])
+
+
+# клавиатура для reports для отчета по продажам и возвратам будет состоять из кнопок "отчет за сегодня",
+# "отчет за вчера", "отчет за неделю", "отчет за месяц", "отчет за год"
+async def create_report_kb():
+    today_button = InlineKeyboardButton(text='Отчет за сегодня', callback_data='today')
+    yesterday_button = InlineKeyboardButton(text='Отчет за вчера', callback_data='yesterday')
+    week_button = InlineKeyboardButton(text='Отчет за неделю', callback_data='week')
+    month_button = InlineKeyboardButton(text='Отчет за месяц', callback_data='month')
+    year_button = InlineKeyboardButton(text='Отчет за год', callback_data='year')
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[today_button, yesterday_button], [week_button, month_button], [year_button]])
