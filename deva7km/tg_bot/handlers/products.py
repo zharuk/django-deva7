@@ -1,11 +1,16 @@
-from aiogram import Router
+from aiogram import Router, Bot
+from aiogram.enums import InputMediaType
 from aiogram.filters import Command
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, InputMediaPhoto, InputFile
+from aiogram.utils.media_group import MediaGroupBuilder
+
+from deva7km.settings import BOT_TOKEN
 from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_kb_return
-from tg_bot.services.products import get_modifications_info, large_image_send_modification_photos
+from tg_bot.services.products import get_modifications_info, get_first_image_for_product
 from tg_bot.services.users import access_control_decorator
 
 router: Router = Router()
+bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 
 
 # Обработчик команды /products
@@ -35,6 +40,8 @@ async def process_callback_query_sku(callback: CallbackQuery):
     # вызываем функцию для отображения модификаций товара
     string = await get_modifications_info(sku)
     # Отправляем фотографии модификаций в чат
-    await large_image_send_modification_photos(callback.from_user.id, sku)
-    await callback.message.answer(string, reply_markup=kb)
+    image = await get_first_image_for_product(sku)
+    await bot.send_photo(chat_id=callback.from_user.id,
+                         photo=image,
+                         caption=string, reply_markup=kb)
     await callback.answer()

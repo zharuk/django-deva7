@@ -9,6 +9,7 @@ from django.utils.html import format_html, linebreaks
 from django.utils.safestring import mark_safe
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFit
+from PIL import Image as PILImage, ImageDraw
 
 
 # Модель товара

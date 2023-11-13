@@ -5,7 +5,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.utils.markdown import hbold
 from deva7km.settings import BOT_TOKEN
 from tg_bot.FSM.fsm import SellStates, ReturnStates
-from tg_bot.keyboards.keyboards import create_report_kb
+from tg_bot.keyboards.keyboards import create_report_kb, create_inline_kb_cancel
 from tg_bot.services.reports import generate_sales_report_by_day
 
 from tg_bot.services.users import access_control_decorator
@@ -38,7 +38,8 @@ async def process_callback_query_sell(callback: CallbackQuery, state: FSMContext
 @access_control_decorator
 async def process_callback_query_sell(callback: CallbackQuery):
     report = await generate_sales_report_by_day()
-    await callback.message.answer(report)
+    kb = await create_inline_kb_cancel()
+    await callback.message.answer(report, reply_markup=kb)
     await callback.answer()
 
 
