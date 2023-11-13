@@ -21,7 +21,7 @@ bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 async def command_sell_handler(message: Message, state: FSMContext):
     await state.clear()
     await state.set_state(SellStates.choosingSKU)
-    kb = await create_inline_kb_main_sku('sell')
+    kb = await create_inline_kb_main_sku(callback='sell')
     await message.answer('Выберите товар для продажи 👇', reply_markup=kb)
 
 
@@ -31,7 +31,7 @@ async def command_sell_handler(message: Message, state: FSMContext):
 async def process_callback_query_sell(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await state.set_state(SellStates.choosingSKU)
-    kb = await create_inline_kb_main_sku('sell')
+    kb = await create_inline_kb_main_sku(callback='sell')
     await callback.message.answer('Выберите товар для продажи 👇', reply_markup=kb)
     await callback.answer()
 
@@ -45,7 +45,7 @@ async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext)
         await state.set_state(SellStates.choosingModification)
         await state.update_data(choosingSKU=sku)
         user_data = await state.get_data()
-        kb = await create_inline_kb_modifications(sku, 'sell')
+        kb = await create_inline_kb_modifications(sku, callback='sell')
         await callback.message.answer(f'Вы выбрали для продажи модель ➡️ {hbold(user_data["choosingSKU"])}\nвыберите '
                                       f'модификацию 👇', reply_markup=kb)
         await callback.answer()

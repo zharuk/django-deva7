@@ -2,6 +2,7 @@ import datetime
 import locale
 from aiogram import Router
 from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.markdown import hbold
 from tg_bot.keyboards.keyboards import create_main_menu_kb
@@ -12,7 +13,8 @@ router: Router = Router()
 
 # Обработчик команды /start с приветствием
 @router.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
+async def command_start_handler(message: Message, state: FSMContext) -> None:
+    await state.clear()
     # данные о пользователе
     user_id = message.from_user.id
     user_name = message.from_user.username
@@ -34,7 +36,8 @@ async def command_start_handler(message: Message) -> None:
 
 # Обработчик callback start с приветствием
 @router.callback_query(lambda callback: 'start' == callback.data)
-async def process_callback_query_start(callback: CallbackQuery):
+async def process_callback_query_start(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
     # Установите русскую локаль
     locale.setlocale(locale.LC_TIME, 'ru_RU')
     # Получить текущую дату и день недели

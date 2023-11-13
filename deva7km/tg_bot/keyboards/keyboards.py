@@ -33,7 +33,7 @@ async def create_inline_kb_main_sku(callback):
     # Разбиваем список кнопок на ряды
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
     # добавим кнопку 'Назад'
-    rows.append([InlineKeyboardButton(text='⛔️ отмена', callback_data='cancel')])
+    rows.append([InlineKeyboardButton(text='↩️ Отмена операции', callback_data='start')])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -55,8 +55,7 @@ async def create_inline_kb_modifications(main_sku, callback):
 
     buttons_per_row = 2
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
-    rows.append([InlineKeyboardButton(text='↩️ Назад', callback_data=callback)])
-    rows.append([InlineKeyboardButton(text='❌️ Отмена операции', callback_data='cancel')])
+    rows.append([InlineKeyboardButton(text='↩️ Отмена операции', callback_data='start')])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
