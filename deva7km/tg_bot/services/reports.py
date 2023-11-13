@@ -64,6 +64,6 @@ def generate_sales_report_by_day():
     report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
                    f" UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n")
     report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {total_cash_sales_amount - total_returns_amount:.2f} UAH"
+    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH"
 
     return report_str
