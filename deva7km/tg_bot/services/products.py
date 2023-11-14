@@ -1,6 +1,6 @@
 from urllib.parse import urljoin
 from aiogram import Bot
-from aiogram.types import URLInputFile
+from aiogram.types import URLInputFile, InputFile
 from aiogram.utils.markdown import hbold
 from asgiref.sync import sync_to_async
 from catalog.models import Product, ProductModification

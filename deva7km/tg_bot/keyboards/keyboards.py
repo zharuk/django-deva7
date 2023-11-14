@@ -33,7 +33,7 @@ async def create_inline_kb_main_sku(callback):
     # Разбиваем список кнопок на ряды
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
     # добавим кнопку 'Назад'
-    rows.append([InlineKeyboardButton(text='↩️ Отмена операции', callback_data='start')])
+    rows.append([InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -55,7 +55,7 @@ async def create_inline_kb_modifications(main_sku, callback):
 
     buttons_per_row = 2
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
-    rows.append([InlineKeyboardButton(text='↩️ Отмена операции', callback_data='start')])
+    rows.append([InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -69,7 +69,7 @@ async def create_inline_kb_numbers():
     # Разбиваем список кнопок на ряды по 5 кнопок в каждом
     rows = [buttons[i:i + 5] for i in range(0, len(buttons), 5)]
     # Добавляем кнопку 'Назад'
-    rows.append([InlineKeyboardButton(text='❌️ Отмена операции', callback_data='cancel')])
+    rows.append([InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -83,13 +83,13 @@ async def create_payment_type_keyboard():
     row = [cash_button, non_cash_button]
 
     # Добавляем ряд с кнопками в клавиатуру
-    keyboard = [row, [InlineKeyboardButton(text='❌️ Отмена операции', callback_data='cancel')]]
+    keyboard = [row, [InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')]]
 
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 
 async def create_inline_kb_cancel():
-    button = InlineKeyboardButton(text='❌️ Отмена операции', callback_data='cancel')
+    button = InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')
     return InlineKeyboardMarkup(inline_keyboard=[[button]])
 
 
