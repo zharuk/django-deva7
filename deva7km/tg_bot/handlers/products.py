@@ -41,7 +41,6 @@ async def process_callback_query_sku(callback: CallbackQuery):
     string = await get_modifications_info(sku)
     # Отправляем фотографии модификаций в чат
     image = await get_first_image_for_product(sku)
-    print(image.__dict__)
     await bot.send_photo(chat_id=callback.from_user.id,
                          photo=image,
                          caption=string, reply_markup=kb)

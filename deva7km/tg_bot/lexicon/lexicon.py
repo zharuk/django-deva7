@@ -5,4 +5,5 @@ LEXICON_COMMANDS_MENU: dict[str, str] = {
     '/sell': 'Продать',
     '/return': 'Возврат',
     '/report': 'Отчеты',
+    '/cancel': 'Отмена'
 }

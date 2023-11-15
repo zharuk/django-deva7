@@ -47,7 +47,7 @@ def generate_sales_report_by_day():
             returns_by_items[item.product_modification].append(item)
 
     # Выводим заголовки
-    report_str = hbold("✅ Продажи за сегодня\n")
+    report_str = hbold("Продажи за сегодня\n")
 
     # Обработка продаж по товарам
     for product_modification, items in sales_by_items.items():
