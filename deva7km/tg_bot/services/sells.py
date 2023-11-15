@@ -4,9 +4,10 @@ from catalog.models import ProductModification, Sale, SaleItem
 
 
 # Чек остатка на складе
-async def check_stock_status(custom_sku):
+@sync_to_async()
+def check_stock_status(custom_sku):
     try:
-        modification = await sync_to_async(ProductModification.objects.get)(custom_sku=custom_sku)
+        modification = ProductModification.objects.get(custom_sku=custom_sku)
         stock = modification.stock
         return True if stock > 0 else False
     except ProductModification.DoesNotExist:
