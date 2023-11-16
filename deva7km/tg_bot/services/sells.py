@@ -1,5 +1,4 @@
 from asgiref.sync import sync_to_async
-
 from catalog.models import ProductModification, Sale, SaleItem
 
 
@@ -15,9 +14,10 @@ def check_stock_status(custom_sku):
 
 
 #  Получение объекта ProductModification по custom_sku
-async def get_product_modification(custom_sku):
+@sync_to_async()
+def get_product_modification(custom_sku):
     try:
-        modification = await sync_to_async(ProductModification.objects.get)(custom_sku=custom_sku)
+        modification = ProductModification.objects.get(custom_sku=custom_sku)
         return modification
     except ProductModification.DoesNotExist:
         # Обработка ситуации, когда ProductModification не найден

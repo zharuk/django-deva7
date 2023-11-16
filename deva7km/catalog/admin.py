@@ -1,5 +1,5 @@
 from .models import Product, ProductModification, Category, Image, Color, Size, SaleItem, ReturnItem, Return, \
-    TelegramUser
+    TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem
 from django.contrib import admin
 from .models import Sale
 
@@ -96,6 +96,50 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ['-created_at']
 
 
+# Создаем класс InventoryItemInline для встраивания модели InventoryItem в административную панель Inventory.
+class InventoryItemInline(admin.TabularInline):
+    model = InventoryItem
+    extra = 1  # Количество пустых форм для добавления InventoryItem
+    readonly_fields = ('total_price', 'thumbnail_image_modification', 'get_stock')
+
+
+# Создаем класс InventoryAdmin для настройки отображения модели Inventory в административной панели.
+class InventoryAdmin(admin.ModelAdmin):
+    inlines = [InventoryItemInline]
+    list_display = ('get_inventory_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
+    readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
+
+    # метод запрета на редактирование, если оприходование завершено
+    def has_change_permission(self, request, obj=None):
+        if obj and obj.status == 'completed':
+            return False  # Завершенные оприходования нельзя редактировать
+        return super().has_change_permission(request, obj)
+
+
+# Создаем класс WriteOffItemInline для встраивания модели WriteOffItem в административную панель WriteOff.
+class WriteOffItemInline(admin.TabularInline):
+    model = WriteOffItem
+    extra = 1  # Количество пустых форм для добавления WriteOffItem
+    readonly_fields = ('total_price', 'thumbnail_image_modification', 'get_stock')
+
+
+# Создаем класс WriteOffAdmin для настройки отображения модели WriteOff в административной панели.
+class WriteOffAdmin(admin.ModelAdmin):
+    inlines = [WriteOffItemInline]
+    list_display = ('get_write_off_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
+    readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
+
+    # метод запрета на редактирование, если списание завершено
+    def has_change_permission(self, request, obj=None):
+        if obj and obj.status == 'completed':
+            return False  # Завершенные списания нельзя редактировать
+        return super().has_change_permission(request, obj)
+
+
+# Регистрируем модели в административной панели Django.
+admin.site.register(WriteOff, WriteOffAdmin)
+# Регистрируем модели в административной панели Django.
+admin.site.register(Inventory, InventoryAdmin)
 # Регистрируем модели в административной панели Django.
 admin.site.register(Category)
 admin.site.register(Color)

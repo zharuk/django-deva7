@@ -6,7 +6,16 @@ from django.utils.text import slugify
 from transliterate import translit
 from itertools import product
 from unidecode import unidecode
-from .models import Product, ProductModification, Image, Category, Sale, SaleItem, ReturnItem, Return
+from .models import Product, ProductModification, Image, Category, Sale, SaleItem, ReturnItem, Return, InventoryItem, \
+    Inventory, WriteOffItem, WriteOff
+
+
+# метод для списания, вычитающий остаток
+@receiver(post_save, sender=WriteOffItem)
+def update_stock_write_off(sender, instance, **kwargs):
+    product_modification = instance.product_modification
+    product_modification.stock -= instance.quantity
+    product_modification.save()
 
 
 # метод для продажи вычитает остаток
@@ -20,6 +29,14 @@ def update_stock(sender, instance, **kwargs):
 # метод для возврата остатка при возврате
 @receiver(post_save, sender=ReturnItem)
 def add_to_stock(sender, instance, **kwargs):
+    product_modification = instance.product_modification
+    product_modification.stock += instance.quantity
+    product_modification.save()
+
+
+# Метод для оприходования, вычитающий остаток
+@receiver(post_save, sender=InventoryItem)
+def update_stock_inventory(sender, instance, **kwargs):
     product_modification = instance.product_modification
     product_modification.stock += instance.quantity
     product_modification.save()
@@ -40,6 +57,24 @@ def return_stock_on_delete_return(sender, instance, **kwargs):
     for item in instance.items.all():
         product_modification = item.product_modification
         product_modification.stock -= item.quantity
+        product_modification.save()
+
+
+# Метод для возврата остатка при удалении оприходования
+@receiver(pre_delete, sender=Inventory)
+def return_stock_on_delete_inventory(sender, instance, **kwargs):
+    for item in instance.items.all():
+        product_modification = item.product_modification
+        product_modification.stock -= item.quantity
+        product_modification.save()
+
+
+# метод для возврата остатка при удалении списания
+@receiver(pre_delete, sender=WriteOff)
+def return_stock_on_delete_write_off(sender, instance, **kwargs):
+    for item in instance.items.all():
+        product_modification = item.product_modification
+        product_modification.stock += item.quantity
         product_modification.save()
 
 
@@ -91,6 +126,7 @@ def associate_images_with_same_color(sender, instance, **kwargs):
     Image.objects.bulk_create(images_to_create)
 
 
+# Сигнал для генерации модификаций для товара
 @receiver(m2m_changed, sender=Product.colors.through)
 @receiver(m2m_changed, sender=Product.sizes.through)
 def generate_product_modifications_on_m2m_change(sender, instance, action, reverse, model, pk_set, **kwargs):
