@@ -10,7 +10,7 @@ from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_
 from tg_bot.services.products import get_large_image_url_input_file
 from tg_bot.services.returns import create_return
 from tg_bot.services.sells import check_stock_status, create_sale, get_product_modification
-from tg_bot.services.users import access_control_decorator, get_or_create_telegram_user
+from tg_bot.services.users import admin_access_control_decorator, get_or_create_telegram_user
 
 router: Router = Router()
 bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
@@ -18,7 +18,7 @@ bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 
 # Обработчик команды /return
 @router.message(Command('return'))
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def command_return_handler(message: Message, state: FSMContext):
     await state.clear()
     await state.set_state(ReturnStates.choosingSKU)
@@ -28,7 +28,7 @@ async def command_return_handler(message: Message, state: FSMContext):
 
 # обработчик который бы отлавливал callback_query=return
 @router.callback_query(lambda callback: 'return' == callback.data)
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_return(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await state.set_state(ReturnStates.choosingSKU)
@@ -39,7 +39,7 @@ async def process_callback_query_return(callback: CallbackQuery, state: FSMConte
 
 # обработчик который бы отлавливал callback_query=sku для return и выводил кнопки с модификациями конкретного товара
 @router.callback_query(StateFilter(ReturnStates.choosingSKU))
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext):
     if '_main_sku_return' in callback.data:
         sku = callback.data.split("_")[0]
@@ -58,7 +58,7 @@ async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext)
 # обработчик который бы отлавливал callback_query=modifications для return и выводил количество
 # товара на остатке, а также указать сколько товара нужно продать
 @router.callback_query(StateFilter(ReturnStates.choosingModification))
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_modifications(callback: CallbackQuery, state: FSMContext):
     if '_modification_return' in callback.data:
         custom_sku = callback.data.split("_")[0]
@@ -81,7 +81,7 @@ async def process_callback_query_modifications(callback: CallbackQuery, state: F
 # обработчик который бы отлавливал callback_query=numbers для return и выводил клавиатуру с кнопками "нал" или
 # "безнал"
 @router.callback_query(StateFilter(ReturnStates.enteringQuantity))
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_numbers(callback: CallbackQuery, state: FSMContext):
     if callback.data.isdigit():
         await state.set_state(ReturnStates.finish)

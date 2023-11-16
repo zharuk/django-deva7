@@ -382,7 +382,7 @@ class ReturnItem(models.Model):
 # модель пользователя Telegram
 class TelegramUser(models.Model):
     user_id = models.BigIntegerField(unique=True, verbose_name='Идентификатор пользователя')
-    username = models.CharField(max_length=255, null=True, blank=True, verbose_name='Имя пользователя')
+    user_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Имя пользователя')
     first_name = models.CharField(max_length=255, verbose_name='Имя')
     last_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Фамилия')
     is_bot = models.BooleanField(default=False, verbose_name='Бот')

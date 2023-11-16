@@ -7,7 +7,7 @@ from aiogram.utils.media_group import MediaGroupBuilder
 from deva7km.settings import BOT_TOKEN
 from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_kb_return
 from tg_bot.services.products import get_modifications_info, get_first_image_for_product
-from tg_bot.services.users import access_control_decorator
+from tg_bot.services.users import admin_access_control_decorator
 
 router: Router = Router()
 bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
@@ -15,7 +15,7 @@ bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 
 # Обработчик команды /products
 @router.message(Command('products'))
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def command_products_handler(message: Message) -> None:
     kb = await create_inline_kb_main_sku(callback='products')
     await message.answer('Выберите товар для просмотра 👇', reply_markup=kb)
@@ -23,7 +23,7 @@ async def command_products_handler(message: Message) -> None:
 
 # обработчик который бы отлавливал callback_query=products
 @router.callback_query(lambda callback: 'products' == callback.data)
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_products(callback: CallbackQuery):
     kb = await create_inline_kb_main_sku(callback='products')
     await callback.message.answer('Выберите товар для просмотра 👇', reply_markup=kb)
@@ -32,7 +32,7 @@ async def process_callback_query_products(callback: CallbackQuery):
 
 # обработчик который бы отлавливал callback_query=sku для products
 @router.callback_query(lambda callback: '_main_sku_products' in callback.data)
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_sku(callback: CallbackQuery):
     kb = await create_inline_kb_return('products')
     # получаем sku из callback_data обрезанием _main_sku

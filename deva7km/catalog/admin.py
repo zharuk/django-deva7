@@ -6,9 +6,9 @@ from .models import Sale
 
 # Создаем класс TelegramUser для настройки отображения модели TelegramUser в административной панели.
 class TelegramUserAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'username', 'first_name', 'last_name', 'role', 'created_at')
+    list_display = ('user_id', 'user_name', 'first_name', 'last_name', 'role', 'created_at')
     list_filter = ('role', 'created_at')
-    search_fields = ('user_id', 'username', 'first_name', 'last_name')
+    search_fields = ('user_id', 'user_name', 'first_name', 'last_name')
 
 
 admin.site.register(TelegramUser, TelegramUserAdmin)

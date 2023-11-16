@@ -9,7 +9,7 @@ from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_
     create_inline_kb_numbers, create_payment_type_keyboard, create_main_menu_kb
 from tg_bot.services.products import get_large_image_url_input_file
 from tg_bot.services.sells import check_stock_status, create_sale, get_product_modification
-from tg_bot.services.users import access_control_decorator, get_or_create_telegram_user
+from tg_bot.services.users import admin_access_control_decorator, get_or_create_telegram_user
 
 router: Router = Router()
 bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
@@ -17,7 +17,7 @@ bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 
 # Обработчик команды /sell
 @router.message(Command('sell'))
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def command_sell_handler(message: Message, state: FSMContext):
     await state.clear()
     await state.set_state(SellStates.choosingSKU)
@@ -27,7 +27,7 @@ async def command_sell_handler(message: Message, state: FSMContext):
 
 # обработчик который бы отлавливал callback_query=sell
 @router.callback_query(lambda callback: 'sell' == callback.data)
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_sell(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await state.set_state(SellStates.choosingSKU)
@@ -38,7 +38,7 @@ async def process_callback_query_sell(callback: CallbackQuery, state: FSMContext
 
 # обработчик который бы отлавливал callback_query=sku для sell и выводил кнопки с модификациями конкретного товара
 @router.callback_query(StateFilter(SellStates.choosingSKU))
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext):
     if '_main_sku_sell' in callback.data:
         sku = callback.data.split("_")[0]
@@ -57,7 +57,7 @@ async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext)
 # обработчик который бы отлавливал callback_query=modifications для sell и выводил количество
 # товара на остатке, а также указать сколько товара нужно продать
 @router.callback_query(StateFilter(SellStates.choosingModification))
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_modifications(callback: CallbackQuery, state: FSMContext):
     if '_modification_sell' in callback.data:
         custom_sku = callback.data.split("_")[0]
@@ -84,7 +84,7 @@ async def process_callback_query_modifications(callback: CallbackQuery, state: F
 # обработчик который бы отлавливал callback_query=numbers для sell и выводил клавиатуру с кнопками "нал" или
 # "безнал"
 @router.callback_query(StateFilter(SellStates.enteringQuantity))
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_numbers(callback: CallbackQuery, state: FSMContext):
     user_data = await state.get_data()
     modification = await get_product_modification(user_data['choosingModification'])
@@ -108,7 +108,7 @@ async def process_callback_query_numbers(callback: CallbackQuery, state: FSMCont
 
 
 @router.callback_query(StateFilter(SellStates.choosingPayment))
-@access_control_decorator
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_finish(callback: CallbackQuery, state: FSMContext):
     if callback.data in ['cash', 'non_cash']:
         # данные о пользователе

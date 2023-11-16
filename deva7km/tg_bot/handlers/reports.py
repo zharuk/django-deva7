@@ -8,7 +8,7 @@ from tg_bot.FSM.fsm import SellStates, ReturnStates
 from tg_bot.keyboards.keyboards import create_report_kb, create_inline_kb_cancel
 from tg_bot.services.reports import generate_sales_report_by_day
 
-from tg_bot.services.users import access_control_decorator
+from tg_bot.services.users import admin_access_control_decorator
 
 router: Router = Router()
 bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
@@ -16,7 +16,7 @@ bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 
 # Обработчик команды /report
 @router.message(Command('report'))
-@access_control_decorator
+@admin_access_control_decorator(access='admin')
 async def command_report_handler(message: Message, state: FSMContext):
     await state.clear()
     kb = await create_report_kb()
@@ -25,7 +25,7 @@ async def command_report_handler(message: Message, state: FSMContext):
 
 # обработчик который бы отлавливал callback_query=report
 @router.callback_query(lambda callback: 'report' == callback.data)
-@access_control_decorator
+@admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     kb = await create_report_kb()
@@ -35,7 +35,7 @@ async def process_callback_query_sell(callback: CallbackQuery, state: FSMContext
 
 # обработчик который бы отлавливал callback_query=today
 @router.callback_query(lambda callback: 'today' == callback.data)
-@access_control_decorator
+@admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
     report = await generate_sales_report_by_day()
     kb = await create_inline_kb_cancel()
@@ -45,7 +45,7 @@ async def process_callback_query_sell(callback: CallbackQuery):
 
 # обработчик который бы отлавливал callback_query=yesterday
 @router.callback_query(lambda callback: 'yesterday' == callback.data)
-@access_control_decorator
+@admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
     await callback.message.answer('в разработке')
     await callback.answer()
@@ -53,7 +53,7 @@ async def process_callback_query_sell(callback: CallbackQuery):
 
 # обработчик который бы отлавливал callback_query=week
 @router.callback_query(lambda callback: 'week' == callback.data)
-@access_control_decorator
+@admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
     await callback.message.answer('в разработке')
     await callback.answer()
@@ -61,7 +61,7 @@ async def process_callback_query_sell(callback: CallbackQuery):
 
 # обработчик который бы отлавливал callback_query=month
 @router.callback_query(lambda callback: 'month' == callback.data)
-@access_control_decorator
+@admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
     await callback.message.answer('в разработке')
     await callback.answer()
@@ -69,7 +69,7 @@ async def process_callback_query_sell(callback: CallbackQuery):
 
 # обработчик который бы отлавливал callback_query=year
 @router.callback_query(lambda callback: 'year' == callback.data)
-@access_control_decorator
+@admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
     await callback.message.answer('в разработке')
     await callback.answer()
