@@ -1,3 +1,4 @@
+import logging
 from urllib.parse import urljoin
 from aiogram import Bot
 from aiogram.types import URLInputFile, InputFile
@@ -79,7 +80,7 @@ def get_first_image_for_product(sku):
                 # Берем первое изображение
                 first_image = images.first()
 
-                # Берем URL изображения
+                # Определяем URL изображения
                 image_url = first_image.image.url if first_image else None
 
                 if image_url:
@@ -89,9 +90,12 @@ def get_first_image_for_product(sku):
                     # Возвращаем полный URL
                     return URLInputFile(full_url)
 
-        print("Для данного основного товара нет изображений.")
+        logging.warning("Для данного основного товара нет изображений.")
         return None
 
     except Product.DoesNotExist:
-        print("Основной товар с данным артикулом не найден.")
+        logging.error("Основной товар с данным артикулом не найден.")
+        return None
+    except Exception as e:
+        logging.exception(f"Произошла ошибка: {str(e)}")
         return None
