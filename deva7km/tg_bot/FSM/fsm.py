@@ -14,3 +14,17 @@ class ReturnStates(StatesGroup):
     choosingModification = State()
     enteringQuantity = State()
     finish = State()
+
+
+class InventoryStates(StatesGroup):
+    choosingSKU = State()
+    choosingModification = State()
+    enteringQuantity = State()
+    finish = State()
+
+
+class WriteOffStates(StatesGroup):
+    choosingSKU = State()
+    choosingModification = State()
+    enteringQuantity = State()
+    finish = State()

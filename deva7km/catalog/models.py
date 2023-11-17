@@ -416,6 +416,10 @@ class Inventory(models.Model):
         ('completed', 'Завершено'),  # Статус "Завершено"
         ('canceled', 'Отменено'))  # Статус "Отменено"
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='completed', verbose_name='Статус')
+    SOURCE_CHOICES = (
+        ('site', 'Сайт'),
+        ('telegram', 'telegram'))
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник продажи')
 
     def calculate_total_amount(self):
         total_amount = 0
@@ -511,6 +515,10 @@ class WriteOff(models.Model):
         ('completed', 'Завершено'),  # Статус "Завершено"
         ('canceled', 'Отменено'))  # Статус "Отменено"
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='completed', verbose_name='Статус')
+    SOURCE_CHOICES = (
+        ('site', 'Сайт'),
+        ('telegram', 'telegram'))
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник продажи')
 
     def calculate_total_amount(self):
         total_amount = 0

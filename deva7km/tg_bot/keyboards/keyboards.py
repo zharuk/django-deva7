@@ -7,11 +7,13 @@ from catalog.models import Product, ProductModification
 async def create_main_menu_kb():
     # Создаем кнопки "Список товаров", "Добавить товар", "Добавить товар одной строкой", "Статистика"
     products_button = InlineKeyboardButton(text='📋 Список товаров', callback_data='products')
-    sell_button = InlineKeyboardButton(text='📈 Продать', callback_data='sell')
+    sell_button = InlineKeyboardButton(text='💸 Продать', callback_data='sell')
     return_button = InlineKeyboardButton(text='🔙 Вернуть', callback_data='return')
+    inventory_button = InlineKeyboardButton(text='📈 Оприходование', callback_data='inventory')
+    write_off_button = InlineKeyboardButton(text='📉 Списание', callback_data='write_off')
     report_button = InlineKeyboardButton(text='📊 Статистика', callback_data='report')
     # Создаем список кнопок
-    inline_keyboard = [[products_button], [sell_button], [return_button], [report_button]]
+    inline_keyboard = [[products_button], [sell_button], [return_button], [inventory_button], [write_off_button], [report_button]]
 
     # Возвращаем объект инлайн-клавиатуры
     return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
@@ -60,10 +62,10 @@ async def create_inline_kb_modifications(main_sku, callback):
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-async def create_inline_kb_numbers():
+async def create_inline_kb_numbers(quantity=10):
     buttons = []
 
-    for number in range(1, 11):
+    for number in range(1, quantity+1):
         buttons.append(InlineKeyboardButton(text=str(number), callback_data=f'{number}'))
 
     # Разбиваем список кнопок на ряды по 5 кнопок в каждом
