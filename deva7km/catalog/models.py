@@ -78,7 +78,7 @@ class ProductModification(models.Model):
     stock = models.PositiveIntegerField(default=0, verbose_name='Остаток')
     price = models.IntegerField(default=0, verbose_name='Цена')
     currency = models.CharField(max_length=3, choices=Product.CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
-    custom_sku = models.CharField(max_length=30, verbose_name='Артикул комплектации', blank=True)
+    custom_sku = models.CharField(max_length=50, verbose_name='Артикул комплектации', blank=True)
     slug = models.SlugField(max_length=200, unique=False, blank=True, verbose_name='Слаг модификации')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')

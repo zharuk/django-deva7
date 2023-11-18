@@ -157,3 +157,6 @@ def generate_product_modifications_on_m2m_change(sender, instance, action, rever
                 if mod.color not in colors or mod.size not in sizes:
                     # Удаляем модификацию, если цвет или размер больше не связаны с товаром
                     mod.delete()
+
+
+

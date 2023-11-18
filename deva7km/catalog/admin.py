@@ -1,10 +1,11 @@
-from .models import Product, ProductModification, Category, Image, Color, Size, SaleItem, ReturnItem, Return, \
-    TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem
 from django.contrib import admin
-from .models import Sale
+from .models import (
+    Category, Color, Size, Product, ProductModification, Image, SaleItem, ReturnItem, Return,
+    TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem, Sale
+)
 
 
-# Создаем класс TelegramUser для настройки отображения модели TelegramUser в административной панели.
+# Модели связанные с пользователями Telegram
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('user_id', 'user_name', 'first_name', 'last_name', 'role', 'created_at')
     list_filter = ('role', 'created_at')
@@ -14,80 +15,84 @@ class TelegramUserAdmin(admin.ModelAdmin):
 admin.site.register(TelegramUser, TelegramUserAdmin)
 
 
-# Создаем класс ReturnItemInline для встраивания модели ReturnItem в административную панель Return.
+# Модели для учета возвратов
 class ReturnItemInline(admin.TabularInline):
     model = ReturnItem
-    extra = 1  # Количество пустых форм для добавления ReturnItem
+    extra = 1
     readonly_fields = ('total_price', 'thumbnail_image_modification')
 
 
-# Создаем класс ReturnAdmin для настройки отображения модели Return в административной панели.
 class ReturnAdmin(admin.ModelAdmin):
     inlines = [ReturnItemInline]
     list_display = (
-        'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'source')
+    'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'source')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
 
     # Метод для запрета на редактирование, если возврат завершен
     def has_change_permission(self, request, obj=None):
-        return False  # Завершенные возвраты нельзя редактировать
+        return False
 
 
-# Создаем класс SaleItemInline для встраивания модели SaleItem в административную панель Sale.
+admin.site.register(Return, ReturnAdmin)
+
+
+# Модели для учета продаж
 class SaleItemInline(admin.TabularInline):
     model = SaleItem
-    extra = 1  # Количество пустых форм для добавления SaleItem
+    extra = 1
     readonly_fields = ('total_price', 'thumbnail_image_modification', 'get_stock')
 
 
-# Создаем класс SaleAdmin для настройки отображения модели Sale в административной панели.
 class SaleAdmin(admin.ModelAdmin):
     inlines = [SaleItemInline]
     list_display = ('get_sold_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
 
-    # метод запрета на редактирование, если продажа завершена
+    # Метод для запрета на редактирование, если продажа завершена
     def has_change_permission(self, request, obj=None):
         if obj and obj.status == 'completed':
-            return False  # Завершенные продажи нельзя редактировать
+            return False
         return super().has_change_permission(request, obj)
 
 
-# Создаем класс ImageAdmin, настраивающий отображение модели Image в административной панели.
+admin.site.register(Sale, SaleAdmin)
+
+
+# Модели для работы с изображениями и модификациями товаров
+class ImageInline(admin.StackedInline):
+    model = Image
+    extra = 1
+    fields = [('image', 'thumbnail_image')]
+    readonly_fields = ('thumbnail_image',)
+
+
 class ImageAdmin(admin.ModelAdmin):
     list_display = ('modification', 'thumbnail_image')
 
 
-# Создаем класс ImageInline для встраивания модели Image в административную панель ProductModification.
-class ImageInline(admin.StackedInline):
-    model = Image
-    extra = 1  # Количество пустых форм для добавления изображений
-    fields = [('image', 'thumbnail_image')]  # Добавляем миниатюру в список отображаемых полей
-    readonly_fields = ('thumbnail_image',)
-
-
-# Создаем класс ProductModificationAdmin для настройки отображения модели ProductModification в административной панели.
 class ProductModificationAdmin(admin.ModelAdmin):
     list_display = (
-        'product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency', 'thumbnail_image_modification',)
+    'product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency', 'thumbnail_image_modification',)
     list_filter = ('color', 'size', 'custom_sku',)
     search_fields = ('product__title', 'color__name', 'size__name', 'custom_sku')
-    inlines = [ImageInline]  # Встраиваем ImageInline для отображения изображений внутри ProductModification.
+    inlines = [ImageInline]
     ordering = ['-created_at']
 
 
-# Создаем класс ProductModificationInline для встраивания модели ProductModification в административную панель Product.
+admin.site.register(Image, ImageAdmin)
+admin.site.register(ProductModification, ProductModificationAdmin)
+
+
+# Модели для учета товаров
 class ProductModificationInline(admin.TabularInline):
     model = ProductModification
-    extra = 0  # Количество пустых форм для добавления модификаций
+    extra = 0
     list_display = ('product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency',)
     readonly_fields = ('thumbnail_image_modification',)
 
 
-# Создаем класс ProductAdmin для настройки отображения модели Product в административной панели.
 class ProductAdmin(admin.ModelAdmin):
-    inlines = [ProductModificationInline, ]  # Встраиваем ProductModificationInline для отображения модификаций
-    # внутри Product.
+    inlines = [ProductModificationInline]
     list_display = ('title', 'sku', 'category', 'description', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
                     'thumbnail_image', 'created_at')
     search_fields = ('sku',)
@@ -96,56 +101,54 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ['-created_at']
 
 
-# Создаем класс InventoryItemInline для встраивания модели InventoryItem в административную панель Inventory.
+admin.site.register(Product, ProductAdmin)
+
+
+# Модели для учета инвентаризации
 class InventoryItemInline(admin.TabularInline):
     model = InventoryItem
-    extra = 1  # Количество пустых форм для добавления InventoryItem
+    extra = 1
     readonly_fields = ('total_price', 'thumbnail_image_modification', 'get_stock')
 
 
-# Создаем класс InventoryAdmin для настройки отображения модели Inventory в административной панели.
 class InventoryAdmin(admin.ModelAdmin):
     inlines = [InventoryItemInline]
     list_display = ('get_inventory_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
 
-    # метод запрета на редактирование, если оприходование завершено
+    # Метод для запрета на редактирование, если оприходование завершено
     def has_change_permission(self, request, obj=None):
         if obj and obj.status == 'completed':
-            return False  # Завершенные оприходования нельзя редактировать
+            return False
         return super().has_change_permission(request, obj)
 
 
-# Создаем класс WriteOffItemInline для встраивания модели WriteOffItem в административную панель WriteOff.
+admin.site.register(Inventory, InventoryAdmin)
+
+
+# Модели для учета списания товаров
 class WriteOffItemInline(admin.TabularInline):
     model = WriteOffItem
-    extra = 1  # Количество пустых форм для добавления WriteOffItem
+    extra = 1
     readonly_fields = ('total_price', 'thumbnail_image_modification', 'get_stock')
 
 
-# Создаем класс WriteOffAdmin для настройки отображения модели WriteOff в административной панели.
 class WriteOffAdmin(admin.ModelAdmin):
     inlines = [WriteOffItemInline]
     list_display = ('get_write_off_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
 
-    # метод запрета на редактирование, если списание завершено
+    # Метод для запрета на редактирование, если списание завершено
     def has_change_permission(self, request, obj=None):
         if obj and obj.status == 'completed':
-            return False  # Завершенные списания нельзя редактировать
+            return False
         return super().has_change_permission(request, obj)
 
 
-# Регистрируем модели в административной панели Django.
 admin.site.register(WriteOff, WriteOffAdmin)
-# Регистрируем модели в административной панели Django.
-admin.site.register(Inventory, InventoryAdmin)
-# Регистрируем модели в административной панели Django.
+
+# Регистрация отдельных моделей
 admin.site.register(Category)
 admin.site.register(Color)
 admin.site.register(Size)
-admin.site.register(Product, ProductAdmin)
-admin.site.register(ProductModification, ProductModificationAdmin)
-admin.site.register(Image, ImageAdmin)
-admin.site.register(Sale, SaleAdmin)
-admin.site.register(Return, ReturnAdmin)
+# ... (ваш код для остальных моделей)
