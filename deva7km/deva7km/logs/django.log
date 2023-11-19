@@ -2843,3 +2843,21 @@ django.db.utils.ProgrammingError: (1146, "Table 'db.django_session' doesn't exis
 [94m[18.11.2023 | 19:34:00][0m INFO basehttp "GET /media/CACHE/images/photo_2023-11-16_21-24-08.2aacff2b4e29.jpg HTTP/1.1" 200 112425
 [94m[18.11.2023 | 19:34:00][0m INFO basehttp "GET /media/CACHE/images/photo_2023-11-16_21-24-10.7eef9efed0f0.jpg HTTP/1.1" 200 121088
 [94m[18.11.2023 | 19:34:00][0m INFO basehttp "GET /media/CACHE/images/photo_2023-11-16_21-23-55.238300187086.jpg HTTP/1.1" 200 90548
+[94m[18.11.2023 | 22:58:58][0m INFO autoreload Watching for file changes with StatReloader
+[94m[18.11.2023 | 22:59:07][0m INFO basehttp "GET /media/images/photo_2023-10-29_12-21-32.jpg HTTP/1.1" 200 79930
+[94m[19.11.2023 | 10:24:00][0m INFO autoreload Watching for file changes with StatReloader
+[94m[19.11.2023 | 10:24:10][0m INFO basehttp "GET /media/images/photo_2023-10-29_21-33-53.jpg HTTP/1.1" 200 28882
+[94m[19.11.2023 | 10:37:37][0m INFO autoreload C:\Users\user\PycharmProjects\django\deva7km\deva7km\settings.py changed, reloading.
+[94m[19.11.2023 | 10:37:38][0m INFO autoreload Watching for file changes with StatReloader
+[94m[19.11.2023 | 10:46:30][0m INFO basehttp "GET /admin/catalog/telegramuser/ HTTP/1.1" 200 15816
+[94m[19.11.2023 | 10:46:30][0m INFO basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 16066
+[94m[19.11.2023 | 10:46:30][0m WARNING log Not Found: /favicon.ico
+[94m[19.11.2023 | 10:46:30][0m WARNING basehttp "GET /favicon.ico HTTP/1.1" 404 2984
+[94m[19.11.2023 | 10:56:43][0m INFO autoreload C:\Users\user\PycharmProjects\django\deva7km\deva7km\settings.py changed, reloading.
+[94m[19.11.2023 | 10:56:44][0m INFO autoreload Watching for file changes with StatReloader
+[94m[19.11.2023 | 10:57:23][0m INFO autoreload C:\Users\user\PycharmProjects\django\deva7km\deva7km\settings.py changed, reloading.
+[94m[19.11.2023 | 10:57:23][0m INFO autoreload Watching for file changes with StatReloader
+[94m[19.11.2023 | 10:57:27][0m INFO autoreload Watching for file changes with StatReloader
+[94m[19.11.2023 | 10:57:34][0m INFO basehttp "GET / HTTP/1.1" 200 5540
+[94m[19.11.2023 | 10:57:36][0m INFO basehttp "GET /admin/catalog/telegramuser/ HTTP/1.1" 200 15816
+[94m[19.11.2023 | 10:57:36][0m INFO basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 16066

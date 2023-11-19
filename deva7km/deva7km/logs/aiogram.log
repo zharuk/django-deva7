@@ -13563,3 +13563,30 @@ redis.exceptions.ConnectionError: Connection closed by server.
 [94m[18.11.2023 | 22:03:34][0m WARNING dispatcher Sleep for 1.293633 seconds and try again... (tryings = 1, bot id = 5851946500)
 [94m[18.11.2023 | 22:03:39][0m INFO dispatcher Polling stopped
 [94m[18.11.2023 | 22:03:39][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[18.11.2023 | 22:59:02][0m INFO dispatcher Start polling
+[94m[18.11.2023 | 22:59:02][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[18.11.2023 | 22:59:03][0m INFO dispatcher Update id=722819053 is handled. Duration 296 ms by bot id=5851946500
+[94m[18.11.2023 | 22:59:04][0m INFO dispatcher Update id=722819054 is handled. Duration 296 ms by bot id=5851946500
+[94m[18.11.2023 | 22:59:08][0m INFO dispatcher Update id=722819055 is handled. Duration 2515 ms by bot id=5851946500
+[94m[18.11.2023 | 22:59:09][0m INFO dispatcher Update id=722819056 is handled. Duration 219 ms by bot id=5851946500
+[94m[18.11.2023 | 22:59:10][0m INFO dispatcher Update id=722819057 is handled. Duration 250 ms by bot id=5851946500
+[94m[18.11.2023 | 23:00:54][0m INFO dispatcher Update id=722819058 is handled. Duration 235 ms by bot id=5851946500
+[94m[18.11.2023 | 23:00:55][0m INFO dispatcher Update id=722819059 is handled. Duration 281 ms by bot id=5851946500
+[94m[18.11.2023 | 23:00:56][0m INFO dispatcher Update id=722819060 is handled. Duration 186 ms by bot id=5851946500
+[94m[18.11.2023 | 23:00:57][0m INFO dispatcher Update id=722819061 is handled. Duration 218 ms by bot id=5851946500
+[94m[18.11.2023 | 23:00:59][0m INFO dispatcher Update id=722819062 is handled. Duration 141 ms by bot id=5851946500
+[94m[19.11.2023 | 10:24:03][0m INFO dispatcher Start polling
+[94m[19.11.2023 | 10:24:03][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[19.11.2023 | 10:24:08][0m INFO dispatcher Update id=722819063 is handled. Duration 265 ms by bot id=5851946500
+[94m[19.11.2023 | 10:24:11][0m INFO dispatcher Update id=722819064 is handled. Duration 2485 ms by bot id=5851946500
+[94m[19.11.2023 | 10:24:12][0m INFO dispatcher Update id=722819065 is handled. Duration 139 ms by bot id=5851946500
+[94m[19.11.2023 | 10:24:13][0m INFO dispatcher Update id=722819066 is handled. Duration 156 ms by bot id=5851946500
+[94m[19.11.2023 | 10:24:14][0m INFO dispatcher Update id=722819067 is handled. Duration 156 ms by bot id=5851946500
+[94m[19.11.2023 | 10:24:15][0m INFO dispatcher Update id=722819068 is handled. Duration 203 ms by bot id=5851946500
+[94m[19.11.2023 | 10:24:16][0m INFO dispatcher Update id=722819069 is handled. Duration 139 ms by bot id=5851946500
+[94m[19.11.2023 | 10:25:33][0m INFO dispatcher Update id=722819070 is handled. Duration 358 ms by bot id=5851946500
+[94m[19.11.2023 | 10:25:35][0m INFO dispatcher Update id=722819071 is handled. Duration 141 ms by bot id=5851946500
+[94m[19.11.2023 | 10:57:24][0m INFO dispatcher Polling stopped
+[94m[19.11.2023 | 10:57:24][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[19.11.2023 | 10:57:30][0m INFO dispatcher Start polling
+[94m[19.11.2023 | 10:57:30][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
