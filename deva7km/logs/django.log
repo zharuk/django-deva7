@@ -3,3 +3,7 @@
 [94m[20.11.2023 | 20:54:08][0m INFO autoreload Watching for file changes with StatReloader
 [94m[20.11.2023 | 20:54:11][0m INFO basehttp "GET /admin/catalog/image/ HTTP/1.1" 200 48436
 [94m[20.11.2023 | 20:54:11][0m INFO basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 16066
+[94m[20.11.2023 | 22:25:05][0m INFO autoreload Watching for file changes with StatReloader
+[94m[20.11.2023 | 22:25:14][0m INFO basehttp "GET /media/images/photo_2023-10-29_21-33-53.jpg HTTP/1.1" 200 28882
+[94m[20.11.2023 | 22:29:28][0m INFO autoreload Watching for file changes with StatReloader
+[94m[20.11.2023 | 22:30:07][0m INFO autoreload Watching for file changes with StatReloader

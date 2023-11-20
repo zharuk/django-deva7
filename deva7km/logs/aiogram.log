@@ -10,3 +10,19 @@ sadssd[94m[20.11.2023 | 20:54:12][0m INFO dispatcher Start polling
 [94m[20.11.2023 | 20:54:12][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
 [94m[20.11.2023 | 20:56:40][0m INFO dispatcher Polling stopped
 [94m[20.11.2023 | 20:56:40][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 22:25:09][0m INFO dispatcher Start polling
+[94m[20.11.2023 | 22:25:09][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 22:25:10][0m INFO dispatcher Update id=722819117 is handled. Duration 282 ms by bot id=5851946500
+[94m[20.11.2023 | 22:25:11][0m INFO dispatcher Update id=722819118 is handled. Duration 155 ms by bot id=5851946500
+[94m[20.11.2023 | 22:25:15][0m INFO dispatcher Update id=722819119 is handled. Duration 2625 ms by bot id=5851946500
+[94m[20.11.2023 | 22:25:16][0m INFO dispatcher Update id=722819120 is handled. Duration 187 ms by bot id=5851946500
+[94m[20.11.2023 | 22:25:20][0m INFO dispatcher Polling stopped
+[94m[20.11.2023 | 22:25:20][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 22:29:32][0m INFO dispatcher Start polling
+[94m[20.11.2023 | 22:29:32][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 22:29:39][0m INFO dispatcher Polling stopped
+[94m[20.11.2023 | 22:29:39][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 22:30:10][0m INFO dispatcher Start polling
+[94m[20.11.2023 | 22:30:10][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 22:30:11][0m INFO dispatcher Polling stopped
+[94m[20.11.2023 | 22:30:11][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
