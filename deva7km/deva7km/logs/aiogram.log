@@ -13590,3 +13590,146 @@ redis.exceptions.ConnectionError: Connection closed by server.
 [94m[19.11.2023 | 10:57:24][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
 [94m[19.11.2023 | 10:57:30][0m INFO dispatcher Start polling
 [94m[19.11.2023 | 10:57:30][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[19.11.2023 | 12:52:05][0m ERROR dispatcher Failed to fetch updates - TelegramNetworkError: HTTP Client says - Request timeout error
+[94m[19.11.2023 | 12:52:05][0m WARNING dispatcher Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 5851946500)
+[94m[19.11.2023 | 12:52:16][0m INFO dispatcher Connection established (tryings = 1, bot id = 5851946500)
+[94m[19.11.2023 | 14:00:34][0m ERROR dispatcher Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[94m[19.11.2023 | 14:00:34][0m WARNING dispatcher Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 5851946500)
+[94m[19.11.2023 | 14:00:39][0m ERROR dispatcher Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[94m[19.11.2023 | 14:00:39][0m WARNING dispatcher Sleep for 1.247007 seconds and try again... (tryings = 1, bot id = 5851946500)
+[94m[19.11.2023 | 14:00:40][0m INFO dispatcher Polling stopped
+[94m[19.11.2023 | 14:00:40][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 19:50:16][0m INFO dispatcher Start polling
+[94m[20.11.2023 | 19:50:16][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 19:50:22][0m INFO dispatcher Update id=722819099 is handled. Duration 266 ms by bot id=5851946500
+[94m[20.11.2023 | 19:50:23][0m INFO dispatcher Update id=722819100 is handled. Duration 156 ms by bot id=5851946500
+[94m[20.11.2023 | 19:50:26][0m INFO dispatcher Update id=722819101 is handled. Duration 2453 ms by bot id=5851946500
+[94m[20.11.2023 | 19:50:28][0m INFO dispatcher Update id=722819102 is handled. Duration 157 ms by bot id=5851946500
+[94m[20.11.2023 | 19:50:29][0m INFO dispatcher Update id=722819103 is handled. Duration 141 ms by bot id=5851946500
+[94m[20.11.2023 | 19:51:49][0m INFO dispatcher Polling stopped
+[94m[20.11.2023 | 19:51:49][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 19:51:55][0m INFO dispatcher Start polling
+[94m[20.11.2023 | 19:51:55][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 19:51:58][0m INFO dispatcher Update id=722819104 is handled. Duration 312 ms by bot id=5851946500
+[94m[20.11.2023 | 19:51:59][0m INFO dispatcher Update id=722819105 is handled. Duration 187 ms by bot id=5851946500
+[94m[20.11.2023 | 19:52:01][0m INFO dispatcher Update id=722819106 is not handled. Duration 2172 ms by bot id=5851946500
+[94m[20.11.2023 | 19:52:01][0m ERROR dispatcher Cause exception while process update id=722819106 by bot id=5851946500
+TelegramNetworkError: HTTP Client says - ClientResponseError: 404, message='Not Found', url=URL('http://localhost:8000/images/photo_2023-11-11_12-00-19.jpg')
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\client\session\aiohttp.py", line 167, in make_request
+    async with session.post(
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiohttp\client.py", line 1167, in __aenter__
+    self._resp = await self._coro
+                 ^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiohttp\client.py", line 586, in _request
+    await resp.start(conn)
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiohttp\client_reqrep.py", line 905, in start
+    message, payload = await protocol.read()  # type: ignore[union-attr]
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiohttp\streams.py", line 616, in read
+    await self._waiter
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiohttp\client_reqrep.py", line 578, in write_bytes
+    await self.body.write(writer)
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiohttp\multipart.py", line 901, in write
+    await part.write(writer)
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiohttp\payload.py", line 443, in write
+    chunk = await self._iter.__anext__()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\types\input_file.py", line 148, in read
+    async for chunk in stream:
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\client\session\aiohttp.py", line 193, in stream_content
+    async with session.get(
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiohttp\client.py", line 1167, in __aenter__
+    self._resp = await self._coro
+                 ^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiohttp\client.py", line 669, in _request
+    resp.raise_for_status()
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiohttp\client_reqrep.py", line 1011, in raise_for_status
+    raise ClientResponseError(
+aiohttp.client_exceptions.ClientResponseError: 404, message='Not Found', url=URL('http://localhost:8000/images/photo_2023-11-11_12-00-19.jpg')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 308, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 157, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 27, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\fsm\middleware.py", line 41, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 120, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 42, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 275, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\router.py", line 116, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\router.py", line 111, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\router.py", line 144, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\router.py", line 116, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\router.py", line 111, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\router.py", line 136, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 120, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 42, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\deva7km\tg_bot\services\users.py", line 51, in wrapper
+    return await func(message, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\deva7km\tg_bot\handlers\products.py", line 44, in process_callback_query_sku
+    await bot.send_photo(chat_id=callback.from_user.id,
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\client\bot.py", line 2764, in send_photo
+    return await self(call, request_timeout=request_timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\client\bot.py", line 432, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\client\session\base.py", line 257, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\PycharmProjects\django\venv\Lib\site-packages\aiogram\client\session\aiohttp.py", line 174, in make_request
+    raise TelegramNetworkError(method=method, message=f"{type(e).__name__}: {e}")
+aiogram.exceptions.TelegramNetworkError: HTTP Client says - ClientResponseError: 404, message='Not Found', url=URL('http://localhost:8000/images/photo_2023-11-11_12-00-19.jpg')
+[94m[20.11.2023 | 19:52:49][0m INFO dispatcher Polling stopped
+[94m[20.11.2023 | 19:52:49][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 19:53:09][0m INFO dispatcher Start polling
+[94m[20.11.2023 | 19:53:09][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 19:53:10][0m INFO dispatcher Update id=722819107 is handled. Duration 327 ms by bot id=5851946500
+[94m[20.11.2023 | 19:53:12][0m INFO dispatcher Update id=722819108 is handled. Duration 280 ms by bot id=5851946500
+[94m[20.11.2023 | 19:53:15][0m INFO dispatcher Update id=722819109 is handled. Duration 2453 ms by bot id=5851946500
+[94m[20.11.2023 | 19:53:54][0m INFO dispatcher Polling stopped
+[94m[20.11.2023 | 19:53:54][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 19:58:11][0m INFO dispatcher Start polling
+[94m[20.11.2023 | 19:58:11][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 20:01:51][0m INFO dispatcher Polling stopped
+[94m[20.11.2023 | 20:01:51][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 20:03:26][0m INFO dispatcher Start polling
+[94m[20.11.2023 | 20:03:26][0m INFO dispatcher Run polling for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'
+[94m[20.11.2023 | 20:04:34][0m INFO dispatcher Polling stopped
+[94m[20.11.2023 | 20:04:34][0m INFO dispatcher Polling stopped for bot @sines_demo_bot id=5851946500 - 'Продаватель 🚀'

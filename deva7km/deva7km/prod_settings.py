@@ -9,19 +9,21 @@ BOT_TOKEN = "5851946500:AAGi4zKsLc9WMoUXq8lizX2glxQ00fLtlws"
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', '161.35.76.59']
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'deva7km_db',
-        'USER': 'postgres',
+        'USER': 'zharuk',
         'PASSWORD': '592014fann',
         'HOST': 'localhost',
         'PORT': '5432',
     }
 }
 
-STATIC_DIR = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = [STATIC_DIR]
+MEDIA_URL = '/media/'  # URL, по которому будут доступны медиа-файлы
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Путь к папке на сервере для медиа-файлов
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/static/'
