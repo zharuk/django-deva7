@@ -4,11 +4,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-BOT_TOKEN = "5851946500:AAGi4zKsLc9WMoUXq8lizX2glxQ00fLtlws"
-
-# for bot
-BASE_URL = 'http://localhost:8000'
-
 # Application definition
 
 INSTALLED_APPS = [
