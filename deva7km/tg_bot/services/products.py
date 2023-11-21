@@ -5,7 +5,13 @@ from aiogram.types import URLInputFile, InputFile
 from aiogram.utils.markdown import hbold
 from asgiref.sync import sync_to_async
 from catalog.models import Product, ProductModification
-from deva7km.settings import BOT_TOKEN, BASE_URL
+
+try:
+    from deva7km.local_settings import BOT_TOKEN, BASE_URL
+except ImportError:
+    from deva7km.prod_settings import BOT_TOKEN, BASE_URL
+
+# from deva7km.settings import BOT_TOKEN, BASE_URL
 
 bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 
