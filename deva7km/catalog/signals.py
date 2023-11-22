@@ -10,6 +10,16 @@ from .models import Product, ProductModification, Image, Category, Sale, SaleIte
     Inventory, WriteOffItem, WriteOff
 
 
+# Сигнал для обновления цен перед сохранением продукта
+@receiver(pre_save, sender=Product)
+def update_prices(sender, instance, **kwargs):
+    if instance.sale_price > 0:
+        # Если установлен флаг распродажи и цена распродажи меньше старой цены
+        instance.old_price = instance.price
+        instance.price = instance.sale_price
+        instance.is_sale = True
+
+
 # метод для списания, вычитающий остаток
 @receiver(post_save, sender=WriteOffItem)
 def update_stock_write_off(sender, instance, **kwargs):
@@ -157,6 +167,3 @@ def generate_product_modifications_on_m2m_change(sender, instance, action, rever
                 if mod.color not in colors or mod.size not in sizes:
                     # Удаляем модификацию, если цвет или размер больше не связаны с товаром
                     mod.delete()
-
-
-

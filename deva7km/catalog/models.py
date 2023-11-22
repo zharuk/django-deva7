@@ -21,11 +21,12 @@ class Product(models.Model):
     colors = models.ManyToManyField('Color', blank=True, verbose_name='Цвета')
     sizes = models.ManyToManyField('Size', blank=True, verbose_name='Размеры')
     price = models.DecimalField(max_digits=4, decimal_places=0, default=0, verbose_name='Цена')
+    sale_price = models.DecimalField(max_digits=4, decimal_places=0, default=0, verbose_name='Цена распродажи')
+    old_price = models.DecimalField(max_digits=4, decimal_places=0, default=0, editable=False, verbose_name='Старая цена')
     CURRENCY_CHOICES = (
-        ('UAH', 'Гривны (грн)'),
-        ('USD', 'Доллары (USD)'),
-        ('EUR', 'Евро (EUR)'),
-    )
+            ('UAH', 'Гривны (грн)'),
+            ('USD', 'Доллары (USD)'),
+            ('EUR', 'Евро (EUR)'),)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
     slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='Слаг')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')

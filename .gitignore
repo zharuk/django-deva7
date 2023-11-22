@@ -3,5 +3,6 @@ deva7km/static
 deva7km/logs
 deva7km/deva7km/prod_settings.py
 deva7km/deva7km/local_settings.py
+deva7km/catalog/migrations
 
 deva7km/db.sqlite3
