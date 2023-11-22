@@ -48,3 +48,4 @@ async def process_callback_query_sku(callback: CallbackQuery):
         await callback.answer()
     else:
         await callback.message.answer('Фото нет', reply_markup=kb)
+        await callback.answer()
