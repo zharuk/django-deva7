@@ -47,5 +47,5 @@ async def process_callback_query_sku(callback: CallbackQuery):
                              caption=string, reply_markup=kb)
         await callback.answer()
     else:
-        await callback.message.answer('Фото нет', reply_markup=kb)
+        await callback.message.answer(string, reply_markup=kb)
         await callback.answer()
