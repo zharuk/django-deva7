@@ -30,6 +30,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='Слаг')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    is_sale = models.BooleanField(default=False, verbose_name='Распродажа')
     is_active = models.BooleanField(default=True, verbose_name='Включен')
 
     # Метод для получения общего остатка товара
