@@ -15,7 +15,31 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'imagekit',
     "catalog.apps.CatalogConfig",
+    'admin_reorder',
 ]
+
+ADMIN_REORDER = (
+    # First group
+    {'app': 'catalog', 'label': 'Товары',
+     'models': ('catalog.Product',
+                'catalog.ProductModification',
+                'catalog.Category',
+                'catalog.Color',
+                'catalog.Size',
+                'catalog.Image',
+                'catalog.Inventory',
+                'catalog.WriteOff')
+     },
+
+    # Second group: same app, but different label
+    {'app': 'catalog', 'label': 'Продажи',
+     'models': ('catalog.Sale',
+                'catalog.Return',)
+     },
+
+    {'app': 'auth', 'models': ('auth.User', 'auth.Group', 'catalog.TelegramUser')}
+
+    ,)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -25,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'admin_reorder.middleware.ModelAdminReorder',
 ]
 
 ROOT_URLCONF = 'deva7km.urls'
@@ -75,7 +100,6 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 # Настройки для imagekit
 IMAGEKIT_SPEC_CACHEFILE_NAMER = 'imagekit.cachefiles.namers.source_name_dot_hash'
 IMAGEKIT_CACHEFILE_DIR = 'CACHE/'  # Папка для хранения кешированных изображений
@@ -84,8 +108,6 @@ IMAGEKIT_CACHEFILE_DIR = 'CACHE/'  # Папка для хранения кеши
 IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
 IMAGEKIT_DEFAULT_CACHEFILE_BACKEND = 'imagekit.cachefiles.backends.Simple'
 IMAGEKIT_DEFAULT_CACHEFILE_TIMEOUT = 60 * 60 * 24 * 7  # Неделя
-
-
 
 try:
     from .local_settings import *

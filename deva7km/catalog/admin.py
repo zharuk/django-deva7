@@ -12,9 +12,6 @@ class TelegramUserAdmin(admin.ModelAdmin):
     search_fields = ('user_id', 'user_name', 'first_name', 'last_name')
 
 
-admin.site.register(TelegramUser, TelegramUserAdmin)
-
-
 # Модели для учета возвратов
 class ReturnItemInline(admin.TabularInline):
     model = ReturnItem
@@ -25,15 +22,12 @@ class ReturnItemInline(admin.TabularInline):
 class ReturnAdmin(admin.ModelAdmin):
     inlines = [ReturnItemInline]
     list_display = (
-    'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'source')
+        'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'source')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
 
     # Метод для запрета на редактирование, если возврат завершен
     def has_change_permission(self, request, obj=None):
         return False
-
-
-admin.site.register(Return, ReturnAdmin)
 
 
 # Модели для учета продаж
@@ -55,9 +49,6 @@ class SaleAdmin(admin.ModelAdmin):
         return super().has_change_permission(request, obj)
 
 
-admin.site.register(Sale, SaleAdmin)
-
-
 # Модели для работы с изображениями и модификациями товаров
 class ImageInline(admin.StackedInline):
     model = Image
@@ -72,15 +63,11 @@ class ImageAdmin(admin.ModelAdmin):
 
 class ProductModificationAdmin(admin.ModelAdmin):
     list_display = (
-    'product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency', 'thumbnail_image_modification',)
+        'product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency', 'thumbnail_image_modification',)
     list_filter = ('color', 'size', 'custom_sku',)
     search_fields = ('product__title', 'color__name', 'size__name', 'custom_sku')
     inlines = [ImageInline]
     ordering = ['-created_at']
-
-
-admin.site.register(Image, ImageAdmin)
-admin.site.register(ProductModification, ProductModificationAdmin)
 
 
 # Модели для учета товаров
@@ -101,9 +88,6 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ['-created_at']
 
 
-admin.site.register(Product, ProductAdmin)
-
-
 # Модели для учета инвентаризации
 class InventoryItemInline(admin.TabularInline):
     model = InventoryItem
@@ -121,9 +105,6 @@ class InventoryAdmin(admin.ModelAdmin):
         if obj and obj.status == 'completed':
             return False
         return super().has_change_permission(request, obj)
-
-
-admin.site.register(Inventory, InventoryAdmin)
 
 
 # Модели для учета списания товаров
@@ -146,9 +127,13 @@ class WriteOffAdmin(admin.ModelAdmin):
 
 
 admin.site.register(WriteOff, WriteOffAdmin)
-
-# Регистрация отдельных моделей
 admin.site.register(Category)
 admin.site.register(Color)
 admin.site.register(Size)
-# ... (ваш код для остальных моделей)
+admin.site.register(Inventory, InventoryAdmin)
+admin.site.register(Product, ProductAdmin)
+admin.site.register(Image, ImageAdmin)
+admin.site.register(ProductModification, ProductModificationAdmin)
+admin.site.register(Sale, SaleAdmin)
+admin.site.register(Return, ReturnAdmin)
+admin.site.register(TelegramUser, TelegramUserAdmin)
