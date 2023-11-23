@@ -1,17 +1,13 @@
 import asyncio
-import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage, Redis
-from deva7km.settings import BOT_TOKEN, LOGGING
+from deva7km.settings import BOT_TOKEN
 from tg_bot.handlers import start, products, sell_item, cancel, return_item, reports, inventory, write_off
 from tg_bot.keyboards.menu import set_main_menu
 
 
 # Токен бота
 TOKEN = BOT_TOKEN
-
-# Конфигурируем логирование
-logging.config.dictConfig(LOGGING)
 
 # # Создаем подключение к Redis состояний и хранилищу
 redis: Redis = Redis(host='localhost')
