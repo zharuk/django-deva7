@@ -27,7 +27,9 @@ class ReturnAdmin(admin.ModelAdmin):
 
     # Метод для запрета на редактирование, если возврат завершен
     def has_change_permission(self, request, obj=None):
-        return False
+        if obj and obj.status == 'completed':
+            return False
+        return super().has_change_permission(request, obj)
 
 
 # Модели для учета продаж
