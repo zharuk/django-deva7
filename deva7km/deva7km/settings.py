@@ -32,7 +32,7 @@ ADMIN_REORDER = (
      },
 
     # Second group: same app, but different label
-    {'app': 'catalog', 'label': 'Продажи',
+    {'app': 'catalog', 'label': 'Продажи и возвраты',
      'models': ('catalog.Sale',
                 'catalog.Return',)
      },

@@ -5,14 +5,13 @@ from .models import (
 )
 
 
-# Модели связанные с пользователями Telegram
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('user_id', 'user_name', 'first_name', 'last_name', 'role', 'created_at')
     list_filter = ('role', 'created_at')
     search_fields = ('user_id', 'user_name', 'first_name', 'last_name')
+    list_per_page = 25
 
 
-# Модели для учета возвратов
 class ReturnItemInline(admin.TabularInline):
     model = ReturnItem
     extra = 1
@@ -24,6 +23,7 @@ class ReturnAdmin(admin.ModelAdmin):
     list_display = (
         'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'source')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
+    list_per_page = 25
 
     # Метод для запрета на редактирование, если возврат завершен
     def has_change_permission(self, request, obj=None):
@@ -32,7 +32,6 @@ class ReturnAdmin(admin.ModelAdmin):
         return super().has_change_permission(request, obj)
 
 
-# Модели для учета продаж
 class SaleItemInline(admin.TabularInline):
     model = SaleItem
     extra = 1
@@ -43,6 +42,7 @@ class SaleAdmin(admin.ModelAdmin):
     inlines = [SaleItemInline]
     list_display = ('get_sold_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
+    list_per_page = 25
 
     # Метод для запрета на редактирование, если продажа завершена
     def has_change_permission(self, request, obj=None):
@@ -51,7 +51,6 @@ class SaleAdmin(admin.ModelAdmin):
         return super().has_change_permission(request, obj)
 
 
-# Модели для работы с изображениями и модификациями товаров
 class ImageInline(admin.StackedInline):
     model = Image
     extra = 1
@@ -61,6 +60,7 @@ class ImageInline(admin.StackedInline):
 
 class ImageAdmin(admin.ModelAdmin):
     list_display = ('modification', 'thumbnail_image')
+    list_per_page = 25
 
 
 class ProductModificationAdmin(admin.ModelAdmin):
@@ -70,9 +70,9 @@ class ProductModificationAdmin(admin.ModelAdmin):
     search_fields = ('product__title', 'color__name', 'size__name', 'custom_sku')
     inlines = [ImageInline]
     ordering = ['-created_at']
+    list_per_page = 25
 
 
-# Модели для учета товаров
 class ProductModificationInline(admin.TabularInline):
     model = ProductModification
     extra = 0
@@ -88,9 +88,9 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ('sku', 'category', 'colors', 'sizes',)
     readonly_fields = ('created_at', 'updated_at')
     ordering = ['-created_at']
+    list_per_page = 25
 
 
-# Модели для учета инвентаризации
 class InventoryItemInline(admin.TabularInline):
     model = InventoryItem
     extra = 1
@@ -101,6 +101,7 @@ class InventoryAdmin(admin.ModelAdmin):
     inlines = [InventoryItemInline]
     list_display = ('get_inventory_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
+    list_per_page = 25
 
     # Метод для запрета на редактирование, если оприходование завершено
     def has_change_permission(self, request, obj=None):
@@ -109,7 +110,6 @@ class InventoryAdmin(admin.ModelAdmin):
         return super().has_change_permission(request, obj)
 
 
-# Модели для учета списания товаров
 class WriteOffItemInline(admin.TabularInline):
     model = WriteOffItem
     extra = 1
@@ -120,6 +120,7 @@ class WriteOffAdmin(admin.ModelAdmin):
     inlines = [WriteOffItemInline]
     list_display = ('get_write_off_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
+    list_per_page = 25
 
     # Метод для запрета на редактирование, если списание завершено
     def has_change_permission(self, request, obj=None):
