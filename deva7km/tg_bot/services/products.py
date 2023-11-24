@@ -38,7 +38,7 @@ def get_modifications_info(sku):
             f"➡️️ Цвет: {modification.color.name}\n"
             f"➡️️ Размер: {modification.size.name}\n"
         )
-        result += f"➡️️ На складе: {modification.stock} шт.\n" if modification.stock > 0 else "⛔️ Нет в наличии\n"
+        modification_info += f"✅️️ На складе: {modification.stock} шт.\n" if modification.stock > 0 else "⛔️ Нет в наличии\n"
         result += modification_info + "\n"
 
     return result
