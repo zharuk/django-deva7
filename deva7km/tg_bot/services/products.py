@@ -5,13 +5,11 @@ from aiogram.types import URLInputFile, InputFile
 from aiogram.utils.markdown import hbold
 from asgiref.sync import sync_to_async
 from catalog.models import Product, ProductModification
-
 try:
     from deva7km.local_settings import BOT_TOKEN, BASE_URL
 except ImportError:
     from deva7km.prod_settings import BOT_TOKEN, BASE_URL
 
-# from deva7km.settings import BOT_TOKEN, BASE_URL
 
 bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 
@@ -39,7 +37,7 @@ def get_modifications_info(sku):
         modification_info = (
             f"➡️️ Цвет: {modification.color.name}\n"
             f"➡️️ Размер: {modification.size.name}\n"
-            f"➡️️ На складе: {modification.stock} шт.\n"
+            f"➡️️ На складе: {modification.stock} шт.\n" if modification.stock > 0 else "⛔️ Нет в наличии\n"
         )
         result += modification_info + "\n"
 
