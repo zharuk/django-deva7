@@ -29,7 +29,8 @@ async def create_inline_kb_main_sku(callback):
         buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}'))
 
     # Сортируем кнопки по возрастанию
-    buttons.sort(key=lambda x: int(x.text))
+    #buttons.sort(key=lambda x: int(x.text))
+    buttons.sort(key=lambda x: int(x.text) if x.text.isdigit() else 0)
     # Задаем количество кнопок в каждом ряду (здесь используется 8)
     buttons_per_row = 7
     # Разбиваем список кнопок на ряды
