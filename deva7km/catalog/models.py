@@ -10,6 +10,7 @@ from django.utils.safestring import mark_safe
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFit
 from PIL import Image as PILImage, ImageDraw
+from unidecode import unidecode
 
 
 # Модель товара
@@ -33,6 +34,14 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     is_sale = models.BooleanField(default=False, verbose_name='Распродажа')
     is_active = models.BooleanField(default=True, verbose_name='Включен')
+
+    # Переопределение метода save для автоматической транслитерации артикула
+    def save(self, *args, **kwargs):
+        # Если артикул не пустой и содержит кириллические символы
+        if self.sku and any(char.isalpha() for char in self.sku):
+            # Транслитерация и присвоение латинского варианта артикула
+            self.sku = unidecode(self.sku)
+        super().save(*args, **kwargs)
 
     # Метод для получения общего остатка товара
     def get_total_stock(self):
