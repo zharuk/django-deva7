@@ -29,7 +29,6 @@ async def create_inline_kb_main_sku(callback):
         buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}'))
 
     # Сортируем кнопки по возрастанию
-    #buttons.sort(key=lambda x: int(x.text))
     buttons.sort(key=lambda x: int(x.text) if x.text.isdigit() else 0)
     # Задаем количество кнопок в каждом ряду (здесь используется 8)
     buttons_per_row = 7
@@ -54,7 +53,8 @@ async def create_inline_kb_modifications(main_sku, callback):
 
     for modification in product_modifications:
         custom_sku = modification.custom_sku
-        buttons.append(InlineKeyboardButton(text=custom_sku, callback_data=f'{custom_sku}_modification_{callback}'))
+        stock = modification.stock
+        buttons.append(InlineKeyboardButton(text=f'{custom_sku} ({stock} шт.)', callback_data=f'{custom_sku}_modification_{callback}'))
 
     buttons_per_row = 2
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
