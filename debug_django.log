@@ -1,0 +1,16 @@
+[2023-11-25 14:07:10 +0000] [89271] [INFO] Starting gunicorn 21.2.0
+[2023-11-25 14:07:10 +0000] [89271] [INFO] Listening at: http://127.0.0.1:8000 (89271)
+[2023-11-25 14:07:10 +0000] [89271] [INFO] Using worker: sync
+[2023-11-25 14:07:10 +0000] [89274] [INFO] Booting worker with pid: 89274
+[2023-11-25 14:07:10 +0000] [89275] [INFO] Booting worker with pid: 89275
+[2023-11-25 16:09:26 +0200] [89275] [INFO] Worker exiting (pid: 89275)
+[2023-11-25 16:09:26 +0200] [89274] [INFO] Worker exiting (pid: 89274)
+[2023-11-25 14:09:26 +0000] [89271] [INFO] Handling signal: term
+[2023-11-25 14:09:26 +0000] [89271] [ERROR] Worker (pid:89274) was sent SIGTERM!
+[2023-11-25 14:09:26 +0000] [89271] [ERROR] Worker (pid:89275) was sent SIGTERM!
+[2023-11-25 14:09:26 +0000] [89271] [INFO] Shutting down: Master
+[2023-11-25 14:10:24 +0000] [89322] [INFO] Starting gunicorn 21.2.0
+[2023-11-25 14:10:24 +0000] [89322] [INFO] Listening at: http://127.0.0.1:8000 (89322)
+[2023-11-25 14:10:24 +0000] [89322] [INFO] Using worker: sync
+[2023-11-25 14:10:24 +0000] [89325] [INFO] Booting worker with pid: 89325
+[2023-11-25 14:10:24 +0000] [89326] [INFO] Booting worker with pid: 89326
