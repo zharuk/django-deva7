@@ -2,7 +2,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage, Redis
 from deva7km.settings import BOT_TOKEN
-from tg_bot.handlers import start, products, sell_item, cancel, return_item, reports, inventory, write_off
+from tg_bot.handlers import start, products, sell_item, cancel, return_item, reports, inventory, write_off, any_message
 from tg_bot.keyboards.menu import set_main_menu
 
 
@@ -31,6 +31,7 @@ async def main():
     dp.include_router(inventory.router)
     dp.include_router(write_off.router)
     dp.include_router(reports.router)
+    dp.include_router(any_message.router)
     # Пропускаем накопившиеся апдейты и запускаем polling
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
