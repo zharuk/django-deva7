@@ -4,20 +4,26 @@
 
 {% block content %}
     <h1>Список категорий и товаров</h1>
-    <ul>
-        {% for category in categories %}
-            <li>
-                <strong><a href="{% url 'category_detail' category.slug %}">{{ category.name }}</a></strong>
-                <ul>
-                    {% for product in category.product_set.all %}
-                        <li><a href="{% url 'product_detail' category.slug product.slug %}">{{ product.title }}</a></li>
-                    {% empty %}
-                        <li>Нет товаров в этой категории</li>
-                    {% endfor %}
-                </ul>
-            </li>
-        {% empty %}
-            <li>Нет категорий</li>
-        {% endfor %}
-    </ul>
+    <div class="container">
+        <div class="row">
+            {% for category in categories %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title"><a href="{% url 'category_detail' category.slug %}">{{ category.name }}</a></h5>
+                            <ul class="list-group list-group-flush">
+                                {% for product in category.product_set.all %}
+                                    <li class="list-group-item"><a href="{% url 'product_detail' category.slug product.slug %}">{{ product.title }}</a></li>
+                                {% empty %}
+                                    <li class="list-group-item">Нет товаров в этой категории</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>Нет категорий</p>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
