@@ -1,31 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ product.title }}</title>
-    <style>
-        /* Пример стилей CSS для улучшения оформления */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        p {
-            margin-bottom: 10px;
-        }
-        .product-details {
-            border: 1px solid #ccc;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
-        .product-image {
-            max-width: 400px;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}{{ product.title }}{% endblock %}
+
+{% block content %}
     <div class="product-details">
         <h1>{{ product.title }}</h1>
         <p><strong>Категория:</strong> {{ product.category }}</p>
@@ -45,18 +22,20 @@
                 Нет данных
             {% endfor %}
         </p>
-        <p><strong>Цена:</strong> {{ product.price }} {{ product.get_currency_display }}</p>
+        <p><strong>Цена:</strong> {{ product.price }} {{ product.currency }}</p>
         <p><strong>Дата создания:</strong> {{ product.created_at }}</p>
     </div>
 
     <!-- Отображение изображений товара -->
     <div class="product-image">
         <h2>Изображения товара</h2>
-        {% for image in images %}
-            <img src="{{ image.large_image.url }}" alt="{{ product.title }}">
+        {% for color, images in unique_color_images.items %}
+            <h3>{{ color }}</h3>
+            {% for image in images %}
+                <img src="{{ image.large_image.url }}" alt="{{ product.title }}" class="img-fluid d-block my-3">
+            {% endfor %}
         {% empty %}
             <p>Нет изображений</p>
         {% endfor %}
     </div>
-</body>
-</html>
+{% endblock %}
