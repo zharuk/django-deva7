@@ -164,6 +164,7 @@ class Image(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=200, verbose_name='Наименование категории')
     slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='Слаг')
+    description = models.TextField(blank=True, verbose_name='Описание категории')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
 
     def __str__(self):
