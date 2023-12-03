@@ -7,7 +7,7 @@ from transliterate import translit
 from itertools import product
 from unidecode import unidecode
 from .models import Product, ProductModification, Image, Category, Sale, SaleItem, ReturnItem, Return, InventoryItem, \
-    Inventory, WriteOffItem, WriteOff
+    Inventory, WriteOffItem, WriteOff, BlogPost
 
 
 # Сигнал для обновления цен перед сохранением продукта
@@ -110,6 +110,14 @@ def generate_modification_slug(sender, instance, **kwargs):
 def generate_category_slug(sender, instance, **kwargs):
     if not instance.slug:
         slug_base = slugify(unidecode(instance.name))
+        instance.slug = slug_base
+
+
+# Сигнал для генерации slug для модели BlogPost
+@receiver(pre_save, sender=BlogPost)
+def generate_category_slug(sender, instance, **kwargs):
+    if not instance.slug:
+        slug_base = slugify(unidecode(instance.title))
         instance.slug = slug_base
 
 

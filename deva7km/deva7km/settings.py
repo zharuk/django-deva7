@@ -16,7 +16,11 @@ INSTALLED_APPS = [
     'imagekit',
     "catalog.apps.CatalogConfig",
     'admin_reorder',
+    'ckeditor',
+    'ckeditor_uploader',
 ]
+
+CKEDITOR_UPLOAD_PATH = 'uploads/'
 
 ADMIN_REORDER = (
     # First group

@@ -1,3 +1,4 @@
+from ckeditor.fields import RichTextField
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -612,3 +613,17 @@ class WriteOffItem(models.Model):
     class Meta:
         verbose_name = 'Элемент списания товара'
         verbose_name_plural = 'Элементы списания товара'
+
+
+class BlogPost(models.Model):
+    title = models.CharField(max_length=200, verbose_name='Заголовок')
+    content = RichTextField(verbose_name='Содержание')
+    slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='Слаг')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = 'Пост'
+        verbose_name_plural = 'Посты'

@@ -1,7 +1,10 @@
+from ckeditor.widgets import CKEditorWidget
 from django.contrib import admin
+from django.db import models
+
 from .models import (
     Category, Color, Size, Product, ProductModification, Image, SaleItem, ReturnItem, Return,
-    TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem, Sale
+    TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem, Sale, BlogPost
 )
 
 
@@ -129,6 +132,16 @@ class WriteOffAdmin(admin.ModelAdmin):
         return super().has_change_permission(request, obj)
 
 
+class BlogPostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'created_at')
+    search_fields = ('title', 'created_at')
+    readonly_fields = ('created_at',)
+    formfield_overrides = {
+        models.TextField: {'widget': CKEditorWidget},
+    }
+
+
+admin.site.register(BlogPost, BlogPostAdmin)
 admin.site.register(WriteOff, WriteOffAdmin)
 admin.site.register(Category)
 admin.site.register(Color)
