@@ -7,7 +7,7 @@ from catalog.models import Image, Category, Product
 
 def home(request):
     categories = Category.objects.all()
-    latest_products = Product.objects.order_by('-created_at')[:5]
+    latest_products = Product.objects.order_by('-created_at')[:6]
     return render(request, 'home.html', {'categories': categories, 'latest_products': latest_products})
 
 

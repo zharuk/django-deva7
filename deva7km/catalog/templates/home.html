@@ -4,12 +4,13 @@
 
 {% block content %}
 <!-- Ваш HTML-код с использованием Bootstrap -->
+<h2> Новинки </h2>
 <div class="row">
   {% for product in latest_products %}
     <div class="col-md-4 mb-4">
-      <div class="card h-100 d-flex position-relative">
+      <div class="card h-100 d-flex flex-column justify-content-between position-relative">
         <a href="{% url 'product_detail' product.category.slug product.slug %}">
-          <img src="{{ product.large_image_url }}" class="card-img-top align-self-stretch" alt="{{ product.title }}">
+          <img src="{{ product.large_image_url }}" class="card-img-top img-fluid align-self-stretch" alt="{{ product.title }}">
         </a>
         <div class="card-body">
           <h5 class="card-title">
@@ -37,11 +38,12 @@
                 {% endif %}
               </p>
             {% endif %}
-            <a href="{% url 'product_detail' product.category.slug product.slug %}" class="btn btn-primary w-100">Перейти</a>
           </div>
         </div>
+        <a href="{% url 'product_detail' product.category.slug product.slug %}" class="btn btn-primary w-100">Перейти</a>
       </div>
     </div>
   {% endfor %}
 </div>
+
 {% endblock %}
