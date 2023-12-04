@@ -1,29 +1,47 @@
 {% extends "base.html" %}
 
-{% block title %}Главная страница{% endblock %}
+{% block title %}Главная{% endblock %}
 
 {% block content %}
-    <h1>Список категорий и товаров</h1>
-    <div class="container">
-        <div class="row">
-            {% for category in categories %}
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><a href="{% url 'category_detail' category.slug %}">{{ category.name }}</a></h5>
-                            <ul class="list-group list-group-flush">
-                                {% for product in category.product_set.all %}
-                                    <li class="list-group-item"><a href="{% url 'product_detail' category.slug product.slug %}">{{ product.title }}</a></li>
-                                {% empty %}
-                                    <li class="list-group-item">Нет товаров в этой категории</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            {% empty %}
-                <p>Нет категорий</p>
-            {% endfor %}
+<!-- Ваш HTML-код с использованием Bootstrap -->
+<div class="row">
+  {% for product in latest_products %}
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 d-flex position-relative">
+        <a href="{% url 'product_detail' product.category.slug product.slug %}">
+          <img src="{{ product.large_image_url }}" class="card-img-top align-self-stretch" alt="{{ product.title }}">
+        </a>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'product_detail' product.category.slug product.slug %}">{{ product.title }}</a>
+          </h5>
+          <div class="card-text">
+            <p>Категория: <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
+            <p>Артикул: {{ product.sku }}</p>
+            <p>Цвета: {{ product.get_colors }}</p>
+            <p>Размеры: {{ product.get_sizes }}</p>
+            {% if product.is_sale and product.sale_price > 0 %}
+              <p class="text-danger">
+                {% if product.price > 0 %}
+                  <del>Цена: {{ product.price }} {{ product.currency }}</del><br>
+                {% endif %}
+                <strong>Цена распродажи: {{ product.sale_price }} {{ product.currency }}</strong>
+              </p>
+              <span class="badge bg-danger position-absolute" style="top: 5px; left: 5px; font-size: 1em;">
+                <span class="text-white">Распродажа</span>
+              </span>
+            {% else %}
+              <p>
+                {% if product.price > 0 %}
+                  <strong>Цена: {{ product.price }} {{ product.currency }}</strong>
+                {% endif %}
+              </p>
+            {% endif %}
+            <a href="{% url 'product_detail' product.category.slug product.slug %}" class="btn btn-primary w-100">Перейти</a>
+          </div>
         </div>
+      </div>
     </div>
+  {% endfor %}
+</div>
 {% endblock %}

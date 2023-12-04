@@ -23,6 +23,10 @@
                             <a class="nav-link" href="{% url 'category_detail' category.slug %}">{{ category.name }}</a>
                         </li>
                     {% endfor %}
+                    <!-- Новый пункт меню "Все товары" -->
+                    <li class="nav-item">
+                    <a class="nav-link btn-dark" href="{% url 'all_products' %}">Все товары</a>
+                    </li>
                     <!-- Конец формирования главного меню -->
                 </ul>
             </div>

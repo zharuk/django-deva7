@@ -1,11 +1,14 @@
 from django.db.models import Count
 from django.shortcuts import render, get_object_or_404
+from django.views import View
+
 from catalog.models import Image, Category, Product
 
 
 def home(request):
     categories = Category.objects.all()
-    return render(request, 'home.html', {'categories': categories})
+    latest_products = Product.objects.order_by('-created_at')[:5]
+    return render(request, 'home.html', {'categories': categories, 'latest_products': latest_products})
 
 
 def category_list(request):
@@ -47,3 +50,11 @@ def product_detail(request, category_slug, product_slug):
 
     return render(request, 'product_detail.html', {'product': product, 'categories': categories,
                                                    'unique_color_images': unique_color_images})
+
+
+class AllProductsView(View):
+    def get(self, request):
+        # Логика для отображения всех товаров
+        products = Product.objects.all()  # Пример, ты можешь адаптировать под свою модель
+        categories = Category.objects.all()
+        return render(request, 'all_products.html', {'products': products, 'categories': categories})

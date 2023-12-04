@@ -10,14 +10,13 @@ from .models import Product, ProductModification, Image, Category, Sale, SaleIte
     Inventory, WriteOffItem, WriteOff, BlogPost
 
 
-# Сигнал для обновления цен перед сохранением продукта
+# сигнал который устанавливает атрибут is_sale для товара если sale_price > 0, иначе False.
 @receiver(pre_save, sender=Product)
-def update_prices(sender, instance, **kwargs):
+def set_is_sale(sender, instance, **kwargs):
     if instance.sale_price > 0:
-        # Если установлен флаг распродажи и цена распродажи меньше старой цены
-        instance.old_price = instance.price
-        instance.price = instance.sale_price
         instance.is_sale = True
+    else:
+        instance.is_sale = False
 
 
 # метод для списания, вычитающий остаток

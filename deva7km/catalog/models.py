@@ -24,7 +24,6 @@ class Product(models.Model):
     sizes = models.ManyToManyField('Size', blank=True, verbose_name='Размеры')
     price = models.DecimalField(max_digits=4, decimal_places=0, default=0, verbose_name='Цена')
     sale_price = models.DecimalField(max_digits=4, decimal_places=0, default=0, verbose_name='Цена распродажи')
-    old_price = models.DecimalField(max_digits=4, decimal_places=0, default=0, editable=False, verbose_name='Старая цена')
     CURRENCY_CHOICES = (
             ('UAH', 'Гривны (грн)'),
             ('USD', 'Доллары (USD)'),
@@ -73,6 +72,20 @@ class Product(models.Model):
         return format_html('<p>No Image</p>')
 
     thumbnail_image.short_description = 'Миниатюра изображения'
+
+    # Метод для отображения миниатюры изображения товара (только URL)
+    def thumbnail_image_url(self):
+        images = Image.objects.filter(modification__product=self)
+        if images:
+            return images[0].thumbnail.url
+        return None
+
+    # Метод для отображения большого изображения товара
+    def large_image_url(self):
+        images = Image.objects.filter(modification__product=self)
+        if images:
+            return images[0].large_image.url
+        return None
 
     def __str__(self):
         return self.title
