@@ -1,7 +1,7 @@
 import logging
 from urllib.parse import urljoin
 from aiogram import Bot
-from aiogram.types import URLInputFile, InputFile
+from aiogram.types import URLInputFile
 from aiogram.utils.markdown import hbold
 from asgiref.sync import sync_to_async
 from catalog.models import Product, ProductModification
@@ -29,7 +29,9 @@ def get_modifications_info(sku):
     result += hbold(f"📦 Товар: {product.title}\n")
     result += hbold(f"🧾 Артикул: {product.sku}\n")
     result += hbold(f"💵 Цена: {product.price} ({product.currency})\n\n")
-    result += hbold(f"📒 Модификации:\n")
+    if product.sale_price:
+        result += hbold(f"💰 Цена распродажи: {product.sale_price} ({product.currency})\n\n")
+    result += hbold(f"📒 Модификации:\n\n")
 
     # Перебираем все модификации этого товара
     for modification in product.modifications.all():

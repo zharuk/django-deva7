@@ -1,5 +1,3 @@
-from django.contrib import messages
-from django.core.exceptions import ValidationError
 from django.db.models.signals import m2m_changed, post_save, pre_save, pre_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
@@ -8,6 +6,18 @@ from itertools import product
 from unidecode import unidecode
 from .models import Product, ProductModification, Image, Category, Sale, SaleItem, ReturnItem, Return, InventoryItem, \
     Inventory, WriteOffItem, WriteOff, BlogPost
+
+
+@receiver(post_save, sender=Product)
+def update_modifications_prices(sender, instance, **kwargs):
+    # Получаем все модификации, связанные с данным товаром
+    modifications = ProductModification.objects.filter(product=instance)
+
+    # Обновляем значения price и sale_price в каждой модификации
+    for modification in modifications:
+        modification.price = instance.price
+        modification.sale_price = instance.sale_price
+        modification.save()
 
 
 # сигнал который устанавливает атрибут is_sale для товара если sale_price > 0, иначе False.

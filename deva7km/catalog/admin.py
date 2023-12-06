@@ -1,7 +1,6 @@
 from ckeditor.widgets import CKEditorWidget
 from django.contrib import admin
 from django.db import models
-
 from .models import (
     Category, Color, Size, Product, ProductModification, Image, SaleItem, ReturnItem, Return,
     TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem, Sale, BlogPost
@@ -30,7 +29,7 @@ class ReturnAdmin(admin.ModelAdmin):
 
     # Метод для запрета на редактирование, если возврат завершен
     def has_change_permission(self, request, obj=None):
-        if obj and obj.status == 'completed':
+        if obj and hasattr(obj, 'status') and obj.status == 'completed':
             return False
         return super().has_change_permission(request, obj)
 

@@ -102,6 +102,7 @@ class ProductModification(models.Model):
     size = models.ForeignKey('Size', on_delete=models.CASCADE, verbose_name='Размер')
     stock = models.PositiveIntegerField(default=0, verbose_name='Остаток')
     price = models.IntegerField(default=0, verbose_name='Цена')
+    sale_price = models.DecimalField(max_digits=4, decimal_places=0, default=0, verbose_name='Цена распродажи')
     currency = models.CharField(max_length=3, choices=Product.CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
     custom_sku = models.CharField(max_length=50, verbose_name='Артикул комплектации', blank=True)
     slug = models.SlugField(max_length=200, unique=False, blank=True, verbose_name='Слаг модификации')
@@ -243,7 +244,10 @@ class Sale(models.Model):
         total_amount = 0
         currency = ''
         for item in self.items.all():
-            total_amount += item.quantity * item.product_modification.price
+            if item.product_modification.sale_price > 0:
+                total_amount += item.quantity * item.product_modification.sale_price
+            else:
+                total_amount += item.quantity * item.product_modification.price
             currency = item.product_modification.currency
         return f'{total_amount} {currency}'
 
@@ -306,6 +310,8 @@ class SaleItem(models.Model):
     thumbnail_image_modification.short_description = 'Миниатюра изображения'
 
     def total_price(self):
+        if self.product_modification.sale_price > 0:
+            return self.quantity * self.product_modification.sale_price
         return self.quantity * self.product_modification.price
 
     total_price.short_description = 'Сумма'
@@ -339,7 +345,10 @@ class Return(models.Model):
         total_amount = 0
         currency = ''
         for item in self.items.all():
-            total_amount += item.quantity * item.product_modification.price
+            if item.product_modification.sale_price > 0:
+                total_amount += item.quantity * item.product_modification.sale_price
+            else:
+                total_amount += item.quantity * item.product_modification.price
             currency = item.product_modification.currency
         return f'{total_amount} {currency}'
 
@@ -384,6 +393,8 @@ class ReturnItem(models.Model):
     quantity = models.PositiveIntegerField(default=1, verbose_name='Количество возвращаемого')
 
     def total_price(self):
+        if self.product_modification.sale_price > 0:
+            return self.quantity * self.product_modification.sale_price
         return self.quantity * self.product_modification.price
 
     total_price.short_description = 'Сумма возврата'
@@ -451,6 +462,11 @@ class Inventory(models.Model):
         total_amount = 0
         currency = ''
         for item in self.items.all():
+            if item.product_modification.sale_price > 0:
+                total_amount += item.quantity * item.product_modification.sale_price
+                currency = item.product_modification.currency
+                continue  # Пропускаем обработку цены для модификации товара, если она имеет акционную цену
+            # Если цена модификации товара не имеет акционной цены, обрабатываем ее как обычную цену товара
             total_amount += item.quantity * item.product_modification.price
             currency = item.product_modification.currency
         return f'{total_amount} {currency}'
@@ -473,7 +489,7 @@ class Inventory(models.Model):
                 f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)<br>")
         return mark_safe("\n".join(inventory_items))
 
-    get_inventory_items.short_description = 'Проданные товары'
+    get_inventory_items.short_description = 'Оприходованные товары'
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -512,6 +528,9 @@ class InventoryItem(models.Model):
 
     # метод получения общей цены принятых товаров
     def total_price(self):
+        if self.product_modification.sale_price > 0:
+            return self.quantity * self.product_modification.sale_price
+        # Если цена модификации товара не имеет акционной цены, обрабатываем ее как обычную цену товара
         return self.quantity * self.product_modification.price
 
     total_price.short_description = 'Сумма'
@@ -550,6 +569,12 @@ class WriteOff(models.Model):
         total_amount = 0
         currency = ''
         for item in self.items.all():
+            if item.product_modification.sale_price > 0:
+                total_amount += item.quantity * item.product_modification.sale_price
+                currency = item.product_modification.currency
+                continue  # Если цена модификации товара имеет акционную цену, пропускаем обработку цены товара как
+                # обычную цену товара
+            # Если цена модификации товара не имеет акционной цены, обрабатываем ее как обычную цену товара
             total_amount += item.quantity * item.product_modification.price
             currency = item.product_modification.currency
         return f'{total_amount} {currency}'
@@ -611,6 +636,9 @@ class WriteOffItem(models.Model):
     thumbnail_image_modification.short_description = 'Миниатюра изображения'
 
     def total_price(self):
+        if self.product_modification.sale_price > 0:
+            return self.quantity * self.product_modification.sale_price
+        # Если цена модификации товара не имеет акционной цены, обрабатываем ее как обычную цену товара
         return self.quantity * self.product_modification.price
 
     total_price.short_description = 'Сумма'
