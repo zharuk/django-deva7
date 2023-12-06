@@ -67,7 +67,7 @@ class ImageAdmin(admin.ModelAdmin):
 
 class ProductModificationAdmin(admin.ModelAdmin):
     list_display = (
-        'product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency', 'thumbnail_image_modification',)
+        'product', 'custom_sku', 'color', 'size', 'stock', 'price', 'sale_price', 'currency', 'thumbnail_image_modification',)
     list_filter = ('color', 'size', 'custom_sku',)
     search_fields = ('product__title', 'color__name', 'size__name', 'custom_sku')
     inlines = [ImageInline]
@@ -78,14 +78,14 @@ class ProductModificationAdmin(admin.ModelAdmin):
 class ProductModificationInline(admin.TabularInline):
     model = ProductModification
     extra = 0
-    list_display = ('product', 'custom_sku', 'color', 'size', 'stock', 'price', 'currency',)
+    list_display = ('product', 'custom_sku', 'color', 'size', 'stock', 'price', 'sale_price', 'currency',)
     readonly_fields = ('thumbnail_image_modification',)
 
 
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductModificationInline]
-    list_display = ('title', 'sku', 'category', 'description', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
-                    'thumbnail_image', 'created_at')
+    list_display = ('title', 'sku', 'category', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
+                    'sale_price', 'thumbnail_image', 'created_at')
     search_fields = ('sku',)
     list_filter = ('sku', 'category', 'colors', 'sizes',)
     readonly_fields = ('created_at', 'updated_at')
