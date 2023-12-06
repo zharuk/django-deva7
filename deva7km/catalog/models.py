@@ -22,8 +22,8 @@ class Product(models.Model):
     sku = models.CharField(max_length=50, unique=True, verbose_name='Артикул')
     colors = models.ManyToManyField('Color', blank=True, verbose_name='Цвета')
     sizes = models.ManyToManyField('Size', blank=True, verbose_name='Размеры')
-    price = models.DecimalField(max_digits=4, decimal_places=0, default=0, verbose_name='Цена')
-    sale_price = models.DecimalField(max_digits=4, decimal_places=0, default=0, verbose_name='Цена распродажи')
+    price = models.IntegerField(default=0, verbose_name='Цена')
+    sale_price = models.IntegerField(default=0, verbose_name='Цена распродажи')
     CURRENCY_CHOICES = (
             ('UAH', 'Гривны (грн)'),
             ('USD', 'Доллары (USD)'),
@@ -102,13 +102,14 @@ class ProductModification(models.Model):
     size = models.ForeignKey('Size', on_delete=models.CASCADE, verbose_name='Размер')
     stock = models.PositiveIntegerField(default=0, verbose_name='Остаток')
     price = models.IntegerField(default=0, verbose_name='Цена')
-    sale_price = models.DecimalField(max_digits=4, decimal_places=0, default=0, verbose_name='Цена распродажи')
+    sale_price = models.IntegerField(default=0, verbose_name='Цена распродажи')
     currency = models.CharField(max_length=3, choices=Product.CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
     custom_sku = models.CharField(max_length=50, verbose_name='Артикул комплектации', blank=True)
     slug = models.SlugField(max_length=200, unique=False, blank=True, verbose_name='Слаг модификации')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     is_active = models.BooleanField(default=True, verbose_name='Включен')
+
 
     # Метод для отображения миниатюры изображения модификации товара
     def thumbnail_image_modification(self):
