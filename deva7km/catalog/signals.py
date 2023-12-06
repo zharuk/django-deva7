@@ -8,7 +8,21 @@ from .models import Product, ProductModification, Image, Category, Sale, SaleIte
     Inventory, WriteOffItem, WriteOff, BlogPost
 
 
+# сигнал для обновления цены модификаций при изменении цены товара.
 @receiver(post_save, sender=Product)
+def update_modifications_prices(sender, instance, **kwargs):
+    # Получаем все модификации, связанные с данным товаром
+    modifications = ProductModification.objects.filter(product=instance)
+
+    # Обновляем значения price и sale_price в каждой модификации
+    for modification in modifications:
+        modification.price = instance.price
+        modification.sale_price = instance.sale_price
+        modification.save()
+
+
+# сигнал для обновления цены модификаций при изменении цены товара.
+@receiver(pre_save, sender=Product)
 def update_modifications_prices(sender, instance, **kwargs):
     # Получаем все модификации, связанные с данным товаром
     modifications = ProductModification.objects.filter(product=instance)
