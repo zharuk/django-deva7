@@ -49,3 +49,25 @@ async def process_callback_query_sku(callback: CallbackQuery):
     else:
         await callback.message.answer(string, reply_markup=kb)
         await callback.answer()
+
+
+# Обработчик кнопки "Назад" для пагинации
+@router.callback_query(lambda callback: 'prev_products_' in callback.data)
+@admin_access_control_decorator(access='seller')
+async def process_callback_query_prev(callback: CallbackQuery):
+    _, callback_name, page = callback.data.split('_')
+    page = int(page)
+    kb = await create_inline_kb_main_sku(callback=callback_name, page=page - 1)
+    await callback.message.edit_reply_markup(reply_markup=kb)
+    await callback.answer()
+
+
+# Обработчик кнопки "Вперед" для пагинации
+@router.callback_query(lambda callback: 'next_products_' in callback.data)
+@admin_access_control_decorator(access='seller')
+async def process_callback_query_next(callback: CallbackQuery):
+    _, callback_name, page = callback.data.split('_')
+    page = int(page)
+    kb = await create_inline_kb_main_sku(callback=callback_name, page=page + 1)
+    await callback.message.edit_reply_markup(reply_markup=kb)
+    await callback.answer()
