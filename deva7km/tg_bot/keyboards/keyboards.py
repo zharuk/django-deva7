@@ -23,7 +23,7 @@ async def create_main_menu_kb():
 
 
 # клавиатура списка всех товаров, где каждая кнопка это основной артикул товара
-async def create_inline_kb_main_sku(callback, page=1, buttons_per_row=3, rows_per_page=2):
+async def create_inline_kb_main_sku(callback, page=1, buttons_per_row=8, rows_per_page=8):
     products = await sync_to_async(list)(Product.objects.all())  # Получаем все товары
 
     paginator = Paginator(products, buttons_per_row * rows_per_page)
