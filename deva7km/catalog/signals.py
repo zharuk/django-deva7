@@ -21,19 +21,6 @@ def update_modifications_prices(sender, instance, **kwargs):
         modification.save()
 
 
-# сигнал для обновления цены модификаций при изменении цены товара.
-@receiver(pre_save, sender=Product)
-def update_modifications_prices(sender, instance, **kwargs):
-    # Получаем все модификации, связанные с данным товаром
-    modifications = ProductModification.objects.filter(product=instance)
-
-    # Обновляем значения price и sale_price в каждой модификации
-    for modification in modifications:
-        modification.price = instance.price
-        modification.sale_price = instance.sale_price
-        modification.save()
-
-
 # сигнал который устанавливает атрибут is_sale для товара если sale_price > 0, иначе False.
 @receiver(pre_save, sender=Product)
 def set_is_sale(sender, instance, **kwargs):
@@ -189,6 +176,7 @@ def generate_product_modifications_on_m2m_change(sender, instance, action, rever
                         size=size,
                         stock=0,  # Установите начальный остаток по вашему усмотрению
                         price=instance.price,  # Установите начальную цену по вашему усмотрению
+                        sale_price=instance.sale_price,
                         currency=instance.currency,
                         custom_sku=f"{instance.sku}-{color.name}-{size.name}",
                     )
