@@ -86,7 +86,7 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductModificationInline]
     list_display = ('title', 'sku', 'category', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
                     'sale_price', 'thumbnail_image', 'created_at')
-    search_fields = ('sku',)
+    search_fields = ('sku', 'title')
     list_filter = ('sku', 'category', 'colors', 'sizes',)
     readonly_fields = ('created_at', 'updated_at')
     ordering = ['-created_at']
