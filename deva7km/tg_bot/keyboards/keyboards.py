@@ -1,7 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from asgiref.sync import sync_to_async
-from django.core.paginator import Paginator
-
 from catalog.models import Product, ProductModification
 
 
@@ -15,43 +13,29 @@ async def create_main_menu_kb():
     write_off_button = InlineKeyboardButton(text='📉 Списание', callback_data='write_off')
     report_button = InlineKeyboardButton(text='📊 Статистика', callback_data='report')
     # Создаем список кнопок
-    inline_keyboard = [[products_button], [sell_button], [return_button], [inventory_button], [write_off_button],
-                       [report_button]]
+    inline_keyboard = [[products_button], [sell_button], [return_button], [inventory_button], [write_off_button], [report_button]]
 
     # Возвращаем объект инлайн-клавиатуры
     return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
 
 
 # клавиатура списка всех товаров, где каждая кнопка это основной артикул товара
-async def create_inline_kb_main_sku(callback, page=1, buttons_per_row=8, rows_per_page=8):
+async def create_inline_kb_main_sku(callback):
     products = await sync_to_async(list)(Product.objects.all())  # Получаем все товары
-
-    paginator = Paginator(products, buttons_per_row * rows_per_page)
-    current_page = paginator.page(page)
-
     buttons = []
 
-    for product in current_page.object_list:
+    for product in products:
         sku = product.sku
         buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}'))
 
     # Сортируем кнопки по возрастанию
     buttons.sort(key=lambda x: int(x.text) if x.text.isdigit() else 0)
-
+    # Задаем количество кнопок в каждом ряду (здесь используется 8)
+    buttons_per_row = 7
     # Разбиваем список кнопок на ряды
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
-
-    # добавим кнопки 'Назад' и 'Вперед' для пагинации
-    navigation_row = []
-    if current_page.has_previous():
-        navigation_row.append(InlineKeyboardButton(text='⬅️ Назад', callback_data=f'prev_{callback}_{page}'))
-    if current_page.has_next():
-        navigation_row.append(InlineKeyboardButton(text='➡️ Вперед', callback_data=f'next_{callback}_{page}'))
-    rows.append(navigation_row)
-
-    # добавим кнопку 'Отмена'
-    cancel_button = [InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')]
-    rows.append(cancel_button)
+    # добавим кнопку 'Назад'
+    rows.append([InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -70,8 +54,7 @@ async def create_inline_kb_modifications(main_sku, callback):
     for modification in product_modifications:
         custom_sku = modification.custom_sku
         stock = modification.stock
-        buttons.append(InlineKeyboardButton(text=f'{custom_sku} ({stock} шт.)',
-                                            callback_data=f'{custom_sku}_modification_{callback}'))
+        buttons.append(InlineKeyboardButton(text=f'{custom_sku} ({stock} шт.)', callback_data=f'{custom_sku}_modification_{callback}'))
 
     buttons_per_row = 2
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
@@ -83,7 +66,7 @@ async def create_inline_kb_modifications(main_sku, callback):
 async def create_inline_kb_numbers(quantity=10):
     buttons = []
 
-    for number in range(1, quantity + 1):
+    for number in range(1, quantity+1):
         buttons.append(InlineKeyboardButton(text=str(number), callback_data=f'{number}'))
 
     # Разбиваем список кнопок на ряды по 5 кнопок в каждом
