@@ -51,14 +51,14 @@ def generate_sales_report_by_day():
 
     # Обработка продаж по товарам
     for product_modification, items in sales_by_items.items():
-        report_str += f"➡️ {product_modification.product.title}-{product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. - на сумму {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим заголовок для возвратов
     report_str += hbold("\nВозвраты за сегодня\n")
 
     # Обработка возвратов по товарам
     for product_modification, items in returns_by_items.items():
-        report_str += f"➡️ {product_modification.product.title}-{product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. - на сумму {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим общие суммы
     report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
