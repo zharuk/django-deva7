@@ -2,6 +2,8 @@ from aiogram import Router, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
+from django.utils import asyncio
+
 from deva7km.settings import BOT_TOKEN
 from tg_bot.keyboards.keyboards import create_report_kb, create_inline_kb_cancel
 from tg_bot.services.reports import generate_sales_report_by_day, generate_sales_report_by_yesterday, \
@@ -84,8 +86,18 @@ async def process_callback_query_sell(callback: CallbackQuery):
 #  обработчик который бы отлавливал callback_query=total_stock
 @router.callback_query(lambda callback: 'total_stock' == callback.data)
 @admin_access_control_decorator(access='admin')
-async def process_callback_query_sell(callback: CallbackQuery):
+async def process_callback_query(callback: CallbackQuery):
     report = await get_total_stock()
     kb = await create_report_kb()
-    await callback.message.answer(report, reply_markup=kb)
+
+    max_length = 4096  # Максимальная длина сообщения Telegram
+
+    # Разделение текста на части
+    parts = [report[i:i + max_length] for i in range(0, len(report), max_length)]
+
+    # Отправка каждой части поочередно
+    for part in parts:
+        await callback.message.answer(part, reply_markup=kb)
+
+    # Ответим на callback_query
     await callback.answer()
