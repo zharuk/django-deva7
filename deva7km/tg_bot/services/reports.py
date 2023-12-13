@@ -336,7 +336,7 @@ def generate_sales_report_by_year() -> str:
 #  функция для получения отчета об остатках на складе
 @sync_to_async
 def get_total_stock():
-    available_modifications = ProductModification.objects.filter(stock__gt=0)
+    available_modifications = ProductModification.objects.filter(stock__gt=0).order_by('custom_sku')
 
     report_str = "Общие остатки\n\n"
     total_stock_amount = 0
