@@ -1,13 +1,13 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from aiogram.utils.markdown import hbold
 from catalog.models import Sale, Return
 from asgiref.sync import sync_to_async
 from collections import defaultdict
+from datetime import datetime
 
 
-#  Генерация отчета по продажам за день
 @sync_to_async
-def generate_sales_report_by_day():
+def generate_sales_report_by_day() -> str:
     # Получаем текущую дату
     today = datetime.now().date()
 
@@ -49,15 +49,15 @@ def generate_sales_report_by_day():
     # Выводим заголовки
     report_str = hbold("Продажи за сегодня\n")
 
-    # Обработка продаж по товарам
-    for product_modification, items in sales_by_items.items():
+    # Обработка продаж по товарам с сортировкой по артикулу
+    for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим заголовок для возвратов
     report_str += hbold("\nВозвраты за сегодня\n")
 
-    # Обработка возвратов по товарам
-    for product_modification, items in returns_by_items.items():
+    # Обработка возвратов по товарам с сортировкой по артикулу
+    for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим общие суммы
@@ -69,9 +69,8 @@ def generate_sales_report_by_day():
     return report_str
 
 
-# функция для передачи отчета по продажам за вчера
 @sync_to_async
-def generate_sales_report_by_yesterday():
+def generate_sales_report_by_yesterday() -> str:
     # Получаем вчерашнюю дату
     yesterday = datetime.now().date() - timedelta(days=1)
 
@@ -113,15 +112,15 @@ def generate_sales_report_by_yesterday():
     # Выводим заголовки
     report_str = hbold("Продажи за вчера\n")
 
-    # Обработка продаж по товарам
-    for product_modification, items in sales_by_items.items():
+    # Обработка продаж по товарам с сортировкой по артикулу
+    for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим заголовок для возвратов
     report_str += hbold("\nВозвраты за вчера\n")
 
-    # Обработка возвратов по товарам
-    for product_modification, items in returns_by_items.items():
+    # Обработка возвратов по товарам с сортировкой по артикулу
+    for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим общие суммы
