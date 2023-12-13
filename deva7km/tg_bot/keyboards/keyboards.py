@@ -104,5 +104,7 @@ async def create_report_kb():
     week_button = InlineKeyboardButton(text='Отчет за неделю', callback_data='week')
     month_button = InlineKeyboardButton(text='Отчет за месяц', callback_data='month')
     year_button = InlineKeyboardButton(text='Отчет за год', callback_data='year')
+    total_stock = InlineKeyboardButton(text='📑 Остатки по товарам', callback_data='total_stock')
+    cancel_button = InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')
     return InlineKeyboardMarkup(
-        inline_keyboard=[[today_button, yesterday_button], [week_button, month_button], [year_button]])
+        inline_keyboard=[[today_button, yesterday_button], [week_button, month_button], [year_button], [total_stock], [cancel_button]])

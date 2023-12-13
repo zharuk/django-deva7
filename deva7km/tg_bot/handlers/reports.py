@@ -5,7 +5,7 @@ from aiogram.types import Message, CallbackQuery
 from deva7km.settings import BOT_TOKEN
 from tg_bot.keyboards.keyboards import create_report_kb, create_inline_kb_cancel
 from tg_bot.services.reports import generate_sales_report_by_day, generate_sales_report_by_yesterday, \
-    generate_sales_report_by_week
+    generate_sales_report_by_week, generate_sales_report_by_month, generate_sales_report_by_year, get_total_stock
 from tg_bot.services.users import admin_access_control_decorator
 
 router: Router = Router()
@@ -36,7 +36,7 @@ async def process_callback_query_sell(callback: CallbackQuery, state: FSMContext
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
     report = await generate_sales_report_by_day()
-    kb = await create_inline_kb_cancel()
+    kb = await create_report_kb()
     await callback.message.answer(report, reply_markup=kb)
     await callback.answer()
 
@@ -46,7 +46,7 @@ async def process_callback_query_sell(callback: CallbackQuery):
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
     report = await generate_sales_report_by_yesterday()
-    kb = await create_inline_kb_cancel()
+    kb = await create_report_kb()
     await callback.message.answer(report, reply_markup=kb)
     await callback.answer()
 
@@ -56,7 +56,7 @@ async def process_callback_query_sell(callback: CallbackQuery):
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
     report = await generate_sales_report_by_week()
-    kb = await create_inline_kb_cancel()
+    kb = await create_report_kb()
     await callback.message.answer(report, reply_markup=kb)
     await callback.answer()
 
@@ -65,7 +65,9 @@ async def process_callback_query_sell(callback: CallbackQuery):
 @router.callback_query(lambda callback: 'month' == callback.data)
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
-    await callback.message.answer('в разработке')
+    report = await generate_sales_report_by_month()
+    kb = await create_report_kb()
+    await callback.message.answer(report, reply_markup=kb)
     await callback.answer()
 
 
@@ -73,5 +75,17 @@ async def process_callback_query_sell(callback: CallbackQuery):
 @router.callback_query(lambda callback: 'year' == callback.data)
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
-    await callback.message.answer('в разработке')
+    report = await generate_sales_report_by_year()
+    kb = await create_report_kb()
+    await callback.message.answer(report, reply_markup=kb)
+    await callback.answer()
+
+
+#  обработчик который бы отлавливал callback_query=total_stock
+@router.callback_query(lambda callback: 'total_stock' == callback.data)
+@admin_access_control_decorator(access='admin')
+async def process_callback_query_sell(callback: CallbackQuery):
+    report = await get_total_stock()
+    kb = await create_report_kb()
+    await callback.message.answer(report, reply_markup=kb)
     await callback.answer()
