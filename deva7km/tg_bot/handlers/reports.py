@@ -97,7 +97,7 @@ async def process_callback_query(callback: CallbackQuery):
 
     # Отправка каждой части поочередно
     for part in parts:
-        await callback.message.answer(part, reply_markup=kb)
+        await callback.message.answer(part)
 
-    # Ответим на callback_query
+    await callback.message.answer('\nОтчет закончен', reply_markup=kb)
     await callback.answer()
