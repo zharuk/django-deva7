@@ -4,7 +4,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from deva7km.settings import BOT_TOKEN
 from tg_bot.keyboards.keyboards import create_report_kb, create_inline_kb_cancel
-from tg_bot.services.reports import generate_sales_report_by_day, generate_sales_report_by_yesterday
+from tg_bot.services.reports import generate_sales_report_by_day, generate_sales_report_by_yesterday, \
+    generate_sales_report_by_week
 from tg_bot.services.users import admin_access_control_decorator
 
 router: Router = Router()
@@ -54,7 +55,9 @@ async def process_callback_query_sell(callback: CallbackQuery):
 @router.callback_query(lambda callback: 'week' == callback.data)
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
-    await callback.message.answer('в разработке')
+    report = await generate_sales_report_by_week()
+    kb = await create_inline_kb_cancel()
+    await callback.message.answer(report, reply_markup=kb)
     await callback.answer()
 
 
