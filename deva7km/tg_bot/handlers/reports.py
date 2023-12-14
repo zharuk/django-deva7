@@ -31,116 +31,35 @@ async def process_callback_query_sell(callback: CallbackQuery, state: FSMContext
     await callback.answer()
 
 
-# обработчик который бы отлавливал callback_query=today
-@router.callback_query(lambda callback: 'today' == callback.data)
+# обработка отчетов
+@router.callback_query(lambda callback: callback.data in ['today', 'yesterday', 'week', 'month', 'year', 'total_stock'])
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_sell(callback: CallbackQuery):
-    report = await generate_sales_report_by_day()
-    kb = await create_report_kb()
-    max_length = 4096  # Максимальная длина сообщения Telegram
+    query_data = callback.data
 
-    # Разделение текста на части
-    parts = [report[i:i + max_length] for i in range(0, len(report), max_length)]
+    if query_data == 'total_stock':
+        report_functions = get_total_stock
+    else:
+        time_functions = {
+            'today': generate_sales_report_by_day,
+            'yesterday': generate_sales_report_by_yesterday,
+            'week': generate_sales_report_by_week,
+            'month': generate_sales_report_by_month,
+            'year': generate_sales_report_by_year,
+        }
+        report_functions = time_functions.get(query_data)
 
-    # Отправка каждой части поочередно
-    for part in parts:
-        await callback.message.answer(part)
+    if report_functions:
+        report = await report_functions()
+        kb = await create_report_kb()
+        max_length = 4096  # Максимальная длина сообщения Telegram
 
-    await callback.message.answer('\nОтчет закончен', reply_markup=kb)
-    await callback.answer()
+        # Разделение текста на части
+        parts = [report[i:i + max_length] for i in range(0, len(report), max_length)]
 
+        # Отправка каждой части поочередно
+        for part in parts:
+            await callback.message.answer(part)
 
-# обработчик который бы отлавливал callback_query=yesterday
-@router.callback_query(lambda callback: 'yesterday' == callback.data)
-@admin_access_control_decorator(access='admin')
-async def process_callback_query_sell(callback: CallbackQuery):
-    report = await generate_sales_report_by_yesterday()
-    kb = await create_report_kb()
-    max_length = 4096  # Максимальная длина сообщения Telegram
-
-    # Разделение текста на части
-    parts = [report[i:i + max_length] for i in range(0, len(report), max_length)]
-
-    # Отправка каждой части поочередно
-    for part in parts:
-        await callback.message.answer(part)
-
-    await callback.message.answer('\nОтчет закончен', reply_markup=kb)
-    await callback.answer()
-
-
-# обработчик который бы отлавливал callback_query=week
-@router.callback_query(lambda callback: 'week' == callback.data)
-@admin_access_control_decorator(access='admin')
-async def process_callback_query_sell(callback: CallbackQuery):
-    report = await generate_sales_report_by_week()
-    kb = await create_report_kb()
-    max_length = 4096  # Максимальная длина сообщения Telegram
-
-    # Разделение текста на части
-    parts = [report[i:i + max_length] for i in range(0, len(report), max_length)]
-
-    # Отправка каждой части поочередно
-    for part in parts:
-        await callback.message.answer(part)
-
-    await callback.message.answer('\nОтчет закончен', reply_markup=kb)
-    await callback.answer()
-
-
-# обработчик который бы отлавливал callback_query=month
-@router.callback_query(lambda callback: 'month' == callback.data)
-@admin_access_control_decorator(access='admin')
-async def process_callback_query_sell(callback: CallbackQuery):
-    report = await generate_sales_report_by_month()
-    kb = await create_report_kb()
-    max_length = 4096  # Максимальная длина сообщения Telegram
-
-    # Разделение текста на части
-    parts = [report[i:i + max_length] for i in range(0, len(report), max_length)]
-
-    # Отправка каждой части поочередно
-    for part in parts:
-        await callback.message.answer(part)
-
-    await callback.message.answer('\nОтчет закончен', reply_markup=kb)
-    await callback.answer()
-
-
-# обработчик который бы отлавливал callback_query=year
-@router.callback_query(lambda callback: 'year' == callback.data)
-@admin_access_control_decorator(access='admin')
-async def process_callback_query_sell(callback: CallbackQuery):
-    report = await generate_sales_report_by_year()
-    kb = await create_report_kb()
-    max_length = 4096  # Максимальная длина сообщения Telegram
-
-    # Разделение текста на части
-    parts = [report[i:i + max_length] for i in range(0, len(report), max_length)]
-
-    # Отправка каждой части поочередно
-    for part in parts:
-        await callback.message.answer(part)
-
-    await callback.message.answer('\nОтчет закончен', reply_markup=kb)
-    await callback.answer()
-
-
-#  обработчик который бы отлавливал callback_query=total_stock
-@router.callback_query(lambda callback: 'total_stock' == callback.data)
-@admin_access_control_decorator(access='admin')
-async def process_callback_query(callback: CallbackQuery):
-    report = await get_total_stock()
-    kb = await create_report_kb()
-
-    max_length = 4096  # Максимальная длина сообщения Telegram
-
-    # Разделение текста на части
-    parts = [report[i:i + max_length] for i in range(0, len(report), max_length)]
-
-    # Отправка каждой части поочередно
-    for part in parts:
-        await callback.message.answer(part)
-
-    await callback.message.answer('\nОтчет закончен', reply_markup=kb)
-    await callback.answer()
+        await callback.message.answer('\nОтчет закончен', reply_markup=kb)
+        await callback.answer()
