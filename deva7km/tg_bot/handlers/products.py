@@ -1,6 +1,9 @@
 from aiogram import Router, Bot
+from aiogram.enums import InputMediaType
 from aiogram.filters import Command
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, InputMediaPhoto, InputFile
+from aiogram.utils.media_group import MediaGroupBuilder
+
 from deva7km.settings import BOT_TOKEN
 from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_kb_return
 from tg_bot.services.products import get_modifications_info, get_first_image_for_product
@@ -27,25 +30,27 @@ async def process_callback_query_products(callback: CallbackQuery):
     await callback.answer()
 
 
-# Обработчик для переключения на предыдущую страницу
-@router.callback_query(lambda callback: callback.data.startswith('prev_page_products'))
+# Хендлер для кнопки Назад
+@router.callback_query(lambda callback: callback.data.startswith('prev_'))
 @admin_access_control_decorator(access='seller')
-async def process_callback_query_prev_page_products(callback: CallbackQuery):
-    page = int(callback.data.split('_')[-1])
-    if page > 1:
-        kb = await create_inline_kb_main_sku(callback='products', page=page - 1)
-        await callback.message.edit_text('Выберите товар для просмотра 👇', reply_markup=kb)
+async def process_callback_query_prev(callback: CallbackQuery):
+    _, callback_name, page = callback.data.split('_')
+    page = int(page) - 1 if int(page) > 1 else 1
+    kb = await create_inline_kb_main_sku(callback_name, page)
+    await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
 
 
-# Обработчик для переключения на следующую страницу
-@router.callback_query(lambda callback: callback.data.startswith('next_page_products'))
+# Хендлер для кнопки Вперед
+@router.callback_query(lambda callback: callback.data.startswith('next_'))
 @admin_access_control_decorator(access='seller')
-async def process_callback_query_next_page_products(callback: CallbackQuery):
-    page = int(callback.data.split('_')[-1])
-    kb = await create_inline_kb_main_sku(callback='products', page=page + 1)
-    await callback.message.edit_text('Выберите товар для просмотра 👇', reply_markup=kb)
+async def process_callback_query_next(callback: CallbackQuery):
+    _, callback_name, page = callback.data.split('_')
+    page = int(page) + 1
+    kb = await create_inline_kb_main_sku(callback_name, page)
+    await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
+
 
 # обработчик который бы отлавливал callback_query=sku для products
 @router.callback_query(lambda callback: '_main_sku_products' in callback.data)

@@ -1,7 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from asgiref.sync import sync_to_async
-from django.core.paginator import Paginator, EmptyPage
-
 from catalog.models import Product, ProductModification
 
 
@@ -23,36 +21,38 @@ async def create_main_menu_kb():
 
 # клавиатура списка всех товаров, где каждая кнопка это основной артикул товара
 async def create_inline_kb_main_sku(callback, page=1):
-    products_per_page = 49  # Количество товаров на одной странице
-    products = await sync_to_async(list)(
-        Product.objects.all().order_by('sku'))  # Получаем все товары, отсортированные по артикулу
-
-    paginator = Paginator(products, products_per_page)
-
-    try:
-        current_page = paginator.page(page)
-    except EmptyPage:
-        # Обработка ситуации, если запрошенной страницы не существует
-        return InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text='Страница не найдена', callback_data='cancel')]])
-
+    products = await sync_to_async(list)(Product.objects.all().order_by('sku'))
     buttons = []
 
-    for product in current_page.object_list:
-        sku = product.sku
-        buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}'))
+    # Определим количество кнопок на одной странице (например, 8)
+    buttons_per_page = 49
+    start_index = (page - 1) * buttons_per_page
+    end_index = start_index + buttons_per_page
 
-    # Задаем количество кнопок в каждом ряду (здесь используется 8)
+    for product in products[start_index:end_index]:
+        sku = product.sku
+        buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}_{page}'))
+
+    # Сортируем кнопки по возрастанию
+    buttons.sort(key=lambda x: int(x.text) if x.text.isdigit() else 0)
+
+    # Задаем количество кнопок в каждом ряду (здесь используется 7)
     buttons_per_row = 7
-    # Разбиваем список кнопок на ряды
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
-    # Добавим кнопки для переключения между страницами
-    rows.append([
-        InlineKeyboardButton(text='⬅️ Предыдущая', callback_data=f'prev_page_{callback}_{page - 1}'),
-        InlineKeyboardButton(text='➡️ Следующая', callback_data=f'next_page_{callback}_{page + 1}')
-    ])
-    # добавим кнопку 'Назад'
-    rows.append([InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')])
+
+    # Добавим кнопки навигации
+    navigation_buttons = []
+
+    # Добавляем кнопку "Назад" только на страницах больше 1
+    if page > 1:
+        navigation_buttons.append(InlineKeyboardButton(text='◀️ Назад', callback_data=f'prev_{callback}_{page}'))
+
+    # Добавляем кнопку "Вперед" только если есть еще товары на следующей странице
+    if len(products) > end_index:
+        navigation_buttons.append(InlineKeyboardButton(text='▶️ Вперед', callback_data=f'next_{callback}_{page}'))
+
+    rows.append(navigation_buttons)
+    rows.append([InlineKeyboardButton(text='↩️ Отмена', callback_data='cancel')])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
