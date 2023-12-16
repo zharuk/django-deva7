@@ -6,38 +6,45 @@
     <title>{% block title %}Ваш сайт{% endblock %}</title>
     <!-- Подключаем тему Slate с Bootswatch -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.0/slate/bootstrap.min.css">
+    <!-- Подключаем fontawesome -->
+    <script src="https://kit.fontawesome.com/1e82b11167.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
-        <!-- Navbar с главным меню -->
+        <!-- Основная навигационная панель -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <a class="navbar-brand" href="/">Дева</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav mr-auto">
                     <!-- Формирование главного меню из категорий сайта -->
                     {% for category in categories %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'category_detail' category.slug %}">{{ category.name }}</a>
+                            <a class="nav-link font-weight-bold text-black bg-dark" href="{% url 'category_detail' category.slug %}">{{ category.name }}</a>
                         </li>
                     {% endfor %}
+                    <!-- Конец формирования главного меню -->
                     <!-- Новый пункт меню "Все товары" -->
                     <li class="nav-item">
-                    <a class="nav-link btn-dark" href="{% url 'all_products' %}">Все товары</a>
+                        <a class="nav-link font-weight-bold text-black bg-dark" href="{% url 'all_products' %}">Все товары</a>
                     </li>
-                    <!-- Конец формирования главного меню -->
                 </ul>
+                <!-- Включаем дополнительные ссылки из contact_menu.html -->
+                {% include 'contact_menu.html' %}
             </div>
         </nav>
     </header>
+
     <main class="container mt-4">
         {% block content %}{% endblock %}
     </main>
+
     <footer class="footer mt-auto py-3 bg-primary">
         <div class="container">
-            <span class="text-light">Здесь может быть подвал сайта</span>
+            <!-- Включаем ссылки из contact_menu.html в футере -->
+            {% include 'contact_menu_bottom.html' %}
         </div>
     </footer>
 

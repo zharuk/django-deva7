@@ -3,17 +3,20 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from catalog import views
-from catalog.views import AllProductsView
+from catalog.views import AllProductsView, home, about_page, contacts_page, delivery_page, payment_page, \
+    category_detail, product_detail
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home, name='home'),
+    path('', home, name='home'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('category/<slug:category_slug>/', views.category_detail, name='category_detail'),
     path('all_products/', AllProductsView.as_view(), name='all_products'),
-    path('categories/', views.category_list, name='category_list'),
-    path('products/<str:category_slug>/', views.product_list, name='product_list'),
-    path('products/<slug:category_slug>/<slug:product_slug>/', views.product_detail, name='product_detail'),
+    path('about/', about_page, name='about'),
+    path('contacts/', contacts_page, name='contacts'),
+    path('delivery/', delivery_page, name='delivery'),
+    path('payment/', payment_page, name='payment'),
+    path('<slug:category_slug>/', category_detail, name='category_detail'),
+    path('<slug:category_slug>/<slug:product_slug>/', product_detail, name='product_detail'),
 ]
 
 if settings.DEBUG:
