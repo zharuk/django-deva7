@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{% block title %}Ваш сайт{% endblock %}</title>
@@ -8,6 +9,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.0/slate/bootstrap.min.css">
     <!-- Подключаем fontawesome -->
     <script src="https://kit.fontawesome.com/1e82b11167.js" crossorigin="anonymous"></script>
+    <!-- Подключаем favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}?v=2">
 </head>
 <body>
     <header>
