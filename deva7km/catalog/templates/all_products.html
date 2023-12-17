@@ -2,6 +2,16 @@
 
 {% block title %}Все товары{% endblock %}
 
+{% block breadcrumbs %}
+    <!-- Хлебные крошки для главной страницы -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Домой</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Все товары</li>
+        </ol>
+    </nav>
+{% endblock %}
+
 {% block content %}
     <h1>Список категорий и товаров</h1>
     <div class="container">

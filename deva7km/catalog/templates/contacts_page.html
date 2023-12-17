@@ -4,8 +4,17 @@
 
 {% block title %}Контакты{% endblock %}
 
-{% block content %}
+{% block breadcrumbs %}
+    <!-- Хлебные крошки для страницы контактов -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Контакты</li>
+        </ol>
+    </nav>
+{% endblock %}
 
+{% block content %}
 <div style="text-align: center;">
     <i class="fa-solid fa-map-location fa-10x"></i>
 </div>
@@ -14,7 +23,7 @@
         <p>
             Будем рады вас видеть по адресу г. Одесса, рынок 7км, Аппаратурный ряд 4904 новые ролеты. Оптовикам делаем скидки в зависимости от объема.<br>
             <span class="text-success">Есть Дропшиппинг - отправляем на вашего клиента.</span><br>
-            Присоеденяйтесь к нам в социальные сети viber и telegram что бы быть в курсе всех новинок.
+            Присоединяйтесь к нам в социальные сети Viber и Telegram, чтобы быть в курсе всех новинок.
         </p>
 
         <div class="row">

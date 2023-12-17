@@ -18,7 +18,10 @@ INSTALLED_APPS = [
     'admin_reorder',
     'ckeditor',
     'ckeditor_uploader',
+    'crispy_forms',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 

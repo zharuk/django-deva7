@@ -1,8 +1,9 @@
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Count
-from django.shortcuts import render, get_object_or_404
 from django.views import View
 from catalog.models import Image, Category, Product
+from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from .models import Category
 
 
 def home(request):
@@ -12,11 +13,14 @@ def home(request):
 
 
 def category_detail(request, category_slug):
+    # Получение объекта категории по slug
     category = get_object_or_404(Category, slug=category_slug)
-    products_list = category.product_set.all()
 
-    # Количество товаров, которое ты хочешь отобразить на каждой странице
-    items_per_page = 18
+    # Получение всех товаров в данной категории и упорядочивание их по полю title
+    products_list = category.product_set.order_by('title')
+
+    # Количество товаров, которое вы хотите отобразить на каждой странице
+    items_per_page = 9
 
     # Создание объекта Paginator
     paginator = Paginator(products_list, items_per_page)
@@ -34,9 +38,13 @@ def category_detail(request, category_slug):
         # Если 'page' больше, чем общее количество страниц, вывод последней страницы
         products = paginator.page(paginator.num_pages)
 
-    categories = Category.objects.all()  # Добавлено получение всех категорий для формирования меню
+    # Получение всех категорий для формирования меню
+    categories = Category.objects.all()
 
+    # Передача данных в контекст для использования в шаблоне
     context = {'category': category, 'products': products, 'categories': categories}
+
+    # Возвращение ответа с использованием шаблона 'category_detail.html' и передачей контекста
     return render(request, 'category_detail.html', context)
 
 

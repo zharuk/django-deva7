@@ -1,9 +1,21 @@
-<!-- about_page.html -->
-
 {% extends 'base.html' %}
 
 {% block title %}О сайте{% endblock %}
 
+{% block breadcrumbs %}
+    <!-- Хлебные крошки для страницы "О сайте" -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+            <li class="breadcrumb-item active" aria-current="page">О сайте</li>
+        </ol>
+    </nav>
+{% endblock %}
+
 {% block content %}
-в разработке
+    <div class="container mt-4">
+        <h2>О нашем сайте</h2>
+        <p>Здесь вы можете добавить описание вашего сайта или другую информацию, которую вы хотите предоставить посетителям.</p>
+        <!-- Дополнительное содержание страницы "О сайте" -->
+    </div>
 {% endblock %}
