@@ -1,5 +1,4 @@
 from django.db.models import Count
-from django.views import View
 from catalog.models import Image, Category, Product
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -69,12 +68,21 @@ def product_detail(request, category_slug, product_slug):
                                                    'unique_color_images': unique_color_images})
 
 
-class AllProductsView(View):
-    def get(self, request):
-        # Логика для отображения всех товаров
-        products = Product.objects.all().order_by('-created_at')
-        categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-        return render(request, 'all_products.html', {'products': products, 'categories': categories})
+def sales(request):
+    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
+    sale_products = Product.objects.filter(is_sale=True).order_by('-created_at')
+    print(sale_products)
+
+    # Другая логика, если необходимо
+
+    return render(request, 'sales.html', {'sale_products': sale_products, 'categories': categories})
+
+
+def all_products(request):
+    # Логика для отображения всех товаров
+    products = Product.objects.all().order_by('-created_at')
+    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
+    return render(request, 'all_products.html', {'products': products, 'categories': categories})
 
 
 def about_page(request):
@@ -95,3 +103,7 @@ def delivery_page(request):
 def payment_page(request):
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
     return render(request, 'payment_page.html', {'categories': categories})
+
+
+def telegram_page(request):
+    return render(request, 'telegram_page.html')

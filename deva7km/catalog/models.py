@@ -1,16 +1,12 @@
 from ckeditor.fields import RichTextField
-from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.db import models, transaction
-from django.db.models import F
-from django.http import request
+from django.db import models
 from django.utils import timezone
-from django.utils.html import format_html, linebreaks
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFit
-from PIL import Image as PILImage, ImageDraw
 from unidecode import unidecode
 
 

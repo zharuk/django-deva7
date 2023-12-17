@@ -30,6 +30,10 @@
                         </li>
                     {% endfor %}
                     <!-- Конец формирования главного меню -->
+                    <!-- Новый пункт меню "Распродажа" -->
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold text-black bg-dark text-danger" href="{% url 'sales' %}">Распродажа</a>
+                    </li>
                     <!-- Новый пункт меню "Все товары" -->
                     <li class="nav-item">
                         <a class="nav-link font-weight-bold text-black bg-dark" href="{% url 'all_products' %}">Все товары</a>
