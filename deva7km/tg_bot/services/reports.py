@@ -1,27 +1,40 @@
-from datetime import timedelta
 from aiogram.utils.markdown import hbold
-from catalog.models import Sale, Return, Product, ProductModification
+from catalog.models import Sale, Return, ProductModification
 from asgiref.sync import sync_to_async
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
+# отчет за сегодня
 @sync_to_async
 def generate_sales_report_by_day() -> str:
     # Получаем текущую дату
     today = datetime.now().date()
 
+    # Форматируем дату сегодняшнего дня
+    formatted_today = today.strftime("%d.%m.%Y")
+
     # Получаем все продажи и возвраты за сегодня
     sales = Sale.objects.filter(created_at__date=today)
     returns = Return.objects.filter(created_at__date=today)
 
-    # Инициализируем суммы
+    # Словарь для хранения количества проданных товаров
+    sold_quantity_by_product = defaultdict(int)
+
+    # Обработка продаж для подсчета количества проданных товаров
+    for sale in sales:
+        for item in sale.items.all():
+            product = item.product_modification.product
+            sold_quantity_by_product[product] += item.quantity
+
+    # Сортировка продаж по количеству товаров и общей сумме
+    top_sales = sorted(sold_quantity_by_product.items(), key=lambda x: (x[1], x[0].title, x[0].sku), reverse=True)[:3]
+
+    # Инициализируем суммы и словари для хранения продаж и возвратов по товарам
     total_sales_amount = 0
     total_returns_amount = 0
     total_cash_sales_amount = 0
     total_non_cash_sales_amount = 0
-
-    # Словари для хранения продаж и возвратов по товарам
     sales_by_items = defaultdict(list)
     returns_by_items = defaultdict(list)
 
@@ -46,15 +59,15 @@ def generate_sales_report_by_day() -> str:
         for item in ret.items.all():
             returns_by_items[item.product_modification].append(item)
 
-    # Выводим заголовки
-    report_str = hbold("Продажи за сегодня\n")
+    # Выводим заголовки с отформатированной датой сегодняшнего дня
+    report_str = hbold(f"Продажи за {formatted_today}\n")
 
     # Обработка продаж по товарам с сортировкой по артикулу
     for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим заголовок для возвратов
-    report_str += hbold("\nВозвраты за сегодня\n")
+    report_str += hbold(f"\nВозвраты за {formatted_today}\n")
 
     # Обработка возвратов по товарам с сортировкой по артикулу
     for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
@@ -64,27 +77,47 @@ def generate_sales_report_by_day() -> str:
     report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
                    f" UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n")
     report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH"
+    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH\n"
+
+    # Выводим ТОП 3 продаж
+    report_str += hbold("\nТОП 3 продаж за сегодня\n")
+    for rank, (product, quantity) in enumerate(top_sales, start=1):
+        total_amount = product.price * quantity
+        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
 
     return report_str
 
 
+# отчет за вчера
 @sync_to_async
 def generate_sales_report_by_yesterday() -> str:
     # Получаем вчерашнюю дату
     yesterday = datetime.now().date() - timedelta(days=1)
 
+    # Форматируем дату вчерашнего дня
+    formatted_yesterday = yesterday.strftime("%d.%m.%Y")
+
     # Получаем все продажи и возвраты за вчера
     sales = Sale.objects.filter(created_at__date=yesterday)
     returns = Return.objects.filter(created_at__date=yesterday)
 
-    # Инициализируем суммы
+    # Словарь для хранения количества проданных товаров
+    sold_quantity_by_product = defaultdict(int)
+
+    # Обработка продаж для подсчета количества проданных товаров
+    for sale in sales:
+        for item in sale.items.all():
+            product = item.product_modification.product
+            sold_quantity_by_product[product] += item.quantity
+
+    # Сортировка продаж по количеству товаров и общей сумме
+    top_sales = sorted(sold_quantity_by_product.items(), key=lambda x: (x[1], x[0].title, x[0].sku), reverse=True)[:3]
+
+    # Инициализируем суммы и словари для хранения продаж и возвратов по товарам
     total_sales_amount = 0
     total_returns_amount = 0
     total_cash_sales_amount = 0
     total_non_cash_sales_amount = 0
-
-    # Словари для хранения продаж и возвратов по товарам
     sales_by_items = defaultdict(list)
     returns_by_items = defaultdict(list)
 
@@ -109,8 +142,8 @@ def generate_sales_report_by_yesterday() -> str:
         for item in ret.items.all():
             returns_by_items[item.product_modification].append(item)
 
-    # Выводим заголовки
-    report_str = hbold("Продажи за вчера\n")
+    # Выводим заголовки с отформатированной датой вчерашнего дня
+    report_str = hbold(f"Продажи за вчера ({formatted_yesterday})\n")
 
     # Обработка продаж по товарам с сортировкой по артикулу
     for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
@@ -129,6 +162,12 @@ def generate_sales_report_by_yesterday() -> str:
     report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
     report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH"
 
+    # Выводим ТОП 3 продаж
+    report_str += hbold("\nТОП 3 продаж за вчера\n")
+    for rank, (product, quantity) in enumerate(top_sales, start=1):
+        total_amount = product.price * quantity
+        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
+
     return report_str
 
 
@@ -138,20 +177,34 @@ def generate_sales_report_by_week() -> str:
     # Получаем текущую дату
     today = datetime.now().date()
 
-    # Вычисляем начало недели (понедельник)
+    # Вычисляем начало недели (понедельник) и форматируем его
     start_of_week = today - timedelta(days=today.weekday())
+    formatted_start_date = start_of_week.strftime("%d.%m.%Y")
+
+    # Форматируем текущую дату
+    formatted_end_date = today.strftime("%d.%m.%Y")
 
     # Получаем все продажи и возвраты за текущую неделю
     sales = Sale.objects.filter(created_at__date__range=[start_of_week, today])
     returns = Return.objects.filter(created_at__date__range=[start_of_week, today])
 
-    # Инициализируем суммы
+    # Словарь для хранения количества проданных товаров
+    sold_quantity_by_product = defaultdict(int)
+
+    # Обработка продаж для подсчета количества проданных товаров
+    for sale in sales:
+        for item in sale.items.all():
+            product = item.product_modification.product
+            sold_quantity_by_product[product] += item.quantity
+
+    # Сортировка продаж по количеству товаров и общей сумме
+    top_sales = sorted(sold_quantity_by_product.items(), key=lambda x: (x[1], x[0].title, x[0].sku), reverse=True)[:3]
+
+    # Инициализируем суммы и словари для хранения продаж и возвратов по товарам
     total_sales_amount = 0
     total_returns_amount = 0
     total_cash_sales_amount = 0
     total_non_cash_sales_amount = 0
-
-    # Словари для хранения продаж и возвратов по товарам
     sales_by_items = defaultdict(list)
     returns_by_items = defaultdict(list)
 
@@ -176,15 +229,15 @@ def generate_sales_report_by_week() -> str:
         for item in ret.items.all():
             returns_by_items[item.product_modification].append(item)
 
-    # Выводим заголовки
-    report_str = hbold("Продажи за неделю\n")
+    # Выводим заголовки с отформатированными датами
+    report_str = hbold(f"Продажи за неделю ({formatted_start_date} - {formatted_end_date})\n")
 
     # Обработка продаж по товарам с сортировкой по артикулу
     for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим заголовок для возвратов
-    report_str += hbold("\nВозвраты за неделю\n")
+    report_str += hbold(f"\nВозвраты за неделю ({formatted_start_date} - {formatted_end_date})\n")
 
     # Обработка возвратов по товарам с сортировкой по артикулу
     for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
@@ -194,7 +247,13 @@ def generate_sales_report_by_week() -> str:
     report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
                    f" UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n")
     report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH"
+    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH\n"
+
+    # Выводим ТОП 3 продаж
+    report_str += hbold("\nТОП 3 продаж за неделю\n")
+    for rank, (product, quantity) in enumerate(top_sales, start=1):
+        total_amount = product.price * quantity
+        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
 
     return report_str
 
@@ -205,20 +264,34 @@ def generate_sales_report_by_month() -> str:
     # Получаем текущую дату
     today = datetime.now().date()
 
-    # Вычисляем первый день текущего месяца
+    # Вычисляем первый день текущего месяца и форматируем его
     first_day_of_month = today.replace(day=1)
+    formatted_start_date = first_day_of_month.strftime("%d.%m.%Y")
+
+    # Форматируем текущую дату
+    formatted_end_date = today.strftime("%d.%m.%Y")
 
     # Получаем все продажи и возвраты за текущий месяц
     sales = Sale.objects.filter(created_at__date__range=[first_day_of_month, today])
     returns = Return.objects.filter(created_at__date__range=[first_day_of_month, today])
 
-    # Инициализируем суммы
+    # Словарь для хранения количества проданных товаров
+    sold_quantity_by_product = defaultdict(int)
+
+    # Обработка продаж для подсчета количества проданных товаров
+    for sale in sales:
+        for item in sale.items.all():
+            product = item.product_modification.product
+            sold_quantity_by_product[product] += item.quantity
+
+    # Сортировка продаж по количеству товаров и общей сумме
+    top_sales = sorted(sold_quantity_by_product.items(), key=lambda x: (x[1], x[0].title, x[0].sku), reverse=True)[:3]
+
+    # Инициализируем суммы и словари для хранения продаж и возвратов по товарам
     total_sales_amount = 0
     total_returns_amount = 0
     total_cash_sales_amount = 0
     total_non_cash_sales_amount = 0
-
-    # Словари для хранения продаж и возвратов по товарам
     sales_by_items = defaultdict(list)
     returns_by_items = defaultdict(list)
 
@@ -243,15 +316,15 @@ def generate_sales_report_by_month() -> str:
         for item in ret.items.all():
             returns_by_items[item.product_modification].append(item)
 
-    # Выводим заголовки
-    report_str = hbold("Продажи за месяц\n")
+    # Выводим заголовки с отформатированными датами
+    report_str = hbold(f"Продажи за месяц ({formatted_start_date} - {formatted_end_date})\n")
 
     # Обработка продаж по товарам с сортировкой по артикулу
     for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим заголовок для возвратов
-    report_str += hbold("\nВозвраты за месяц\n")
+    report_str += hbold(f"\nВозвраты за месяц ({formatted_start_date} - {formatted_end_date})\n")
 
     # Обработка возвратов по товарам с сортировкой по артикулу
     for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
@@ -261,7 +334,13 @@ def generate_sales_report_by_month() -> str:
     report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
                    f" UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n")
     report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH"
+    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH\n"
+
+    # Выводим ТОП 3 продаж
+    report_str += hbold("\nТОП 3 продаж за месяц\n")
+    for rank, (product, quantity) in enumerate(top_sales, start=1):
+        total_amount = product.price * quantity
+        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
 
     return report_str
 
@@ -272,20 +351,34 @@ def generate_sales_report_by_year() -> str:
     # Получаем текущую дату
     today = datetime.now().date()
 
-    # Вычисляем первый день текущего года
+    # Вычисляем первый день текущего года и форматируем его
     first_day_of_year = today.replace(month=1, day=1)
+    formatted_start_date = first_day_of_year.strftime("%d.%m.%Y")
+
+    # Форматируем текущую дату
+    formatted_end_date = today.strftime("%d.%m.%Y")
 
     # Получаем все продажи и возвраты за текущий год
     sales = Sale.objects.filter(created_at__date__range=[first_day_of_year, today])
     returns = Return.objects.filter(created_at__date__range=[first_day_of_year, today])
 
-    # Инициализируем суммы
+    # Словарь для хранения количества проданных товаров
+    sold_quantity_by_product = defaultdict(int)
+
+    # Обработка продаж для подсчета количества проданных товаров
+    for sale in sales:
+        for item in sale.items.all():
+            product = item.product_modification.product
+            sold_quantity_by_product[product] += item.quantity
+
+    # Сортировка продаж по количеству товаров и общей сумме
+    top_sales = sorted(sold_quantity_by_product.items(), key=lambda x: (x[1], x[0].title, x[0].sku), reverse=True)[:3]
+
+    # Инициализируем суммы и словари для хранения продаж и возвратов по товарам
     total_sales_amount = 0
     total_returns_amount = 0
     total_cash_sales_amount = 0
     total_non_cash_sales_amount = 0
-
-    # Словари для хранения продаж и возвратов по товарам
     sales_by_items = defaultdict(list)
     returns_by_items = defaultdict(list)
 
@@ -310,15 +403,15 @@ def generate_sales_report_by_year() -> str:
         for item in ret.items.all():
             returns_by_items[item.product_modification].append(item)
 
-    # Выводим заголовки
-    report_str = hbold("Продажи за год\n")
+    # Выводим заголовки с обновленным форматом
+    report_str = hbold(f"Продажи за год ({formatted_start_date} - {formatted_end_date})\n")
 
     # Обработка продаж по товарам с сортировкой по артикулу
     for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим заголовок для возвратов
-    report_str += hbold("\nВозвраты за год\n")
+    report_str += hbold(f"\nВозвраты за год ({formatted_start_date} - {formatted_end_date})\n")
 
     # Обработка возвратов по товарам с сортировкой по артикулу
     for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
@@ -328,7 +421,13 @@ def generate_sales_report_by_year() -> str:
     report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
                    f" UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n")
     report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH"
+    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH\n"
+
+    # Выводим ТОП 3 продаж
+    report_str += hbold("\nТОП 3 продаж за год\n")
+    for rank, (product, quantity) in enumerate(top_sales, start=1):
+        total_amount = product.price * quantity
+        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
 
     return report_str
 
