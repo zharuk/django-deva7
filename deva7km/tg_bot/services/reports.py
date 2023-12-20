@@ -74,10 +74,10 @@ def generate_sales_report_by_day() -> str:
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим общие суммы
-    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
-                   f" UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n")
-    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH\n"
+    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
+                   f" грн., безнал.: {total_non_cash_sales_amount:.2f} грн.)\n")
+    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} грн.\n\n"
+    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} грн.\n"
 
     # Выводим ТОП 3 продаж
     report_str += hbold("\nТОП 3 продаж за сегодня\n")
@@ -157,10 +157,10 @@ def generate_sales_report_by_yesterday() -> str:
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим общие суммы
-    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
-                   f" UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n")
-    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH"
+    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
+                   f" грн., безнал.: {total_non_cash_sales_amount:.2f} грн.)\n")
+    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} грн.\n\n"
+    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} грн."
 
     # Выводим ТОП 3 продаж
     report_str += hbold("\nТОП 3 продаж за вчера\n")
@@ -244,10 +244,10 @@ def generate_sales_report_by_week() -> str:
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим общие суммы
-    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
-                   f" UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n")
-    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH\n"
+    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
+                   f" грн., безнал.: {total_non_cash_sales_amount:.2f} грн.)\n")
+    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} грн.\n\n"
+    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} грн.\n"
 
     # Выводим ТОП 3 продаж
     report_str += hbold("\nТОП 3 продаж за неделю\n")
@@ -331,10 +331,10 @@ def generate_sales_report_by_month() -> str:
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим общие суммы
-    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
-                   f" UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n")
-    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH\n"
+    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
+                   f" грн., безнал.: {total_non_cash_sales_amount:.2f} грн.)\n")
+    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} грн.\n\n"
+    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} грн.\n"
 
     # Выводим ТОП 3 продаж
     report_str += hbold("\nТОП 3 продаж за месяц\n")
@@ -418,10 +418,10 @@ def generate_sales_report_by_year() -> str:
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим общие суммы
-    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} UAH (нал.: {total_cash_sales_amount:.2f}"
-                   f" UAH, безнал.: {total_non_cash_sales_amount:.2f} UAH)\n")
-    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} UAH\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} UAH\n"
+    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
+                   f" грн., безнал.: {total_non_cash_sales_amount:.2f} грн.)\n")
+    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} грн.\n\n"
+    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} грн.\n"
 
     # Выводим ТОП 3 продаж
     report_str += hbold("\nТОП 3 продаж за год\n")
@@ -450,6 +450,6 @@ def get_total_stock():
         )
 
     total_stock_amount_str = "{:.2f}".format(total_stock_amount).rstrip("0").rstrip(".")
-    report_str += f"\nОбщая сумма всех остатков: {total_stock_amount_str} UAH"
+    report_str += f"\nОбщая сумма всех остатков: {total_stock_amount_str} грн."
 
     return report_str
