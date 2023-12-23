@@ -14,6 +14,18 @@
     fbq('init', '763864302423800');
     fbq('track', 'PageView');
     </script>
+      <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var joinButton = document.querySelector('.tgme_action_button_new');
+        if (joinButton) {
+            joinButton.addEventListener('click', function() {
+                // Ваш код для отслеживания нажатия на кнопку
+                // Например, для пикселя ФБ:
+                fbq('track', 'Lead');
+            });
+        }
+    });
+     </script>
     <meta charset="utf-8">
     <title>Telegram: Join Group Chat</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
