@@ -29,27 +29,43 @@
         <div class="row">
             <div class="col-md-6">
                 <p><strong>Email:</strong> deva7km@gmail.com</p>
-                <p><strong>Телефон:</strong> <a href="tel:+380930972066">+38 (093) 0972066</a> <a href="viber://add?number=%2B380930972066" onclick="trackLead('Viber')"><i class="fa-brands fa-viber fa-lg"></i></a> <a href="tg://resolve?domain=deva_opt" onclick="trackLead('Telegram')"><i class="fa-brands fa-telegram fa-lg"></i></a></p>
+                <p><strong>Телефон:</strong> <a href="tel:+380930972066">+38 (093) 0972066</a> <i class="fa-brands fa-telegram fa-lg"></i> <i class="fa-brands fa-viber fa-lg"></i></p>
                 <!-- Добавьте дополнительные контактные данные при необходимости -->
             </div>
             <div class="col-md-6">
                 <p><strong>Социальные сети:</strong></p>
                 <ul class="list-inline">
-                    <li class="list-inline-item"><a href="tg://resolve?domain=deva_opt" target="_blank"><i class="fa-brands fa-telegram fa-bounce fa-xl" style="color: #0088cc;"></i> Страница Telegram</a></li>
-                    <li class="list-inline-item"><a href="viber://chat?number=%2B380930972066" target="_blank"><i class="fa-brands fa-viber fa-bounce fa-xl" style="color: #665cac;"></i> Страница Viber</a></li>
+                    <li class="list-inline-item">
+                        <a id="telegram-link" href="https://t.me/deva_opt" target="_blank">
+                            <i class="fa-brands fa-telegram fa-bounce fa-xl" style="color: #0088cc;"></i> Страница Telegram
+                        </a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a id="viber-link" href="https://invite.viber.com/?g2=AQBuUzRe8Gw0%2FEi7pspJf0fM%2BH8NiG5Y29yYk7cVPlpVa%2Brr0uEO%2BNMjgffQucXf" target="_blank">
+                            <i class="fa-brands fa-viber fa-bounce fa-xl" style="color: #665cac;"></i> Страница Viber
+                        </a>
+                    </li>
                     <!-- Добавьте дополнительные ссылки на социальные сети при необходимости -->
                 </ul>
             </div>
         </div>
     </div>
 
-    <!-- Ваш скрипт отслеживания лидов -->
     <script>
-        function trackLead(platform) {
-            // Здесь добавьте код отслеживания события для вашей аналитической системы
-            // Например, для пикселя Facebook:
-            fbq('track', 'Lead', { platform: platform });
-        }
-    </script>
+        document.getElementById('telegram-link').addEventListener('click', function() {
+            // Отправить событие фейсбук-лида для кнопки Telegram
+            fbq('track', 'Lead', {
+                content_name: 'Telegram Button Click',
+                // Дополнительные параметры, если необходимо
+            });
+        });
 
+        document.getElementById('viber-link').addEventListener('click', function() {
+            // Отправить событие фейсбук-лида для кнопки Viber
+            fbq('track', 'Lead', {
+                content_name: 'Viber Button Click',
+                // Дополнительные параметры, если необходимо
+            });
+        });
+    </script>
 {% endblock %}
