@@ -14,7 +14,7 @@
     fbq('init', '763864302423800');
     fbq('track', 'PageView');
     </script>
-      <script>
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
         var joinButton = document.querySelector('.tgme_action_button_new');
         if (joinButton) {
@@ -25,7 +25,17 @@
             });
         }
     });
-     </script>
+    </script>
+      <!-- Код для отслеживания события нажатия на кнопку "Перейти в приложение Telegram" -->
+    <script>
+      document.addEventListener('click', function(event) {
+        // Проверяем, был ли клик по кнопке "Перейти в приложение Telegram"
+        if (event.target.tagName === 'A' && event.target.href.startsWith('tg://join?invite=')) {
+          // Отправляем событие нажатия на кнопку в Facebook Pixel
+          fbq('track', 'Lead', {content_name: 'Button Clicked'});
+        }
+      });
+    </script>
     <meta charset="utf-8">
     <title>Telegram: Join Group Chat</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
