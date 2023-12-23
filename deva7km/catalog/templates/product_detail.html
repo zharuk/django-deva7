@@ -20,7 +20,7 @@
     fbq('track', 'ViewContent', {
         content_name: '{{ product.title }}',  // Название контента (например, заголовок товара)
         content_category: '{{ product.category.name }}',  // Категория контента
-        content_ids: ['{{ product.sku }}'],  // ID контента (например, ID товара)
+        content_ids: {{ product.sku }},  // ID контента (например, ID товара)
         content_type: 'product',  // Тип контента (например, товар)
         value: {{ product.price }},  // Стоимость контента (например, цена товара)
         currency: '{{ product.currency }}'  // Валюта
