@@ -27,18 +27,6 @@
         }
     });
     </script>
-      <!-- Скрипт отслеживания события всплывающего приглашения в приложение Telegram -->
-    <script>
-      window.addEventListener('message', function(event) {
-        // Проверяем, является ли сообщение от Telegram
-        if (event.origin === 'https://web.telegram.org' && event.data.eventType === 'web_app_open_tg_link') {
-          // Отправляем событие нажатия на всплывающее приглашение в Facebook Pixel
-          fbq('track', 'Lead', {content_name: 'Telegram App Invitation Clicked'});
-        }
-      });
-    </script>
-
-
     <meta charset="utf-8">
     <title>Telegram: Join Group Chat</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -133,57 +121,7 @@ You are invited to the channel <strong dir="auto">Апаратурный ряд 
 
     <script src="//telegram.org/js/tgwallpaper.min.js?3"></script>
 
-    <script type="text/javascript">
 
-var protoUrl = "tg:\/\/join?invite=sKylcm-sVEE1ODUy";
-if (false) {
-  var iframeContEl = document.getElementById('tgme_frame_cont') || document.body;
-  var iframeEl = document.createElement('iframe');
-  iframeContEl.appendChild(iframeEl);
-  var pageHidden = false;
-  window.addEventListener('pagehide', function () {
-    pageHidden = true;
-  }, false);
-  window.addEventListener('blur', function () {
-    pageHidden = true;
-  }, false);
-  if (iframeEl !== null) {
-    iframeEl.src = protoUrl;
-  }
-  !false && setTimeout(function() {
-    if (!pageHidden) {
-      window.location = protoUrl;
-    }
-  }, 2000);
-}
-else if (protoUrl) {
-  setTimeout(function() {
-    window.location = protoUrl;
-  }, 100);
-}
-
-var tme_bg = document.getElementById('tgme_background');
-if (tme_bg) {
-  TWallpaper.init(tme_bg);
-  TWallpaper.animate(true);
-  window.onfocus = function(){ TWallpaper.update(); };
-}
-document.body.classList.remove('no_transition');
-
-function toggleTheme(dark) {
-  document.documentElement.classList.toggle('theme_dark', dark);
-  window.Telegram && Telegram.setWidgetOptions({dark: dark});
-}
-if (window.matchMedia) {
-  var darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
-  toggleTheme(darkMedia.matches);
-  darkMedia.addListener(function(e) {
-    toggleTheme(e.matches);
-  });
-}
-
-
-    </script>
   </body>
 </html>
 
