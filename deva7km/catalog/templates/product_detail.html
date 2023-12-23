@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}{{ product.title }}{% endblock %}
@@ -14,6 +15,18 @@
 {% endblock %}
 
 {% block content %}
+<script>
+    // Добавляем отслеживание события ViewContent
+    fbq('track', 'ViewContent', {
+        content_name: '{{ product.title }}',  // Название контента (например, заголовок товара)
+        content_category: '{{ product.category.name }}',  // Категория контента
+        content_ids: ['{{ product.sku }}'],  // ID контента (например, ID товара)
+        content_type: 'product',  // Тип контента (например, товар)
+        value: {{ product.price }},  // Стоимость контента (например, цена товара)
+        currency: '{{ product.currency }}'  // Валюта
+    });
+</script>
+
 {% if product.is_sale and product.sale_price > 0 %}
     <span class="badge bg-danger" style="font-size: 1em; margin-left: 5px;">
         <span class="text-white">Распродажа</span>
