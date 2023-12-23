@@ -22,7 +22,7 @@
         content_category: '{{ product.category.name }}',  // Категория контента
         content_ids: {{ product.sku }},  // ID контента (например, ID товара)
         content_type: 'product',  // Тип контента (например, товар)
-        value: {{ product.price }},  // Стоимость контента (например, цена товара)
+        value: {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %},  // Стоимость контента (например, цена товара)
         currency: '{{ product.currency }}'  // Валюта
     });
 </script>
