@@ -44,6 +44,39 @@
       </div>
     </div>
   {% endfor %}
+
+  <!-- Отобразить контент конкретного блог-поста -->
+  <div class="container">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ main_page_post.title }}</h5>
+                    <p class="card-text">{{ main_page_post.content|safe }}</p>
+                </div>
+            </div>
+        </div>
+        <!-- Дополнительные блоки col-12 могут быть добавлены по необходимости -->
+    </div>
+  </div>
 </div>
 
+<!-- скрипт отлова lead для fb -->
+    <script>
+        document.getElementById('telegram-link').addEventListener('click', function() {
+            // Отправить событие фейсбук-лида для кнопки Telegram
+            fbq('track', 'Lead', {
+                content_name: 'Telegram Button Click',
+                // Дополнительные параметры, если необходимо
+            });
+        });
+
+        document.getElementById('viber-link').addEventListener('click', function() {
+            // Отправить событие фейсбук-лида для кнопки Viber
+            fbq('track', 'Lead', {
+                content_name: 'Viber Button Click',
+                // Дополнительные параметры, если необходимо
+            });
+        });
+    </script>
 {% endblock %}

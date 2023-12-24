@@ -1,5 +1,3 @@
-<!-- delivery_page.html -->
-
 {% extends 'base.html' %}
 
 {% block title %}Информация о доставке{% endblock %}
@@ -15,5 +13,16 @@
 {% endblock %}
 
 {% block content %}
-в разработке
+ <!-- Отобразить контент конкретного блог-поста -->
+      <div class="container">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="card-text">{{ delivery_page_post.content|safe }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
 {% endblock %}

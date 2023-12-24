@@ -1,5 +1,3 @@
-<!-- payment_page.html -->
-
 {% extends 'base.html' %}
 
 {% block title %}Информация о оплате{% endblock %}
@@ -15,5 +13,16 @@
 {% endblock %}
 
 {% block content %}
-в разработке
+<!-- Отобразить контент конкретного блог-поста -->
+      <div class="container">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="card-text">{{ payment_page_post.content|safe }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
 {% endblock %}

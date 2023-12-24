@@ -15,42 +15,20 @@
 {% endblock %}
 
 {% block content %}
-<div style="text-align: center;">
-    <i class="fa-solid fa-map-location fa-10x"></i>
-</div>
-    <div class="container mt-4">
-        <h2>Наши контакты</h2>
-        <p>
-            Будем рады вас видеть по адресу г. Одесса, рынок 7км, Аппаратурный ряд 4904 новые ролеты. Оптовикам делаем скидки в зависимости от объема.<br>
-            <span class="text-success">Есть Дропшиппинг - отправляем на вашего клиента.</span><br>
-            Присоединяйтесь к нам в социальные сети Viber и Telegram, чтобы быть в курсе всех новинок.
-        </p>
-
+        <!-- Отобразить контент конкретного блог-поста -->
+      <div class="container">
         <div class="row">
-            <div class="col-md-6">
-                <p><strong>Email:</strong> deva7km@gmail.com</p>
-                <p><strong>Телефон:</strong> <a href="tel:+380930972066">+38 (093) 0972066</a> <i class="fa-brands fa-telegram fa-lg"></i> <i class="fa-brands fa-viber fa-lg"></i></p>
-                <!-- Добавьте дополнительные контактные данные при необходимости -->
-            </div>
-            <div class="col-md-6">
-                <p><strong>Социальные сети:</strong></p>
-                <ul class="list-inline">
-                    <li class="list-inline-item">
-                        <a id="telegram-link" href="https://t.me/+sKylcm-sVEE1ODUy" target="_blank">
-                            <i class="fa-brands fa-telegram fa-bounce fa-xl" style="color: #0088cc;"></i> Страница Telegram
-                        </a>
-                    </li>
-                    <li class="list-inline-item">
-                        <a id="viber-link" href="https://invite.viber.com/?g2=AQBuUzRe8Gw0%2FEi7pspJf0fM%2BH8NiG5Y29yYk7cVPlpVa%2Brr0uEO%2BNMjgffQucXf" target="_blank">
-                            <i class="fa-brands fa-viber fa-bounce fa-xl" style="color: #665cac;"></i> Страница Viber
-                        </a>
-                    </li>
-                    <!-- Добавьте дополнительные ссылки на социальные сети при необходимости -->
-                </ul>
+            <div class="col-12 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="card-text">{{ contacts_page_post.content|safe }}</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+      </div>
 
+<!-- скрипт отлова lead для fb -->
     <script>
         document.getElementById('telegram-link').addEventListener('click', function() {
             // Отправить событие фейсбук-лида для кнопки Telegram

@@ -1,5 +1,5 @@
 from django.db.models import Count
-from catalog.models import Image, Category, Product
+from catalog.models import Image, Category, Product, BlogPost
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -7,7 +7,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 def home(request):
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
     latest_products = Product.objects.order_by('-created_at')[:6]
-    return render(request, 'home.html', {'categories': categories, 'latest_products': latest_products})
+    main_page_post = get_object_or_404(BlogPost, title='Главная страница')
+    return render(request, 'home.html',
+                  {'categories': categories, 'latest_products': latest_products, 'main_page_post': main_page_post})
 
 
 def category_detail(request, category_slug):
@@ -71,38 +73,37 @@ def product_detail(request, category_slug, product_slug):
 def sales(request):
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
     sale_products = Product.objects.filter(is_sale=True).order_by('-created_at')
-    print(sale_products)
-
-    # Другая логика, если необходимо
-
     return render(request, 'sales.html', {'sale_products': sale_products, 'categories': categories})
 
 
 def all_products(request):
-    # Логика для отображения всех товаров
     products = Product.objects.all().order_by('-created_at')
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
     return render(request, 'all_products.html', {'products': products, 'categories': categories})
 
 
 def about_page(request):
+    about_page_post = get_object_or_404(BlogPost, title='О сайте')
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-    return render(request, 'about_page.html', {'categories': categories})
+    return render(request, 'about_page.html', {'categories': categories, 'about_page_post': about_page_post})
 
 
 def contacts_page(request):
+    contacts_page_post = get_object_or_404(BlogPost, title='Контакты')
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-    return render(request, 'contacts_page.html', {'categories': categories})
+    return render(request, 'contacts_page.html', {'categories': categories, 'contacts_page_post': contacts_page_post})
 
 
 def delivery_page(request):
+    delivery_page_post = get_object_or_404(BlogPost, title='Доставка')
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-    return render(request, 'delivery_page.html', {'categories': categories})
+    return render(request, 'delivery_page.html', {'categories': categories, 'delivery_page_post': delivery_page_post})
 
 
 def payment_page(request):
+    payment_page_post = get_object_or_404(BlogPost, title='Оплата')
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-    return render(request, 'payment_page.html', {'categories': categories})
+    return render(request, 'payment_page.html', {'categories': categories, 'payment_page_post': payment_page_post})
 
 
 def telegram_page(request):
