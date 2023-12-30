@@ -442,8 +442,12 @@ def get_total_stock():
 
     for modification in available_modifications:
         stock_quantity = modification.stock
-        total_stock_amount += modification.price * stock_quantity
-        amount_str = "{:.2f}".format(modification.price * stock_quantity).rstrip("0").rstrip(".")
+
+        # Используем sale_price, если он больше 0, иначе используем обычную цену price
+        price = modification.sale_price if modification.sale_price > 0 else modification.price
+
+        total_stock_amount += price * stock_quantity
+        amount_str = "{:.2f}".format(price * stock_quantity).rstrip("0").rstrip(".")
         report_str += (
             f"➡️ {modification.custom_sku} "
             f"({stock_quantity} шт. сумма {amount_str}грн.)\n"
@@ -453,3 +457,4 @@ def get_total_stock():
     report_str += f"\nОбщая сумма всех остатков: {total_stock_amount_str} грн."
 
     return report_str
+
