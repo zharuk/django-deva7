@@ -131,9 +131,13 @@ def generate_category_slug(sender, instance, **kwargs):
         instance.slug = slug_base
 
 
-#  Функция для добавления всех изображений для модификаций одного и того же цвета
+# Функция для добавления всех изображений для модификаций одного и того же цвета
 @receiver(post_save, sender=Image)
 def associate_images_with_same_color(sender, instance, **kwargs):
+    # Проверяем, было ли изображение изменено (например, при сортировке)
+    if kwargs.get('update_fields') is not None:
+        return
+
     # Получите модификацию товара, к которой относится данное изображение
     modification = instance.modification
     # Получите цвет данной модификации
@@ -146,9 +150,12 @@ def associate_images_with_same_color(sender, instance, **kwargs):
     images_to_create = []
 
     for other_modification in other_modifications:
-        # Создайте новый объект Image, но не сохраняйте его в базе данных
-        new_image = Image(modification=other_modification, image=instance.image)
-        images_to_create.append(new_image)
+        # Проверяем, не существует ли уже изображение в данной модификации
+        existing_image = Image.objects.filter(modification=other_modification, image=instance.image).first()
+        if not existing_image:
+            # Создайте новый объект Image, но не сохраняйте его в базе данных
+            new_image = Image(modification=other_modification, image=instance.image)
+            images_to_create.append(new_image)
 
     # Используйте bulk_create для создания всех изображений одновременно
     Image.objects.bulk_create(images_to_create)

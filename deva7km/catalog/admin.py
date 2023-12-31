@@ -1,3 +1,4 @@
+from adminsortable2.admin import SortableAdminMixin, SortableStackedInline
 from ckeditor.widgets import CKEditorWidget
 from django.contrib import admin
 from django.db import models
@@ -53,21 +54,22 @@ class SaleAdmin(admin.ModelAdmin):
         return super().has_change_permission(request, obj)
 
 
-class ImageInline(admin.StackedInline):
+class ImageInline(SortableStackedInline):
     model = Image
     extra = 1
     fields = [('image', 'thumbnail_image')]
     readonly_fields = ('thumbnail_image',)
 
 
-class ImageAdmin(admin.ModelAdmin):
+class ImageAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = ('modification', 'thumbnail_image')
     list_per_page = 25
 
 
-class ProductModificationAdmin(admin.ModelAdmin):
+class ProductModificationAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = (
-        'product', 'custom_sku', 'color', 'size', 'stock', 'price', 'sale_price', 'currency', 'thumbnail_image_modification',)
+        'product', 'custom_sku', 'color', 'size', 'stock', 'price', 'sale_price', 'currency',
+        'thumbnail_image_modification',)
     list_filter = ('color', 'size', 'custom_sku',)
     search_fields = ('product__title', 'color__name', 'size__name', 'custom_sku')
     inlines = [ImageInline]

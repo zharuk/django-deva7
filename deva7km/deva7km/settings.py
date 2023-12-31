@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'crispy_forms',
+    'adminsortable2',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

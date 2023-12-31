@@ -155,6 +155,11 @@ class Image(models.Model):
         format='JPEG',
         options={'quality': 90}
     )
+    my_order = models.PositiveIntegerField(
+        default=0,
+        blank=False,
+        null=False,
+    )
 
     # Метод для отображения миниатюры изображения
     def thumbnail_image(self):
@@ -166,6 +171,7 @@ class Image(models.Model):
     class Meta:
         verbose_name = 'Изображение товара'
         verbose_name_plural = 'Изображения товара'
+        ordering = ['my_order']
 
     def __str__(self):
         return f'{self.image}'
