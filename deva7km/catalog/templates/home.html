@@ -7,44 +7,42 @@
 <h2> Новинки </h2>
 <div class="row">
   {% for product in latest_products %}
-    {% if product.is_active %}
-      <div class="col-md-4 mb-4">
-        <div class="card h-100 d-flex flex-column justify-content-between position-relative">
-          <a href="{% url 'product_detail' product.category.slug product.slug %}">
-            <img src="{{ product.large_image_url }}" class="card-img-top img-fluid align-self-stretch" alt="{{ product.title }}">
-          </a>
-          <div class="card-body">
-            <h5 class="card-title">
-              <a href="{% url 'product_detail' product.category.slug product.slug %}">{{ product.title }}</a>
-            </h5>
-            <div class="card-text">
-              <p>Категория: <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
-              <p>Артикул: {{ product.sku }}</p>
-              <p>Цвета: {{ product.get_colors }}</p>
-              <p>Размеры: {{ product.get_sizes }}</p>
-              {% if product.is_sale and product.sale_price > 0 %}
-                <p class="text-danger">
-                  {% if product.price > 0 %}
-                    <del>Цена: {{ product.price }} {{ product.currency }}</del><br>
-                  {% endif %}
-                  <strong>Цена распродажи: {{ product.sale_price }} {{ product.currency }}</strong>
-                </p>
-                <span class="badge bg-danger position-absolute" style="top: 5px; left: 5px; font-size: 1em;">
-                  <span class="text-white">Распродажа</span>
-                </span>
-              {% else %}
-                <p>
-                  {% if product.price > 0 %}
-                    <strong>Цена: {{ product.price }} {{ product.currency }}</strong>
-                  {% endif %}
-                </p>
-              {% endif %}
-            </div>
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 d-flex flex-column justify-content-between position-relative">
+        <a href="{% url 'product_detail' product.category.slug product.slug %}">
+          <img src="{{ product.large_image_url }}" class="card-img-top img-fluid align-self-stretch" alt="{{ product.title }}">
+        </a>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'product_detail' product.category.slug product.slug %}">{{ product.title }}</a>
+          </h5>
+          <div class="card-text">
+            <p>Категория: <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
+            <p>Артикул: {{ product.sku }}</p>
+            <p>Цвета: {{ product.get_colors }}</p>
+            <p>Размеры: {{ product.get_sizes }}</p>
+            {% if product.is_sale and product.sale_price > 0 %}
+              <p class="text-danger">
+                {% if product.price > 0 %}
+                  <del>Цена: {{ product.price }} {{ product.currency }}</del><br>
+                {% endif %}
+                <strong>Цена распродажи: {{ product.sale_price }} {{ product.currency }}</strong>
+              </p>
+              <span class="badge bg-danger position-absolute" style="top: 5px; left: 5px; font-size: 1em;">
+                <span class="text-white">Распродажа</span>
+              </span>
+            {% else %}
+              <p>
+                {% if product.price > 0 %}
+                  <strong>Цена: {{ product.price }} {{ product.currency }}</strong>
+                {% endif %}
+              </p>
+            {% endif %}
           </div>
-          <a href="{% url 'product_detail' product.category.slug product.slug %}" class="btn btn-primary w-100">Перейти</a>
         </div>
+        <a href="{% url 'product_detail' product.category.slug product.slug %}" class="btn btn-primary w-100">Перейти</a>
       </div>
-    {% endif %}
+    </div>
   {% endfor %}
 
   <!-- Отобразить контент конкретного блог-поста -->
