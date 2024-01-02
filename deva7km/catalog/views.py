@@ -6,7 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def home(request):
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-    latest_products = Product.objects.order_by('-created_at')[:6]
+    latest_products = Product.objects.filter(is_active=True).order_by('-created_at')[:6]
     main_page_post = get_object_or_404(BlogPost, title='Главная страница')
     return render(request, 'home.html',
                   {'categories': categories, 'latest_products': latest_products, 'main_page_post': main_page_post})
@@ -17,7 +17,7 @@ def category_detail(request, category_slug):
     category = get_object_or_404(Category, slug=category_slug)
 
     # Получение всех товаров в данной категории и упорядочивание их по полю title
-    products_list = category.product_set.order_by('-created_at')
+    products_list = category.product_set.filter(is_active=True).order_by('-created_at')
 
     # Количество товаров, которое вы хотите отобразить на каждой странице
     items_per_page = 9
@@ -72,12 +72,12 @@ def product_detail(request, category_slug, product_slug):
 
 def sales(request):
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-    sale_products = Product.objects.filter(is_sale=True).order_by('-created_at')
+    sale_products = Product.objects.filter(is_sale=True, is_active=True).order_by('-created_at')
     return render(request, 'sales.html', {'sale_products': sale_products, 'categories': categories})
 
 
 def all_products(request):
-    products = Product.objects.all().order_by('-created_at')
+    products = Product.objects.filter(is_active=True).order_by('-created_at')
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
     return render(request, 'all_products.html', {'products': products, 'categories': categories})
 
