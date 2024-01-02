@@ -40,11 +40,7 @@ async def create_sale(user_data, telegram_user):
             source='telegram',
         )
 
-        # Сохранение объекта Sale
-        await sync_to_async(sale.save)()
-
-        # Добавление элементов продажи
-        await sync_to_async(SaleItem.objects.create)(
+        sale_item = SaleItem(
             sale=sale,
             product_modification=product_modification,
             quantity=quantity,
@@ -52,6 +48,8 @@ async def create_sale(user_data, telegram_user):
 
         # Сохранение объекта Sale
         await sync_to_async(sale.save)()
+        # Сохранение объекта SaleItem
+        await sync_to_async(sale_item.save)()
 
         return sale
     else:

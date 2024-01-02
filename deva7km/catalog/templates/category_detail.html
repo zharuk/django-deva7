@@ -3,92 +3,54 @@
 {% block title %}{{ category.name }}{% endblock %}
 
 {% block breadcrumbs %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Домой</a></li>
-            {% for crumb in category.get_ancestors %}
-                <li class="breadcrumb-item"><a href="{% url 'category_detail' crumb.slug %}">{{ crumb.name }}</a></li>
-            {% endfor %}
-            <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
-        </ol>
-    </nav>
+    <!-- Ваш код для хлебных крошек -->
 {% endblock %}
 
 {% block content %}
     <h1>{{ category.name }}</h1>
     <div class="row">
         {% for product in products %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 d-flex flex-column justify-content-between position-relative">
-                    <a href="{% url 'product_detail' category.slug product.slug %}">
-                        <img src="{{ product.large_image_url }}" class="card-img-top img-fluid align-self-stretch" alt="{{ product.title }}">
-                    </a>
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a href="{% url 'product_detail' category.slug product.slug %}">{{ product.title }}</a>
-                        </h5>
-                        <div class="card-text">
-                            <p>Артикул: {{ product.sku }}</p>
-                            <p>Цвета: {{ product.get_colors }}</p>
-                            <p>Размеры: {{ product.get_sizes }}</p>
-                            {% if product.is_sale and product.sale_price > 0 %}
-                                <p class="text-danger">
-                                    {% if product.price > 0 %}
-                                        <del>Цена: {{ product.price }} {{ product.currency }}</del><br>
-                                    {% endif %}
-                                    <strong>Цена распродажи: {{ product.sale_price }} {{ product.currency }}</strong>
-                                </p>
-                                <span class="badge bg-danger position-absolute" style="top: 5px; left: 5px; font-size: 1em;">
-                                    <span class="text-white">Распродажа</span>
-                                </span>
-                            {% else %}
-                                <p>
-                                    {% if product.price > 0 %}
-                                        <strong>Цена: {{ product.price }} {{ product.currency }}</strong>
-                                    {% endif %}
-                                </p>
-                            {% endif %}
+            {% if product.is_active %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 d-flex flex-column justify-content-between position-relative">
+                        <a href="{% url 'product_detail' category.slug product.slug %}">
+                            <img src="{{ product.large_image_url }}" class="card-img-top img-fluid align-self-stretch" alt="{{ product.title }}">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="{% url 'product_detail' category.slug product.slug %}">{{ product.title }}</a>
+                            </h5>
+                            <div class="card-text">
+                                <p>Артикул: {{ product.sku }}</p>
+                                <p>Цвета: {{ product.get_colors }}</p>
+                                <p>Размеры: {{ product.get_sizes }}</p>
+                                {% if product.is_sale and product.sale_price > 0 %}
+                                    <p class="text-danger">
+                                        {% if product.price > 0 %}
+                                            <del>Цена: {{ product.price }} {{ product.currency }}</del><br>
+                                        {% endif %}
+                                        <strong>Цена распродажи: {{ product.sale_price }} {{ product.currency }}</strong>
+                                    </p>
+                                    <span class="badge bg-danger position-absolute" style="top: 5px; left: 5px; font-size: 1em;">
+                                        <span class="text-white">Распродажа</span>
+                                    </span>
+                                {% else %}
+                                    <p>
+                                        {% if product.price > 0 %}
+                                            <strong>Цена: {{ product.price }} {{ product.currency }}</strong>
+                                        {% endif %}
+                                    </p>
+                                {% endif %}
+                            </div>
                         </div>
+                        <a href="{% url 'product_detail' category.slug product.slug %}" class="btn btn-primary w-100">Перейти</a>
                     </div>
-                    <a href="{% url 'product_detail' category.slug product.slug %}" class="btn btn-primary w-100">Перейти</a>
                 </div>
-            </div>
+            {% endif %}
         {% endfor %}
     </div>
 
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-            {% if products.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1" aria-label="First">
-                        <span aria-hidden="true">&laquo;&laquo;</span>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ products.previous_page_number }}" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-            {% endif %}
-
-            <li class="page-item disabled">
-                <span class="page-link">Страница {{ products.number }} из {{ products.paginator.num_pages }}.</span>
-            </li>
-
-            {% if products.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ products.next_page_number }}" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ products.paginator.num_pages }}" aria-label="Last">
-                        <span aria-hidden="true">&raquo;&raquo;</span>
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
+    <!-- Ваш код для пагинации -->
 
     {% if products|length == 0 %}
         <p>Нет товаров в этой категории</p>

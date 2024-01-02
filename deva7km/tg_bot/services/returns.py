@@ -17,18 +17,19 @@ async def create_return(user_data, telegram_user):
             source='telegram',
         )
 
-        # Сохранение объекта Return
-        await sync_to_async(return_instance.save)()
-
-        # Добавление элементов продажи
-        await sync_to_async(ReturnItem.objects.create)(
+        # Создание объекта ReturnItem
+        return_item = ReturnItem(
             return_sale=return_instance,
             product_modification=product_modification,
             quantity=quantity,
         )
-        # Сохранение объекта Sale
+
+        # Сохранение объекта Return
         await sync_to_async(return_instance.save)()
+        # Сохранение объекта ReturnItem
+        await sync_to_async(return_item.save)()
 
         return return_instance
     else:
         return None
+

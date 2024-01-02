@@ -64,6 +64,7 @@ class ImageInline(SortableStackedInline):
 class ImageAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = ('modification', 'thumbnail_image')
     list_per_page = 25
+    search_fields = ['modification__custom_sku']
 
 
 class ProductModificationAdmin(SortableAdminMixin, admin.ModelAdmin):

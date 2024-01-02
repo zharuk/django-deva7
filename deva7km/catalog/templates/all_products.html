@@ -23,9 +23,11 @@
                             <h5 class="card-title"><a href="{% url 'category_detail' category.slug %}">{{ category.name }}</a></h5>
                             <ul class="list-group list-group-flush">
                                 {% for product in category.product_set.all %}
-                                    <li class="list-group-item"><a href="{% url 'product_detail' category.slug product.slug %}">{{ product.title }}</a></li>
+                                    {% if product.is_active %}
+                                        <li class="list-group-item"><a href="{% url 'product_detail' category.slug product.slug %}">{{ product.title }}</a></li>
+                                    {% endif %}
                                 {% empty %}
-                                    <li class="list-group-item">Нет товаров в этой категории</li>
+                                    <li class="list-group-item">Нет активных товаров в этой категории</li>
                                 {% endfor %}
                             </ul>
                         </div>

@@ -44,6 +44,13 @@ class Product(models.Model):
         total_stock = 0
         for modification in self.modifications.all():
             total_stock += modification.stock
+
+        # Установка is_active в False, если общие остатки равны 0
+        self.is_active = total_stock > 0
+
+        # Сохранение изменений
+        self.save()
+
         return total_stock
 
     get_total_stock.short_description = 'Общие остатки'
@@ -159,6 +166,7 @@ class Image(models.Model):
         default=0,
         blank=False,
         null=False,
+        verbose_name='Порядок'
     )
 
     # Метод для отображения миниатюры изображения
