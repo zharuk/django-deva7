@@ -6,7 +6,7 @@
     <description>Фид товаров для отображения в Facebook</description>
     <language>ru</language>
     {% for product in products %}
-    <item>
+    <entry>
       <title>{{ product.title }}</title>
       <description>{{ product.description }}</description>
       <link>{{ product.get_absolute_url }}</link>
@@ -17,9 +17,9 @@
       <g:price>{{ product.price }} {{product.currency}}</g:price>
       <g:availability>{% if product.is_active %}in stock{% else %}out of stock{% endif %}</g:availability>
       {% for modification in product.modifications.all %}
-        <g:variant>
+        <g:entry>
           <g:id>{{ modification.custom_sku }}</g:id>
-          <g:item_group_id>{{ product.sku }}</g:item_group_id>
+          <g:variant_group_id >{{ product.sku }}</g:variant_group_id>
           <g:additional_image_link>{{ modification.get_str_all_large_image_modification_urls }}</g:additional_image_link>
           <g:price>{{ modification.price }} {{modification.currency}}</g:price>
           <g:availability>{% if modification.is_active %}in stock{% else %}out of stock{% endif %}</g:availability>
@@ -31,9 +31,9 @@
           <g:variant_value>{{ modification.color.name }}</g:variant_value>
           <g:variant_label>Размер</g:variant_label>
           <g:variant_value>{{ modification.size.name }}</g:variant_value>
-        </g:variant>
+        </g:entry>
       {% endfor %}
-    </item>
+    </entry>
     {% endfor %}
   </channel>
 </rss>
