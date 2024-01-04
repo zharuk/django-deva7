@@ -26,6 +26,10 @@
           <g:brand>Дева</g:brand>
           <g:color>{{ modification.color.name }}</g:color>
           <g:size>{{ modification.size.name }}</g:size>
+          <g:variant_label>Цвет</g:variant_label>
+          <g:variant_value>{{ modification.color.name }}</g:variant_value>
+          <g:variant_label>Размер</g:variant_label>
+          <g:variant_value>{{ modification.size.name }}</g:variant_value>
         </g:variant>
       {% endfor %}
     </item>
