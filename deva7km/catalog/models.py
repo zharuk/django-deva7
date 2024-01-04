@@ -2,12 +2,17 @@ from ckeditor.fields import RichTextField
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFit
 from unidecode import unidecode
+try:
+    from deva7km.local_settings import BASE_URL
+except ImportError:
+    from deva7km.prod_settings import BASE_URL
 
 
 # Модель товара
@@ -30,6 +35,16 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     is_sale = models.BooleanField(default=False, verbose_name='Распродажа')
     is_active = models.BooleanField(default=True, verbose_name='Включен')
+
+    def get_absolute_url(self):
+        return BASE_URL + reverse('product_detail', args=[self.category.slug, self.slug], current_app='catalog')
+
+    # Метод для отображения большого изображения товара
+    def large_image_url(self):
+        images = Image.objects.filter(modification__product=self)
+        if images:
+            return BASE_URL + images[0].large_image.url
+        return None
 
     # Переопределение метода save для автоматической транслитерации артикула
     def save(self, *args, **kwargs):
@@ -83,13 +98,6 @@ class Product(models.Model):
             return images[0].thumbnail.url
         return None
 
-    # Метод для отображения большого изображения товара
-    def large_image_url(self):
-        images = Image.objects.filter(modification__product=self)
-        if images:
-            return images[0].large_image.url
-        return None
-
     def __str__(self):
         return self.title
 
@@ -126,15 +134,20 @@ class ProductModification(models.Model):
     def thumbnail_image_modification_url(self):
         images = Image.objects.filter(modification=self)
         if images:
-            return images[0].thumbnail.url
+            return BASE_URL + images[0].thumbnail.url
         return None
 
-    # Метод для получения ссылки на изображение большого размера модификации товара
-    def large_image_modification_url(self):
+    # Метод для получения ссылки первого изображение большого размера модификации товара
+    def get_one_large_image_modification_url(self):
         images = Image.objects.filter(modification=self)
         if images:
-            return images[0].large_image.url
+            return BASE_URL + images[0].large_image.url
         return None
+
+    # Метод для получения строки со всеми ссылками на изображения большого размера модификации товара
+    def get_str_all_large_image_modification_urls(self):
+        images = Image.objects.filter(modification=self)
+        return ', '.join([BASE_URL + image.large_image.url for image in images])
 
     def __str__(self):
         return f"{self.custom_sku}"

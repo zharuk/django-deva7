@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>Товарный фид для одежды</title>
+    <link>http://deva7km.com.ua/feed_fb/</link>
+    <description>Фид товаров для отображения в Facebook</description>
+    <language>ru</language>
+    {% for product in products %}
+    <item>
+      <title>{{ product.title }}</title>
+      <description>{{ product.description }}</description>
+      <link>{{ product.get_absolute_url }}</link>
+      <g:id>{{ product.sku }}</g:id>
+      <g:brand>Дева</g:brand>
+      <g:condition>new</g:condition>
+      <g:image_link>{{ product.large_image_url }}</g:image_link>
+      <g:price>{{ product.price }} {{product.currency}}</g:price>
+      <g:availability>{% if product.is_active %}in stock{% else %}out of stock{% endif %}</g:availability>
+      {% for modification in product.modifications.all %}
+        <g:variant>
+          <g:id>{{ modification.custom_sku }}</g:id>
+          <g:additional_image_link>{{ modification.get_str_all_large_image_modification_urls }}</g:additional_image_link>
+          <g:price>{{ modification.price }} {{modification.currency}}</g:price>
+          <g:availability>{% if modification.is_active %}in stock{% else %}out of stock{% endif %}</g:availability>
+          <g:quantity_to_sell_on_facebook>{{ modification.stock }}</g:quantity_to_sell_on_facebook>
+          <g:brand>Дева</g:brand>
+          <g:color>{{ modification.color.name }}</g:color>
+          <g:size>{{ modification.size.name }}</g:size>
+        </g:variant>
+      {% endfor %}
+    </item>
+    {% endfor %}
+  </channel>
+</rss>

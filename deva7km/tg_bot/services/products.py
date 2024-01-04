@@ -53,16 +53,10 @@ def get_large_image_url_input_file(custom_sku):
     product_modification = ProductModification.objects.get(custom_sku=custom_sku)
 
     # Получаем URL изображения большого размера модификации товара
-    large_image_url = product_modification.large_image_modification_url()
-
-    # Базовый URL вашего веб-сайта
-    base_url = BASE_URL
-
-    # Полный URL изображения
-    full_url = urljoin(base_url, large_image_url)
+    large_image_url = product_modification.get_one_large_image_modification_url()
 
     # Создаем объект URLInputFile
-    image = URLInputFile(full_url)
+    image = URLInputFile(large_image_url)
 
     return image
 

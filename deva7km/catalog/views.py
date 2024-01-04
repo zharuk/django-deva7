@@ -1,5 +1,12 @@
 from django.db.models import Count
-from catalog.models import Image, Category, Product, BlogPost
+from django.http import Http404, HttpResponse
+from django.template import loader
+from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+
+from catalog.models import Image, Category, Product, BlogPost, ProductModification
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -49,8 +56,15 @@ def category_detail(request, category_slug):
 
 
 def product_detail(request, category_slug, product_slug):
-    category = Category.objects.get(slug=category_slug)
-    product = Product.objects.get(slug=product_slug, category=category)
+    # Изменение здесь: использование get_object_or_404 для категории
+    category = get_object_or_404(Category, slug=category_slug)
+
+    # Изменение здесь: использование filter вместо get для поиска товара
+    product = Product.objects.filter(slug=product_slug, category=category).first()
+
+    if not product:
+        # Если товар не найден, возвращаем 404
+        raise Http404("Product not found")
 
     # Получение уникальных цветов для данного товара
     unique_colors = product.modifications.values('color__name').annotate(count=Count('color')).filter(count__gt=0)
@@ -108,3 +122,16 @@ def payment_page(request):
 
 def telegram_page(request):
     return render(request, 'telegram_page.html')
+
+
+class FacebookFeedView(View):
+    @staticmethod
+    def get(request, *args, **kwargs):
+        products = Product.objects.filter(is_active=True)
+        modifications = ProductModification.objects.all()
+        images = Image.objects.all()
+        context = {'products': products, 'modifications': modifications, 'images': images, 'request': request}
+        template = loader.get_template('fb_feed.xml')
+        xml_content = template.render(context)
+        response = HttpResponse(xml_content, content_type='application/xml')
+        return response
