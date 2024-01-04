@@ -19,6 +19,7 @@
       {% for modification in product.modifications.all %}
         <g:variant>
           <g:id>{{ modification.custom_sku }}</g:id>
+          <g:item_group_id>{{ product.sku }}</g:item_group_id>
           <g:additional_image_link>{{ modification.get_str_all_large_image_modification_urls }}</g:additional_image_link>
           <g:price>{{ modification.price }} {{modification.currency}}</g:price>
           <g:availability>{% if modification.is_active %}in stock{% else %}out of stock{% endif %}</g:availability>
