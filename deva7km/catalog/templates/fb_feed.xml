@@ -6,7 +6,7 @@
     <description>Фид товаров для отображения в Facebook</description>
     <language>ru</language>
     {% for product in products %}
-    <entry>
+    <item>
       <title>{{ product.title }}</title>
       <description>{{ product.description }}</description>
       <link>{{ product.get_absolute_url }}</link>
@@ -33,7 +33,7 @@
           <g:variant_value>{{ modification.size.name }}</g:variant_value>
         </g:entry>
       {% endfor %}
-    </entry>
+    </item>
     {% endfor %}
   </channel>
 </rss>
