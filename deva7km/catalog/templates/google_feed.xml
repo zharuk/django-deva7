@@ -1,26 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<products xmlns="http://schema.org/Product">
-  {% for product in products %}
-    {% for modification in product.modifications.all %}
-      <product>
-        <id>{{ modification.custom_sku }}</id>
-        <item_group_id>{{ product.sku }}</item_group_id>
-        <title>{{ product.title }}</title>
-        <description>{{ product.description }}</description>
-        <link>{{ product.get_absolute_url }}</link>
-        <image_link>{{ modification.get_first_large_image_modification_url }}</image_link>
-        <additional_image_link>{{ modification.get_all_large_images_except_first }}</additional_image_link>
-        <price>{{ modification.price }} {{modification.currency}}</price>
-        {% if modification.sale_price > 0 %}
-          <sale_price>{{ modification.sale_price }} {{ modification.currency }}</sale_price>
-        {% endif %}
-        <availability>{% if modification.stock %}in stock{% else %}out of stock{% endif %}</availability>
-        <quantity_available>{{ modification.stock }}</quantity_available>
-        <brand>Дева</brand>
-        <color>{{ modification.color.name }}</color>
-        <size>{{ modification.size.name }}</size>
-        <google_product_category>1660</google_product_category>
-      </product>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>Товарный фид для google интернет-магазина Дева</title>
+    <link>http://deva7km.com.ua/feed_google/</link>
+    <description>Фид товаров для отображения в Google</description>
+    <language>ru</language>
+    {% for product in products %}
+      {% for modification in product.modifications.all %}
+        <item>
+          <g:id>{{ modification.custom_sku }}</g:id>
+          <g:item_group_id>{{ product.sku }}</g:item_group_id>
+          <g:title>{{ product.title }}</g:title>
+          <g:description>{{ product.description }}</g:description>
+          <g:link>{{ product.get_absolute_url }}</g:link>
+          <g:image_link>{{ modification.get_first_large_image_modification_url }}</g:image_link>
+          <g:additional_image_link>{{ modification.get_all_large_images_except_first }}</g:additional_image_link>
+          <g:price>{{ modification.price }} {{modification.currency}}</g:price>
+          {% if modification.sale_price > 0 %}
+          <g:sale_price>{{ modification.sale_price }} {{ modification.currency }}</g:sale_price>
+          {% endif %}
+          <g:availability>{% if modification.stock %}in stock{% else %}out of stock{% endif %}</g:availability>
+          <g:inventoryQuantity>{{ modification.stock }}</g:inventoryQuantity>
+          <g:brand>Дева</g:brand>
+          <g:color>{{ modification.color.name }}</g:color>
+          <g:size>{{ modification.size.name }}</g:size>
+          <g:google_product_category>1660</g:google_product_category>
+          <g:age_group>adult</g:age_group>
+          <g:gender>female</g:gender>
+          <g:brand>Дева</g:brand>
+          <g:condition>new</g:condition>
+          {% if modification.is_active %}
+            <g:status>active</g:status>
+          {% else %}
+            <g:status>archived</g:status>
+          {% endif %}
+        </item>
+      {% endfor %}
     {% endfor %}
-  {% endfor %}
-</products>
+  </channel>
+</rss>
