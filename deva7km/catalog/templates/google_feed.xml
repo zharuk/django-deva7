@@ -20,7 +20,6 @@
           <g:sale_price>{{ modification.sale_price }} {{ modification.currency }}</g:sale_price>
           {% endif %}
           <g:availability>{% if modification.stock %}in stock{% else %}out of stock{% endif %}</g:availability>
-          <g:inventoryQuantity>{{ modification.stock }}</g:inventoryQuantity>
           <g:brand>Дева</g:brand>
           <g:color>{{ modification.color.name }}</g:color>
           <g:size>{{ modification.size.name }}</g:size>
@@ -29,11 +28,6 @@
           <g:gender>female</g:gender>
           <g:brand>Дева</g:brand>
           <g:condition>new</g:condition>
-          {% if modification.is_active %}
-            <g:status>active</g:status>
-          {% else %}
-            <g:status>archived</g:status>
-          {% endif %}
         </item>
       {% endfor %}
     {% endfor %}
