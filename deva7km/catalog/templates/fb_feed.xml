@@ -13,18 +13,14 @@
           <title>{{ product.title }}</title>
           <description>{{ product.description }}</description>
           <link>{{ product.get_absolute_url }}</link>
-          <g:image_link>{{ product.large_image_url }}</g:image_link>
-          <g:additional_image_link>{{ modification.get_str_all_large_image_modification_urls }}</g:additional_image_link>
+          <g:image_link>{{ modification.get_first_large_image_modification_url }}</g:image_link>
+          <g:additional_image_link>{{ modification.get_all_large_images_except_first }}</g:additional_image_link>
           <g:price>{{ modification.price }} {{modification.currency}}</g:price>
           <g:availability>{% if modification.stock %}in stock{% else %}out of stock{% endif %}</g:availability>
           <g:quantity_to_sell_on_facebook>{{ modification.stock }}</g:quantity_to_sell_on_facebook>
           <g:brand>Дева</g:brand>
           <g:color>{{ modification.color.name }}</g:color>
           <g:size>{{ modification.size.name }}</g:size>
-          <g:variant_label>Цвет</g:variant_label>
-          <g:variant_value>{{ modification.color.name }}</g:variant_value>
-          <g:variant_label>Размер</g:variant_label>
-          <g:variant_value>{{ modification.size.name }}</g:variant_value>
           <g:brand>Дева</g:brand>
           <g:condition>new</g:condition>
         </item>

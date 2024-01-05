@@ -138,16 +138,20 @@ class ProductModification(models.Model):
         return None
 
     # Метод для получения ссылки первого изображение большого размера модификации товара
-    def get_one_large_image_modification_url(self):
+    def get_first_large_image_modification_url(self):
         images = Image.objects.filter(modification=self)
         if images:
             return BASE_URL + images[0].large_image.url
         return None
 
-    # Метод для получения строки со всеми ссылками на изображения большого размера модификации товара
-    def get_str_all_large_image_modification_urls(self):
+    #  Метод для получения ссылок на все изображения модификации товара (кроме первого)
+    def get_all_large_images_except_first(self):
+        # Метод для получения URL всех изображений модификации, кроме первого
         images = Image.objects.filter(modification=self)
-        return ', '.join([BASE_URL + image.large_image.url for image in images])
+        if images.exists():
+            # Пропускаем первое изображение и получаем URL остальных
+            return ', '.join([BASE_URL + image.large_image.url for image in images[1:]])
+        return ''
 
     def __str__(self):
         return f"{self.custom_sku}"
