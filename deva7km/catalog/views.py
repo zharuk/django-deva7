@@ -66,13 +66,16 @@ def product_detail(request, category_slug, product_slug):
         # Если товар не найден, возвращаем 404
         raise Http404("Product not found")
 
+    # Изменение здесь: сортировка модификаций по цвету, а затем по размеру
+    modifications = product.modifications.all().order_by('color__name', 'size__name')
+
     # Получение уникальных цветов для данного товара
-    unique_colors = product.modifications.values('color__name').annotate(count=Count('color')).filter(count__gt=0)
+    unique_colors = modifications.values('color__name').annotate(count=Count('color')).filter(count__gt=0)
 
     # Формирование словаря с уникальными цветами и изображениями
     unique_color_images = {}
     for color in unique_colors:
-        modification = product.modifications.filter(color__name=color['color__name']).first()
+        modification = modifications.filter(color__name=color['color__name']).first()
         if modification:
             images = Image.objects.filter(modification=modification)
             unique_color_images[color['color__name']] = images
@@ -81,8 +84,8 @@ def product_detail(request, category_slug, product_slug):
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
 
     return render(request, 'product_detail.html', {'product': product, 'categories': categories,
-                                                   'unique_color_images': unique_color_images})
-
+                                                   'unique_color_images': unique_color_images,
+                                                   'modifications': modifications})
 
 def sales(request):
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
