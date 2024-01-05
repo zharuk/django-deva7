@@ -127,6 +127,7 @@ def telegram_page(request):
     return render(request, 'telegram_page.html')
 
 
+# Представления для формирования фида Facebook
 class FacebookFeedView(View):
     @staticmethod
     def get(request, *args, **kwargs):
@@ -135,6 +136,20 @@ class FacebookFeedView(View):
         images = Image.objects.all()
         context = {'products': products, 'modifications': modifications, 'images': images, 'request': request}
         template = loader.get_template('fb_feed.xml')
+        xml_content = template.render(context)
+        response = HttpResponse(xml_content, content_type='application/xml')
+        return response
+
+
+# Представления для формирования фида Google
+class GoogleFeedView(View):
+    @staticmethod
+    def get(request, *args, **kwargs):
+        products = Product.objects.filter(is_active=True)
+        modifications = ProductModification.objects.all()
+        images = Image.objects.all()
+        context = {'products': products, 'modifications': modifications, 'images': images, 'request': request}
+        template = loader.get_template('google_feed.xml')
         xml_content = template.render(context)
         response = HttpResponse(xml_content, content_type='application/xml')
         return response

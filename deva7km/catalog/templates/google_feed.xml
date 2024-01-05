@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<products xmlns="http://schema.org/Product">
+  {% for product in products %}
+    {% for modification in product.modifications.all %}
+      <product>
+        <id>{{ modification.custom_sku }}</id>
+        <item_group_id>{{ product.sku }}</item_group_id>
+        <title>{{ product.title }}</title>
+        <description>{{ product.description }}</description>
+        <link>{{ product.get_absolute_url }}</link>
+        <image_link>{{ modification.get_first_large_image_modification_url }}</image_link>
+        <additional_image_link>{{ modification.get_all_large_images_except_first }}</additional_image_link>
+        <price>{{ modification.price }} {{modification.currency}}</price>
+        {% if modification.sale_price > 0 %}
+          <sale_price>{{ modification.sale_price }} {{ modification.currency }}</sale_price>
+        {% endif %}
+        <availability>{% if modification.stock %}in stock{% else %}out of stock{% endif %}</availability>
+        <quantity_available>{{ modification.stock }}</quantity_available>
+        <brand>Дева</brand>
+        <color>{{ modification.color.name }}</color>
+        <size>{{ modification.size.name }}</size>
+        <google_product_category>1660</google_product_category>
+      </product>
+    {% endfor %}
+  {% endfor %}
+</products>
