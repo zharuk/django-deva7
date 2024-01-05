@@ -24,7 +24,7 @@
           <g:brand>Дева</g:brand>
           <g:color>{{ modification.color.name }}</g:color>
           <g:size>{{ modification.size.name }}</g:size>
-          <g:fb_product_category>Clothing &amp; Accessories > Clothing > Women's Clothing ></g:fb_product_category>
+          <g:fb_product_category>1660</g:fb_product_category>
           <g:age_group>adult</g:age_group>
           <g:gender>female</g:gender>
           <g:brand>Дева</g:brand>
