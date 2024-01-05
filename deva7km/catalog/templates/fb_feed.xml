@@ -6,23 +6,19 @@
     <description>Фид товаров для отображения в Facebook</description>
     <language>ru</language>
     {% for product in products %}
-    <item>
-      <title>{{ product.title }}</title>
-      <description>{{ product.description }}</description>
-      <link>{{ product.get_absolute_url }}</link>
-      <g:id>{{ product.sku }}</g:id>
-      <g:brand>Дева</g:brand>
-      <g:condition>new</g:condition>
-      <g:image_link>{{ product.large_image_url }}</g:image_link>
-      <g:price>{{ product.price }} {{product.currency}}</g:price>
-      <g:availability>{% if product.is_active %}in stock{% else %}out of stock{% endif %}</g:availability>
       {% for modification in product.modifications.all %}
-        <g:entry>
-          <g:id>{{ modification.custom_sku }}</g:id>
-          <g:variant_group_id >{{ product.sku }}</g:variant_group_id>
-          <g:additional_image_link>{{ modification.get_str_all_large_image_modification_urls }}</g:additional_image_link>
+        <item>
+          <title>{{ product.title }}</title>
+          <description>{{ product.description }}</description>
+          <link>{{ product.get_absolute_url }}</link>
+          <g:id>{{ product.sku }}</g:id>
+          <g:brand>Дева</g:brand>
+          <g:condition>new</g:condition>
+          <g:image_link>{{ product.large_image_url }}</g:image_link>
           <g:price>{{ modification.price }} {{modification.currency}}</g:price>
-          <g:availability>{% if modification.is_active %}in stock{% else %}out of stock{% endif %}</g:availability>
+          <g:availability>{% if modification.stock %}in stock{% else %}out of stock{% endif %}</g:availability>
+          <g:item_group_id>{{ product.sku }}</g:item_group_id>
+          <g:additional_image_link>{{ modification.get_str_all_large_image_modification_urls }}</g:additional_image_link>
           <g:quantity_to_sell_on_facebook>{{ modification.stock }}</g:quantity_to_sell_on_facebook>
           <g:brand>Дева</g:brand>
           <g:color>{{ modification.color.name }}</g:color>
@@ -31,9 +27,8 @@
           <g:variant_value>{{ modification.color.name }}</g:variant_value>
           <g:variant_label>Размер</g:variant_label>
           <g:variant_value>{{ modification.size.name }}</g:variant_value>
-        </g:entry>
+        </item>
       {% endfor %}
-    </item>
     {% endfor %}
   </channel>
 </rss>
