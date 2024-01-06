@@ -137,6 +137,11 @@ class ProductModification(models.Model):
             return BASE_URL + images[0].thumbnail.url
         return None
 
+    # Метод для получения списка всех фотографий большого размера модификации товара
+    def get_all_large_images(self):
+        images = Image.objects.filter(modification=self)
+        return [BASE_URL + image.large_image.url for image in images] if images else []
+
     # Метод для получения ссылки первого изображение большого размера модификации товара
     def get_first_large_image_modification_url(self):
         images = Image.objects.filter(modification=self)

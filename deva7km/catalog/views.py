@@ -87,6 +87,7 @@ def product_detail(request, category_slug, product_slug):
                                                    'unique_color_images': unique_color_images,
                                                    'modifications': modifications})
 
+
 def sales(request):
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
     sale_products = Product.objects.filter(is_sale=True, is_active=True).order_by('-created_at')
@@ -153,3 +154,19 @@ class GoogleFeedView(View):
         xml_content = template.render(context)
         response = HttpResponse(xml_content, content_type='application/xml')
         return response
+
+
+# Представления для формирования фида Rozetka
+class RozetkaFeedView(View):
+    @staticmethod
+    def get(request, *args, **kwargs):
+        products = Product.objects.filter(is_active=True)
+        modifications = ProductModification.objects.all()
+        images = Image.objects.all()
+        categories = Category.objects.all()  # Получаем все категории
+        context = {'products': products, 'modifications': modifications, 'images': images, 'categories': categories, 'request': request}
+        template = loader.get_template('rozetka_feed.xml')
+        xml_content = template.render(context)
+        response = HttpResponse(xml_content, content_type='application/xml')
+        return response
+

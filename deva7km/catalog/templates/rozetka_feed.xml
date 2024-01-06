@@ -1,0 +1,41 @@
+<yml_catalog date="2022-07-20 14:58">
+    <shop>
+        <name>Интернет магазин Дева</name>
+        <company>Дева</company>
+        <url>https://deva7km.com.ua/</url>
+        <currencies>
+            <currency id="UAH" rate="1"/>
+        </currencies>
+        <categories>
+            {% for category in categories %}
+                <category id="{{ category.id }}">{{ category.name }}</category>
+            {% endfor %}
+        </categories>
+        <offers>
+            {% for product in products %}
+                {% for modification in product.modifications.all %}
+                    <offer id="{{ product.sku }}-{{ forloop.counter }}" available="{% if modification.stock %}true{% else %}false{% endif %}">
+                        <price>{% if modification.sale_price > 0 %}{{ modification.sale_price }}{% else %}{{ modification.price }}{% endif %}</price>
+                        {% if modification.sale_price > 0 %}
+                            <price_old>{{ modification.price }}</price_old>
+                        {% endif %}
+                        <currencyId>UAH</currencyId>
+                        <categoryId>{{ product.category.id }}</categoryId>
+                        {% for image in modification.get_all_large_images %}
+                            <picture>{{ image }}</picture>
+                        {% endfor %}
+                        <vendor>Дева</vendor>
+                        <article>{{ product.sku }}-{{ forloop.counter }}</article>
+                        <stock_quantity>{% if modification.stock %}{{ modification.stock }}{% else %}0{% endif %}</stock_quantity>
+                        <name>{{ product.title }} Дева ({{ modification.color.name }} {{ modification.size.name }}) ({{ product.sku }})</name>
+                        <description>{{ product.description }}</description>
+                        <state>new</state>
+                        <param name="Цвет">{{ modification.color }}</param>
+                        <param name="Размер">{{ modification.size }}</param>
+                        <param name="Країна-виробник товару">Україна</param>
+                    </offer>
+                {% endfor %}
+            {% endfor %}
+        </offers>
+    </shop>
+</yml_catalog>
