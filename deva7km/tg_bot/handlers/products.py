@@ -1,9 +1,6 @@
 from aiogram import Router, Bot
-from aiogram.enums import InputMediaType
 from aiogram.filters import Command
-from aiogram.types import CallbackQuery, Message, InputMediaPhoto, InputFile
-from aiogram.utils.media_group import MediaGroupBuilder
-
+from aiogram.types import CallbackQuery, Message
 from deva7km.settings import BOT_TOKEN
 from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_kb_return
 from tg_bot.services.products import get_modifications_info, get_first_image_for_product
