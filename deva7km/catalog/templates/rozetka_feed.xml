@@ -8,7 +8,11 @@
         </currencies>
         <categories>
             {% for category in categories %}
-                <category id="{{ category.id }}">{{ category.name }}</category>
+                {% if category.rz_id > 0 %}
+                    <category id="{{ category.id }}" rz_id="{{ category.rz_id }}">{{ category.name }}</category>
+                {% else %}
+                    <category id="{{ category.id }}">{{ category.name }}</category>
+                {% endif %}
             {% endfor %}
         </categories>
         <offers>

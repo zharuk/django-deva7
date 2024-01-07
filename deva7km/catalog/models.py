@@ -213,6 +213,7 @@ class Category(models.Model):
     slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='Слаг')
     description = models.TextField(blank=True, verbose_name='Описание категории')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    rz_id = models.IntegerField(default=0, verbose_name='ID категории на Rozetka')
 
     def __str__(self):
         return self.name
