@@ -56,12 +56,12 @@
                 {% if product.price > 0 %}
                     <del>Цена: {{ product.price }} {{ product.currency }}</del><br>
                 {% endif %}
-                <strong>Цена распродажи: {{ product.sale_price }} {{ product.currency }}</strong>
+                <strong>Цена распродажи опт: {{ product.sale_price }} {{ product.currency }}</strong>
             </p>
         {% else %}
             <p>
                 {% if product.price > 0 %}
-                    <strong>Цена: {{ product.price }} {{ product.currency }}</strong>
+                    <strong>Цена опт: {{ product.price }} {{ product.currency }}</strong>
                 {% endif %}
             </p>
         {% endif %}

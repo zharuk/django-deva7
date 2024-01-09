@@ -1,4 +1,4 @@
-<yml_catalog date="2022-07-20 14:58">
+<yml_catalog date="{% now 'Y-m-d H:i' %}">
     <shop>
         <name>Интернет магазин Дева</name>
         <company>Дева</company>
@@ -19,10 +19,15 @@
             {% for product in products %}
                 {% for modification in product.modifications.all %}
                     <offer id="{{ product.sku }}-{{ forloop.counter }}" available="{% if modification.stock %}true{% else %}false{% endif %}">
-                        <price>{% if modification.sale_price > 0 %}{{ modification.sale_price }}{% else %}{{ modification.price }}{% endif %}</price>
-                        {% if modification.sale_price > 0 %}
-                            <price_old>{{ modification.price }}</price_old>
-                        {% endif %}
+                        {% with base_price=modification.sale_price|default:modification.price %}
+                            {% with markup_amount=100 %}
+                                <price>{{ base_price|add:markup_amount }}</price>
+                                {% if modification.sale_price > 0 %}
+                                    <price_old>{{ modification.price|add:markup_amount }}</price_old>
+                                    <price_promo>{{ base_price|add:markup_amount }}</price_promo>
+                                {% endif %}
+                            {% endwith %}
+                        {% endwith %}
                         <currencyId>UAH</currencyId>
                         <categoryId>{{ product.category.id }}</categoryId>
                         {% for image in modification.get_all_large_images %}
@@ -36,7 +41,7 @@
                         <state>new</state>
                         <param name="Цвет">{{ modification.color }}</param>
                         <param name="Размер">{{ modification.size }}</param>
-                        <param name="Країна-виробник товару">Україна</param>
+                        <param name="Страна производитель товара">Украина</param>
                     </offer>
                 {% endfor %}
             {% endfor %}
