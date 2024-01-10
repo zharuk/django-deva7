@@ -41,7 +41,7 @@
                         <state>new</state>
                         <param name="Цвет">{{ modification.color }}</param>
                         <param name="Размер">{{ modification.size }}</param>
-                        <param name="Страна производитель товара">Украина</param>
+                        <param name="Страна-производитель товара">Украина</param>
                     </offer>
                 {% endfor %}
             {% endfor %}
