@@ -1,11 +1,7 @@
 from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.template import loader
-from django.template.loader import render_to_string
-from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.decorators.csrf import csrf_exempt
-
 from catalog.models import Image, Category, Product, BlogPost, ProductModification
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger

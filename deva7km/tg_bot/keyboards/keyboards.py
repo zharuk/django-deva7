@@ -33,8 +33,18 @@ async def create_inline_kb_main_sku(callback, page=1):
         sku = product.sku
         buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}_{page}'))
 
-    # Сортируем кнопки по возрастанию
-    buttons.sort(key=lambda x: int(x.text) if x.text.isdigit() else 0)
+    # Выводим SKU перед сортировкой
+    print("SKU перед сортировкой:")
+    for btn in buttons:
+        print(btn.text)
+
+    # Сортируем кнопки по убыванию числовых значений в артикулах
+    buttons.sort(key=lambda x: int(''.join(filter(str.isdigit, x.text))), reverse=True)
+
+    # Выводим SKU после сортировки
+    print("SKU после сортировки:")
+    for btn in buttons:
+        print(btn.text)
 
     # Задаем количество кнопок в каждом ряду (здесь используется 7)
     buttons_per_row = 7
