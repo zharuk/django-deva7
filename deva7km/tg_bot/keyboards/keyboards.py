@@ -38,8 +38,8 @@ async def create_inline_kb_main_sku(callback, page=1):
     for btn in buttons:
         print(btn.text)
 
-    # Сортируем кнопки по убыванию числовых значений в артикулах
-    buttons.sort(key=lambda x: int(''.join(filter(str.isdigit, x.text))), reverse=True)
+    # Сортируем кнопки с учетом букв и цифр
+    buttons.sort(key=lambda x: (x.text.isdigit(), x.text))
 
     # Выводим SKU после сортировки
     print("SKU после сортировки:")
