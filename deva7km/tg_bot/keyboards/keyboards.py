@@ -13,15 +13,22 @@ async def create_main_menu_kb():
     write_off_button = InlineKeyboardButton(text='📉 Списание', callback_data='write_off')
     report_button = InlineKeyboardButton(text='📊 Статистика', callback_data='report')
     # Создаем список кнопок
-    inline_keyboard = [[products_button], [sell_button], [return_button], [inventory_button], [write_off_button], [report_button]]
+    inline_keyboard = [[products_button], [sell_button], [return_button], [inventory_button], [write_off_button],
+                       [report_button]]
 
     # Возвращаем объект инлайн-клавиатуры
     return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
 
 
-# клавиатура списка всех товаров, где каждая кнопка это основной артикул товара
 async def create_inline_kb_main_sku(callback, page=1):
-    products = await sync_to_async(list)(Product.objects.all().order_by('sku'))
+    def custom_sort_key(sku):
+        # Вложенная функция для сортировки артикулов
+        numeric_part = ''.join(filter(str.isdigit, sku))
+        return int(numeric_part) if numeric_part else float('inf')
+
+    products = await sync_to_async(list)(Product.objects.all())
+    products = sorted(products, key=lambda x: custom_sort_key(x.sku), reverse=True)
+
     buttons = []
 
     # Определим количество кнопок на одной странице (например, 8)
@@ -33,10 +40,7 @@ async def create_inline_kb_main_sku(callback, page=1):
         sku = product.sku
         buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}_{page}'))
 
-    # Сортируем кнопки по возрастанию
-    buttons.sort(key=lambda x: int(x.text) if x.text.isdigit() else 0)
-
-    # Задаем количество кнопок в каждом ряду (здесь используется 7)
+    # Задаем количество кнопок в каждом ряду (здесь используется 2)
     buttons_per_row = 7
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
 
@@ -71,7 +75,8 @@ async def create_inline_kb_modifications(main_sku, callback):
     for modification in product_modifications:
         custom_sku = modification.custom_sku
         stock = modification.stock
-        buttons.append(InlineKeyboardButton(text=f'{custom_sku} ({stock} шт.)', callback_data=f'{custom_sku}_modification_{callback}'))
+        buttons.append(InlineKeyboardButton(text=f'{custom_sku} ({stock} шт.)',
+                                            callback_data=f'{custom_sku}_modification_{callback}'))
 
     buttons_per_row = 2
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
@@ -83,7 +88,7 @@ async def create_inline_kb_modifications(main_sku, callback):
 async def create_inline_kb_numbers(quantity=10):
     buttons = []
 
-    for number in range(1, quantity+1):
+    for number in range(1, quantity + 1):
         buttons.append(InlineKeyboardButton(text=str(number), callback_data=f'{number}'))
 
     # Разбиваем список кнопок на ряды по 5 кнопок в каждом
@@ -124,4 +129,5 @@ async def create_report_kb():
     total_stock = InlineKeyboardButton(text='📑 Остатки по товарам', callback_data='total_stock')
     cancel_button = InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')
     return InlineKeyboardMarkup(
-        inline_keyboard=[[today_button, yesterday_button], [week_button, month_button], [year_button], [total_stock], [cancel_button]])
+        inline_keyboard=[[today_button, yesterday_button], [week_button, month_button], [year_button], [total_stock],
+                         [cancel_button]])
