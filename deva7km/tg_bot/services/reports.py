@@ -82,7 +82,7 @@ def generate_sales_report_by_day() -> str:
     # Выводим ТОП 3 продаж
     report_str += hbold("\nТОП 3 продаж за сегодня\n")
     for rank, (product, quantity) in enumerate(top_sales, start=1):
-        total_amount = product.price * quantity
+        total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
         report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
 
     return report_str
@@ -165,7 +165,7 @@ def generate_sales_report_by_yesterday() -> str:
     # Выводим ТОП 3 продаж
     report_str += hbold("\nТОП 3 продаж за вчера\n")
     for rank, (product, quantity) in enumerate(top_sales, start=1):
-        total_amount = product.price * quantity
+        total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
         report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
 
     return report_str
@@ -252,7 +252,7 @@ def generate_sales_report_by_week() -> str:
     # Выводим ТОП 3 продаж
     report_str += hbold("\nТОП 3 продаж за неделю\n")
     for rank, (product, quantity) in enumerate(top_sales, start=1):
-        total_amount = product.price * quantity
+        total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
         report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
 
     return report_str
@@ -339,7 +339,7 @@ def generate_sales_report_by_month() -> str:
     # Выводим ТОП 3 продаж
     report_str += hbold("\nТОП 3 продаж за месяц\n")
     for rank, (product, quantity) in enumerate(top_sales, start=1):
-        total_amount = product.price * quantity
+        total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
         report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
 
     return report_str
@@ -426,7 +426,7 @@ def generate_sales_report_by_year() -> str:
     # Выводим ТОП 3 продаж
     report_str += hbold("\nТОП 3 продаж за год\n")
     for rank, (product, quantity) in enumerate(top_sales, start=1):
-        total_amount = product.price * quantity
+        total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
         report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
 
     return report_str
