@@ -41,6 +41,7 @@ def update_stock_write_off(sender, instance, **kwargs):
 # метод для продажи вычитает остаток
 @receiver(post_save, sender=SaleItem)
 def update_stock(sender, instance, **kwargs):
+    print(12345)
     product_modification = instance.product_modification
     product_modification.stock -= instance.quantity
     product_modification.save()

@@ -108,7 +108,8 @@ async def create_payment_type_keyboard():
     row = [cash_button, non_cash_button]
 
     # Добавляем ряд с кнопками в клавиатуру
-    keyboard = [row, [InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')]]
+    keyboard = [row, [InlineKeyboardButton(text='♾️ Добавить еще товар', callback_data='add_more')],
+                [InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')]]
 
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 

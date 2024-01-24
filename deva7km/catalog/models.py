@@ -275,14 +275,12 @@ class Sale(models.Model):
 
     def calculate_total_amount(self):
         total_amount = 0
-        currency = ''
         for item in self.items.all():
             if item.product_modification.sale_price > 0:
                 total_amount += item.quantity * item.product_modification.sale_price
             else:
                 total_amount += item.quantity * item.product_modification.price
-            currency = item.product_modification.currency
-        return f'{total_amount} {currency}'
+        return total_amount
 
     calculate_total_amount.short_description = 'Общая сумма'
 
