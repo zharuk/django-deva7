@@ -47,7 +47,6 @@ async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext)
         await state.set_state(SellStates.choosingModification)
         await state.update_data(choosingSKU=sku)
         user_data = await state.get_data()
-        print(user_data, '@router.callback_query(StateFilter(SellStates.choosingSKU))')
         kb = await create_inline_kb_modifications(sku, callback='sell')
         await callback.message.answer(f'Вы выбрали для продажи модель ➡️ {hbold(user_data["choosingSKU"])}\nвыберите '
                                       f'модификацию 👇', reply_markup=kb)
@@ -105,15 +104,20 @@ async def process_callback_query_numbers(callback: CallbackQuery, state: FSMCont
             if 'products_list' in user_data:
                 user_data['products_list'].append(product_info)
                 await state.update_data(user_data)
-                print(user_data['products_list'], 333)
             else:
                 user_data['products_list'] = [product_info]
                 await state.update_data(user_data)
-                print(user_data['products_list'], 222)
+
+            # Создание строки с товарами
+            products_text = ""
+            for product in user_data['products_list']:
+                custom_sku = product['choosingModification']
+                quantity = product['enteringQuantity']
+                products_text += f'{custom_sku} - {quantity}шт.\n'
+
             kb = await create_payment_type_keyboard()
-            await callback.message.answer(f'Вы выбрали для продажи ➡️ {hbold(user_data["choosingModification"])}️ в '
-                                          f'количестве {hbold(user_data["enteringQuantity"])}шт.\nВыберите способ '
-                                          f'оплаты 👇', reply_markup=kb)
+            await callback.message.answer(f'Вы выбрали для продажи ➡️\n\n{products_text}\n выберите оплату '
+                                          f'или добавьте еще товар', reply_markup=kb)
             await callback.answer()
         else:
             await callback.message.answer(f'⛔️ В наличии только {stock}шт. вы хотите продать {callback.data}шт.')
@@ -128,10 +132,9 @@ async def process_callback_query_numbers(callback: CallbackQuery, state: FSMCont
 @admin_access_control_decorator(access='seller')
 async def process_callback_query_numbers(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    print(data, 444)
     await state.set_state(SellStates.choosingSKU)
     kb = await create_inline_kb_main_sku(callback='sell')
-    await callback.message.answer('Выберите товар для продажи 11👇', reply_markup=kb)
+    await callback.message.answer('Выберите товар для продажи 👇', reply_markup=kb)
     await callback.answer()
 
 
@@ -149,7 +152,6 @@ async def process_callback_query_finish(callback: CallbackQuery, state: FSMConte
         await state.set_state(SellStates.finish)
         await state.update_data(choosingPayment=callback.data)
         user_data = await state.get_data()
-        print(user_data['products_list'])
 
         # Создание строки с товарами
         products_text = ""
@@ -165,13 +167,12 @@ async def process_callback_query_finish(callback: CallbackQuery, state: FSMConte
 
         # Создание продажи
         sale = await create_sale(user_data, telegram_user)
-        print(await sync_to_async(sale.calculate_total_amount)())
 
         kb = await create_main_menu_kb()
         thumbnail_input_file = await get_large_image_url_input_file(custom_sku)
         await bot.send_photo(chat_id=callback.from_user.id,
                              photo=thumbnail_input_file,
-                             caption=f'✅ Продажа успешно проведена на сумму {await sync_to_async(sale.calculate_total_amount)()}\n\n'
+                             caption=f'✅ Продажа успешно проведена на сумму {await sync_to_async(sale.calculate_total_amount)()}грн.\n\n'
                                      f'вы продали:\n{products_text}'
                                      f'тип оплаты - {payment_types[user_data["choosingPayment"]]}',
                              reply_markup=kb)
