@@ -29,12 +29,14 @@ async def create_sale(user_data, telegram_user):
     products_list = user_data.get('products_list', [])
 
     payment = user_data.get('choosingPayment', '')
+    comment = user_data.get('comment', '')
 
     sale = Sale(
         telegram_user=telegram_user,
         status='completed',
         payment_method=payment,
         source='telegram',
+        comment=comment
     )
 
     # Сохранение объекта Sale

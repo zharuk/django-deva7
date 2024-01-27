@@ -6,6 +6,7 @@ class SellStates(StatesGroup):
     choosingModification = State()
     enteringQuantity = State()
     choosingPayment = State()
+    enteringComment = State()
     finish = State()
 
 

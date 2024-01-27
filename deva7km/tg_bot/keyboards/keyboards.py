@@ -20,7 +20,7 @@ async def create_main_menu_kb():
     return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
 
 
-async def create_inline_kb_main_sku(callback, page=1):
+async def create_inline_kb_main_sku(callback, page=1, product_list=False):
     def custom_sort_key(sku):
         # Вложенная функция для сортировки артикулов
         numeric_part = ''.join(filter(str.isdigit, sku))
@@ -56,6 +56,8 @@ async def create_inline_kb_main_sku(callback, page=1):
         navigation_buttons.append(InlineKeyboardButton(text='▶️ Вперед', callback_data=f'next_{callback}_{page}'))
 
     rows.append(navigation_buttons)
+    if product_list:
+        rows.append([InlineKeyboardButton(text='🔙 К списку товаров', callback_data='product_list')])
     rows.append([InlineKeyboardButton(text='↩️ Отмена', callback_data='cancel')])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
@@ -68,7 +70,7 @@ async def create_inline_kb_return(callback):
 
 
 #  клавиатура с кнопками артикулов товаров модификаций товара
-async def create_inline_kb_modifications(main_sku, callback):
+async def create_inline_kb_modifications(main_sku, callback, product_list=False):
     product_modifications = await sync_to_async(list)(ProductModification.objects.filter(product__sku=main_sku))
     buttons = []
 
@@ -80,6 +82,9 @@ async def create_inline_kb_modifications(main_sku, callback):
 
     buttons_per_row = 2
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
+    if product_list:
+        rows.append([InlineKeyboardButton(text='🔙 Назад', callback_data='product_list')])
+
     rows.append([InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
@@ -112,6 +117,20 @@ async def create_payment_type_keyboard():
                 [InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')]]
 
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
+# клавиатура с кнопками "Да" и "Нет"
+async def create_inline_kb_yes_no():
+    yes_button = InlineKeyboardButton(text='Да', callback_data='yes')
+    no_button = InlineKeyboardButton(text='Нет', callback_data='no')
+    return InlineKeyboardMarkup(inline_keyboard=[[yes_button, no_button]])  # если нужно две кнопки
+
+
+# клавиатура с 2 кнопками "Готово" и "Отмена"
+async def create_inline_kb_ready_cancel():
+    ready_button = InlineKeyboardButton(text='Готово', callback_data='ready')
+    cancel_button = InlineKeyboardButton(text='Отмена', callback_data='cancel')
+    return InlineKeyboardMarkup(inline_keyboard=[[ready_button, cancel_button]])  # если нужно две кнопки
 
 
 async def create_inline_kb_cancel():

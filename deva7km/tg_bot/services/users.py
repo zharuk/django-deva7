@@ -4,17 +4,16 @@ from asgiref.sync import sync_to_async
 from catalog.models import TelegramUser
 
 
-#  Функция получения или создания пользователя
-@sync_to_async
-def get_or_create_telegram_user(user_id, user_name, first_name, last_name=None):
+# Функция получения или создания пользователя
+async def get_or_create_telegram_user(user_id, user_name, first_name, last_name=None):
     try:
-        user = TelegramUser.objects.get(user_id=user_id)
+        user = await sync_to_async(TelegramUser.objects.get)(user_id=user_id)
         # Если пользователь найден, можешь обновить его данные, если необходимо
         user.username = user_name
         user.first_name = first_name
         if last_name:
             user.last_name = last_name
-        user.save()
+        await sync_to_async(user.save)()
     except TelegramUser.DoesNotExist:
         # Если пользователь не найден, создадим новую запись
         user = TelegramUser(
@@ -24,7 +23,8 @@ def get_or_create_telegram_user(user_id, user_name, first_name, last_name=None):
             last_name=last_name,
             role='unauthorized'  # Установим роль по умолчанию
         )
-        user.save()
+        await sync_to_async(user.save)()
+
     return user
 
 
