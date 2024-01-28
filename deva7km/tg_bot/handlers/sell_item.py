@@ -35,7 +35,6 @@ async def process_callback_query_sell(callback: CallbackQuery, state: FSMContext
     kb = await create_inline_kb_main_sku(callback='sell')
     await state.clear()
     await state.set_state(SellStates.choosingSKU)
-
     await callback.message.answer('Выберите товар для продажи 👇', reply_markup=kb)
     await callback.answer()
 
@@ -49,7 +48,6 @@ async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext)
         await state.set_state(SellStates.choosingModification)
         await state.update_data(choosingSKU=sku)
         user_data = await state.get_data()
-        print(user_data)
         if 'products_list' not in user_data:
             kb = await create_inline_kb_modifications(sku, callback='sell')
         else:
@@ -175,7 +173,6 @@ async def process_callback_query_product_list(callback: CallbackQuery, state: FS
 @admin_access_control_decorator(access='seller')
 async def process_callback_query_finish(callback: CallbackQuery, state: FSMContext):
     await state.update_data(choosingPayment=callback.data)
-    user_data = await state.get_data()
     kb = await create_inline_kb_yes_no()
     await state.set_state(SellStates.enteringComment)
     await callback.message.answer('Добавить комментарий?', reply_markup=kb)
@@ -186,7 +183,6 @@ async def process_callback_query_finish(callback: CallbackQuery, state: FSMConte
 @router.callback_query(StateFilter(SellStates.enteringComment), lambda callback: 'yes' == callback.data)
 @admin_access_control_decorator(access='seller')
 async def process_callback_query_finish(callback: CallbackQuery, state: FSMContext):
-    # await state.set_state(SellStates.enteringComment)
     await callback.message.answer('Введите ваш комментарий')
     await callback.answer()
 
@@ -241,13 +237,12 @@ async def process_callback_query_finish(callback: CallbackQuery, state: FSMConte
     # Создание продажи
     sale = await create_sale(user_data, telegram_user)
     kb = await create_main_menu_kb()
-    thumbnail_input_file = await get_large_image_url_input_file(custom_sku)
-    await bot.send_photo(chat_id=callback.from_user.id,
-                         photo=thumbnail_input_file,
-                         caption=f'✅ Продажа успешно проведена на сумму {await sync_to_async(sale.calculate_total_amount)()}грн.\n\n'
-                                 f'вы продали:\n{products_text}'
-                                 f'тип оплаты - {payment_types[user_data["choosingPayment"]]}\n'
-                                 f'комментарий - {user_data["comment"] if "comment" in user_data.keys() else "без комментария"} ',
-                         reply_markup=kb)
+
+    await callback.message.answer(
+        f'✅ Продажа успешно проведена на сумму {await sync_to_async(sale.calculate_total_amount)()}грн.\n\n'
+        f'вы продали:\n{products_text}\n'
+        f'тип оплаты - {payment_types[user_data["choosingPayment"]]}\n'
+        f'комментарий - {user_data["comment"] if "comment" in user_data.keys() else "без комментария"} ',
+        reply_markup=kb)
     await state.clear()
     await callback.answer()
