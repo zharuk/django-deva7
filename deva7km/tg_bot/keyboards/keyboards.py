@@ -90,6 +90,14 @@ async def create_inline_kb_modifications(main_sku, callback, product_list=False)
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
+# клавиатура с 3 кнопками "добавить товар", "завершить", "отмена"
+async def create_inline_kb_add_more():
+    add_button = InlineKeyboardButton(text='➕ Добавить товар', callback_data='add_more')
+    finish_button = InlineKeyboardButton(text='✅ Завершить', callback_data='finish')
+    cancel_button = InlineKeyboardButton(text='↩️ Отмена операции', callback_data='cancel')
+    return InlineKeyboardMarkup(inline_keyboard=[[add_button, finish_button], [cancel_button]])
+
+
 async def create_inline_kb_numbers(quantity=10):
     buttons = []
 

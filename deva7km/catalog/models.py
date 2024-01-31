@@ -491,16 +491,12 @@ class Inventory(models.Model):
 
     def calculate_total_amount(self):
         total_amount = 0
-        currency = ''
         for item in self.items.all():
             if item.product_modification.sale_price > 0:
                 total_amount += item.quantity * item.product_modification.sale_price
-                currency = item.product_modification.currency
-                continue  # Пропускаем обработку цены для модификации товара, если она имеет акционную цену
-            # Если цена модификации товара не имеет акционной цены, обрабатываем ее как обычную цену товара
-            total_amount += item.quantity * item.product_modification.price
-            currency = item.product_modification.currency
-        return f'{total_amount} {currency}'
+            else:
+                total_amount += item.quantity * item.product_modification.price
+        return total_amount
 
     calculate_total_amount.short_description = 'Общая сумма'
 

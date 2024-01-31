@@ -5,30 +5,30 @@ from tg_bot.services.sells import get_product_modification
 
 # создание объекта Inventory и его элементов
 async def create_inventory(user_data, telegram_user):
-    modification_sku = user_data.get('choosingModification', '')
-    quantity = int(user_data.get('enteringQuantity', ''))
+    products_list = user_data.get('products_list', [])
 
-    product_modification = await get_product_modification(modification_sku)
+    inventory = Inventory(
+        telegram_user=telegram_user,
+        status='completed',
+        source='telegram',
+    )
 
-    if product_modification:
-        # Создание объекта inventory
-        inventory_instance = Inventory(
-            telegram_user=telegram_user,
-            source='telegram',
-        )
+    # Сохранение объекта Sale
+    await sync_to_async(inventory.save)()
 
-        # Сохранение объекта inventory
-        await sync_to_async(inventory_instance.save)()
+    for product_info in products_list:
+        modification_sku = product_info.get('choosingModification', '')
+        quantity = int(product_info.get('enteringQuantity', ''))
 
-        # Добавление элементов оприходования
-        await sync_to_async(InventoryItem.objects.create)(
-            inventory=inventory_instance,
+        product_modification = await get_product_modification(modification_sku)
+
+        inventory_item = InventoryItem(
+            inventory=inventory,
             product_modification=product_modification,
             quantity=quantity,
         )
-        # Сохранение объекта inventory
-        await sync_to_async(inventory_instance.save)()
+        await sync_to_async(inventory_item.save)()
 
-        return inventory_instance
-    else:
-        return None
+    # Сохранение объекта Sale
+    await sync_to_async(inventory.save)()
+    return inventory
