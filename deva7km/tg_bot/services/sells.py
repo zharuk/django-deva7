@@ -2,13 +2,24 @@ from asgiref.sync import sync_to_async
 from catalog.models import ProductModification, Sale, SaleItem
 
 
-# Чек остатка на складе
+# Чек остатка на складе больше ли 0
 @sync_to_async()
 def check_stock_status(custom_sku):
     try:
         modification = ProductModification.objects.get(custom_sku=custom_sku)
         stock = modification.stock
         return True if stock > 0 else False
+    except ProductModification.DoesNotExist:
+        return False
+
+
+# Чек остатка на складе точные данные
+@sync_to_async()
+def get_stock(custom_sku):
+    try:
+        modification = ProductModification.objects.get(custom_sku=custom_sku)
+        stock = modification.stock
+        return stock
     except ProductModification.DoesNotExist:
         return False
 
@@ -29,7 +40,7 @@ async def create_sale(user_data, telegram_user):
     products_list = user_data.get('products_list', [])
 
     payment = user_data.get('choosingPayment', '')
-    comment = user_data.get('comment', '')
+    comment = user_data.get('enteringComment', '')
 
     sale = Sale(
         telegram_user=telegram_user,

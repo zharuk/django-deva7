@@ -9,3 +9,9 @@ LEXICON_COMMANDS_MENU: dict[str, str] = {
     '/report': 'Отчеты',
     '/cancel': 'Отмена'
 }
+
+# словарь расшифровки типа продажи
+LEXICON_PAYMENT_TYPE: dict[str, str] = {
+    'cash': 'нал',
+    'non_cash': 'безнал',
+}

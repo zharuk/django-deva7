@@ -104,11 +104,10 @@ async def process_callback_query_numbers(callback: CallbackQuery, state: FSMCont
         custom_sku = product['choosingModification']
         quantity = product['enteringQuantity']
         products_text += f'{custom_sku} - {quantity}шт.\n'
-    print(user_data['products_list'])
     kb = await create_inline_kb_add_more()
 
     await callback.message.answer(f'Вы выбрали для оприходования ➡️\n\n{products_text}\n выберите еще товар '
-                                  f'или завершите', reply_markup=kb)
+                                  f'или завершите приход', reply_markup=kb)
     await callback.answer()
 
 
@@ -116,7 +115,6 @@ async def process_callback_query_numbers(callback: CallbackQuery, state: FSMCont
 @router.callback_query(StateFilter(InventoryStates.enteringQuantity), lambda callback: 'add_more' == callback.data)
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_add_more(callback: CallbackQuery, state: FSMContext):
-    print(1)
     await state.set_state(InventoryStates.choosingSKU)
     kb = await create_inline_kb_main_sku(callback='inventory')
     await callback.message.answer('Выберите товар для оприходования 👇', reply_markup=kb)
