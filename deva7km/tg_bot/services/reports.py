@@ -40,7 +40,7 @@ def generate_sales_report_by_day() -> str:
 
     # Обработка продаж
     for sale in sales:
-        sale_amount = float(sale.calculate_total_amount().split()[0])
+        sale_amount = float(str(sale.calculate_total_amount()).split()[0])
         total_sales_amount += sale_amount
 
         if sale.payment_method == 'cash':
@@ -123,7 +123,7 @@ def generate_sales_report_by_yesterday() -> str:
 
     # Обработка продаж
     for sale in sales:
-        sale_amount = float(sale.calculate_total_amount().split()[0])
+        sale_amount = float(str(sale.calculate_total_amount()).split()[0])
         total_sales_amount += sale_amount
 
         if sale.payment_method == 'cash':
@@ -210,7 +210,7 @@ def generate_sales_report_by_week() -> str:
 
     # Обработка продаж
     for sale in sales:
-        sale_amount = float(sale.calculate_total_amount().split()[0])
+        sale_amount = float(str(sale.calculate_total_amount()).split()[0])
         total_sales_amount += sale_amount
 
         if sale.payment_method == 'cash':
@@ -297,7 +297,7 @@ def generate_sales_report_by_month() -> str:
 
     # Обработка продаж
     for sale in sales:
-        sale_amount = float(sale.calculate_total_amount().split()[0])
+        sale_amount = float(str(sale.calculate_total_amount()).split()[0])
         total_sales_amount += sale_amount
 
         if sale.payment_method == 'cash':
@@ -384,7 +384,7 @@ def generate_sales_report_by_year() -> str:
 
     # Обработка продаж
     for sale in sales:
-        sale_amount = float(sale.calculate_total_amount().split()[0])
+        sale_amount = float(str(sale.calculate_total_amount()).split()[0])
         total_sales_amount += sale_amount
 
         if sale.payment_method == 'cash':
