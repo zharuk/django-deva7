@@ -43,7 +43,7 @@ class SaleItemInline(admin.TabularInline):
 
 class SaleAdmin(admin.ModelAdmin):
     inlines = [SaleItemInline]
-    list_display = ('get_sold_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount')
+    list_display = ('get_sold_items', 'id', 'created_at', 'calculate_total_quantity', 'comment', 'calculate_total_amount')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
     list_per_page = 25
 

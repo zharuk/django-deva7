@@ -192,7 +192,14 @@ async def process_message_comment(message: Message, state: FSMContext):
     comment = user_data['enteringComment'] if 'enteringComment' in user_data else 'без комментария'
 
     # Создание продажи
-    sale = await create_sale(user_data, telegram_user)
+    try:
+        sale = await create_sale(user_data, telegram_user)
+    except Exception as e:
+        print(e)
+        await message.answer(f'Ошибка при создании продажи {e}')
+        await state.clear()
+        return
+
     kb = await create_main_menu_kb()
 
     await message.answer(
@@ -236,7 +243,14 @@ async def process_callback_query_finish(callback: CallbackQuery, state: FSMConte
     comment = user_data['enteringComment'] if 'enteringComment' in user_data else 'без комментария'
 
     # Создание продажи
-    sale = await create_sale(user_data, telegram_user)
+    try:
+        sale = await create_sale(user_data, telegram_user)
+    except Exception as e:
+        print(e)
+        await callback.message.answer(f'Ошибка при создании продажи {e}')
+        await state.clear()
+        return
+
     kb = await create_main_menu_kb()
 
     await callback.message.answer(
