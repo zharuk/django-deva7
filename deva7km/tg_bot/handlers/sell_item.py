@@ -118,7 +118,7 @@ async def process_callback_query_quantity(callback: CallbackQuery, state: FSMCon
     await callback.answer()
 
 
-# обработчик который бы отлавливал callback_query=add_more для inventory
+# обработчик который бы отлавливал callback_query=add_more для sell
 @router.callback_query(StateFilter(SellStates.enteringQuantity), lambda callback: 'add_more' == callback.data)
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_add_more(callback: CallbackQuery, state: FSMContext):
@@ -129,7 +129,7 @@ async def process_callback_query_add_more(callback: CallbackQuery, state: FSMCon
 
 
 # обработчик который бы реагировал на кнопку "Завершить"
-@router.callback_query(lambda callback: 'finish' == callback.data)
+@router.callback_query(StateFilter(SellStates.enteringQuantity), lambda callback: 'finish' == callback.data)
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_finish(callback: CallbackQuery, state: FSMContext):
     await state.set_state(SellStates.choosingPayment)
@@ -137,8 +137,7 @@ async def process_callback_query_finish(callback: CallbackQuery, state: FSMConte
 
 
 # обработчик который бы выводил клавиатуру с кнопками "нал" или "безнал"
-@router.callback_query(StateFilter(SellStates.choosingPayment),
-                       lambda callback: callback.data not in ['cash', 'non_cash', 'yes', 'no'])
+@router.callback_query(StateFilter(SellStates.choosingPayment), lambda callback: callback.data not in ['cash', 'non_cash', 'yes', 'no'])
 @admin_access_control_decorator(access='seller')
 async def process_callback_query_payment(callback: CallbackQuery, state: FSMContext):
     kb = await create_payment_type_keyboard()
@@ -152,7 +151,6 @@ async def process_callback_query_payment(callback: CallbackQuery, state: FSMCont
 async def process_callback_query_comment(callback: CallbackQuery, state: FSMContext):
     kb = await create_inline_kb_yes_no()
     await state.update_data(choosingPayment=callback.data)
-    user_data = await state.get_data()
     await callback.message.answer('Добавить комментарий?', reply_markup=kb)
     await callback.answer()
 
@@ -216,13 +214,13 @@ async def process_message_comment(message: Message, state: FSMContext):
 @admin_access_control_decorator(access='seller')
 async def process_callback_query_comment_no(callback: CallbackQuery, state: FSMContext):
     await state.set_state(SellStates.enteringComment)
-    await process_callback_query_finish(callback, state)
+    await process_callback_query_finish_sell(callback, state)
 
 
 # заключительный обработчик который бы создавал продажу и очищал данные из состояния
 @router.callback_query(StateFilter(SellStates.finish))
 @admin_access_control_decorator(access='seller')
-async def process_callback_query_finish(callback: CallbackQuery, state: FSMContext):
+async def process_callback_query_finish_sell(callback: CallbackQuery, state: FSMContext):
     user_data = await state.get_data()
 
     # данные о пользователе
