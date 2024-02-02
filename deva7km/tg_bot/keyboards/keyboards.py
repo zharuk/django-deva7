@@ -26,7 +26,7 @@ async def create_inline_kb_main_sku(callback, page=1, product_list=False, out_of
         return int(numeric_part) if numeric_part else float('inf')
 
     # Фильтруем товары в зависимости от значения out_of_stock
-    if out_of_stock:
+    if out_of_stock is True:
         products = await sync_to_async(list)(Product.objects.all())
     else:
         products = await sync_to_async(list)(Product.objects.filter(modifications__stock__gt=0).distinct())
