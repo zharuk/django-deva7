@@ -31,7 +31,7 @@ async def command_return_handler(message: Message, state: FSMContext):
 async def process_callback_query_return(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await state.set_state(ReturnStates.choosingSKU)
-    kb = await create_inline_kb_main_sku(callback='return')
+    kb = await create_inline_kb_main_sku(callback='inventory', out_of_stock=True)
     await callback.message.answer('Выберите товар для возврата 👇', reply_markup=kb)
     await callback.answer()
 
