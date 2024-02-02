@@ -128,18 +128,11 @@ async def process_callback_query_add_more(callback: CallbackQuery, state: FSMCon
     await callback.answer()
 
 
-# обработчик который бы реагировал на кнопку "Завершить"
-@router.callback_query(StateFilter(SellStates.enteringQuantity), lambda callback: 'finish' == callback.data)
-@admin_access_control_decorator(access='admin')
-async def process_callback_query_finish(callback: CallbackQuery, state: FSMContext):
-    await state.set_state(SellStates.choosingPayment)
-    await process_callback_query_payment(callback, state)
-
-
 # обработчик который бы выводил клавиатуру с кнопками "нал" или "безнал"
-@router.callback_query(StateFilter(SellStates.choosingPayment), lambda callback: callback.data not in ['cash', 'non_cash', 'yes', 'no'])
+@router.callback_query(StateFilter(SellStates.enteringQuantity), lambda callback: 'finish' == callback.data)
 @admin_access_control_decorator(access='seller')
-async def process_callback_query_payment(callback: CallbackQuery):
+async def process_callback_query_payment(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(SellStates.choosingPayment)
     kb = await create_payment_type_keyboard()
     await callback.message.answer('Выберите метод оплаты 👇', reply_markup=kb)
     await callback.answer()
@@ -193,7 +186,6 @@ async def process_message_comment(message: Message, state: FSMContext):
     try:
         sale = await create_sale(user_data, telegram_user)
     except Exception as e:
-        print(e)
         await message.answer(f'Ошибка при создании продажи {e}')
         await state.clear()
         return
@@ -244,7 +236,6 @@ async def process_callback_query_finish_sell(callback: CallbackQuery, state: FSM
     try:
         sale = await create_sale(user_data, telegram_user)
     except Exception as e:
-        print(e)
         await callback.message.answer(f'Ошибка при создании продажи {e}')
         await state.clear()
         return
