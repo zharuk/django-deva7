@@ -139,7 +139,7 @@ async def process_callback_query_finish(callback: CallbackQuery, state: FSMConte
 # обработчик который бы выводил клавиатуру с кнопками "нал" или "безнал"
 @router.callback_query(StateFilter(SellStates.choosingPayment), lambda callback: callback.data not in ['cash', 'non_cash', 'yes', 'no'])
 @admin_access_control_decorator(access='seller')
-async def process_callback_query_payment(callback: CallbackQuery, state: FSMContext):
+async def process_callback_query_payment(callback: CallbackQuery):
     kb = await create_payment_type_keyboard()
     await callback.message.answer('Выберите метод оплаты 👇', reply_markup=kb)
     await callback.answer()

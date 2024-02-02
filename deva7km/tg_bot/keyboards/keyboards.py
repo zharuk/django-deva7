@@ -22,16 +22,17 @@ async def create_main_menu_kb():
 
 async def create_inline_kb_main_sku(callback, page=1, product_list=False):
     def custom_sort_key(sku):
-        # Вложенная функция для сортировки артикулов
         numeric_part = ''.join(filter(str.isdigit, sku))
         return int(numeric_part) if numeric_part else float('inf')
 
-    products = await sync_to_async(list)(Product.objects.all())
+    # Получим только товары, у которых суммарный остаток больше 0
+    products = await sync_to_async(list)(Product.objects.filter(modifications__stock__gt=0).distinct())
+
+    # Отсортируем товары по артикулу
     products = sorted(products, key=lambda x: custom_sort_key(x.sku), reverse=True)
 
     buttons = []
 
-    # Определим количество кнопок на одной странице (например, 8)
     buttons_per_page = 49
     start_index = (page - 1) * buttons_per_page
     end_index = start_index + buttons_per_page
@@ -40,18 +41,14 @@ async def create_inline_kb_main_sku(callback, page=1, product_list=False):
         sku = product.sku
         buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}_{page}'))
 
-    # Задаем количество кнопок в каждом ряду (здесь используется 2)
     buttons_per_row = 7
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
 
-    # Добавим кнопки навигации
     navigation_buttons = []
 
-    # Добавляем кнопку "Назад" только на страницах больше 1
     if page > 1:
         navigation_buttons.append(InlineKeyboardButton(text='◀️ Назад', callback_data=f'prev_{callback}_{page}'))
 
-    # Добавляем кнопку "Вперед" только если есть еще товары на следующей странице
     if len(products) > end_index:
         navigation_buttons.append(InlineKeyboardButton(text='▶️ Вперед', callback_data=f'next_{callback}_{page}'))
 
