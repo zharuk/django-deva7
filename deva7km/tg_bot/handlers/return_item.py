@@ -21,7 +21,7 @@ bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 async def command_return_handler(message: Message, state: FSMContext):
     await state.clear()
     await state.set_state(ReturnStates.choosingSKU)
-    kb = await create_inline_kb_main_sku(callback='return')
+    kb = await create_inline_kb_main_sku(callback='return', out_of_stock=True)
     await message.answer('Выберите товар для возврата 👇', reply_markup=kb)
 
 

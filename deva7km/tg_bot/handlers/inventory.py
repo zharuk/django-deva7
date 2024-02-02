@@ -23,7 +23,7 @@ bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 async def command_inventory_handler(message: Message, state: FSMContext):
     await state.clear()
     await state.set_state(InventoryStates.choosingSKU)
-    kb = await create_inline_kb_main_sku(callback='inventory')
+    kb = await create_inline_kb_main_sku(callback='inventory', out_of_stock=True)
     await message.answer('Выберите товар для оприходования 👇', reply_markup=kb)
 
 
