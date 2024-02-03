@@ -3,6 +3,8 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.markdown import hbold
+from asgiref.sync import sync_to_async
+
 from deva7km.settings import BOT_TOKEN
 from tg_bot.FSM.fsm import ReturnStates
 from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_kb_modifications, \
@@ -31,7 +33,7 @@ async def command_return_handler(message: Message, state: FSMContext):
 async def process_callback_query_return(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await state.set_state(ReturnStates.choosingSKU)
-    kb = await create_inline_kb_main_sku(callback='inventory', out_of_stock=True)
+    kb = await create_inline_kb_main_sku(callback='return', out_of_stock=True)
     await callback.message.answer('Выберите товар для возврата 👇', reply_markup=kb)
     await callback.answer()
 
@@ -40,6 +42,7 @@ async def process_callback_query_return(callback: CallbackQuery, state: FSMConte
 @router.callback_query(StateFilter(ReturnStates.choosingSKU))
 @admin_access_control_decorator(access='seller')
 async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext):
+    print(callback.data)
     if '_main_sku_return' in callback.data:
         sku = callback.data.split("_")[0]
         await state.set_state(ReturnStates.choosingModification)
@@ -101,7 +104,7 @@ async def process_callback_query_numbers(callback: CallbackQuery, state: FSMCont
             thumbnail_input_file = await get_large_image_url_input_file(custom_sku)
             await bot.send_photo(chat_id=callback.from_user.id,
                                  photo=thumbnail_input_file,
-                                 caption=f'✅ Возврат успешно проведен на сумму {return_item.total_amount}\n\n'
+                                 caption=f'✅ Возврат успешно проведен на сумму {hbold(await sync_to_async(return_item.calculate_total_amount)())}грн.\n\n'
                                          f'вы вернули {user_data["choosingModification"]}\n'
                                          f'в количестве {user_data["enteringQuantity"]}шт.\n', reply_markup=kb)
             await callback.answer()

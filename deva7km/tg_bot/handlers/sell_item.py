@@ -120,7 +120,7 @@ async def process_callback_query_quantity(callback: CallbackQuery, state: FSMCon
 
 # обработчик который бы отлавливал callback_query=add_more для sell
 @router.callback_query(StateFilter(SellStates.enteringQuantity), lambda callback: 'add_more' == callback.data)
-@admin_access_control_decorator(access='admin')
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_add_more(callback: CallbackQuery, state: FSMContext):
     await state.set_state(SellStates.choosingSKU)
     kb = await create_inline_kb_main_sku(callback='sell')
