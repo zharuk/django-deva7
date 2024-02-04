@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Информация о политики конфиденциальности{% endblock %}
+
+{% block breadcrumbs %}
+    <!-- Хлебные крошки для страницы доставки -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+            <li class="breadcrumb-item active" aria-current="page">политика конфиденциальности</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+ <!-- Отобразить контент конкретного блог-поста -->
+      <div class="container">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="card-text">{{ privacy_policy_page_post.content|safe }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+{% endblock %}

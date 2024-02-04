@@ -120,6 +120,12 @@ def payment_page(request):
     return render(request, 'payment_page.html', {'categories': categories, 'payment_page_post': payment_page_post})
 
 
+def privacy_policy_page(request):
+    privacy_policy_page_post = get_object_or_404(BlogPost, title='Политика конфиденциальности')
+    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
+    return render(request, 'privacy_policy_page.html', {'categories': categories, 'privacy_policy_page_post': privacy_policy_page_post})
+
+
 def telegram_page(request):
     return render(request, 'telegram_page.html')
 

@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import path, include
 from catalog.views import home, about_page, contacts_page, delivery_page, payment_page, \
     category_detail, product_detail, sales, all_products, telegram_page, FacebookFeedView, GoogleFeedView, \
-    RozetkaFeedView
+    RozetkaFeedView, privacy_policy_page
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -19,6 +19,7 @@ urlpatterns = [
     path('contacts/', contacts_page, name='contacts'),
     path('delivery/', delivery_page, name='delivery'),
     path('payment/', payment_page, name='payment'),
+    path('privacy-policy/', privacy_policy_page, name='privacy_policy'),
     path('telegram/', telegram_page, name='telegram_page'),
     path('<slug:category_slug>/', category_detail, name='category_detail'),
     path('<slug:category_slug>/<slug:product_slug>/', product_detail, name='product_detail'),  # Обновлено
