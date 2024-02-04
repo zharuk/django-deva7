@@ -53,7 +53,7 @@ def generate_sales_report_by_day() -> str:
 
     # Обработка возвратов
     for ret in returns:
-        return_amount = float(ret.calculate_total_amount().split()[0])
+        return_amount = float(str(ret.calculate_total_amount()).split()[0])
         total_returns_amount += return_amount
 
         for item in ret.items.all():
@@ -136,7 +136,7 @@ def generate_sales_report_by_yesterday() -> str:
 
     # Обработка возвратов
     for ret in returns:
-        return_amount = float(ret.calculate_total_amount().split()[0])
+        return_amount = float(str(ret.calculate_total_amount()).split()[0])
         total_returns_amount += return_amount
 
         for item in ret.items.all():
@@ -223,7 +223,7 @@ def generate_sales_report_by_week() -> str:
 
     # Обработка возвратов
     for ret in returns:
-        return_amount = float(ret.calculate_total_amount().split()[0])
+        return_amount = float(str(ret.calculate_total_amount()).split()[0])
         total_returns_amount += return_amount
 
         for item in ret.items.all():
@@ -310,7 +310,7 @@ def generate_sales_report_by_month() -> str:
 
     # Обработка возвратов
     for ret in returns:
-        return_amount = float(ret.calculate_total_amount().split()[0])
+        return_amount = float(str(ret.calculate_total_amount()).split()[0])
         total_returns_amount += return_amount
 
         for item in ret.items.all():
@@ -397,7 +397,7 @@ def generate_sales_report_by_year() -> str:
 
     # Обработка возвратов
     for ret in returns:
-        return_amount = float(ret.calculate_total_amount().split()[0])
+        return_amount = float(str(ret.calculate_total_amount()).split()[0])
         total_returns_amount += return_amount
 
         for item in ret.items.all():
