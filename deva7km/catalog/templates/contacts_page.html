@@ -1,15 +1,14 @@
-<!-- contacts_page.html -->
-
 {% extends 'base.html' %}
+{% load static i18n %}
 
-{% block title %}Контакты{% endblock %}
+{% block title %}{% trans 'Контакты' %}{% endblock %}
 
 {% block breadcrumbs %}
     <!-- Хлебные крошки для страницы контактов -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Главная</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Контакты</li>
+            <li class="breadcrumb-item"><a href="/">{% trans 'Главная' %}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{% trans 'Контакты' %}</li>
         </ol>
     </nav>
 {% endblock %}
@@ -35,7 +34,7 @@
         document.getElementById('telegram-link').addEventListener('click', function() {
             // Отправить событие фейсбук-лида для кнопки Telegram
             fbq('track', 'Lead', {
-                content_name: 'Telegram Button Click',
+                content_name: '{% trans 'Telegram Button Click' %}',
                 // Дополнительные параметры, если необходимо
             });
         });
@@ -43,7 +42,7 @@
         document.getElementById('viber-link').addEventListener('click', function() {
             // Отправить событие фейсбук-лида для кнопки Viber
             fbq('track', 'Lead', {
-                content_name: 'Viber Button Click',
+                content_name: '{% trans 'Viber Button Click' %}',
                 // Дополнительные параметры, если необходимо
             });
         });

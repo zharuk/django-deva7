@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
+{% load static i18n %}
 
-{% block title %}Информация о политики конфиденциальности{% endblock %}
+{% block title %}{% trans 'Информация о политике конфиденциальности' %}{% endblock %}
 
 {% block breadcrumbs %}
-    <!-- Хлебные крошки для страницы доставки -->
+    <!-- Хлебные крошки для страницы политики конфиденциальности -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Главная</a></li>
-            <li class="breadcrumb-item active" aria-current="page">политика конфиденциальности</li>
+            <li class="breadcrumb-item"><a href="/">{% trans 'Главная' %}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{% trans 'политика конфиденциальности' %}</li>
         </ol>
     </nav>
 {% endblock %}

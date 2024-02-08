@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-
+{% load static i18n %}
 {% block title %}Главная{% endblock %}
 
 {% block content %}
 <!-- Ваш HTML-код с использованием Bootstrap -->
-<h2> Новинки </h2>
+<h2> {% trans 'Новинки' %} </h2>
 <div class="row">
   {% for product in latest_products %}
     <div class="col-md-4 mb-4">
@@ -17,30 +17,30 @@
             <a href="{% url 'product_detail' product.category.slug product.slug %}">{{ product.title }}</a>
           </h5>
           <div class="card-text">
-            <p>Категория: <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
-            <p>Артикул: {{ product.sku }}</p>
-            <p>Цвета: {{ product.get_colors }}</p>
-            <p>Размеры: {{ product.get_sizes }}</p>
+            <p>{% trans "Категория" %}: <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
+            <p>{% trans "Артикул" %}: {{ product.sku }}</p>
+            <p>{% trans "Цвета" %}: {{ product.get_colors }}</p>
+            <p>{% trans "Размеры" %}: {{ product.get_sizes }}</p>
             {% if product.is_sale and product.sale_price > 0 %}
               <p class="text-danger">
                 {% if product.price > 0 %}
-                  <del>Цена: {{ product.price }} {{ product.currency }}</del><br>
+                  <del>{% trans "Цена" %}: {{ product.price }} {{ product.currency }}</del><br>
                 {% endif %}
-                <strong>Цена распродажи: {{ product.sale_price }} {{ product.currency }}</strong>
+                <strong>{% trans "Цена распродажи" %}: {{ product.sale_price }} {{ product.currency }}</strong>
               </p>
               <span class="badge bg-danger position-absolute" style="top: 5px; left: 5px; font-size: 1em;">
-                <span class="text-white">Распродажа</span>
+                <span class="text-white">{% trans "Распродажа" %}</span>
               </span>
             {% else %}
               <p>
                 {% if product.price > 0 %}
-                  <strong>Цена: {{ product.price }} {{ product.currency }}</strong>
+                  <strong>{% trans "Цена" %}: {{ product.price }} {{ product.currency }}</strong>
                 {% endif %}
               </p>
             {% endif %}
           </div>
         </div>
-        <a href="{% url 'product_detail' product.category.slug product.slug %}" class="btn btn-primary w-100">Перейти</a>
+        <a href="{% url 'product_detail' product.category.slug product.slug %}" class="btn btn-primary w-100">{% trans "Перейти" %}</a>
       </div>
     </div>
   {% endfor %}

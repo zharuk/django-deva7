@@ -1,0 +1,265 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-08 08:00+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != "
+"11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
+"100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
+"(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+#: .\catalog\templates\all_products.html:3
+#: .\catalog\templates\all_products.html:10 .\catalog\templates\base.html:67
+msgid "Все товары"
+msgstr "Усі товари"
+
+#: .\catalog\templates\all_products.html:9
+#: .\catalog\templates\category_detail.html:8 .\catalog\templates\sales.html:9
+msgid "Домой"
+msgstr "Додому"
+
+#: .\catalog\templates\all_products.html:16
+msgid "Список категорий и товаров"
+msgstr "Список категорій і товарів"
+
+#: .\catalog\templates\all_products.html:28
+#: .\catalog\templates\category_detail.html:94
+msgid "Нет товаров в этой категории"
+msgstr "Немає товарів в цій категорії"
+
+#: .\catalog\templates\all_products.html:35
+msgid "Нет категорий"
+msgstr "Немає категорій"
+
+#: .\catalog\templates\base.html:8
+msgid "Сайт deva7km"
+msgstr "Сайт deva7km"
+
+#: .\catalog\templates\base.html:50
+msgid "Дева"
+msgstr "Діва"
+
+#: .\catalog\templates\base.html:64 .\catalog\templates\category_detail.html:42
+#: .\catalog\templates\home.html:32 .\catalog\templates\product_detail.html:32
+#: .\catalog\templates\sales.html:4 .\catalog\templates\sales.html:10
+#: .\catalog\templates\sales.html:16 .\catalog\templates\sales.html:37
+msgid "Распродажа"
+msgstr "Розпродаж"
+
+#: .\catalog\templates\base.html:72 .\catalog\templates\contact_menu.html:6
+#: .\catalog\templates\contact_menu_bottom.html:5
+msgid "О сайте"
+msgstr "Про сайт"
+
+#: .\catalog\templates\base.html:75 .\catalog\templates\contact_menu.html:9
+#: .\catalog\templates\contact_menu_bottom.html:6
+#: .\catalog\templates\contacts_page.html:4
+#: .\catalog\templates\contacts_page.html:11
+msgid "Контакты"
+msgstr "Контакти"
+
+#: .\catalog\templates\base.html:78 .\catalog\templates\contact_menu.html:12
+#: .\catalog\templates\contact_menu_bottom.html:7
+#: .\catalog\templates\delivery_page.html:11
+msgid "Доставка"
+msgstr "Доставка"
+
+#: .\catalog\templates\base.html:81 .\catalog\templates\contact_menu.html:15
+#: .\catalog\templates\contact_menu_bottom.html:8
+#: .\catalog\templates\payment_page.html:11
+msgid "Оплата"
+msgstr "Оплата"
+
+#: .\catalog\templates\category_detail.html:31 .\catalog\templates\home.html:21
+#: .\catalog\templates\product_detail.html:39 .\catalog\templates\sales.html:29
+msgid "Артикул"
+msgstr "Артикул"
+
+#: .\catalog\templates\category_detail.html:32 .\catalog\templates\home.html:22
+#: .\catalog\templates\product_detail.html:40 .\catalog\templates\sales.html:30
+msgid "Цвета"
+msgstr "Кольори"
+
+#: .\catalog\templates\category_detail.html:33 .\catalog\templates\home.html:23
+#: .\catalog\templates\product_detail.html:47 .\catalog\templates\sales.html:31
+msgid "Размеры"
+msgstr "Розміри"
+
+#: .\catalog\templates\category_detail.html:37
+#: .\catalog\templates\category_detail.html:47 .\catalog\templates\home.html:27
+#: .\catalog\templates\home.html:37 .\catalog\templates\product_detail.html:58
+#: .\catalog\templates\product_detail.html:65 .\catalog\templates\sales.html:33
+msgid "Цена"
+msgstr "Ціна"
+
+#: .\catalog\templates\category_detail.html:39 .\catalog\templates\home.html:29
+#: .\catalog\templates\product_detail.html:60 .\catalog\templates\sales.html:34
+msgid "Цена распродажи"
+msgstr "Ціна розпродажу"
+
+#: .\catalog\templates\category_detail.html:53 .\catalog\templates\home.html:43
+#: .\catalog\templates\sales.html:41
+msgid "Перейти"
+msgstr "Перейти"
+
+#: .\catalog\templates\category_detail.html:63
+#: .\catalog\templates\sales.html:51
+msgid "First"
+msgstr "Перша"
+
+#: .\catalog\templates\category_detail.html:68
+#: .\catalog\templates\sales.html:56
+msgid "Previous"
+msgstr "Попередня"
+
+#: .\catalog\templates\category_detail.html:75
+#: .\catalog\templates\sales.html:63
+msgid "Страница"
+msgstr "Сторінка"
+
+#: .\catalog\templates\category_detail.html:75
+#: .\catalog\templates\sales.html:63
+msgid "из"
+msgstr "з"
+
+#: .\catalog\templates\category_detail.html:80
+#: .\catalog\templates\sales.html:68
+msgid "Next"
+msgstr "Наступна"
+
+#: .\catalog\templates\category_detail.html:85
+#: .\catalog\templates\sales.html:73
+msgid "Last"
+msgstr "Остання"
+
+#: .\catalog\templates\contact_menu_bottom.html:9
+msgid "Политика конфиденциальности"
+msgstr "Політика конфіденційності"
+
+#: .\catalog\templates\contacts_info.html:11
+msgid "Email:"
+msgstr "Email:"
+
+#: .\catalog\templates\contacts_info.html:12
+msgid "Телефон:"
+msgstr "Телефон:"
+
+#: .\catalog\templates\contacts_info.html:16
+msgid "Социальные сети:"
+msgstr "Соціальні мережі:"
+
+#: .\catalog\templates\contacts_info.html:20
+msgid "Страница Telegram"
+msgstr "Сторінка Telegram"
+
+#: .\catalog\templates\contacts_info.html:25
+msgid "Страница Viber"
+msgstr "Сторінка Viber"
+
+#: .\catalog\templates\contacts_page.html:10
+#: .\catalog\templates\delivery_page.html:10
+#: .\catalog\templates\payment_page.html:10
+#: .\catalog\templates\privacy_policy_page.html:10
+#: .\catalog\templates\product_detail.html:10
+msgid "Главная"
+msgstr "Головна"
+
+#: .\catalog\templates\contacts_page.html:37
+msgid "Telegram Button Click"
+msgstr "Клік кнопки Telegram"
+
+#: .\catalog\templates\contacts_page.html:45
+msgid "Viber Button Click"
+msgstr "Клік кнопки Viber"
+
+#: .\catalog\templates\delivery_page.html:4
+msgid "Информация о доставке"
+msgstr "Інформація про доставку"
+
+#: .\catalog\templates\home.html:7
+msgid "Новинки"
+msgstr "Новинки"
+
+#: .\catalog\templates\home.html:20 .\catalog\templates\product_detail.html:37
+msgid "Категория"
+msgstr "Категорія"
+
+#: .\catalog\templates\payment_page.html:4
+msgid "Информация о оплате"
+msgstr "Інформація про оплату"
+
+#: .\catalog\templates\privacy_policy_page.html:4
+msgid "Информация о политике конфиденциальности"
+msgstr "Інформація про політику конфіденційності"
+
+#: .\catalog\templates\privacy_policy_page.html:11
+msgid "политика конфиденциальности"
+msgstr "політика конфіденційності"
+
+#: .\catalog\templates\product_detail.html:24
+msgid "product"
+msgstr ""
+
+#: .\catalog\templates\product_detail.html:38
+msgid "Описание"
+msgstr "Опис"
+
+#: .\catalog\templates\product_detail.html:44
+#: .\catalog\templates\product_detail.html:51
+msgid "Нет данных"
+msgstr "Немає даних"
+
+#: .\catalog\templates\product_detail.html:75
+msgid "Купить в Telegram"
+msgstr "Купити в Telegram"
+
+#: .\catalog\templates\product_detail.html:78
+msgid "Купить в Viber"
+msgstr "Купити в Viber"
+
+#: .\catalog\templates\product_detail.html:84
+msgid "Остатки"
+msgstr "Залишок"
+
+#: .\catalog\templates\product_detail.html:88
+msgid "Цвет"
+msgstr "Колір"
+
+#: .\catalog\templates\product_detail.html:89
+msgid "Размер"
+msgstr "Розмір"
+
+#: .\catalog\templates\product_detail.html:90
+msgid "Наличие"
+msgstr "Наявність"
+
+#: .\catalog\templates\product_detail.html:100
+msgid "В наличии"
+msgstr "В наявності"
+
+#: .\catalog\templates\product_detail.html:102
+msgid "Заканчивается"
+msgstr "Закінчується"
+
+#: .\catalog\templates\product_detail.html:104
+msgid "Нет в наличии"
+msgstr "Немає в наявності"
+
+#: .\catalog\templates\product_detail.html:115
+msgid "Изображения"
+msgstr "Зображення"
+
+#: .\catalog\templates\product_detail.html:122
+msgid "Нет изображений"
+msgstr "Немає зображень"
+
+#: .\catalog\templates\sales.html:82
+msgid "Нет товаров в распродаже"
+msgstr "Немає товарів у розпродажі"

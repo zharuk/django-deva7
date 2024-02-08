@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
+{% load static i18n %}
 
-{% block title %}Информация о доставке{% endblock %}
+{% block title %}{% trans 'Информация о доставке' %}{% endblock %}
 
 {% block breadcrumbs %}
     <!-- Хлебные крошки для страницы доставки -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Главная</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Доставка</li>
+            <li class="breadcrumb-item"><a href="/">{% trans 'Главная' %}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{% trans 'Доставка' %}</li>
         </ol>
     </nav>
 {% endblock %}

@@ -2,6 +2,8 @@ from adminsortable2.admin import SortableAdminMixin, SortableStackedInline
 from ckeditor.widgets import CKEditorWidget
 from django.contrib import admin
 from django.db import models
+from modeltranslation.admin import TranslationAdmin
+
 from .models import (
     Category, Color, Size, Product, ProductModification, Image, SaleItem, ReturnItem, Return,
     TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem, Sale, BlogPost
@@ -43,7 +45,8 @@ class SaleItemInline(admin.TabularInline):
 
 class SaleAdmin(admin.ModelAdmin):
     inlines = [SaleItemInline]
-    list_display = ('get_sold_items', 'id', 'created_at', 'calculate_total_quantity', 'comment', 'calculate_total_amount')
+    list_display = (
+        'get_sold_items', 'id', 'created_at', 'calculate_total_quantity', 'comment', 'calculate_total_amount')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
     list_per_page = 25
 
@@ -85,7 +88,7 @@ class ProductModificationInline(admin.TabularInline):
     readonly_fields = ('thumbnail_image_modification',)
 
 
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(TranslationAdmin):
     inlines = [ProductModificationInline]
     list_display = ('title', 'sku', 'category', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
                     'sale_price', 'thumbnail_image', 'created_at')
@@ -134,7 +137,7 @@ class WriteOffAdmin(admin.ModelAdmin):
         return super().has_change_permission(request, obj)
 
 
-class BlogPostAdmin(admin.ModelAdmin):
+class BlogPostAdmin(TranslationAdmin):
     list_display = ('title', 'created_at')
     search_fields = ('title', 'created_at')
     readonly_fields = ('created_at',)
@@ -143,11 +146,23 @@ class BlogPostAdmin(admin.ModelAdmin):
     }
 
 
+@admin.register(Color)
+class ColorAdmin(TranslationAdmin):  # Используем TranslationAdmin
+    list_display = ('name',)
+
+
+@admin.register(Size)
+class SizeAdmin(TranslationAdmin):  # Используем TranslationAdmin
+    list_display = ('name',)
+
+
+@admin.register(Category)
+class CategoryAdmin(TranslationAdmin):  # Используем TranslationAdmin
+    list_display = ('name', 'description')
+
+
 admin.site.register(BlogPost, BlogPostAdmin)
 admin.site.register(WriteOff, WriteOffAdmin)
-admin.site.register(Category)
-admin.site.register(Color)
-admin.site.register(Size)
 admin.site.register(Inventory, InventoryAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Image, ImageAdmin)

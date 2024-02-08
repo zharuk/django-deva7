@@ -1,16 +1,34 @@
+from django.core.cache import cache
 from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.template import loader
+from django.utils.translation import get_language, activate
 from django.views import View
+from transliterate.utils import _
+
 from catalog.models import Image, Category, Product, BlogPost, ProductModification
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+from deva7km import settings
 
 
 def home(request):
+    # Определяем текущий язык
+    language = get_language()
+
+    # Получаем объекты категорий
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
+
+    # Получаем последние активные продукты
     latest_products = Product.objects.filter(is_active=True).order_by('-created_at')[:6]
-    main_page_post = get_object_or_404(BlogPost, title='Главная страница')
+
+    # Получаем объект BlogPost в зависимости от текущего языка
+    if language == 'uk':
+        main_page_post = get_object_or_404(BlogPost, title=_(u'Головна сторінка'))
+    else:
+        main_page_post = get_object_or_404(BlogPost, title=_(u'Главная страница'))
+
     return render(request, 'home.html',
                   {'categories': categories, 'latest_products': latest_products, 'main_page_post': main_page_post})
 
@@ -65,16 +83,21 @@ def product_detail(request, category_slug, product_slug):
     # Изменение здесь: сортировка модификаций по цвету, а затем по размеру
     modifications = product.modifications.all().order_by('color__name', 'size__name')
 
-    # Получение уникальных цветов для данного товара
-    unique_colors = modifications.values('color__name').annotate(count=Count('color')).filter(count__gt=0)
+    # Получение текущего языка
+    current_language = get_language()
+
+    # Получение уникальных цветов для данного товара с учетом текущего языка
+    unique_colors = modifications.values('color__name', f'color__name_{current_language}').annotate(
+        count=Count('color')).filter(count__gt=0)
 
     # Формирование словаря с уникальными цветами и изображениями
     unique_color_images = {}
     for color in unique_colors:
+        color_name = color[f'color__name_{current_language}']
         modification = modifications.filter(color__name=color['color__name']).first()
         if modification:
             images = Image.objects.filter(modification=modification)
-            unique_color_images[color['color__name']] = images
+            unique_color_images[color_name] = images
 
     # Получение всех категорий (или нужные данные для формирования меню)
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
@@ -97,15 +120,41 @@ def all_products(request):
 
 
 def about_page(request):
-    about_page_post = get_object_or_404(BlogPost, title='О сайте')
+    # Получаем текущий язык запроса
+    current_language = request.LANGUAGE_CODE
+
+    # Определяем соответствующий заголовок блога в зависимости от языка
+    if current_language == 'uk':
+        # Если текущий язык украинский, выбираем блог с заголовком "Про сайт"
+        about_page_post = get_object_or_404(BlogPost, title=_('Про сайт'))
+    else:
+        # Иначе (если текущий язык не украинский), выбираем блог с заголовком "О сайте"
+        about_page_post = get_object_or_404(BlogPost, title=_('О сайте'))
+
+    # Получаем категории и сортируем их по количеству продуктов
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
+
+    # Отображаем страницу about_page.html, передавая категории и выбранный блог
     return render(request, 'about_page.html', {'categories': categories, 'about_page_post': about_page_post})
 
 
 def contacts_page(request):
-    contacts_page_post = get_object_or_404(BlogPost, title='Контакты')
+    # Получаем текущий язык запроса
+    current_language = request.LANGUAGE_CODE
+
+    # Определяем соответствующий заголовок блога в зависимости от языка
+    if current_language == 'uk':
+        # Если текущий язык украинский, выбираем блог с заголовком "Про сайт"
+        about_page_post = get_object_or_404(BlogPost, title=_('Контакти'))
+    else:
+        # Иначе (если текущий язык не украинский), выбираем блог с заголовком "О сайте"
+        about_page_post = get_object_or_404(BlogPost, title=_('Контакты'))
+
+    # Получаем категории и сортируем их по количеству продуктов
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-    return render(request, 'contacts_page.html', {'categories': categories, 'contacts_page_post': contacts_page_post})
+
+    # Отображаем страницу about_page.html, передавая категории и выбранный блог
+    return render(request, 'about_page.html', {'categories': categories, 'about_page_post': about_page_post})
 
 
 def delivery_page(request):
@@ -123,7 +172,8 @@ def payment_page(request):
 def privacy_policy_page(request):
     privacy_policy_page_post = get_object_or_404(BlogPost, title='Политика конфиденциальности')
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-    return render(request, 'privacy_policy_page.html', {'categories': categories, 'privacy_policy_page_post': privacy_policy_page_post})
+    return render(request, 'privacy_policy_page.html',
+                  {'categories': categories, 'privacy_policy_page_post': privacy_policy_page_post})
 
 
 def telegram_page(request):
@@ -166,9 +216,25 @@ class RozetkaFeedView(View):
         modifications = ProductModification.objects.all()
         images = Image.objects.all()
         categories = Category.objects.all()  # Получаем все категории
-        context = {'products': products, 'modifications': modifications, 'images': images, 'categories': categories, 'request': request}
+        context = {'products': products, 'modifications': modifications, 'images': images, 'categories': categories,
+                   'request': request}
         template = loader.get_template('rozetka_feed.xml')
         xml_content = template.render(context)
         response = HttpResponse(xml_content, content_type='application/xml')
         return response
 
+
+def set_user_language(request):
+    """
+    Устанавливает язык пользователя на основе его предпочтений в сессии.
+    Если язык не был установлен, используется украинский язык по умолчанию.
+    """
+    # Проверяем, был ли установлен язык для этого пользователя
+    if 'language' in request.session:
+        language = request.session['language']
+    else:
+        # Если язык не был установлен, устанавливаем украинский язык по умолчанию
+        language = 'uk'
+
+    # Активируем выбранный язык
+    activate(language)

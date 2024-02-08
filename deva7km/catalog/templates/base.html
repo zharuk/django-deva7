@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     {% load static %}
+    {% load i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{% block title %}Ваш сайт{% endblock %}</title>
+    <title>{% block title %}{% trans 'Сайт deva7km' %}{% endblock %}</title>
     <!-- Подключаем тему Slate с Bootswatch -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.0/slate/bootstrap.min.css">
     <!-- Подключаем fontawesome -->
@@ -30,52 +31,84 @@
     <!-- End Meta Pixel Code -->
 </head>
 <body>
-    <header>
-        <!-- Основная навигационная панель -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            <a class="navbar-brand" href="/">Дева</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto">
-                    <!-- Формирование главного меню из категорий сайта -->
-                    {% for category in categories %}
-                        <li class="nav-item">
-                            <a class="nav-link font-weight-bold text-black bg-dark" href="{% url 'category_detail' category.slug %}">{{ category.name }}</a>
-                        </li>
-                    {% endfor %}
-                    <!-- Конец формирования главного меню -->
-                    <!-- Новый пункт меню "Распродажа" -->
+<!-- Форма переключения языков -->
+<form id="language-form" class="form-inline my-2 my-lg-0 pt-1 pb-1 pl-1 pr-1 ml-auto justify-content-end" action="{% url 'set_language' %}" method="post">{% csrf_token %}
+    <select id="language-select" class="form-control form-control-sm mr-sm-2" name="language">
+        {% get_current_language as LANGUAGE_CODE %}
+        {% get_available_languages as LANGUAGES %}
+        {% get_language_info_list for LANGUAGES as languages %}
+        {% for language in languages %}
+        <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+            {% trans language.name_local %} ({{ language.code }})
+        </option>
+        {% endfor %}
+    </select>
+</form>
+<header>
+    <!-- Основная навигационная панель -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="{% url 'home' %}">{% trans 'Дева' %}</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <!-- Формирование главного меню из категорий сайта -->
+                {% for category in categories %}
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold text-black bg-dark text-danger" href="{% url 'sales' %}">Распродажа</a>
+                        <a class="nav-link font-weight-bold text-black bg-dark" href="{% url 'category_detail' category.slug %}">{% trans category.name %}</a>
                     </li>
-                    <!-- Новый пункт меню "Все товары" -->
-                    <li class="nav-item">
-                        <a class="nav-link font-weight-bold text-black bg-dark" href="{% url 'all_products' %}">Все товары</a>
-                    </li>
-                </ul>
-                <!-- Включаем дополнительные ссылки из contact_menu.html -->
-                {% include 'contact_menu.html' %}
-            </div>
-        </nav>
-    </header>
-    <!-- Ваш блок хлебных крошек -->
-    {% block breadcrumbs %}{% endblock %}
-    <main class="container mt-4">
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer class="footer mt-auto py-3 bg-primary">
-        <div class="container">
-            <!-- Включаем ссылки из contact_menu.html в футере -->
-            {% include 'contact_menu_bottom.html' %}
+                {% endfor %}
+                <!-- Пункты "Распродажа" и "Все товары" справа -->
+                <li class="nav-item">
+                    <a class="nav-link font-weight-bold text-black bg-dark text-danger" href="{% url 'sales' %}">{% trans 'Распродажа' %}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link font-weight-bold text-black bg-dark" href="{% url 'all_products' %}">{% trans 'Все товары' %}</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link py-2 px-3" href="/about/">{% trans 'О сайте' %}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link py-2 px-3" href="/contacts/">{% trans 'Контакты' %}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link py-2 px-3" href="/delivery/">{% trans 'Доставка' %}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link py-2 px-3" href="/payment/">{% trans 'Оплата' %}</a>
+                </li>
+            </ul>
         </div>
-    </footer>
+    </nav>
+</header>
 
-    <!-- Подключаем Bootstrap JS (необходим для некоторых компонентов) -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<!-- Ваш блок хлебных крошек -->
+{% block breadcrumbs %}{% endblock %}
+
+<main class="container mt-4">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer mt-auto py-3 bg-primary">
+    <div class="container">
+        <!-- Включаем ссылки из contact_menu.html в футере -->
+        {% include 'contact_menu_bottom.html' %}
+    </div>
+</footer>
+
+<!-- Подключаем Bootstrap JS (необходим для некоторых компонентов) -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script>
+    // Обработчик изменения значения в селекте языков
+    document.getElementById('language-select').addEventListener('change', function() {
+        // Отправка формы при изменении значения
+        document.getElementById('language-form').submit();
+    });
+</script>
 </body>
 </html>

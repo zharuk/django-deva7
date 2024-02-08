@@ -1,12 +1,13 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static i18n %}
 
-{% block title %}{{ product.title }}{% endblock %}
+{% block title %}{% trans product.title %}{% endblock %}
 
 {% block breadcrumbs %}
     <!-- Хлебные крошки для страницы товара -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+            <li class="breadcrumb-item"><a href="/">{% trans 'Главная' %}</a></li>
             <li class="breadcrumb-item"><a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
         </ol>
@@ -17,51 +18,51 @@
 <script>
     // Добавляем отслеживание события ViewContent
     fbq('track', 'ViewContent', {
-        content_name: '{{ product.title }}',  // Название контента (например, заголовок товара)
-        content_category: '{{ product.category.name }}',  // Категория контента
-        content_ids: {{ product.sku }},  // ID контента (например, ID товара)
-        content_type: 'product',  // Тип контента (например, товар)
-        value: {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %},  // Стоимость контента (например, цена товара)
-        currency: '{{ product.currency }}'  // Валюта
+        content_name: '{% trans product.title %}',
+        content_category: '{% trans product.category.name %}',
+        content_ids: {{ product.sku }},
+        content_type: '{% trans 'product' %}',
+        value: {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %},
+        currency: '{{ product.currency }}'
     });
 </script>
 
 {% if product.is_sale and product.sale_price > 0 %}
     <span class="badge bg-danger" style="font-size: 1em; margin-left: 5px;">
-        <span class="text-white">Распродажа</span>
+        <span class="text-white">{% trans 'Распродажа' %}</span>
     </span>
 {% endif %}
 <div class="product-details">
     <h1>{{ product.title }}</h1>
-    <p><strong>Категория:</strong> <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
-    <p><strong>Описание:</strong> {{ product.description }}</p>
-    <p><strong>Артикул:</strong> {{ product.sku }}</p>
-    <p><strong>Цвета:</strong>
+    <p><strong>{% trans 'Категория' %}:</strong> <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
+    <p><strong>{% trans 'Описание' %}:</strong> {{ product.description }}</p>
+    <p><strong>{% trans 'Артикул' %}:</strong> {{ product.sku }}</p>
+    <p><strong>{% trans 'Цвета' %}:</strong>
         {% for color in product.colors.all %}
             {{ color.name }},
         {% empty %}
-            Нет данных
+            {% trans 'Нет данных' %}
         {% endfor %}
     </p>
-    <p><strong>Размеры:</strong>
+    <p><strong>{% trans 'Размеры' %}:</strong>
         {% for size in product.sizes.all %}
             {{ size.name }},
         {% empty %}
-            Нет данных
+            {% trans 'Нет данных' %}
         {% endfor %}
     </p>
     <div class="card-text">
         {% if product.is_sale and product.sale_price > 0 %}
             <p class="text-danger">
                 {% if product.price > 0 %}
-                    <del>Цена: {{ product.price }} {{ product.currency }}</del><br>
+                    <del>{% trans 'Цена' %}: {{ product.price }} {{ product.currency }}</del><br>
                 {% endif %}
-                <strong>Цена распродажи опт: {{ product.sale_price }} {{ product.currency }}</strong>
+                <strong>{% trans 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }}</strong>
             </p>
         {% else %}
             <p>
                 {% if product.price > 0 %}
-                    <strong>Цена опт: {{ product.price }} {{ product.currency }}</strong>
+                    <strong>{% trans 'Цена' %}: {{ product.price }} {{ product.currency }}</strong>
                 {% endif %}
             </p>
         {% endif %}
@@ -71,22 +72,22 @@
 <!-- Кнопки купить -->
 <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
     <a href="https://t.me/Natadeva_7km" class="btn btn-primary btn-sm">
-        <i class="fab fa-telegram"></i> Купить в Telegram
+        <i class="fab fa-telegram"></i> {% trans 'Купить в Telegram' %}
     </a>
     <a href="viber://chat?number=%2B380930972066" class="btn btn-primary btn-sm">
-        <i class="fab fa-viber"></i> Купить в Viber
+        <i class="fab fa-viber"></i> {% trans 'Купить в Viber' %}
     </a>
 </div>
 
 <!-- Отображение таблицы с модификациями товара -->
 <div class="product-modifications">
-    <h2>Остатки</h2>
+    <h2>{% trans 'Остатки' %}</h2>
     <table class="table table-hover">
         <thead>
             <tr>
-                <th scope="col">Цвет</th>
-                <th scope="col">Размер</th>
-                <th scope="col">Наличие</th>
+                <th scope="col">{% trans 'Цвет' %}</th>
+                <th scope="col">{% trans 'Размер' %}</th>
+                <th scope="col">{% trans 'Наличие' %}</th>
             </tr>
         </thead>
         <tbody>
@@ -96,11 +97,11 @@
                     <td>{{ modification.size.name }}</td>
                     <td>
                         {% if modification.stock > 3 %}
-                            В наличии
+                            {% trans 'В наличии' %}
                         {% elif modification.stock > 0 %}
-                            Заканчивается
+                            {% trans 'Заканчивается' %}
                         {% else %}
-                            Нет в наличии
+                            {% trans 'Нет в наличии' %}
                         {% endif %}
                     </td>
                 </tr>
@@ -111,14 +112,14 @@
 
 <!-- Отображение изображений товара -->
 <div class="product-image">
-    <h2>Изображения</h2>
+    <h2>{% trans 'Изображения' %}</h2>
     {% for color, images in unique_color_images.items %}
-        <h3>{{ color }}</h3>
+        <h3>{% trans color %}</h3>
         {% for image in images %}
             <img src="{{ image.large_image.url }}" alt="{{ product.title }}" class="img-fluid d-block my-3">
         {% endfor %}
     {% empty %}
-        <p>Нет изображений</p>
+        <p>{% trans 'Нет изображений' %}</p>
     {% endfor %}
 </div>
 {% endblock %}

@@ -1,18 +1,19 @@
 {% extends "base.html" %}
+{% load static i18n %}
 
-{% block title %}Распродажа{% endblock %}
+{% block title %}{% trans 'Распродажа' %}{% endblock %}
 
 {% block breadcrumbs %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Домой</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Распродажа</li>
+            <li class="breadcrumb-item"><a href="/">{% trans 'Домой' %}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{% trans 'Распродажа' %}</li>
         </ol>
     </nav>
 {% endblock %}
 
 {% block content %}
-    <h1>Распродажа</h1>
+    <h1>{% trans 'Распродажа' %}</h1>
     <div class="row">
         {% for product in sale_products %}
             <div class="col-md-4 mb-4">
@@ -25,19 +26,19 @@
                             <a href="{% url 'product_detail' product.category.slug product.slug %}">{{ product.title }}</a>
                         </h5>
                         <div class="card-text">
-                            <p>Артикул: {{ product.sku }}</p>
-                            <p>Цвета: {{ product.get_colors }}</p>
-                            <p>Размеры: {{ product.get_sizes }}</p>
+                            <p>{% trans 'Артикул' %}: {{ product.sku }}</p>
+                            <p>{% trans 'Цвета' %}: {{ product.get_colors }}</p>
+                            <p>{% trans 'Размеры' %}: {{ product.get_sizes }}</p>
                             <p class="text-danger">
-                                <del>Цена: {{ product.price }} {{ product.currency }}</del><br>
-                                <strong>Цена распродажи: {{ product.sale_price }} {{ product.currency }}</strong>
+                                <del>{% trans 'Цена' %}: {{ product.price }} {{ product.currency }}</del><br>
+                                <strong>{% trans 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }}</strong>
                             </p>
                             <span class="badge bg-danger position-absolute" style="top: 5px; left: 5px; font-size: 1em;">
-                                <span class="text-white">Распродажа</span>
+                                <span class="text-white">{% trans 'Распродажа' %}</span>
                             </span>
                         </div>
                     </div>
-                    <a href="{% url 'product_detail' product.category.slug product.slug %}" class="btn btn-primary w-100">Перейти</a>
+                    <a href="{% url 'product_detail' product.category.slug product.slug %}" class="btn btn-primary w-100">{% trans 'Перейти' %}</a>
                 </div>
             </div>
         {% endfor %}
@@ -47,29 +48,29 @@
         <ul class="pagination justify-content-center">
             {% if sale_products.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1" aria-label="First">
+                    <a class="page-link" href="?page=1" aria-label="{% trans 'First' %}">
                         <span aria-hidden="true">&laquo;&laquo;</span>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ sale_products.previous_page_number }}" aria-label="Previous">
+                    <a class="page-link" href="?page={{ sale_products.previous_page_number }}" aria-label="{% trans 'Previous' %}">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
             {% endif %}
 
             <li class="page-item disabled">
-                <span class="page-link">Страница {{ sale_products.number }} из {{ sale_products.paginator.num_pages }}.</span>
+                <span class="page-link">{% trans 'Страница' %} {{ sale_products.number }} {% trans 'из' %} {{ sale_products.paginator.num_pages }}.</span>
             </li>
 
             {% if sale_products.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ sale_products.next_page_number }}" aria-label="Next">
+                    <a class="page-link" href="?page={{ sale_products.next_page_number }}" aria-label="{% trans 'Next' %}">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ sale_products.paginator.num_pages }}" aria-label="Last">
+                    <a class="page-link" href="?page={{ sale_products.paginator.num_pages }}" aria-label="{% trans 'Last' %}">
                         <span aria-hidden="true">&raquo;&raquo;</span>
                     </a>
                 </li>
@@ -78,6 +79,6 @@
     </nav>
 
     {% if sale_products|length == 0 %}
-        <p>Нет товаров в распродаже</p>
+        <p>{% trans 'Нет товаров в распродаже' %}</p>
     {% endif %}
 {% endblock %}
