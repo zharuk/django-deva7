@@ -170,7 +170,15 @@ def payment_page(request):
 
 
 def privacy_policy_page(request):
-    privacy_policy_page_post = get_object_or_404(BlogPost, title='Политика конфиденциальности')
+    # Получаем текущий язык запроса
+    current_language = request.LANGUAGE_CODE
+    # Определяем соответствующий заголовок блога в зависимости от языка
+    if current_language == 'uk':
+        # Если текущий язык украинский, выбираем блог с заголовком "Про сайт"
+        privacy_policy_page_post = get_object_or_404(BlogPost, title=_('Політика конфіденційності'))
+    else:
+        # Иначе (если текущий язык не украинский), выбираем блог с заголовком "О сайте"
+        privacy_policy_page_post = get_object_or_404(BlogPost, title=_('Политика конфиденциальности'))
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
     return render(request, 'privacy_policy_page.html',
                   {'categories': categories, 'privacy_policy_page_post': privacy_policy_page_post})
