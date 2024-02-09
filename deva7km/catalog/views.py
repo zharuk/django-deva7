@@ -113,12 +113,6 @@ def sales(request):
     return render(request, 'sales.html', {'sale_products': sale_products, 'categories': categories})
 
 
-def all_products(request):
-    products = Product.objects.filter(is_active=True).order_by('-created_at')
-    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-    return render(request, 'all_products.html', {'products': products, 'categories': categories})
-
-
 def about_page(request):
     # Получаем текущий язык запроса
     current_language = request.LANGUAGE_CODE

@@ -5,7 +5,7 @@
 
 {% block breadcrumbs %}
     <!-- Хлебные крошки для страницы товара -->
-    <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb" style="margin-top: 5px;">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">{% trans 'Главная' %}</a></li>
             <li class="breadcrumb-item"><a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
@@ -69,16 +69,6 @@
     </div>
 </div>
 
-<!-- Кнопки купить -->
-<div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
-    <a href="https://t.me/Natadeva_7km" class="btn btn-primary btn-sm">
-        <i class="fab fa-telegram"></i> {% trans 'Купить в Telegram' %}
-    </a>
-    <a href="viber://chat?number=%2B380930972066" class="btn btn-primary btn-sm">
-        <i class="fab fa-viber"></i> {% trans 'Купить в Viber' %}
-    </a>
-</div>
-
 <!-- Отображение таблицы с модификациями товара -->
 <div class="product-modifications">
     <h2>{% trans 'Остатки' %}</h2>
@@ -108,6 +98,16 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+
+<!-- Кнопки купить -->
+<div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+    <a href="https://t.me/Natadeva_7km" class="btn btn-primary btn-sm">
+        <i class="fab fa-telegram"></i> {% trans 'Купить в Telegram' %}
+    </a>
+    <a href="viber://chat?number=%2B380930972066" class="btn btn-primary btn-sm">
+        <i class="fab fa-viber"></i> {% trans 'Купить в Viber' %}
+    </a>
 </div>
 
 <!-- Отображение изображений товара -->

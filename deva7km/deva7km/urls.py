@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from catalog.views import home, about_page, contacts_page, delivery_page, payment_page, \
-    category_detail, product_detail, sales, all_products, telegram_page, FacebookFeedView, GoogleFeedView, \
+    category_detail, product_detail, sales, telegram_page, FacebookFeedView, GoogleFeedView, \
     RozetkaFeedView, privacy_policy_page
 
 from django.conf.urls.i18n import i18n_patterns
@@ -18,7 +18,6 @@ urlpatterns = [
 
 urlpatterns += (i18n_patterns(path('', home, name='home'),
                               path('ckeditor/', include('ckeditor_uploader.urls')),
-                              path('all_products/', all_products, name='all_products'),
                               path('sales/', sales, name='sales'),
                               path('about/', about_page, name='about'),
                               path('contacts/', contacts_page, name='contacts'),

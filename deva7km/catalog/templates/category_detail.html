@@ -3,9 +3,9 @@
 {% block title %}{% trans category.name %}{% endblock %}
 
 {% block breadcrumbs %}
-    <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb" style="margin-top: 5px;">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">{% trans 'Домой' %}</a></li>
+            <li class="breadcrumb-item"><a href="/">{% trans 'Главная' %}</a></li>
             {% for crumb in category.get_ancestors %}
                 <li class="breadcrumb-item"><a href="{% url 'category_detail' crumb.slug %}">{% trans crumb.name %}</a></li>
             {% endfor %}
