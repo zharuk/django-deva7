@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
+{% load i18n %}
+<html lang="{% get_current_language as LANGUAGE_CODE %}{% if LANGUAGE_CODE == 'ru' %}ru{% elif LANGUAGE_CODE == 'uk' %}uk{% else %}en{% endif %}">
 <head>
-    {% load static %}
-    {% load i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{% block title %}{% trans 'Сайт deva7km' %}{% endblock %}</title>

@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 {% load static i18n %}
+{% load i18n %}
 
-{% block title %}{% trans product.title %}{% endblock %}
+{% block title %}{% translate product.title %}{% endblock %}
 
 {% block breadcrumbs %}
     <!-- Хлебные крошки для страницы товара -->
     <nav aria-label="breadcrumb" style="margin-top: 5px;">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">{% trans 'Главная' %}</a></li>
+            <li class="breadcrumb-item"><a href="/">{% translate 'Главная' %}</a></li>
             <li class="breadcrumb-item"><a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
         </ol>
@@ -18,10 +19,10 @@
 <script>
     // Добавляем отслеживание события ViewContent
     fbq('track', 'ViewContent', {
-        content_name: '{% trans product.title %}',
-        content_category: '{% trans product.category.name %}',
+        content_name: '{% translate product.title %}',
+        content_category: '{% translate product.category.name %}',
         content_ids: {{ product.sku }},
-        content_type: '{% trans 'product' %}',
+        content_type: '{% translate 'product' %}',
         value: {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %},
         currency: '{{ product.currency }}'
     });
@@ -29,40 +30,40 @@
 
 {% if product.is_sale and product.sale_price > 0 %}
     <span class="badge bg-danger" style="font-size: 1em; margin-left: 5px;">
-        <span class="text-white">{% trans 'Распродажа' %}</span>
+        <span class="text-white">{% translate 'Распродажа' %}</span>
     </span>
 {% endif %}
 <div class="product-details">
     <h1>{{ product.title }}</h1>
-    <p><strong>{% trans 'Категория' %}:</strong> <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
-    <p><strong>{% trans 'Описание' %}:</strong> {{ product.description }}</p>
-    <p><strong>{% trans 'Артикул' %}:</strong> {{ product.sku }}</p>
-    <p><strong>{% trans 'Цвета' %}:</strong>
+    <p><strong>{% translate 'Категория' %}:</strong> <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
+    <p><strong>{% translate 'Описание' %}:</strong> {{ product.description }}</p>
+    <p><strong>{% translate 'Артикул' %}:</strong> {{ product.sku }}</p>
+    <p><strong>{% translate 'Цвета' %}:</strong>
         {% for color in product.colors.all %}
             {{ color.name }},
         {% empty %}
-            {% trans 'Нет данных' %}
+            {% translate 'Нет данных' %}
         {% endfor %}
     </p>
-    <p><strong>{% trans 'Размеры' %}:</strong>
+    <p><strong>{% translate 'Размеры' %}:</strong>
         {% for size in product.sizes.all %}
             {{ size.name }},
         {% empty %}
-            {% trans 'Нет данных' %}
+            {% translate 'Нет данных' %}
         {% endfor %}
     </p>
     <div class="card-text">
         {% if product.is_sale and product.sale_price > 0 %}
             <p class="text-danger">
                 {% if product.price > 0 %}
-                    <del>{% trans 'Цена' %}: {{ product.price }} {{ product.currency }}</del><br>
+                    <del>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }}</del><br>
                 {% endif %}
-                <strong>{% trans 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }}</strong>
+                <strong>{% translate 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }}</strong>
             </p>
         {% else %}
             <p>
                 {% if product.price > 0 %}
-                    <strong>{% trans 'Цена' %}: {{ product.price }} {{ product.currency }}</strong>
+                    <strong>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }}</strong>
                 {% endif %}
             </p>
         {% endif %}
@@ -71,13 +72,13 @@
 
 <!-- Отображение таблицы с модификациями товара -->
 <div class="product-modifications">
-    <h2>{% trans 'Остатки' %}</h2>
+    <h2>{% translate 'Остатки' %}</h2>
     <table class="table table-hover">
         <thead>
             <tr>
-                <th scope="col">{% trans 'Цвет' %}</th>
-                <th scope="col">{% trans 'Размер' %}</th>
-                <th scope="col">{% trans 'Наличие' %}</th>
+                <th scope="col">{% translate 'Цвет' %}</th>
+                <th scope="col">{% translate 'Размер' %}</th>
+                <th scope="col">{% translate 'Наличие' %}</th>
             </tr>
         </thead>
         <tbody>
@@ -87,11 +88,11 @@
                     <td>{{ modification.size.name }}</td>
                     <td>
                         {% if modification.stock > 3 %}
-                            {% trans 'В наличии' %}
+                            {% translate 'В наличии' %}
                         {% elif modification.stock > 0 %}
-                            {% trans 'Заканчивается' %}
+                            {% translate 'Заканчивается' %}
                         {% else %}
-                            {% trans 'Нет в наличии' %}
+                            {% translate 'Нет в наличии' %}
                         {% endif %}
                     </td>
                 </tr>
@@ -100,34 +101,33 @@
     </table>
 </div>
 
+<h3>{% translate 'Купить в социальных сетях' %}</h3>
 <!-- Кнопки купить -->
-<h3>{% trans 'Купить в социальных сетях' %}</h3>
-
 <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
     <a href="https://t.me/divaua" class="btn btn-primary btn-sm" style="margin-right: 3px;">
-        <i class="fab fa-telegram"></i> {% trans 'Telegram' %}
+        <i class="fab fa-telegram"></i> Telegram
     </a>
     <a href="viber://chat?number=%2B380635622568" class="btn btn-primary btn-sm" style="margin-right: 3px;">
-        <i class="fab fa-viber"></i> {% trans 'Viber' %}
+        <i class="fab fa-viber"></i> Viber
     </a>
-    <a href="https://m.me/432162513828457?text={% trans 'Добрый день! Меня интересует' %} {{ product_url }}" class="btn btn-primary btn-sm" style="margin-right: 3px;">
-        <i class="fa-brands fa-facebook-messenger"></i> {% trans 'Messenger' %}
+    <a href="https://m.me/432162513828457?text=Добрый день! Меня интересует {{ product_url }}" class="btn btn-primary btn-sm" style="margin-right: 3px;">
+        <i class="fa-brands fa-facebook-messenger"></i> Messenger
     </a>
     <a href="https://ig.me/m/deva7km" class="btn btn-primary btn-sm" style="margin-right: 3px;">
-        <i class="fa-brands fa-instagram"></i> {% trans 'Instagram' %}
+        <i class="fa-brands fa-instagram"></i> Instagram
     </a>
 </div>
 
 <!-- Отображение изображений товара -->
 <div class="product-image" style="margin-top: 30px;">
-    <h2>{% trans 'Изображения' %}</h2>
+    <h2>{% translate 'Изображения' %}</h2>
     {% for color, images in unique_color_images.items %}
-        <h3>{% trans color %}</h3>
+        <h3>{% translate color %}</h3>
         {% for image in images %}
             <img src="{{ image.large_image.url }}" alt="{{ product.title }}" class="img-fluid d-block my-3">
         {% endfor %}
     {% empty %}
-        <p>{% trans 'Нет изображений' %}</p>
+        <p>{% translate 'Нет изображений' %}</p>
     {% endfor %}
 </div>
 {% endblock %}

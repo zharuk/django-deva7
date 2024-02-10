@@ -1,6 +1,3 @@
-from urllib.parse import urlencode
-
-from django.core.cache import cache
 from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.template import loader
@@ -11,8 +8,6 @@ from transliterate.utils import _
 from catalog.models import Image, Category, Product, BlogPost, ProductModification
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
-from deva7km import settings
 
 
 def home(request):
@@ -228,18 +223,5 @@ class RozetkaFeedView(View):
         return response
 
 
-def set_user_language(request):
-    """
-    Устанавливает язык пользователя на основе его предпочтений в сессии.
-    Если язык не был установлен, используется украинский язык по умолчанию.
-    """
-    # Проверяем, был ли установлен язык для этого пользователя
-    if 'language' in request.session:
-        language = request.session['language']
-    else:
-        # Если язык не был установлен, устанавливаем украинский язык по умолчанию
-        language = 'uk'
 
-    # Активируем выбранный язык
-    activate(language)
 

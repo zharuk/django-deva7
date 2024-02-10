@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -106,15 +107,16 @@ TIME_ZONE = 'Europe/Kiev'
 
 USE_I18N = True
 
+USE_L10N = True
+
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-gettext = lambda s: s
-LANGUAGES = (
-    ('ru', gettext('Russian')),
-    ('uk', gettext('Ukrainian')),
-)
+LANGUAGES = [
+    ("ru", _("Russian")),
+    ("uk", _("Ukrainian")),
+]
 
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
