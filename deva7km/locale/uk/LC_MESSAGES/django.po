@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-08 08:00+0200\n"
+"POT-Creation-Date: 2024-02-10 16:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,13 +15,13 @@ msgstr ""
 "11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+
 #: .\catalog\templates\all_products.html:3
-#: .\catalog\templates\all_products.html:10 .\catalog\templates\base.html:67
+#: .\catalog\templates\all_products.html:10
 msgid "Все товары"
 msgstr "Усі товари"
 
-#: .\catalog\templates\all_products.html:9
-#: .\catalog\templates\category_detail.html:8 .\catalog\templates\sales.html:9
+#: .\catalog\templates\all_products.html:9 .\catalog\templates\sales.html:9
 msgid "Домой"
 msgstr "Додому"
 
@@ -47,64 +47,73 @@ msgid "Дева"
 msgstr "Діва"
 
 #: .\catalog\templates\base.html:64 .\catalog\templates\category_detail.html:42
-#: .\catalog\templates\home.html:32 .\catalog\templates\product_detail.html:32
+#: .\catalog\templates\home.html:40 .\catalog\templates\product_detail.html:32
 #: .\catalog\templates\sales.html:4 .\catalog\templates\sales.html:10
 #: .\catalog\templates\sales.html:16 .\catalog\templates\sales.html:37
 msgid "Распродажа"
 msgstr "Розпродаж"
 
-#: .\catalog\templates\base.html:72 .\catalog\templates\contact_menu.html:6
+#: .\catalog\templates\base.html:69 .\catalog\templates\contact_menu.html:6
 #: .\catalog\templates\contact_menu_bottom.html:5
 msgid "О сайте"
 msgstr "Про сайт"
 
-#: .\catalog\templates\base.html:75 .\catalog\templates\contact_menu.html:9
+#: .\catalog\templates\base.html:72 .\catalog\templates\contact_menu.html:9
 #: .\catalog\templates\contact_menu_bottom.html:6
 #: .\catalog\templates\contacts_page.html:4
 #: .\catalog\templates\contacts_page.html:11
 msgid "Контакты"
 msgstr "Контакти"
 
-#: .\catalog\templates\base.html:78 .\catalog\templates\contact_menu.html:12
+#: .\catalog\templates\base.html:75 .\catalog\templates\contact_menu.html:12
 #: .\catalog\templates\contact_menu_bottom.html:7
 #: .\catalog\templates\delivery_page.html:11
 msgid "Доставка"
 msgstr "Доставка"
 
-#: .\catalog\templates\base.html:81 .\catalog\templates\contact_menu.html:15
+#: .\catalog\templates\base.html:78 .\catalog\templates\contact_menu.html:15
 #: .\catalog\templates\contact_menu_bottom.html:8
 #: .\catalog\templates\payment_page.html:11
 msgid "Оплата"
 msgstr "Оплата"
 
-#: .\catalog\templates\category_detail.html:31 .\catalog\templates\home.html:21
+#: .\catalog\templates\category_detail.html:8
+#: .\catalog\templates\contacts_page.html:10
+#: .\catalog\templates\delivery_page.html:10 .\catalog\templates\home.html:8
+#: .\catalog\templates\payment_page.html:10
+#: .\catalog\templates\privacy_policy_page.html:10
+#: .\catalog\templates\product_detail.html:10
+msgid "Главная"
+msgstr "Головна"
+
+#: .\catalog\templates\category_detail.html:31 .\catalog\templates\home.html:29
 #: .\catalog\templates\product_detail.html:39 .\catalog\templates\sales.html:29
 msgid "Артикул"
 msgstr "Артикул"
 
-#: .\catalog\templates\category_detail.html:32 .\catalog\templates\home.html:22
+#: .\catalog\templates\category_detail.html:32 .\catalog\templates\home.html:30
 #: .\catalog\templates\product_detail.html:40 .\catalog\templates\sales.html:30
 msgid "Цвета"
 msgstr "Кольори"
 
-#: .\catalog\templates\category_detail.html:33 .\catalog\templates\home.html:23
+#: .\catalog\templates\category_detail.html:33 .\catalog\templates\home.html:31
 #: .\catalog\templates\product_detail.html:47 .\catalog\templates\sales.html:31
 msgid "Размеры"
 msgstr "Розміри"
 
 #: .\catalog\templates\category_detail.html:37
-#: .\catalog\templates\category_detail.html:47 .\catalog\templates\home.html:27
-#: .\catalog\templates\home.html:37 .\catalog\templates\product_detail.html:58
+#: .\catalog\templates\category_detail.html:47 .\catalog\templates\home.html:35
+#: .\catalog\templates\home.html:45 .\catalog\templates\product_detail.html:58
 #: .\catalog\templates\product_detail.html:65 .\catalog\templates\sales.html:33
 msgid "Цена"
 msgstr "Ціна"
 
-#: .\catalog\templates\category_detail.html:39 .\catalog\templates\home.html:29
+#: .\catalog\templates\category_detail.html:39 .\catalog\templates\home.html:37
 #: .\catalog\templates\product_detail.html:60 .\catalog\templates\sales.html:34
 msgid "Цена распродажи"
 msgstr "Ціна розпродажу"
 
-#: .\catalog\templates\category_detail.html:53 .\catalog\templates\home.html:43
+#: .\catalog\templates\category_detail.html:53 .\catalog\templates\home.html:51
 #: .\catalog\templates\sales.html:41
 msgid "Перейти"
 msgstr "Перейти"
@@ -163,14 +172,6 @@ msgstr "Сторінка Telegram"
 msgid "Страница Viber"
 msgstr "Сторінка Viber"
 
-#: .\catalog\templates\contacts_page.html:10
-#: .\catalog\templates\delivery_page.html:10
-#: .\catalog\templates\payment_page.html:10
-#: .\catalog\templates\privacy_policy_page.html:10
-#: .\catalog\templates\product_detail.html:10
-msgid "Главная"
-msgstr "Головна"
-
 #: .\catalog\templates\contacts_page.html:37
 msgid "Telegram Button Click"
 msgstr "Клік кнопки Telegram"
@@ -183,11 +184,11 @@ msgstr "Клік кнопки Viber"
 msgid "Информация о доставке"
 msgstr "Інформація про доставку"
 
-#: .\catalog\templates\home.html:7
+#: .\catalog\templates\home.html:15
 msgid "Новинки"
 msgstr "Новинки"
 
-#: .\catalog\templates\home.html:20 .\catalog\templates\product_detail.html:37
+#: .\catalog\templates\home.html:28 .\catalog\templates\product_detail.html:37
 msgid "Категория"
 msgstr "Категорія"
 
@@ -205,7 +206,7 @@ msgstr "політика конфіденційності"
 
 #: .\catalog\templates\product_detail.html:24
 msgid "product"
-msgstr ""
+msgstr "product"
 
 #: .\catalog\templates\product_detail.html:38
 msgid "Описание"
@@ -216,50 +217,76 @@ msgstr "Опис"
 msgid "Нет данных"
 msgstr "Немає даних"
 
-#: .\catalog\templates\product_detail.html:75
-msgid "Купить в Telegram"
-msgstr "Купити в Telegram"
-
-#: .\catalog\templates\product_detail.html:78
-msgid "Купить в Viber"
-msgstr "Купити в Viber"
-
-#: .\catalog\templates\product_detail.html:84
+#: .\catalog\templates\product_detail.html:74
 msgid "Остатки"
 msgstr "Залишок"
 
-#: .\catalog\templates\product_detail.html:88
+#: .\catalog\templates\product_detail.html:78
 msgid "Цвет"
 msgstr "Колір"
 
-#: .\catalog\templates\product_detail.html:89
+#: .\catalog\templates\product_detail.html:79
 msgid "Размер"
 msgstr "Розмір"
 
-#: .\catalog\templates\product_detail.html:90
+#: .\catalog\templates\product_detail.html:80
 msgid "Наличие"
 msgstr "Наявність"
 
-#: .\catalog\templates\product_detail.html:100
+#: .\catalog\templates\product_detail.html:90
 msgid "В наличии"
 msgstr "В наявності"
 
-#: .\catalog\templates\product_detail.html:102
+#: .\catalog\templates\product_detail.html:92
 msgid "Заканчивается"
 msgstr "Закінчується"
 
-#: .\catalog\templates\product_detail.html:104
+#: .\catalog\templates\product_detail.html:94
 msgid "Нет в наличии"
 msgstr "Немає в наявності"
 
-#: .\catalog\templates\product_detail.html:115
+#: .\catalog\templates\product_detail.html:104
+#, fuzzy
+#| msgid "Социальные сети:"
+msgid "Купить в социальных сетях"
+msgstr "Купити у соціальних мережах"
+
+#: .\catalog\templates\product_detail.html:108
+msgid "Telegram"
+msgstr "Telegram"
+
+#: .\catalog\templates\product_detail.html:111
+msgid "Viber"
+msgstr "Viber"
+
+#: .\catalog\templates\product_detail.html:113
+#, fuzzy
+#| msgid "Меня интересует"
+msgid "Добрый день! Меня интересует"
+msgstr "Добрий день! Мене цікавить"
+
+#: .\catalog\templates\product_detail.html:114
+msgid "Messenger"
+msgstr "Messenger"
+
+#: .\catalog\templates\product_detail.html:117
+msgid "Instagram"
+msgstr "Instagram"
+
+#: .\catalog\templates\product_detail.html:123
 msgid "Изображения"
 msgstr "Зображення"
 
-#: .\catalog\templates\product_detail.html:122
+#: .\catalog\templates\product_detail.html:130
 msgid "Нет изображений"
 msgstr "Немає зображень"
 
 #: .\catalog\templates\sales.html:82
 msgid "Нет товаров в распродаже"
 msgstr "Немає товарів у розпродажі"
+
+#~ msgid "Купить в Telegram"
+#~ msgstr "Купити в Telegram"
+
+#~ msgid "Купить в Viber"
+#~ msgstr "Купити в Viber"

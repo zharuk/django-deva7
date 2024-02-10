@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from django.core.cache import cache
 from django.db.models import Count
 from django.http import Http404, HttpResponse
@@ -70,17 +72,16 @@ def category_detail(request, category_slug):
 
 
 def product_detail(request, category_slug, product_slug):
-    # Изменение здесь: использование get_object_or_404 для категории
+    # Получение категории или возврат ошибки 404, если категория не найдена
     category = get_object_or_404(Category, slug=category_slug)
 
-    # Изменение здесь: использование filter вместо get для поиска товара
-    product = Product.objects.filter(slug=product_slug, category=category).first()
+    # Получение товара или возврат ошибки 404, если товар не найден
+    product = get_object_or_404(Product, slug=product_slug, category=category)
 
-    if not product:
-        # Если товар не найден, возвращаем 404
-        raise Http404("Product not found")
+    # Получение абсолютного URL продукта
+    product_url = request.build_absolute_uri()
 
-    # Изменение здесь: сортировка модификаций по цвету, а затем по размеру
+    # Получение всех модификаций товара и сортировка их по цвету, а затем по размеру
     modifications = product.modifications.all().order_by('color__name', 'size__name')
 
     # Получение текущего языка
@@ -104,7 +105,8 @@ def product_detail(request, category_slug, product_slug):
 
     return render(request, 'product_detail.html', {'product': product, 'categories': categories,
                                                    'unique_color_images': unique_color_images,
-                                                   'modifications': modifications})
+                                                   'modifications': modifications,
+                                                   'product_url': product_url})
 
 
 def sales(request):
@@ -240,3 +242,4 @@ def set_user_language(request):
 
     # Активируем выбранный язык
     activate(language)
+

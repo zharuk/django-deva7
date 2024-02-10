@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+
 from catalog.views import home, about_page, contacts_page, delivery_page, payment_page, \
     category_detail, product_detail, sales, telegram_page, FacebookFeedView, GoogleFeedView, \
     RozetkaFeedView, privacy_policy_page

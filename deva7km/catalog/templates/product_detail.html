@@ -101,20 +101,25 @@
 </div>
 
 <!-- Кнопки купить -->
+<h3>{% trans 'Купить в социальных сетях' %}</h3>
+
 <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
-    <a href="https://t.me/Natadeva_7km" class="btn btn-primary btn-sm">
-        <i class="fab fa-telegram"></i> {% trans 'Купить в Telegram' %}
+    <a href="https://t.me/divaua" class="btn btn-primary btn-sm" style="margin-right: 3px;">
+        <i class="fab fa-telegram"></i> {% trans 'Telegram' %}
     </a>
-    <a href="viber://chat?number=%2B380930972066" class="btn btn-primary btn-sm">
-        <i class="fab fa-viber"></i> {% trans 'Купить в Viber' %}
+    <a href="viber://chat?number=%2B380635622568" class="btn btn-primary btn-sm" style="margin-right: 3px;">
+        <i class="fab fa-viber"></i> {% trans 'Viber' %}
     </a>
-    <a href="https://m.me/432162513828457" class="btn btn-primary btn-sm">
-        <i class="fa-brands fa-facebook-messenger"></i> {% trans 'Купить в Messenger' %}
+    <a href="https://m.me/432162513828457?text={% trans 'Добрый день! Меня интересует' %} {{ product_url }}" class="btn btn-primary btn-sm" style="margin-right: 3px;">
+        <i class="fa-brands fa-facebook-messenger"></i> {% trans 'Messenger' %}
+    </a>
+    <a href="https://ig.me/m/deva7km" class="btn btn-primary btn-sm" style="margin-right: 3px;">
+        <i class="fa-brands fa-instagram"></i> {% trans 'Instagram' %}
     </a>
 </div>
 
 <!-- Отображение изображений товара -->
-<div class="product-image">
+<div class="product-image" style="margin-top: 30px;">
     <h2>{% trans 'Изображения' %}</h2>
     {% for color, images in unique_color_images.items %}
         <h3>{% trans color %}</h3>
