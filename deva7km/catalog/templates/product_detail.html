@@ -16,18 +16,6 @@
 {% endblock %}
 
 {% block content %}
-<script>
-    // Добавляем отслеживание события ViewContent
-    fbq('track', 'ViewContent', {
-        content_name: '{% translate product.title %}',
-        content_category: '{% translate product.category.name %}',
-        content_ids: {{ product.sku }},
-        content_type: '{% translate 'product' %}',
-        value: {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %},
-        currency: '{{ product.currency }}'
-    });
-</script>
-
 {% if product.is_sale and product.sale_price > 0 %}
     <span class="badge bg-danger" style="font-size: 1em; margin-left: 5px;">
         <span class="text-white">{% translate 'Распродажа' %}</span>
@@ -101,6 +89,12 @@
     </table>
 </div>
 
+<div class="alert alert-dismissible alert-primary">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  {% translate 'Отправка посылки по предоплате 150грн. или полной предоплате на счет ФОП. Отправляем новой почтой или укрпочтой на ваш выбор.' %}
+
+</div>
+
 <!-- Кнопки купить -->
 <div class="btn-group row" role="group" aria-label="Basic checkbox toggle button group">
     <a href="https://t.me/divaua" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0088cc; color: white; margin: 3px;">
@@ -130,4 +124,6 @@
         <p>{% translate 'Нет изображений' %}</p>
     {% endfor %}
 </div>
+
 {% endblock %}
+

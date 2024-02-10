@@ -25,22 +25,4 @@
             </div>
         </div>
       </div>
-
-<script>
-        document.getElementById('telegram-link').addEventListener('click', function() {
-            // Отправить событие фейсбук-лида для кнопки Telegram
-            fbq('track', 'Lead', {
-                content_name: 'Telegram Button Click',
-                // Дополнительные параметры, если необходимо
-            });
-        });
-
-        document.getElementById('viber-link').addEventListener('click', function() {
-            // Отправить событие фейсбук-лида для кнопки Viber
-            fbq('track', 'Lead', {
-                content_name: 'Viber Button Click',
-                // Дополнительные параметры, если необходимо
-            });
-        });
-    </script>
 {% endblock %}
