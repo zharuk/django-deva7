@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-10 17:46+0200\n"
+"POT-Creation-Date: 2024-02-10 17:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -248,6 +248,10 @@ msgstr "Немає в наявності"
 #: .\catalog\templates\product_detail.html:104
 msgid "Купить в социальных сетях"
 msgstr "Купити у соціальних мережах"
+
+#: .\catalog\templates\product_detail.html:113
+msgid "Добрый день! Меня интересует"
+msgstr "Добрий день! Мене цікавить"
 
 #: .\catalog\templates\product_detail.html:123
 msgid "Изображения"
