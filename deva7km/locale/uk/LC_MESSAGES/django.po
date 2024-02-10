@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-10 17:51+0200\n"
+"POT-Creation-Date: 2024-02-10 20:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -161,16 +161,8 @@ msgid "Телефон:"
 msgstr "Телефон:"
 
 #: .\catalog\templates\contacts_info.html:16
-msgid "Социальные сети:"
-msgstr "Соціальні мережі:"
-
-#: .\catalog\templates\contacts_info.html:20
-msgid "Страница Telegram"
-msgstr "Сторінка Telegram"
-
-#: .\catalog\templates\contacts_info.html:25
-msgid "Страница Viber"
-msgstr "Сторінка Viber"
+msgid "Свяжитесь с нами:"
+msgstr "Зв'яжіться з нами:"
 
 #: .\catalog\templates\contacts_page.html:37
 msgid "Telegram Button Click"
@@ -245,13 +237,25 @@ msgstr "Закінчується"
 msgid "Нет в наличии"
 msgstr "Немає в наявності"
 
-#: .\catalog\templates\product_detail.html:104
-msgid "Купить в социальных сетях"
-msgstr "Купити у соціальних мережах"
+#: .\catalog\templates\product_detail.html:107
+msgid "Купить в Telegram"
+msgstr "Купити у Telegram"
 
-#: .\catalog\templates\product_detail.html:113
+#: .\catalog\templates\product_detail.html:110
+msgid "Купить в Viber"
+msgstr "Купити у Viber"
+
+#: .\catalog\templates\product_detail.html:112
 msgid "Добрый день! Меня интересует"
 msgstr "Добрий день! Мене цікавить"
+
+#: .\catalog\templates\product_detail.html:113
+msgid "Купить в Messenger"
+msgstr "Купити у Messenger"
+
+#: .\catalog\templates\product_detail.html:116
+msgid "Купить в Instagram"
+msgstr "Купити у Instagram"
 
 #: .\catalog\templates\product_detail.html:123
 msgid "Изображения"
@@ -300,3 +304,12 @@ msgstr "Русский"
 #: .\deva7km\settings.py:118
 msgid "Ukrainian"
 msgstr "Українська"
+
+#~ msgid "Социальные сети:"
+#~ msgstr "Соціальні мережі:"
+
+#~ msgid "Telegram"
+#~ msgstr "Telegram"
+
+#~ msgid "Viber"
+#~ msgstr "Viber"
