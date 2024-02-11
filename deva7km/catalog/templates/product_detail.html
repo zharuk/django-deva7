@@ -29,6 +29,42 @@
     });
 </script>
 
+<script>
+    // Функция для отправки события покупки на Facebook Pixel
+    function sendPurchaseEvent() {
+        // Отправка события Purchase
+        fbq('track', 'Purchase', {
+            content_ids: ['{{ product.sku }}'], // ID товара
+            content_type: 'product', // Тип контента (товар)
+            content_name: '{{ product.title }}', // Название товара
+            content_category: '{{ product.category.name }}', // Категория товара
+            value: {{ product.price }}, // Цена товара
+            currency: '{{ product.currency }}' // Валюта товара
+            // Дополнительные параметры, если необходимо
+        });
+    }
+
+    // Обработчик клика на кнопку "Купить в Telegram"
+    document.querySelector('#buy-telegram').addEventListener('click', function() {
+        sendPurchaseEvent(); // Отправить событие покупки на Facebook Pixel
+    });
+
+    // Обработчик клика на кнопку "Купить в Viber"
+    document.querySelector('#buy-viber').addEventListener('click', function() {
+        sendPurchaseEvent(); // Отправить событие покупки на Facebook Pixel
+    });
+
+    // Обработчик клика на кнопку "Купить в Messenger"
+    document.querySelector('#buy-messenger').addEventListener('click', function() {
+        sendPurchaseEvent(); // Отправить событие покупки на Facebook Pixel
+    });
+
+    // Обработчик клика на кнопку "Купить в Instagram"
+    document.querySelector('#buy-instagram').addEventListener('click', function() {
+        sendPurchaseEvent(); // Отправить событие покупки на Facebook Pixel
+    });
+</script>
+
 {% if product.is_sale and product.sale_price > 0 %}
     <span class="badge bg-danger" style="font-size: 1em; margin-left: 5px;">
         <span class="text-white">{% translate 'Распродажа' %}</span>
