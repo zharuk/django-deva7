@@ -27,7 +27,8 @@
 </head>
 <body>
 <!-- Форма переключения языков -->
-<form id="language-form" class="form-inline my-2 my-lg-0 pt-1 pb-1 pl-1 pr-1 ml-auto justify-content-end" action="{% url 'set_language' %}" method="post">{% csrf_token %}
+<form id="language-form" class="form-inline my-2 my-lg-0 pt-1 pb-1 pl-1 pr-1 ml-auto justify-content-end" action="{% url 'set_language' %}" method="post">
+    {% csrf_token %}
     <select id="language-select" class="form-control form-control-sm mr-sm-2" name="language">
         {% get_current_language as LANGUAGE_CODE %}
         {% get_available_languages as LANGUAGES %}

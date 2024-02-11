@@ -1,12 +1,12 @@
 from django.db.models import Count
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.template import loader
-from django.utils.translation import get_language, activate
+from django.utils.translation import get_language
 from django.views import View
 from transliterate.utils import _
 
 from catalog.models import Image, Category, Product, BlogPost, ProductModification
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
