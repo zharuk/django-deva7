@@ -122,21 +122,22 @@
 </div>
 
 <!-- Кнопки купить -->
-<a href="https://t.me/divaua" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0088cc; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
+<a href="https://t.me/divaua" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0088cc; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')" target="_blank">
     <i class="fab fa-telegram fa-xl"></i> {% translate 'Купить в Telegram' %}
 </a>
 
-<a href="viber://chat?number=%2B380635622568" class="btn btn-outline btn-sm col-md-auto" style="background-color: #665CAC; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
+<a href="viber://chat?number=%2B380635622568" class="btn btn-outline btn-sm col-md-auto" style="background-color: #665CAC; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')" target="_blank">
     <i class="fab fa-viber fa-xl"></i> {% translate 'Купить в Viber' %}
 </a>
 
-<a href="https://m.me/432162513828457?text={% trans 'Добрый день! Меня интересует' %} {{ product_url }}" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0084FF; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
+<a href="https://m.me/432162513828457?text={% trans 'Добрый день! Меня интересует' %} {{ product_url }}" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0084FF; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')" target="_blank">
     <i class="fa-brands fa-facebook-messenger fa-xl"></i> {% translate 'Купить в Messenger' %}
 </a>
 
-<a href="https://ig.me/m/deva7km" class="btn btn-outline btn-sm col-md-auto" style="background-color: #E4405F; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
+<a href="https://ig.me/m/deva7km" class="btn btn-outline btn-sm col-md-auto" style="background-color: #E4405F; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')" target="_blank">
     <i class="fa-brands fa-instagram fa-xl"></i> {% translate 'Купить в Instagram' %}
 </a>
+
 
 
 <!-- Отображение изображений товара -->
