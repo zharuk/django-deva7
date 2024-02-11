@@ -39,18 +39,6 @@
             value: productPrice, // Цена товара
             currency: productCurrency // Валюта товара
         });
-        // Перезагрузка страницы
-        // window.location.reload();
-    }
-</script>
-
-<script>
-    // Определяем функцию для открытия ссылки в новом окне и перезагрузки страницы
-    function openInNewWindowAndReload(url) {
-        // Открываем ссылку в новом окне
-        window.open(url, "_blank");
-        // Перезагружаем страницу
-        window.location.reload();
     }
 </script>
 
@@ -133,25 +121,23 @@
 
 </div>
 
-<!-- Кнопка "Купить в Telegram" -->
-<a href="javascript:void(0);" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0088cc; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}'); openInNewWindowAndReload('https://t.me/divaua');" target="_blank">
+<!-- Кнопки купить -->
+<a href="https://t.me/divaua" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0088cc; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
     <i class="fab fa-telegram fa-xl"></i> {% translate 'Купить в Telegram' %}
 </a>
 
-<!-- Кнопка "Купить в Viber" -->
-<a href="javascript:void(0);" class="btn btn-outline btn-sm col-md-auto" style="background-color: #665CAC; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}'); openInNewWindowAndReload('viber://chat?number=%2B380635622568');" target="_blank">
+<a href="viber://chat?number=%2B380635622568" class="btn btn-outline btn-sm col-md-auto" style="background-color: #665CAC; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
     <i class="fab fa-viber fa-xl"></i> {% translate 'Купить в Viber' %}
 </a>
 
-<!-- Кнопка "Купить в Messenger" -->
-<a href="javascript:void(0);" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0084FF; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}'); openInNewWindowAndReload('https://m.me/432162513828457?text={% trans 'Добрый день! Меня интересует' %} {{ product_url }}');" target="_blank">
+<a href="https://m.me/432162513828457?text={% trans 'Добрый день! Меня интересует' %} {{ product_url }}" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0084FF; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
     <i class="fa-brands fa-facebook-messenger fa-xl"></i> {% translate 'Купить в Messenger' %}
 </a>
 
-<!-- Кнопка "Купить в Instagram" -->
-<a href="javascript:void(0);" class="btn btn-outline btn-sm col-md-auto" style="background-color: #E4405F; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}'); openInNewWindowAndReload('https://ig.me/m/deva7km');" target="_blank">
+<a href="https://ig.me/m/deva7km" class="btn btn-outline btn-sm col-md-auto" style="background-color: #E4405F; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
     <i class="fa-brands fa-instagram fa-xl"></i> {% translate 'Купить в Instagram' %}
 </a>
+
 
 <!-- Отображение изображений товара -->
 <div class="product-image" style="margin-top: 30px;">
