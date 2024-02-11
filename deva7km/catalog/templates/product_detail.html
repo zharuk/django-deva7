@@ -21,7 +21,7 @@
     // Отправка события ViewContent
     fbq('track', 'ViewContent', {
         content_ids: ['{{ product.sku }}'], // ID товара
-        content_type: 'product', // Тип контента (в данном случае, это товар)
+        content_type: 'product_group', // Тип контента (в данном случае, это товар)
         content_name: '{{ product.title }}', // Название товара
         content_category: '{{ product.category.name }}', // Категория товара
         value: {{ product.price }}, // Цена товара (можно передать другие данные, такие как цена, валюта и т. д.)
@@ -33,7 +33,7 @@
     function trackPurchase(productId, productName, productCategory, productPrice, productCurrency) {
         fbq('track', 'Purchase', {
             content_ids: [productId], // ID товара
-            content_type: 'product', // Тип контента (в данном случае, это товар)
+            content_type: 'product_group', // Тип контента (в данном случае, это товар)
             content_name: productName, // Название товара
             content_category: productCategory, // Категория товара
             value: productPrice, // Цена товара
