@@ -30,39 +30,16 @@
 </script>
 
 <script>
-    // Функция для отправки события покупки на Facebook Pixel
-    function sendPurchaseEvent() {
-        // Отправка события Purchase
+    function trackPurchase(productId, productName, productCategory, productPrice, productCurrency) {
         fbq('track', 'Purchase', {
-            content_ids: ['{{ product.sku }}'], // ID товара
-            content_type: 'product', // Тип контента (товар)
-            content_name: '{{ product.title }}', // Название товара
-            content_category: '{{ product.category.name }}', // Категория товара
-            value: {{ product.price }}, // Цена товара
-            currency: '{{ product.currency }}' // Валюта товара
-            // Дополнительные параметры, если необходимо
+            content_ids: [productId], // ID товара
+            content_type: 'product', // Тип контента (в данном случае, это товар)
+            content_name: productName, // Название товара
+            content_category: productCategory, // Категория товара
+            value: productPrice, // Цена товара
+            currency: productCurrency // Валюта товара
         });
     }
-
-    // Обработчик клика на кнопку "Купить в Telegram"
-    document.querySelector('#buy-telegram').addEventListener('click', function() {
-        sendPurchaseEvent(); // Отправить событие покупки на Facebook Pixel
-    });
-
-    // Обработчик клика на кнопку "Купить в Viber"
-    document.querySelector('#buy-viber').addEventListener('click', function() {
-        sendPurchaseEvent(); // Отправить событие покупки на Facebook Pixel
-    });
-
-    // Обработчик клика на кнопку "Купить в Messenger"
-    document.querySelector('#buy-messenger').addEventListener('click', function() {
-        sendPurchaseEvent(); // Отправить событие покупки на Facebook Pixel
-    });
-
-    // Обработчик клика на кнопку "Купить в Instagram"
-    document.querySelector('#buy-instagram').addEventListener('click', function() {
-        sendPurchaseEvent(); // Отправить событие покупки на Facebook Pixel
-    });
 </script>
 
 {% if product.is_sale and product.sale_price > 0 %}
@@ -145,20 +122,21 @@
 </div>
 
 <!-- Кнопки купить -->
-<div class="btn-group row" role="group" aria-label="Basic checkbox toggle button group">
-    <a href="https://t.me/divaua" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0088cc; color: white; margin: 3px;">
-        <i class="fab fa-telegram fa-xl"></i> {% translate 'Купить в Telegram' %}
-    </a>
-    <a href="viber://chat?number=%2B380635622568" class="btn btn-outline btn-sm col-md-auto" style="background-color: #665CAC; color: white; margin: 3px;">
-        <i class="fab fa-viber fa-xl"></i> {% translate 'Купить в Viber' %}
-    </a>
-    <a href="https://m.me/432162513828457?text={% trans 'Добрый день! Меня интересует' %} {{ product_url }}" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0084FF; color: white; margin: 3px;">
-        <i class="fa-brands fa-facebook-messenger fa-xl"></i> {% translate 'Купить в Messenger' %}
-    </a>
-    <a href="https://ig.me/m/deva7km" class="btn btn-outline btn-sm col-md-auto" style="background-color: #E4405F; color: white; margin: 3px;">
-        <i class="fa-brands fa-instagram fa-xl"></i> {% translate 'Купить в Instagram' %}
-    </a>
-</div>
+<a href="https://t.me/divaua" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0088cc; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
+    <i class="fab fa-telegram fa-xl"></i> {% translate 'Купить в Telegram' %}
+</a>
+
+<a href="viber://chat?number=%2B380635622568" class="btn btn-outline btn-sm col-md-auto" style="background-color: #665CAC; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
+    <i class="fab fa-viber fa-xl"></i> {% translate 'Купить в Viber' %}
+</a>
+
+<a href="https://m.me/432162513828457?text={% trans 'Добрый день! Меня интересует' %} {{ product_url }}" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0084FF; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
+    <i class="fa-brands fa-facebook-messenger fa-xl"></i> {% translate 'Купить в Messenger' %}
+</a>
+
+<a href="https://ig.me/m/deva7km" class="btn btn-outline btn-sm col-md-auto" style="background-color: #E4405F; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
+    <i class="fa-brands fa-instagram fa-xl"></i> {% translate 'Купить в Instagram' %}
+</a>
 
 
 <!-- Отображение изображений товара -->
