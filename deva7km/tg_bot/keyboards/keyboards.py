@@ -21,6 +21,7 @@ async def create_main_menu_kb():
 
 
 async def create_inline_kb_main_sku(callback, page=1, product_list=False, out_of_stock=False):
+    print(callback, page, product_list, out_of_stock)
     def custom_sort_key(sku):
         numeric_part = ''.join(filter(str.isdigit, sku))
         return int(numeric_part) if numeric_part else float('inf')
