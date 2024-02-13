@@ -28,8 +28,10 @@ async def create_inline_kb_main_sku(callback, page=1, product_list=False, out_of
     # Фильтруем товары в зависимости от значения out_of_stock
     if out_of_stock is True:
         products = await sync_to_async(list)(Product.objects.all())
+        print(True)
     else:
         products = await sync_to_async(list)(Product.objects.filter(modifications__stock__gt=0).distinct())
+        print(False)
 
     # Отсортируем товары по артикулу
     products = sorted(products, key=lambda x: custom_sort_key(x.sku), reverse=True)
