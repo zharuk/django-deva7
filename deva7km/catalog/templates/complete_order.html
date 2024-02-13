@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans 'Оформление заказа' %}{% endblock %}
+{% block breadcrumbs %}
+    <!-- Хлебные крошки для страницы Оформление заказа -->
+    <nav aria-label="breadcrumb" style="margin-top: 5px;">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">{% trans 'Главная' %}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{% trans 'Оформление заказа' %}</li>
+        </ol>
+    </nav>
+{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1>{% trans 'Оформление заказа' %}</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr class="table-primary">
+                    <th>{% trans 'Изображение' %}</th>
+                    <th>{% trans 'Наименование' %}</th>
+                    <th>{% trans 'Цвет' %}</th>
+                    <th>{% trans 'Размер' %}</th>
+                    <th>{% trans 'Количество' %}</th>
+                    <th>{% trans 'Сумма' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in ordered_items %}
+                    <tr class="table-active">
+                        <td><a href="{{ item.modification.product.get_absolute_url }}"><img src="{{ item.modification.thumbnail_image_modification_url }}" alt="Миниатюра" class="img-thumbnail"></a></td>
+                        <td><a href="{{ item.modification.product.get_absolute_url }}">{{ item.modification.product.title }}</a></td>
+                        <td>{{ item.modification.color.name }}</td>
+                        <td>{{ item.modification.size.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.item_total }} грн.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p>{% trans 'Общая сумма заказа' %}: {{ cart_total_price }} грн.</p>
+    <div class="alert alert-dismissible alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {% translate 'Отправка посылки по предоплате 150грн. или полной предоплате на счет ФОП. Отправляем новой почтой или укрпочтой на ваш выбор.' %}
+    </div>
+    <form method="post" action="{% url 'complete_order' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="first_name">{% trans 'Имя' %}</label>
+            <input type="text" class="form-control form-control-sm" id="first_name" name="first_name" required>
+        </div>
+        <div class="form-group">
+            <label for="last_name">{% trans 'Фамилия' %}</label>
+            <input type="text" class="form-control form-control-sm" id="last_name" name="last_name" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">{% trans 'Телефон' %}</label>
+            <input type="tel" class="form-control form-control-sm" id="phone" name="phone" required>
+        </div>
+        <div class="form-group">
+            <label for="email">{% trans 'Email' %}</label>
+            <input type="email" class="form-control form-control-sm" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="delivery_method">{% trans 'Способ доставки' %}</label>
+            <select class="form-control form-control-sm" id="delivery_method" name="delivery_method" required>
+                <option value="nova_poshta">{% trans 'Новая почта' %}</option>
+                <option value="ukrposhta">{% trans 'Укрпочта' %}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="branch">{% trans 'Отделение' %}</label>
+            <input type="text" class="form-control form-control-sm" id="branch" name="branch" required>
+        </div>
+        <div class="form-group">
+            <label for="payment_method">{% trans 'Способ оплаты' %}</label>
+            <select class="form-control form-control-sm" id="payment_method" name="payment_method" required>
+                <option value="prepayment_150">{% trans 'Предоплата 150 грн.' %}</option>
+                <option value="full_prepayment">{% trans 'Полная предоплата' %}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="comment">{% trans 'Комментарий к заказу' %}</label>
+            <textarea class="form-control form-control-sm" id="comment" name="comment" rows="3"></textarea>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary mb-2 btn-success">{% trans 'Завершить заказ' %}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

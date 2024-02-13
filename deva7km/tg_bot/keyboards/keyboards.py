@@ -42,6 +42,7 @@ async def create_inline_kb_main_sku(callback, page=1, product_list=False, out_of
 
     for product in products[start_index:end_index]:
         sku = product.sku
+        print(sku)
         buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}_{page}'))
 
     buttons_per_row = 7
