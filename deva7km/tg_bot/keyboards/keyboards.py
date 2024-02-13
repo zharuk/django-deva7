@@ -20,19 +20,13 @@ async def create_main_menu_kb():
     return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
 
 
-async def create_inline_kb_main_sku(callback, page=1, product_list=False, out_of_stock=False):
-    print(callback, page, product_list, out_of_stock)
+async def create_inline_kb_main_sku(callback, page=1, product_list=False):
+
     def custom_sort_key(sku):
         numeric_part = ''.join(filter(str.isdigit, sku))
         return int(numeric_part) if numeric_part else float('inf')
 
-    # Фильтруем товары в зависимости от значения out_of_stock
-    if out_of_stock is True:
-        products = await sync_to_async(list)(Product.objects.all())
-        print(True)
-    else:
-        products = await sync_to_async(list)(Product.objects.filter(modifications__stock__gt=0).distinct())
-        print(False)
+    products = await sync_to_async(list)(Product.objects.all())
 
     # Отсортируем товары по артикулу
     products = sorted(products, key=lambda x: custom_sort_key(x.sku), reverse=True)
@@ -45,7 +39,6 @@ async def create_inline_kb_main_sku(callback, page=1, product_list=False, out_of
 
     for product in products[start_index:end_index]:
         sku = product.sku
-        print(sku)
         buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}_{page}'))
 
     buttons_per_row = 7

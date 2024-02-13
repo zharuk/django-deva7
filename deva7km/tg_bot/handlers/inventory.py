@@ -23,7 +23,7 @@ bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 async def command_inventory_handler(message: Message, state: FSMContext):
     await state.clear()
     await state.set_state(InventoryStates.choosingSKU)
-    kb = await create_inline_kb_main_sku(callback='inventory', out_of_stock=True)
+    kb = await create_inline_kb_main_sku(callback='inventory')
     await message.answer('Выберите товар для оприходования 👇', reply_markup=kb)
 
 
@@ -33,7 +33,7 @@ async def command_inventory_handler(message: Message, state: FSMContext):
 async def process_callback_query_inventory(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await state.set_state(InventoryStates.choosingSKU)
-    kb = await create_inline_kb_main_sku(callback='inventory', out_of_stock=True)
+    kb = await create_inline_kb_main_sku(callback='inventory')
     await callback.message.answer('Выберите товар для оприходования 👇', reply_markup=kb)
     await callback.answer()
 

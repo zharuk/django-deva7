@@ -15,7 +15,7 @@ bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 @router.message(Command('products'))
 @admin_access_control_decorator(access='seller')
 async def command_products_handler(message: Message) -> None:
-    kb = await create_inline_kb_main_sku(callback='products', out_of_stock=True)
+    kb = await create_inline_kb_main_sku(callback='products')
     await message.answer('Выберите товар для просмотра 👇', reply_markup=kb)
 
 
@@ -23,7 +23,7 @@ async def command_products_handler(message: Message) -> None:
 @router.callback_query(lambda callback: 'products' == callback.data)
 @admin_access_control_decorator(access='seller')
 async def process_callback_query_products(callback: CallbackQuery):
-    kb = await create_inline_kb_main_sku(callback='products', out_of_stock=True)
+    kb = await create_inline_kb_main_sku(callback='products')
     await callback.message.answer('Выберите товар для просмотра 👇', reply_markup=kb)
     await callback.answer()
 
