@@ -71,7 +71,7 @@ async def create_inline_kb_return(callback):
 
 #  клавиатура с кнопками артикулов товаров модификаций товара
 async def create_inline_kb_modifications(main_sku, callback, product_list=False):
-    product_modifications = await sync_to_async(list)(ProductModification.objects.filter(product__sku=main_sku))
+    product_modifications = await sync_to_async(list)(ProductModification.objects.filter(product__sku=main_sku).order_by('color'))
     buttons = []
 
     for modification in product_modifications:
