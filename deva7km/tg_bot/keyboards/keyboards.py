@@ -36,7 +36,7 @@ async def create_inline_kb_main_sku(callback, page=1, product_list=False):
 
     buttons = []
 
-    buttons_per_page = 6
+    buttons_per_page = 49
     start_index = (page - 1) * buttons_per_page
     end_index = start_index + buttons_per_page
 
@@ -44,7 +44,7 @@ async def create_inline_kb_main_sku(callback, page=1, product_list=False):
         sku = product.sku
         buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}_{page}'))
 
-    buttons_per_row = 3
+    buttons_per_row = 7
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
 
     navigation_buttons = []
