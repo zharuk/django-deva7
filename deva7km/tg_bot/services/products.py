@@ -34,7 +34,7 @@ def get_modifications_info(sku):
     result += hbold(f"📒 Модификации:\n\n")
 
     # Перебираем все модификации этого товара
-    for modification in product.modifications.all():
+    for modification in product.modifications.all().order_by('color__name'):
         # Формируем информацию о модификации
         modification_info = (
             f"➡️️ Цвет: {modification.color.name}\n"
