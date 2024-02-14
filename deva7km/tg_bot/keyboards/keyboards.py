@@ -26,14 +26,17 @@ async def create_inline_kb_main_sku(callback, page=1, product_list=False):
         numeric_part = ''.join(filter(str.isdigit, sku))
         return int(numeric_part) if numeric_part else float('inf')
 
-    products = await sync_to_async(list)(Product.objects.all())
+    if callback in ['inventory', 'return', 'products']:
+        products = await sync_to_async(list)(Product.objects.all())
+    else:
+        products = await sync_to_async(list)(Product.objects.filter(modifications__stock__gt=0).distinct())
 
     # Отсортируем товары по артикулу
     products = sorted(products, key=lambda x: custom_sort_key(x.sku), reverse=True)
 
     buttons = []
 
-    buttons_per_page = 49
+    buttons_per_page = 6
     start_index = (page - 1) * buttons_per_page
     end_index = start_index + buttons_per_page
 
@@ -41,7 +44,7 @@ async def create_inline_kb_main_sku(callback, page=1, product_list=False):
         sku = product.sku
         buttons.append(InlineKeyboardButton(text=sku, callback_data=f'{sku}_main_sku_{callback}_{page}'))
 
-    buttons_per_row = 7
+    buttons_per_row = 3
     rows = [buttons[i:i + buttons_per_row] for i in range(0, len(buttons), buttons_per_row)]
 
     navigation_buttons = []

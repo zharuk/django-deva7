@@ -32,6 +32,7 @@ async def process_callback_query_products(callback: CallbackQuery):
 @router.callback_query(lambda callback: callback.data.startswith('prev_'))
 @admin_access_control_decorator(access='seller')
 async def process_callback_query_prev(callback: CallbackQuery):
+    print(callback.data, 'prev_')
     match = re.match(r'prev_(\w+)_([0-9]+)', callback.data)
     if match:
         callback_name, page = match.groups()
@@ -48,6 +49,7 @@ async def process_callback_query_prev(callback: CallbackQuery):
 @router.callback_query(lambda callback: callback.data.startswith('next_'))
 @admin_access_control_decorator(access='seller')
 async def process_callback_query_next(callback: CallbackQuery):
+    print(callback.data, 'next_')
     match = re.match(r'next_(\w+)_([0-9]+)', callback.data)
     if match:
         callback_name, page = match.groups()
