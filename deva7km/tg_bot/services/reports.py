@@ -317,27 +317,27 @@ def generate_sales_report_by_month() -> str:
             returns_by_items[item.product_modification].append(item)
 
     # Выводим заголовки с отформатированными датами
-    report_str = hbold(f"Продажи за месяц ({formatted_start_date} - {formatted_end_date})\n")
+    report_str = f"Продажи за месяц ({formatted_start_date} - {formatted_end_date})\n"
 
     # Обработка продаж по товарам с сортировкой по артикулу
     for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим заголовок для возвратов
-    report_str += hbold(f"\nВозвраты за месяц ({formatted_start_date} - {formatted_end_date})\n")
+    report_str += f"\nВозвраты за месяц ({formatted_start_date} - {formatted_end_date})\n"
 
     # Обработка возвратов по товарам с сортировкой по артикулу
     for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим общие суммы
-    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
+    report_str += (f"\n{'Общая сумма продаж'}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
                    f" грн., безнал.: {total_non_cash_sales_amount:.2f} грн.)\n")
-    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} грн.\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} грн.\n"
+    report_str += f"{'Общая сумма возвратов'}: {total_returns_amount:.2f} грн.\n\n"
+    report_str += f"{'💵 Чистая касса'}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} грн.\n"
 
     # Выводим ТОП 3 продаж
-    report_str += hbold("\nТОП 3 продаж за месяц\n")
+    report_str += "\nТОП 3 продаж за месяц\n"
     for rank, (product, quantity) in enumerate(top_sales, start=1):
         total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
         report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
@@ -404,27 +404,27 @@ def generate_sales_report_by_year() -> str:
             returns_by_items[item.product_modification].append(item)
 
     # Выводим заголовки с обновленным форматом
-    report_str = hbold(f"Продажи за год ({formatted_start_date} - {formatted_end_date})\n")
+    report_str = f"Продажи за год ({formatted_start_date} - {formatted_end_date})\n"
 
     # Обработка продаж по товарам с сортировкой по артикулу
     for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим заголовок для возвратов
-    report_str += hbold(f"\nВозвраты за год ({formatted_start_date} - {formatted_end_date})\n")
+    report_str += f"\nВозвраты за год ({formatted_start_date} - {formatted_end_date})\n"
 
     # Обработка возвратов по товарам с сортировкой по артикулу
     for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
         report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
 
     # Выводим общие суммы
-    report_str += (f"\n{hbold('Общая сумма продаж')}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
+    report_str += (f"\n{'Общая сумма продаж'}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
                    f" грн., безнал.: {total_non_cash_sales_amount:.2f} грн.)\n")
-    report_str += f"{hbold('Общая сумма возвратов')}: {total_returns_amount:.2f} грн.\n\n"
-    report_str += f"{hbold('💵 Чистая касса')}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} грн.\n"
+    report_str += f"{'Общая сумма возвратов'}: {total_returns_amount:.2f} грн.\n\n"
+    report_str += f"{'💵 Чистая касса'}: {(total_cash_sales_amount + total_non_cash_sales_amount) - total_returns_amount:.2f} грн.\n"
 
     # Выводим ТОП 3 продаж
-    report_str += hbold("\nТОП 3 продаж за год\n")
+    report_str += "\nТОП 3 продаж за год\n"
     for rank, (product, quantity) in enumerate(top_sales, start=1):
         total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
         report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
