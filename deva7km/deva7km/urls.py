@@ -11,7 +11,7 @@ from catalog.views import home, about_page, contacts_page, delivery_page, paymen
 from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('jydndxicxh/', admin.site.urls),
     path('i18n/', include('django.conf.urls.i18n')),
     path('feed_fb/', FacebookFeedView.as_view(), name='facebook_feed'),
     path('feed_google/', GoogleFeedView.as_view(), name='google_feed'),

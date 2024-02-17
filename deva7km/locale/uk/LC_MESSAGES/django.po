@@ -244,7 +244,7 @@ msgstr "Повна передоплата"
 
 #: .\catalog\templates\complete_order.html:81
 msgid "Комментарий к заказу"
-msgstr "коментар до замовлення"
+msgstr "Коментар до замовлення"
 
 #: .\catalog\templates\complete_order.html:85
 msgid "Завершить заказ"

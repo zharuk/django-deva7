@@ -1,7 +1,11 @@
+from asyncio import sleep
+
 from aiogram import Router, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
+from django.utils import asyncio
+
 from deva7km.settings import BOT_TOKEN
 from tg_bot.keyboards.keyboards import create_report_kb
 from tg_bot.services.reports import generate_sales_report_by_day, generate_sales_report_by_yesterday, \
@@ -60,6 +64,7 @@ async def process_callback_query_sell(callback: CallbackQuery):
         # Отправка каждой части поочередно
         for part in parts:
             await callback.message.answer(part)
+            await sleep(1)  # добавляем паузу в 1 секунду
 
         await callback.message.answer('\nОтчет закончен', reply_markup=kb)
         await callback.answer()
