@@ -6,12 +6,12 @@ from django.urls import path, include
 from catalog import views
 from catalog.views import home, about_page, contacts_page, delivery_page, payment_page, \
     category_detail, product_detail, sales, telegram_page, FacebookFeedView, GoogleFeedView, \
-    RozetkaFeedView, privacy_policy_page, add_to_cart, cart_view, clear_cart, remove_from_cart
+    RozetkaFeedView, privacy_policy_page, add_to_cart, cart_view, clear_cart, remove_from_cart, thank_you_page
 
 from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
-    path('jydndxicxh/', admin.site.urls),
+    path(settings.ADMIN_URL, admin.site.urls),
     path('i18n/', include('django.conf.urls.i18n')),
     path('feed_fb/', FacebookFeedView.as_view(), name='facebook_feed'),
     path('feed_google/', GoogleFeedView.as_view(), name='google_feed'),
@@ -21,6 +21,7 @@ urlpatterns = [
 urlpatterns += i18n_patterns(
     path('', home, name='home'),
     path('add-to-cart/<str:custom_sku>/', views.add_to_cart, name='add_to_cart'),
+    path('thank-you/', thank_you_page, name='thank_you_page'),
     path('cart/', cart_view, name='cart_view'),
     path('clear-cart/', clear_cart, name='clear_cart'),  # Добавляем новый путь для очистки корзины
     path('complete_order/', views.complete_order, name='complete_order'),

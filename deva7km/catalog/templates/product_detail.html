@@ -2,7 +2,9 @@
 {% load static i18n %}
 {% load i18n %}
 
-{% block title %}{% translate product.title %}{% endblock %}
+{% block title %}
+{% translate product.title %}
+{% endblock %}
 
 {% block breadcrumbs %}
     <!-- Хлебные крошки для страницы товара -->
@@ -16,135 +18,116 @@
 {% endblock %}
 
 {% block content %}
+<script>
+  fbq('track', 'ViewContent', {
+    content_ids: ['{{ product.sku }}'],
+    content_type: 'product',
+    content_name: '{{ product.title }}',
+    content_category: '{{ product.category.name }}',
+    value: {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %},
+    currency: 'UAH'
+  });
+</script>
 
 <script>
-    // Отправка события ViewContent
-    fbq('track', 'ViewContent', {
-        content_ids: ['{{ product.sku }}'], // ID товара
-        content_type: 'product_group', // Тип контента (в данном случае, это товар)
-        content_name: '{{ product.title }}', // Название товара
-        content_category: '{{ product.category.name }}', // Категория товара
-        value: {{ product.price }}, // Цена товара (можно передать другие данные, такие как цена, валюта и т. д.)
-        currency: '{{ product.currency }}' // Валюта товара
+    // Функция, которая будет вызываться при нажатии на кнопку добавления товара в корзину
+    function addToCart() {
+        // Отправляем событие добавления товара в корзину Facebook Pixel
+        fbq('track', 'AddToCart', {
+            content_ids: ['{{ product.sku }}'], // ID товара
+            content_type: 'product', // Тип контента (товар)
+            content_name: '{{ product.title }}', // Название товара
+            content_category: '{{ product.category.name }}', // Категория товара
+            value: {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %}, // Стоимость товара
+            currency: 'UAH' // Валюта товара
+        });
+    }
+
+    // Находим кнопку добавления товара в корзину по классу и добавляем обработчик события
+    document.querySelector('.btn.btn-primary.btn-sm').addEventListener('click', function() {
+        // Вызываем функцию добавления товара в корзину
+        addToCart();
     });
 </script>
 
-<script>
-    function trackPurchase(productId, productName, productCategory, productPrice, productCurrency) {
-        fbq('track', 'Purchase', {
-            content_ids: [productId], // ID товара
-            content_type: 'product_group', // Тип контента (в данном случае, это товар)
-            content_name: productName, // Название товара
-            content_category: productCategory, // Категория товара
-            value: productPrice, // Цена товара
-            currency: productCurrency // Валюта товара
-        });
-    }
-</script>
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Блок с информацией о товаре -->
+        <div class="product-details">
+            <h1>{{ product.title }}</h1>
+            <p><strong>{% translate 'Категория' %}:</strong> <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
+            <p><strong>{% translate 'Описание' %}:</strong> {{ product.description }}</p>
+            <p><strong>{% translate 'Артикул' %}:</strong> {{ product.sku }}</p>
+            <p><strong>{% translate 'Цвета' %}:</strong>
+                {% for color in product.colors.all %}
+                    {{ color.name }},
+                {% empty %}
+                    {% translate 'Нет данных' %}
+                {% endfor %}
+            </p>
+            <p><strong>{% translate 'Размеры' %}:</strong>
+                {% for size in product.sizes.all %}
+                    {{ size.name }},
+                {% empty %}
+                    {% translate 'Нет данных' %}
+                {% endfor %}
+            </p>
+            <div class="card-text">
+                {% if product.is_sale and product.retail_sale_price > 0 %}
+                        {% if product.retail_price > 0 %}
+                            <del>{% translate 'Цена' %}: {{ product.retail_price }} {{ product.retail_currency }} грн.</del><br>
+                        {% endif %}
+                        <p class="text-danger">
+                            <strong>{% translate 'Цена распродажи' %}: {{ product.retail_sale_price }} {{ product.retail_currency }} грн.</strong>
+                        </p>
+                {% else %}
+                    <p>
+                        {% if product.retail_price > 0 %}
+                            <strong>{% translate 'Цена' %}: {{ product.retail_price }} {{ product.retail_currency }} грн.</strong>
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
-{% if product.is_sale and product.sale_price > 0 %}
-    <span class="badge bg-danger" style="font-size: 1em; margin-left: 5px;">
-        <span class="text-white">{% translate 'Распродажа' %}</span>
-    </span>
-{% endif %}
-<div class="product-details">
-    <h1>{{ product.title }}</h1>
-    <p><strong>{% translate 'Категория' %}:</strong> <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
-    <p><strong>{% translate 'Описание' %}:</strong> {{ product.description }}</p>
-    <p><strong>{% translate 'Артикул' %}:</strong> {{ product.sku }}</p>
-    <p><strong>{% translate 'Цвета' %}:</strong>
-        {% for color in product.colors.all %}
-            {{ color.name }},
-        {% empty %}
-            {% translate 'Нет данных' %}
-        {% endfor %}
-    </p>
-    <p><strong>{% translate 'Размеры' %}:</strong>
-        {% for size in product.sizes.all %}
-            {{ size.name }},
-        {% empty %}
-            {% translate 'Нет данных' %}
-        {% endfor %}
-    </p>
-    <div class="card-text">
-        {% if product.is_sale and product.sale_price > 0 %}
-            <p class="text-danger">
-                {% if product.price > 0 %}
-                    <del>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }}</del><br>
-                {% endif %}
-                <strong>{% translate 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }}</strong>
-            </p>
-        {% else %}
-            <p>
-                {% if product.price > 0 %}
-                    <strong>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }}</strong>
-                {% endif %}
-            </p>
-        {% endif %}
+    <div class="col-lg-4">
+        <!-- Таблица с модификациями товаров и кнопками покупки -->
+        <div class="product-modifications">
+            <h2>{% translate 'Остатки' %}</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">{% translate 'Цвет' %}</th>
+                            <th scope="col">{% translate 'Размер' %}</th>
+                            <th scope="col">{% translate 'Количество' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for modification in modifications %}
+                            <tr class="{% if modification.stock > 3 %}table-success{% elif modification.stock > 0 %}table-warning{% else %}table-danger{% endif %}">
+                                <td>{{ modification.color.name }}</td>
+                                <td>{{ modification.size.name }}</td>
+                                <td>
+                                    <form action="{% url 'add_to_cart' modification.custom_sku %}" method="post">
+                                        {% csrf_token %}
+                                        <div class="input-group">
+                                            <input type="number" name="quantity" class="form-control form-control-sm col-6 col-sm-4 col-md-3 col-lg-5" value="1" min="1" max="{{ modification.stock }}">
+                                            <div class="input-group-append">
+                                                <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-cart-shopping"></i></button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
-
-<!-- Отображение таблицы с модификациями товара -->
-<div class="product-modifications">
-    <h2>{% translate 'Остатки' %}</h2>
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th scope="col">{% translate 'Цвет' %}</th>
-                <th scope="col">{% translate 'Размер' %}</th>
-                <th scope="col">{% translate 'Наличие' %}</th>
-                <th scope="col">{% translate 'Действие' %}</th> <!-- Новый заголовок для кнопки -->
-            </tr>
-        </thead>
-        <tbody>
-            {% for modification in modifications %}
-                <tr class="{% if modification.stock > 3 %}table-success{% elif modification.stock > 0 %}table-warning{% else %}table-danger{% endif %}">
-                    <td>{{ modification.color.name }}</td>
-                    <td>{{ modification.size.name }}</td>
-                    <td>
-                        {% if modification.stock > 3 %}
-                            {% translate 'В наличии' %}
-                        {% elif modification.stock > 0 %}
-                            {% translate 'Заканчивается' %}
-                        {% else %}
-                            {% translate 'Нет в наличии' %}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if modification.stock > 0 %}
-                            <form action="{% url 'add_to_cart' modification.custom_sku %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-cart-shopping"></i> {% translate 'в корзину' %}</button>
-                            </form>
-                        {% else %}
-                            <button class="btn btn-secondary btn-sm" disabled>
-                                <i class="fa-solid fa-cart-shopping"></i> {% translate 'в корзину' %}
-                            </button>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<!-- Кнопки купить -->
-<a href="https://t.me/divaua" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0088cc; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
-    <i class="fab fa-telegram fa-xl"></i> {% translate 'Купить в Telegram' %}
-</a>
-
-<a href="viber://chat?number=%2B380635622568" class="btn btn-outline btn-sm col-md-auto" style="background-color: #665CAC; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
-    <i class="fab fa-viber fa-xl"></i> {% translate 'Купить в Viber' %}
-</a>
-
-<a href="https://m.me/432162513828457?text={% trans 'Добрый день! Меня интересует' %} {{ product_url }}" class="btn btn-outline btn-sm col-md-auto" style="background-color: #0084FF; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
-    <i class="fa-brands fa-facebook-messenger fa-xl"></i> {% translate 'Купить в Messenger' %}
-</a>
-
-<a href="https://ig.me/m/deva7km" class="btn btn-outline btn-sm col-md-auto" style="background-color: #E4405F; color: white; margin: 3px;" onclick="trackPurchase('{{ product.sku }}', '{{ product.title }}', '{{ product.category.name }}', {{ product.price }}, '{{ product.currency }}')">
-    <i class="fa-brands fa-instagram fa-xl"></i> {% translate 'Купить в Instagram' %}
-</a>
-
 
 <!-- Отображение изображений товара -->
 <div class="product-image" style="margin-top: 30px;">
@@ -158,5 +141,4 @@
         <p>{% translate 'Нет изображений' %}</p>
     {% endfor %}
 </div>
-
 {% endblock %}

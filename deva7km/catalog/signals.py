@@ -8,6 +8,18 @@ from .models import Product, ProductModification, Image, Category, Sale, SaleIte
     Inventory, WriteOffItem, WriteOff, BlogPost
 
 
+# Функция для автоматической установки цен в розницу и распродажных цен в розницу
+@receiver(pre_save, sender=Product)
+def set_retail_prices(sender, instance, **kwargs):
+    # Проверяем, что изначальное значение retail_price равно 0
+    if instance.retail_price == 0:
+        # Установка цены в розницу (обычная цена + 200)
+        instance.retail_price = instance.price + 200
+        # Установка распродажной цены в розницу (если sale_price не пусто)
+        if instance.sale_price and instance.retail_sale_price == 0:
+            instance.retail_sale_price = instance.sale_price + 200
+
+
 # сигнал для обновления цены модификаций при изменении цены товара.
 @receiver(post_save, sender=Product)
 def update_modifications_prices(sender, instance, **kwargs):
@@ -106,13 +118,13 @@ def generate_product_slug(sender, instance, **kwargs):
         instance.slug = f"{slug_base}-{instance.sku}"
 
 
-# Сигнал для генерации slug для модели ProductModification
-@receiver(pre_save, sender=ProductModification)
-def generate_modification_slug(sender, instance, **kwargs):
-    if not instance.slug:
-        slug_base = slugify(
-            unidecode(f"{instance.product.title} - {instance.custom_sku} - {instance.color} - {instance.size}"))
-        instance.slug = slug_base
+# # Сигнал для генерации slug для модели ProductModification
+# @receiver(pre_save, sender=ProductModification)
+# def generate_modification_slug(sender, instance, **kwargs):
+#     if not instance.slug:
+#         slug_base = slugify(
+#             unidecode(f"{instance.product.title} - {instance.custom_sku} - {instance.color} - {instance.size}"))
+#         instance.slug = slug_base
 
 
 # Сигнал для генерации slug для модели Category

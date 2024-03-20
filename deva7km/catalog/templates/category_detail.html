@@ -31,20 +31,20 @@
                             <p>{% trans 'Артикул' %}: {{ product.sku }}</p>
                             <p>{% trans 'Цвета' %}: {{ product.get_colors }}</p>
                             <p>{% trans 'Размеры' %}: {{ product.get_sizes }}</p>
-                            {% if product.is_sale and product.sale_price > 0 %}
+                            {% if product.is_sale and product.retail_sale_price > 0 %}
                                 <p class="text-danger">
-                                    {% if product.price > 0 %}
-                                        <del>{% trans 'Цена' %}: {{ product.price }} {{ product.currency }}</del><br>
+                                    {% if product.retail_price > 0 %}
+                                        <del>{% trans 'цена' %}: {{ product.retail_price }} {{ product.currency }}</del><br>
                                     {% endif %}
-                                    <strong>{% trans 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }}</strong>
+                                    <strong>{% trans 'цена распродажи' %}: {{ product.retail_sale_price }} {{ product.currency }}</strong>
                                 </p>
                                 <span class="badge bg-danger position-absolute" style="top: 5px; left: 5px; font-size: 1em;">
                                     <span class="text-white">{% trans 'Распродажа' %}</span>
                                 </span>
                             {% else %}
                                 <p>
-                                    {% if product.price > 0 %}
-                                        <strong>{% trans 'Цена' %}: {{ product.price }} {{ product.currency }}</strong>
+                                    {% if product.retail_price > 0 %}
+                                        <strong>{% trans 'цена' %}: {{ product.retail_price }} {{ product.currency }}</strong>
                                     {% endif %}
                                 </p>
                             {% endif %}

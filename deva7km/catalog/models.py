@@ -9,6 +9,8 @@ from django.utils.safestring import mark_safe
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFit
 from unidecode import unidecode
+from django.utils.translation import gettext_lazy as _
+
 try:
     from deva7km.local_settings import BASE_URL
 except ImportError:
@@ -25,6 +27,8 @@ class Product(models.Model):
     sizes = models.ManyToManyField('Size', blank=True, verbose_name='Размеры')
     price = models.IntegerField(default=0, verbose_name='Цена')
     sale_price = models.IntegerField(default=0, verbose_name='Цена распродажи')
+    retail_price = models.IntegerField(default=0, verbose_name='Цена в розницу')
+    retail_sale_price = models.IntegerField(default=0, verbose_name='Цена распродажи в розницу')
     CURRENCY_CHOICES = (
         ('UAH', 'Гривны (грн)'),
         ('USD', 'Доллары (USD)'),
@@ -112,14 +116,7 @@ class ProductModification(models.Model):
     color = models.ForeignKey('Color', on_delete=models.CASCADE, verbose_name='Цвет')
     size = models.ForeignKey('Size', on_delete=models.CASCADE, verbose_name='Размер')
     stock = models.PositiveIntegerField(default=0, verbose_name='Остаток')
-    price = models.IntegerField(default=0, verbose_name='Цена')
-    sale_price = models.IntegerField(default=0, verbose_name='Цена распродажи')
-    currency = models.CharField(max_length=3, choices=Product.CURRENCY_CHOICES, default='UAH', verbose_name='Валюта')
     custom_sku = models.CharField(max_length=50, verbose_name='Артикул комплектации', blank=True)
-    slug = models.SlugField(max_length=200, unique=False, blank=True, verbose_name='Слаг модификации')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
-    is_active = models.BooleanField(default=True, verbose_name='Включен')
 
     # Метод для отображения миниатюры изображения модификации товара
     def thumbnail_image_modification(self):
@@ -257,29 +254,30 @@ class Sale(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Пользователь')
     telegram_user = models.ForeignKey('TelegramUser', on_delete=models.SET_NULL, null=True, blank=True,
                                       verbose_name='Пользователь Telegram')
-    comment = models.TextField(blank=True, verbose_name='Комментарий')
+    SOURCE_CHOICES = (
+        ('site', 'Сайт'),
+        ('telegram', 'telegram'))
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник продажи')
     STATUS_CHOICES = (
-        ('pending', 'В ожидании'),  # Статус "В ожидании"
-        ('completed', 'Завершено'),  # Статус "Завершено"
-        ('canceled', 'Отменено'))  # Статус "Отменено"
+        ('pending', 'В ожидании'),
+        ('completed', 'Завершено'),
+        ('canceled', 'Отменено'))
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='completed', verbose_name='Статус')
     PAYMENT_METHOD_CHOICES = (
         ('cash', 'Наличная оплата'),
         ('non_cash', 'Безналичная оплата'))
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cash',
                                       verbose_name='Способ оплаты')
-    SOURCE_CHOICES = (
-        ('site', 'Сайт'),
-        ('telegram', 'telegram'))
-    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник продажи')
+    comment = models.TextField(blank=True, verbose_name='Комментарий')
 
     def calculate_total_amount(self):
         total_amount = 0
         for item in self.items.all():
-            if item.product_modification.sale_price > 0:
-                total_amount += item.quantity * item.product_modification.sale_price
+            product = item.product_modification.product
+            if product.sale_price > 0:
+                total_amount += item.quantity * product.sale_price
             else:
-                total_amount += item.quantity * item.product_modification.price
+                total_amount += item.quantity * product.price
         return total_amount
 
     calculate_total_amount.short_description = 'Общая сумма'
@@ -290,7 +288,7 @@ class Sale(models.Model):
             total_quantity += item.quantity
         return total_quantity
 
-    calculate_total_quantity.short_description = 'Общее количество проданного товара'
+    calculate_total_quantity.short_description = 'Всего товаров'
 
     def get_sold_items(self):
         sold_items = []
@@ -300,13 +298,6 @@ class Sale(models.Model):
         return mark_safe("\n".join(sold_items))
 
     get_sold_items.short_description = 'Проданные товары'
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            # Если объект Sale ещё не сохранен (не имеет primary key), создадим его
-            super(Sale, self).save(*args, **kwargs)
-        self.total_amount = self.calculate_total_amount()
-        super(Sale, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'Продажа #{self.id}'
@@ -340,10 +331,12 @@ class SaleItem(models.Model):
 
     thumbnail_image_modification.short_description = 'Миниатюра изображения'
 
+    # подсчет суммы единиц модификаций
     def total_price(self):
-        if self.product_modification.sale_price > 0:
-            return self.quantity * self.product_modification.sale_price
-        return self.quantity * self.product_modification.price
+        product = self.product_modification.product
+        if product.sale_price > 0:
+            return self.quantity * product.sale_price
+        return self.quantity * product.price
 
     total_price.short_description = 'Сумма'
 
@@ -375,10 +368,11 @@ class Return(models.Model):
     def calculate_total_amount(self):
         total_amount = 0
         for item in self.items.all():
-            if item.product_modification.sale_price > 0:
-                total_amount += item.quantity * item.product_modification.sale_price
+            product = item.product_modification.product
+            if product.sale_price > 0:
+                total_amount += item.quantity * product.sale_price
             else:
-                total_amount += item.quantity * item.product_modification.price
+                total_amount += item.quantity * product.price
         return total_amount
 
     calculate_total_amount.short_description = 'Общая сумма'
@@ -422,9 +416,10 @@ class ReturnItem(models.Model):
     quantity = models.PositiveIntegerField(default=1, verbose_name='Количество возвращаемого')
 
     def total_price(self):
-        if self.product_modification.sale_price > 0:
-            return self.quantity * self.product_modification.sale_price
-        return self.quantity * self.product_modification.price
+        product = self.product_modification.product
+        if product.sale_price > 0:
+            return self.quantity * product.sale_price
+        return self.quantity * product.price
 
     total_price.short_description = 'Сумма возврата'
 
@@ -485,15 +480,17 @@ class Inventory(models.Model):
     SOURCE_CHOICES = (
         ('site', 'Сайт'),
         ('telegram', 'telegram'))
-    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник продажи')
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site',
+                              verbose_name='Источник оприходования')
 
     def calculate_total_amount(self):
         total_amount = 0
         for item in self.items.all():
-            if item.product_modification.sale_price > 0:
-                total_amount += item.quantity * item.product_modification.sale_price
+            product = item.product_modification.product
+            if product.sale_price > 0:
+                total_amount += item.quantity * product.sale_price
             else:
-                total_amount += item.quantity * item.product_modification.price
+                total_amount += item.quantity * product.price
         return total_amount
 
     calculate_total_amount.short_description = 'Общая сумма'
@@ -553,10 +550,10 @@ class InventoryItem(models.Model):
 
     # метод получения общей цены принятых товаров
     def total_price(self):
-        if self.product_modification.sale_price > 0:
-            return self.quantity * self.product_modification.sale_price
-        # Если цена модификации товара не имеет акционной цены, обрабатываем ее как обычную цену товара
-        return self.quantity * self.product_modification.price
+        product = self.product_modification.product
+        if product.sale_price > 0:
+            return self.quantity * product.sale_price
+        return self.quantity * product.price
 
     total_price.short_description = 'Сумма'
 
@@ -588,15 +585,16 @@ class WriteOff(models.Model):
     SOURCE_CHOICES = (
         ('site', 'Сайт'),
         ('telegram', 'telegram'))
-    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник продажи')
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник списания')
 
     def calculate_total_amount(self):
         total_amount = 0
         for item in self.items.all():
-            if item.product_modification.sale_price > 0:
-                total_amount += item.quantity * item.product_modification.sale_price
+            product = item.product_modification.product
+            if product.sale_price > 0:
+                total_amount += item.quantity * product.sale_price
             else:
-                total_amount += item.quantity * item.product_modification.price
+                total_amount += item.quantity * product.price
         return total_amount
 
     calculate_total_amount.short_description = 'Общая сумма'
@@ -656,10 +654,10 @@ class WriteOffItem(models.Model):
     thumbnail_image_modification.short_description = 'Миниатюра изображения'
 
     def total_price(self):
-        if self.product_modification.sale_price > 0:
-            return self.quantity * self.product_modification.sale_price
-        # Если цена модификации товара не имеет акционной цены, обрабатываем ее как обычную цену товара
-        return self.quantity * self.product_modification.price
+        product = self.product_modification.product
+        if product.sale_price > 0:
+            return self.quantity * product.sale_price
+        return self.quantity * product.price
 
     total_price.short_description = 'Сумма'
 
@@ -688,3 +686,116 @@ class BlogPost(models.Model):
     class Meta:
         verbose_name = 'Пост'
         verbose_name_plural = 'Посты'
+
+
+class Order(models.Model):
+    name = models.CharField(max_length=100, verbose_name='Имя')
+    surname = models.CharField(max_length=100, verbose_name='Фамилия')
+    phone = models.CharField(max_length=15, verbose_name='Телефон')
+    email = models.EmailField(verbose_name='Email')
+    contact_method = models.CharField(max_length=200, verbose_name='Связь с клиентом')
+    delivery_method = models.CharField(max_length=200, verbose_name='Способ доставки')
+    city = models.CharField(max_length=100, verbose_name='Населенный пункт')
+    post_office = models.CharField(max_length=100, verbose_name='Отделение почты')
+    payment_method = models.CharField(max_length=50, verbose_name='Способ оплаты')
+    comment = models.TextField(verbose_name='Комментарий к заказу')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    STATUS_CHOICES = {
+        'pending': _('В ожидании'),
+        'completed': _('Завершено'),
+        'canceled': _('Отменено'),
+    }
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES.items(), default='completed', verbose_name='Статус')
+
+    def calculate_total_amount(self):
+        total_amount = 0
+        for item in self.items.all():
+            product = item.product_modification.product
+            if product.sale_price > 0:
+                total_amount += item.quantity * product.sale_price
+            else:
+                total_amount += item.quantity * product.price
+        return total_amount
+
+    calculate_total_amount.short_description = 'Общая сумма'
+
+    def calculate_total_retail_amount(self):
+        total_amount = 0
+        for item in self.items.all():
+            product = item.product_modification.product
+            if product.sale_price > 0:
+                total_amount += item.quantity * product.retail_sale_price
+            else:
+                total_amount += item.quantity * product.retail_price
+        return total_amount
+
+    def calculate_total_quantity(self):
+        total_quantity = 0
+        for item in self.items.all():
+            total_quantity += item.quantity
+        return total_quantity
+
+    calculate_total_quantity.short_description = 'Всего товаров'
+
+    def __str__(self):
+        return f'Заказ #{self.id}'
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items', verbose_name='Заказ')
+    product_modification = models.ForeignKey(ProductModification, on_delete=models.CASCADE,
+                                             verbose_name='Модификация товара')
+    quantity = models.PositiveIntegerField(default=1, verbose_name='Количество')
+
+    def clean(self):
+        super().clean()
+
+        # Проверяем наличие достаточного количества товара на остатке
+        product_modification = self.product_modification
+        if self.quantity > product_modification.stock:
+            raise ValidationError(f"Недостаточно товара {product_modification} на остатке")
+
+    def thumbnail_image_modification(self):
+        images = Image.objects.filter(modification=self.product_modification)
+        if images:
+            return format_html('<img src="{}"/>', images[0].thumbnail.url)
+        return format_html('<p>No Image</p>')
+
+    thumbnail_image_modification.short_description = 'Миниатюра изображения'
+
+    def total_price(self):
+        product = self.product_modification.product
+        if product.sale_price > 0:
+            return self.quantity * product.sale_price
+        return self.quantity * product.price
+
+    total_price.short_description = 'Сумма'
+
+    def retail_total_price(self):
+        product = self.product_modification.product
+        if product.retail_sale_price > 0:
+            discounted_total = self.quantity * product.retail_sale_price
+            regular_total = self.quantity * product.retail_price
+        else:
+            discounted_total = 0
+            regular_total = self.quantity * product.retail_price
+
+        return discounted_total, regular_total
+
+    retail_total_price.short_description = 'Сумма по розничной цене'
+
+    def get_stock(self):
+        return self.product_modification.stock
+
+    get_stock.short_description = 'Остаток'
+
+    def __str__(self):
+        return f'Элемент заказа #{self.id}'
+
+    class Meta:
+        verbose_name = 'Элемент заказа'
+        verbose_name_plural = 'Элементы заказа'

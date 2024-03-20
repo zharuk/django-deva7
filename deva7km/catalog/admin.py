@@ -6,7 +6,7 @@ from modeltranslation.admin import TranslationAdmin
 
 from .models import (
     Category, Color, Size, Product, ProductModification, Image, SaleItem, ReturnItem, Return,
-    TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem, Sale, BlogPost
+    TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem, Sale, BlogPost, Order, OrderItem
 )
 
 
@@ -46,7 +46,8 @@ class SaleItemInline(admin.TabularInline):
 class SaleAdmin(admin.ModelAdmin):
     inlines = [SaleItemInline]
     list_display = (
-        'get_sold_items', 'id', 'created_at', 'calculate_total_quantity', 'comment', 'calculate_total_amount')
+        'get_sold_items', 'id', 'created_at', 'calculate_total_quantity', 'payment_method', 'source', 'status',
+        'comment', 'calculate_total_amount')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
     list_per_page = 25
 
@@ -72,19 +73,19 @@ class ImageAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 class ProductModificationAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = (
-        'product', 'custom_sku', 'color', 'size', 'stock', 'price', 'sale_price', 'currency',
+        'product', 'custom_sku', 'color', 'size', 'stock',
         'thumbnail_image_modification',)
     list_filter = ('color', 'size', 'custom_sku',)
     search_fields = ('product__title', 'color__name', 'size__name', 'custom_sku')
     inlines = [ImageInline]
-    ordering = ['-created_at']
+    ordering = ['product']
     list_per_page = 25
 
 
 class ProductModificationInline(admin.TabularInline):
     model = ProductModification
     extra = 0
-    list_display = ('product', 'custom_sku', 'color', 'size', 'stock', 'price', 'sale_price', 'currency',)
+    list_display = ('product', 'custom_sku', 'color', 'size', 'stock',)
     readonly_fields = ('thumbnail_image_modification',)
 
 
@@ -159,6 +160,45 @@ class SizeAdmin(TranslationAdmin):  # Используем TranslationAdmin
 @admin.register(Category)
 class CategoryAdmin(TranslationAdmin):  # Используем TranslationAdmin
     list_display = ('name', 'description')
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+    readonly_fields = ('total_price', 'thumbnail_image_modification', 'get_stock')
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'surname', 'phone', 'email', 'created_at', 'status')
+    list_display_links = ('id', 'name', 'surname')
+    search_fields = ('name', 'surname', 'phone', 'email')
+    list_filter = ('created_at',)
+    readonly_fields = ('created_at',)
+    inlines = [OrderItemInline]
+
+    fieldsets = (
+        ('Статус', {
+            'fields': ('status',)
+        }),
+        ('Персональные данные', {
+            'fields': ('name', 'surname', 'phone', 'email', 'contact_method')
+        }),
+        ('Информация о доставке', {
+            'fields': ('delivery_method', 'city', 'post_office')
+        }),
+        ('Информация об оплате', {
+            'fields': ('payment_method',)
+        }),
+        ('Дополнительная информация', {
+            'fields': ('comment',)
+        }),
+        ('Дата создания', {
+            'fields': ('created_at',)
+        }),
+    )
+
+    ordering = ('-created_at',)
 
 
 admin.site.register(BlogPost, BlogPostAdmin)

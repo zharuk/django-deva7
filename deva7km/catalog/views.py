@@ -1,23 +1,26 @@
-from django.db.models import Count
-from django.http import HttpResponse, JsonResponse
+from django.db import transaction
+from django.db.models import Count, Q
+from django.http import HttpResponse
 from django.template import loader
 from django.utils.translation import get_language
 from django.views import View
 from transliterate.utils import _
 
-from catalog.models import Image, Category, Product, BlogPost, ProductModification, Sale, SaleItem
+from catalog.forms import OrderForm
+from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 def home(request):
-    language = get_language()
+    # Определяем заголовок блога в зависимости от языка
+    main_page_post = get_object_or_404(
+        BlogPost,
+        Q(title='Головна сторінка') | Q(title='Главная страница')
+    )
+
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
     latest_products = Product.objects.filter(is_active=True).order_by('-created_at')[:6]
-    if language == 'uk':
-        main_page_post = get_object_or_404(BlogPost, title=_(u'Головна сторінка'))
-    else:
-        main_page_post = get_object_or_404(BlogPost, title=_(u'Главная страница'))
 
     # Получение данных о корзине
     cart_total_quantity, cart_total_price = get_cart_info(request)
@@ -106,16 +109,10 @@ def sales(request):
 
 
 def about_page(request):
-    # Получаем текущий язык запроса
-    current_language = request.LANGUAGE_CODE
-
-    # Определяем соответствующий заголовок блога в зависимости от языка
-    if current_language == 'uk':
-        # Если текущий язык украинский, выбираем блог с заголовком "Про сайт"
-        about_page_post = get_object_or_404(BlogPost, title=_('Про сайт'))
-    else:
-        # Иначе (если текущий язык не украинский), выбираем блог с заголовком "О сайте"
-        about_page_post = get_object_or_404(BlogPost, title=_('О сайте'))
+    about_page_post = get_object_or_404(
+        BlogPost,
+        Q(title='Про сайт') | Q(title='О сайте')
+    )
 
     # Получаем категории и сортируем их по количеству продуктов
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
@@ -130,16 +127,10 @@ def about_page(request):
 
 
 def contacts_page(request):
-    # Получаем текущий язык запроса
-    current_language = request.LANGUAGE_CODE
-
-    # Определяем соответствующий заголовок блога в зависимости от языка
-    if current_language == 'uk':
-        # Если текущий язык украинский, выбираем блог с заголовком "Контакти"
-        contact_page_post = get_object_or_404(BlogPost, title=_('Контакти'))
-    else:
-        # Иначе (если текущий язык не украинский), выбираем блог с заголовком "Контакты"
-        contact_page_post = get_object_or_404(BlogPost, title=_('Контакты'))
+    contact_page_post = get_object_or_404(
+        BlogPost,
+        Q(title='Контакти') | Q(title='Контакты')
+    )
 
     # Получаем категории и сортируем их по количеству продуктов
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
@@ -178,16 +169,10 @@ def payment_page(request):
 
 
 def privacy_policy_page(request):
-    # Получаем текущий язык запроса
-    current_language = request.LANGUAGE_CODE
-
-    # Определяем соответствующий заголовок блога в зависимости от языка
-    if current_language == 'uk':
-        # Если текущий язык украинский, выбираем блог с заголовком "Політика конфіденційності"
-        privacy_policy_page_post = get_object_or_404(BlogPost, title=_('Політика конфіденційності'))
-    else:
-        # Иначе (если текущий язык не украинский), выбираем блог с заголовком "Политика конфиденциальности"
-        privacy_policy_page_post = get_object_or_404(BlogPost, title=_('Политика конфиденциальности'))
+    privacy_policy_page_post = get_object_or_404(
+        BlogPost,
+        Q(title='Політика конфіденційності') | Q(title='Политика конфиденциальности')
+    )
 
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
 
@@ -249,13 +234,14 @@ class RozetkaFeedView(View):
 
 def add_to_cart(request, custom_sku):
     modification = get_object_or_404(ProductModification, custom_sku=custom_sku)
+    quantity = int(request.POST.get('quantity', 1))  # Получаем количество товара из формы
 
-    if modification.stock > 0:
+    if modification.stock >= quantity > 0:  # Проверяем, что количество товара доступно на складе и больше 0
         if 'cart' not in request.session:
             request.session['cart'] = {}
 
         cart = request.session['cart']
-        cart[custom_sku] = cart.get(custom_sku, 0) + 1
+        cart[custom_sku] = cart.get(custom_sku, 0) + quantity  # Добавляем указанное количество товара в корзину
         request.session.modified = True
 
     return redirect('cart_view')
@@ -268,7 +254,6 @@ def clear_cart(request):
 
 
 def remove_from_cart(request, custom_sku):
-    print(custom_sku)
     if 'cart' in request.session:
         cart = request.session['cart']
         if custom_sku in cart:
@@ -288,10 +273,14 @@ def cart_view(request):
 
     for modification in modifications:
         quantity = cart[modification.custom_sku]
-        item_total = modification.price * quantity
-        cart_total_price += item_total
+        item_total_regular = modification.product.retail_price * quantity
+        item_total_sale = modification.product.retail_sale_price * quantity if modification.product.retail_sale_price > 0 else 0
+        cart_total_price += item_total_sale if item_total_sale > 0 else item_total_regular
         cart_total_quantity += quantity
-        cart_items.append({'modification': modification, 'quantity': quantity, 'item_total': item_total})
+        cart_items.append({'modification': modification,
+                           'quantity': quantity,
+                           'item_total_regular': item_total_regular,
+                           'item_total_sale': item_total_sale})
 
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
 
@@ -300,39 +289,109 @@ def cart_view(request):
                    'cart_total_quantity': cart_total_quantity})
 
 
-def complete_order(request):
-    # Логика обработки данных формы и создания заказа
-    if request.method == 'POST':
-        # Обработка данных формы и создание заказа
-        pass  # Замените этот плейсхолдер на вашу реальную логику создания заказа
-
-    # Получаем информацию о корзине
-    cart_total_quantity, cart_total_price = get_cart_info(request)
-
-    # Получаем список товаров, которые заказываются
-    cart = request.session.get('cart', {})
-    custom_skus = cart.keys()
-    modifications = ProductModification.objects.filter(custom_sku__in=custom_skus)
-
-    ordered_items = []
-    ordered_items_total_price = 0  # Общая сумма всех заказанных товаров
-
-    for modification in modifications:
-        quantity = cart[modification.custom_sku]
-        item_total = modification.price * quantity
-        ordered_items_total_price += item_total
-        ordered_items.append({'modification': modification, 'quantity': quantity, 'item_total': item_total})
-
-    # Отображение страницы оформления заказа
-    return render(request, 'complete_order.html', context={'cart_total_quantity': cart_total_quantity, 'cart_total_price': cart_total_price, 'ordered_items': ordered_items, 'ordered_items_total_price': ordered_items_total_price})
-
-
 def get_cart_info(request):
     cart = request.session.get('cart', {})
     custom_skus = cart.keys()
     modifications = ProductModification.objects.filter(custom_sku__in=custom_skus)
 
-    cart_total_price = sum(modification.price * cart[modification.custom_sku] for modification in modifications)
+    cart_total_price = sum(
+        modification.product.retail_sale_price * cart[modification.custom_sku]
+        if modification.product.retail_sale_price > 0
+        else modification.product.retail_price * cart[modification.custom_sku]
+        for modification in modifications
+    )
     cart_total_quantity = sum(cart.values())
 
     return cart_total_quantity, cart_total_price
+
+
+@transaction.atomic
+def complete_order(request):
+    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
+    # Получаем корзину из сессии и информацию о товарах
+    cart = request.session.get('cart', {})
+    custom_skus = cart.keys()
+    modifications = ProductModification.objects.filter(custom_sku__in=custom_skus)
+
+    # Формируем данные о товарах в корзине для передачи в шаблон
+    cart_items = []
+    cart_total_price = 0
+    cart_total_quantity = 0
+
+    for modification in modifications:
+        quantity = cart[modification.custom_sku]
+        item_total_regular = modification.product.retail_price * quantity
+        item_total_sale = modification.product.retail_sale_price * quantity if modification.product.retail_sale_price > 0 else 0
+        cart_total_price += item_total_sale if item_total_sale > 0 else item_total_regular
+        cart_total_quantity += quantity
+        cart_items.append({'modification': modification,
+                           'quantity': quantity,
+                           'item_total_regular': item_total_regular,
+                           'item_total_sale': item_total_sale})
+
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            # Создаем объект заказа
+            order = Order(
+                name=form.cleaned_data['name'],
+                surname=form.cleaned_data['surname'],
+                phone=form.cleaned_data['phone'],
+                email=form.cleaned_data['email'],
+                contact_method=', '.join(form.cleaned_data['contact_method']),
+                delivery_method=dict(form.fields['delivery_method'].choices)[form.cleaned_data['delivery_method']],
+                city=form.cleaned_data['city'],
+                post_office=form.cleaned_data['post_office'],
+                payment_method=dict(form.fields['payment_method'].choices)[form.cleaned_data['payment_method']],
+                comment=form.cleaned_data['comment'],
+                status='pending',
+            )
+            order.save()
+            request.session['last_order_id'] = order.id
+
+            # Создаем объекты OrderItem для каждого товара в корзине и связываем их с заказом
+            for modification in modifications:
+                quantity = cart.get(str(modification.custom_sku), 0)
+                if quantity > 0:
+                    order_item = OrderItem.objects.create(
+                        order=order,
+                        product_modification=modification,
+                        quantity=quantity
+                    )
+
+            # Очищаем корзину после оформления заказа
+            del request.session['cart']
+
+            # Редирект на страницу благодарности
+            return redirect('thank_you_page')  # Замените 'thank_you_page' на ваше имя URL-адреса
+
+    else:
+        form = OrderForm()
+
+    return render(request, 'complete_order.html', {
+        'form': form,
+        'cart_items': cart_items,
+        'cart_total_price': cart_total_price,
+        'cart_total_quantity': cart_total_quantity,
+        'categories': categories
+    })
+
+
+def thank_you_page(request):
+    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
+    # Получаем идентификатор последнего оформленного заказа из сессии
+    last_order_id = request.session.get('last_order_id')
+
+    # Получаем последний оформленный заказ по его идентификатору
+    last_order = None
+    if last_order_id is not None:
+        last_order = Order.objects.get(id=last_order_id)
+
+    # Вызываем методы calculate_total_amount и calculate_total_retail_amount
+    total_amount = last_order.calculate_total_retail_amount()
+
+    return render(request, 'thank_you_page.html', {
+        'order': last_order,
+        'total_amount': total_amount,
+        'categories': categories,
+    })

@@ -34,11 +34,19 @@
                         <td>{{ item.modification.color.name }}</td>
                         <td>{{ item.modification.size.name }}</td>
                         <td>{{ item.quantity }}</td>
-                        <td>{{ item.item_total }} грн.</td>
+                        <td>
+                            {% if item.item_total_sale > 0 %}
+                                <del>{{ item.item_total_regular }} грн.</del> <!-- Зачеркнутая обычная цена -->
+                                <br>
+                                {{ item.item_total_sale }} грн. <!-- Акционная цена -->
+                            {% else %}
+                                {{ item.item_total_regular }} грн. <!-- Обычная цена, если нет акции -->
+                            {% endif %}
+                        </td>
                         <td>
                             <form action="{% url 'remove_from_cart' item.modification.custom_sku %}" method="post">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                <button type="submit" class="btn btn-danger btn-sm">{% trans 'Удалить' %}</button>
                             </form>
                         </td>
                     </tr>
@@ -46,7 +54,8 @@
             </tbody>
         </table>
     </div>
-    <p>{% trans 'Итого' %}: {{ cart_total_price }} грн.</p>
+    <p><strong>{% trans 'Итого количество товаров' %}:</strong> {{ cart_total_quantity }} шт.</p>
+    <p><strong>{% trans 'Итоговая цена:' %}</strong> {{ cart_total_price }} грн.</p>
     <div class="btn-group" role="group">
         <form action="{% url 'clear_cart' %}" method="post">
             {% csrf_token %}

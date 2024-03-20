@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-13 12:56+0200\n"
+"POT-Creation-Date: 2024-03-20 09:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,62 +16,155 @@ msgstr ""
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
 
-#: .\catalog\templates\base.html:9
+#: .\catalog\forms.py:6 .\catalog\templates\complete_order.html:69
+#: .\catalog\templates\thank_you_page.html:109
+msgid "Имя"
+msgstr "Ім'я"
+
+#: .\catalog\forms.py:7 .\catalog\templates\complete_order.html:73
+#: .\catalog\templates\thank_you_page.html:113
+msgid "Фамилия"
+msgstr "Прізвище"
+
+#: .\catalog\forms.py:8 .\catalog\templates\complete_order.html:77
+#: .\catalog\templates\thank_you_page.html:117
+msgid "Телефон"
+msgstr "Телефон"
+
+#: .\catalog\forms.py:9 .\catalog\templates\thank_you_page.html:121
+msgid "Email"
+msgstr "Email"
+
+#: .\catalog\forms.py:12
+msgid "Telegram"
+msgstr "Telegram"
+
+#: .\catalog\forms.py:13
+msgid "WhatsApp"
+msgstr ""
+
+#: .\catalog\forms.py:14
+msgid "Viber"
+msgstr "Viber"
+
+#: .\catalog\forms.py:15
+msgid "SMS"
+msgstr "SMS"
+
+#: .\catalog\forms.py:17 .\catalog\templates\thank_you_page.html:125
+msgid "Связь с клиентом"
+msgstr "Зв'язок із клієнтом"
+
+#: .\catalog\forms.py:21
+msgid "новая почта"
+msgstr "нова пошта"
+
+#: .\catalog\forms.py:22
+msgid "укрпочта"
+msgstr "укрпошта"
+
+#: .\catalog\forms.py:24 .\catalog\templates\complete_order.html:97
+#: .\catalog\templates\thank_you_page.html:135
+msgid "Способ доставки"
+msgstr "Спосіб доставки"
+
+#: .\catalog\forms.py:27 .\catalog\templates\complete_order.html:101
+#: .\catalog\templates\thank_you_page.html:139
+msgid "Населенный пункт"
+msgstr "Населений пункт"
+
+#: .\catalog\forms.py:28 .\catalog\templates\thank_you_page.html:143
+msgid "Отделение почты"
+msgstr "Відділення пошти"
+
+#: .\catalog\forms.py:31
+msgid "предоплата 150 грн"
+msgstr "передплата 150 грн."
+
+#: .\catalog\forms.py:32
+msgid "полная предоплата"
+msgstr "повна передоплата"
+
+#: .\catalog\forms.py:34 .\catalog\templates\complete_order.html:109
+#: .\catalog\templates\thank_you_page.html:147
+msgid "Способ оплаты"
+msgstr "Спосіб оплати"
+
+#: .\catalog\forms.py:37 .\catalog\templates\complete_order.html:113
+#: .\catalog\templates\thank_you_page.html:151
+msgid "Комментарий к заказу"
+msgstr "Коментар до замовлення"
+
+#: .\catalog\models.py:704
+msgid "В ожидании"
+msgstr "В очікуванні"
+
+#: .\catalog\models.py:705
+msgid "Завершено"
+msgstr "Завершено"
+
+#: .\catalog\models.py:706
+msgid "Отменено"
+msgstr "Скасовано"
+
+#: .\catalog\templates\base.html:8
 msgid "Сайт deva7km"
 msgstr "Сайт deva7km"
 
-#: .\catalog\templates\base.html:47
+#: .\catalog\templates\base.html:46
 msgid "Товаров"
 msgstr "Товарів"
 
-#: .\catalog\templates\base.html:47 .\catalog\templates\cart.html:25
-#: .\catalog\templates\complete_order.html:26
+#: .\catalog\templates\base.html:46 .\catalog\templates\cart.html:25
+#: .\catalog\templates\complete_order.html:31
+#: .\catalog\templates\thank_you_page.html:72
 msgid "Сумма"
 msgstr "Сума"
 
-#: .\catalog\templates\base.html:56
+#: .\catalog\templates\base.html:55
 msgid "Дева"
 msgstr "Діва"
 
-#: .\catalog\templates\base.html:71 .\catalog\templates\category_detail.html:42
-#: .\catalog\templates\home.html:40 .\catalog\templates\product_detail.html:47
-#: .\catalog\templates\sales.html:4 .\catalog\templates\sales.html:10
-#: .\catalog\templates\sales.html:16 .\catalog\templates\sales.html:37
+#: .\catalog\templates\base.html:70 .\catalog\templates\category_detail.html:42
+#: .\catalog\templates\home.html:41 .\catalog\templates\sales.html:4
+#: .\catalog\templates\sales.html:10 .\catalog\templates\sales.html:16
+#: .\catalog\templates\sales.html:37
 msgid "Распродажа"
 msgstr "Розпродаж"
 
-#: .\catalog\templates\base.html:76 .\catalog\templates\contact_menu.html:6
-#: .\catalog\templates\contact_menu_bottom.html:5 .\catalog\views.py:118
+#: .\catalog\templates\base.html:75 .\catalog\templates\contact_menu.html:6
+#: .\catalog\templates\contact_menu_bottom.html:5 .\catalog\views.py:120
 msgid "О сайте"
 msgstr "Про сайт"
 
-#: .\catalog\templates\base.html:79 .\catalog\templates\contact_menu.html:9
+#: .\catalog\templates\base.html:78 .\catalog\templates\contact_menu.html:9
 #: .\catalog\templates\contact_menu_bottom.html:6
 #: .\catalog\templates\contacts_page.html:4
-#: .\catalog\templates\contacts_page.html:11 .\catalog\views.py:142
+#: .\catalog\templates\contacts_page.html:11 .\catalog\views.py:144
 msgid "Контакты"
 msgstr "Контакти"
 
-#: .\catalog\templates\base.html:82 .\catalog\templates\contact_menu.html:12
+#: .\catalog\templates\base.html:81 .\catalog\templates\contact_menu.html:12
 #: .\catalog\templates\contact_menu_bottom.html:7
 #: .\catalog\templates\delivery_page.html:11
 msgid "Доставка"
 msgstr "Доставка"
 
-#: .\catalog\templates\base.html:85 .\catalog\templates\contact_menu.html:15
+#: .\catalog\templates\base.html:84 .\catalog\templates\contact_menu.html:15
 #: .\catalog\templates\contact_menu_bottom.html:8
 #: .\catalog\templates\payment_page.html:11
 msgid "Оплата"
 msgstr "Оплата"
 
-#: .\catalog\templates\base.html:96 .\catalog\templates\cart.html:9
+#: .\catalog\templates\base.html:95 .\catalog\templates\cart.html:9
 #: .\catalog\templates\category_detail.html:8
-#: .\catalog\templates\complete_order.html:9
+#: .\catalog\templates\complete_order.html:10
 #: .\catalog\templates\contacts_page.html:10
-#: .\catalog\templates\delivery_page.html:10 .\catalog\templates\home.html:8
-#: .\catalog\templates\payment_page.html:10
+#: .\catalog\templates\delivery_page.html:10 .\catalog\templates\home.html:4
+#: .\catalog\templates\home.html:9 .\catalog\templates\payment_page.html:10
 #: .\catalog\templates\privacy_policy_page.html:10
-#: .\catalog\templates\product_detail.html:11
+#: .\catalog\templates\product_detail.html:13
+#: .\catalog\templates\thank_you_page.html:10
 msgid "Главная"
 msgstr "Головна"
 
@@ -80,76 +173,84 @@ msgstr "Головна"
 msgid "Корзина"
 msgstr "Кошик"
 
-#: .\catalog\templates\cart.html:20 .\catalog\templates\complete_order.html:21
+#: .\catalog\templates\cart.html:20 .\catalog\templates\complete_order.html:26
+#: .\catalog\templates\thank_you_page.html:67
 msgid "Изображение"
 msgstr "Зображення"
 
-#: .\catalog\templates\cart.html:21 .\catalog\templates\complete_order.html:22
+#: .\catalog\templates\cart.html:21 .\catalog\templates\thank_you_page.html:68
 msgid "Наименование"
 msgstr "Найменування"
 
-#: .\catalog\templates\cart.html:22 .\catalog\templates\complete_order.html:23
-#: .\catalog\templates\product_detail.html:98
+#: .\catalog\templates\cart.html:22 .\catalog\templates\complete_order.html:28
+#: .\catalog\templates\product_detail.html:102
+#: .\catalog\templates\thank_you_page.html:69
 msgid "Цвет"
 msgstr "Колір"
 
-#: .\catalog\templates\cart.html:23 .\catalog\templates\complete_order.html:24
-#: .\catalog\templates\product_detail.html:99
+#: .\catalog\templates\cart.html:23 .\catalog\templates\complete_order.html:29
+#: .\catalog\templates\product_detail.html:103
+#: .\catalog\templates\thank_you_page.html:70
 msgid "Размер"
 msgstr "Розмір"
 
-#: .\catalog\templates\cart.html:24 .\catalog\templates\complete_order.html:25
+#: .\catalog\templates\cart.html:24 .\catalog\templates\complete_order.html:30
+#: .\catalog\templates\product_detail.html:104
+#: .\catalog\templates\thank_you_page.html:71
 msgid "Количество"
 msgstr "Кількість"
 
-#: .\catalog\templates\cart.html:26
+#: .\catalog\templates\cart.html:26 .\catalog\templates\cart.html:49
 msgid "Удалить"
 msgstr "Видалити"
 
-#: .\catalog\templates\cart.html:49
-msgid "Итого"
-msgstr "Разом"
+#: .\catalog\templates\cart.html:57 .\catalog\templates\complete_order.html:55
+msgid "Итого количество товаров"
+msgstr "Загальна кількість товарів:"
 
-#: .\catalog\templates\cart.html:53
+#: .\catalog\templates\cart.html:58 .\catalog\templates\complete_order.html:56
+msgid "Итоговая цена:"
+msgstr "Кінцева ціна:"
+
+#: .\catalog\templates\cart.html:62
 msgid "Очистить корзину"
 msgstr "Очистити корзину"
 
-#: .\catalog\templates\cart.html:55
+#: .\catalog\templates\cart.html:64
 msgid "Продолжить покупки"
 msgstr "Продовжити покупки"
 
-#: .\catalog\templates\cart.html:57
+#: .\catalog\templates\cart.html:66
 msgid "Оформить заказ"
 msgstr "Оформити замовлення"
 
-#: .\catalog\templates\category_detail.html:31 .\catalog\templates\home.html:29
-#: .\catalog\templates\product_detail.html:54 .\catalog\templates\sales.html:29
+#: .\catalog\templates\category_detail.html:31 .\catalog\templates\home.html:30
+#: .\catalog\templates\product_detail.html:60 .\catalog\templates\sales.html:29
 msgid "Артикул"
 msgstr "Артикул"
 
-#: .\catalog\templates\category_detail.html:32 .\catalog\templates\home.html:30
-#: .\catalog\templates\product_detail.html:55 .\catalog\templates\sales.html:30
+#: .\catalog\templates\category_detail.html:32 .\catalog\templates\home.html:31
+#: .\catalog\templates\product_detail.html:61 .\catalog\templates\sales.html:30
 msgid "Цвета"
 msgstr "Кольори"
 
-#: .\catalog\templates\category_detail.html:33 .\catalog\templates\home.html:31
-#: .\catalog\templates\product_detail.html:62 .\catalog\templates\sales.html:31
+#: .\catalog\templates\category_detail.html:33 .\catalog\templates\home.html:32
+#: .\catalog\templates\product_detail.html:68 .\catalog\templates\sales.html:31
 msgid "Размеры"
 msgstr "Розміри"
 
 #: .\catalog\templates\category_detail.html:37
-#: .\catalog\templates\category_detail.html:47 .\catalog\templates\home.html:35
-#: .\catalog\templates\home.html:45 .\catalog\templates\product_detail.html:73
-#: .\catalog\templates\product_detail.html:80 .\catalog\templates\sales.html:33
-msgid "Цена"
-msgstr "Ціна"
+#: .\catalog\templates\category_detail.html:47
+msgid "цена"
+msgstr ""
 
-#: .\catalog\templates\category_detail.html:39 .\catalog\templates\home.html:37
-#: .\catalog\templates\product_detail.html:75 .\catalog\templates\sales.html:34
-msgid "Цена распродажи"
+#: .\catalog\templates\category_detail.html:39
+#, fuzzy
+#| msgid "Цена распродажи"
+msgid "цена распродажи"
 msgstr "Ціна розпродажу"
 
-#: .\catalog\templates\category_detail.html:53 .\catalog\templates\home.html:51
+#: .\catalog\templates\category_detail.html:53 .\catalog\templates\home.html:52
 #: .\catalog\templates\sales.html:41
 msgid "Перейти"
 msgstr "Перейти"
@@ -189,66 +290,40 @@ msgid "Нет товаров в этой категории"
 msgstr "Немає товарів в цій категорії"
 
 #: .\catalog\templates\complete_order.html:4
-#: .\catalog\templates\complete_order.html:10
-#: .\catalog\templates\complete_order.html:16
+#: .\catalog\templates\complete_order.html:11
+#: .\catalog\templates\complete_order.html:18
 msgid "Оформление заказа"
 msgstr "Оформлення заказу"
 
-#: .\catalog\templates\complete_order.html:43
-msgid "Общая сумма заказа"
-msgstr "Загальна сума замовлення"
+#: .\catalog\templates\complete_order.html:21
+msgid "Ваш заказ"
+msgstr "Ваше замовлення"
 
-#: .\catalog\templates\complete_order.html:47
-msgid "Имя"
-msgstr "Ім'я"
+#: .\catalog\templates\complete_order.html:27
+#, fuzzy
+#| msgid "Наименование"
+msgid "Наименование товара"
+msgstr "Найменування"
 
-#: .\catalog\templates\complete_order.html:51
-msgid "Фамилия"
-msgstr "Прізвище"
+#: .\catalog\templates\complete_order.html:60
+msgid "* обязательные"
+msgstr "* обов'язкові"
 
-#: .\catalog\templates\complete_order.html:55
-msgid "Телефон"
-msgstr "Телефон"
+#: .\catalog\templates\complete_order.html:81
+msgid "Как с вами связаться?"
+msgstr "Як з вами зв'язатися?"
 
-#: .\catalog\templates\complete_order.html:59
-msgid "Email"
-msgstr "Email"
-
-#: .\catalog\templates\complete_order.html:63
-msgid "Способ доставки"
-msgstr "Спосіб доставки"
-
-#: .\catalog\templates\complete_order.html:65
-msgid "Новая почта"
-msgstr "Нова пошта"
-
-#: .\catalog\templates\complete_order.html:66
-msgid "Укрпочта"
-msgstr "Укрпошта"
-
-#: .\catalog\templates\complete_order.html:70
+#: .\catalog\templates\complete_order.html:105
 msgid "Отделение"
 msgstr "Відділення"
 
-#: .\catalog\templates\complete_order.html:74
-msgid "Способ оплаты"
-msgstr "Спосіб оплати"
-
-#: .\catalog\templates\complete_order.html:76
-msgid "Предоплата 150 грн."
-msgstr "Передплата 150 грн."
-
-#: .\catalog\templates\complete_order.html:77
-msgid "Полная предоплата"
-msgstr "Повна передоплата"
-
-#: .\catalog\templates\complete_order.html:81
-msgid "Комментарий к заказу"
-msgstr "Коментар до замовлення"
-
-#: .\catalog\templates\complete_order.html:85
+#: .\catalog\templates\complete_order.html:123
 msgid "Завершить заказ"
 msgstr "Завершити замовлення"
+
+#: .\catalog\templates\contact_menu_bottom.html:9 .\catalog\views.py:187
+msgid "Политика конфиденциальности"
+msgstr "Політика конфіденційності"
 
 #: .\catalog\templates\contacts_info.html:11
 msgid "Email:"
@@ -266,13 +341,24 @@ msgstr "Зв'яжіться з нами:"
 msgid "Информация о доставке"
 msgstr "Інформація про доставку"
 
-#: .\catalog\templates\home.html:15
+#: .\catalog\templates\home.html:16
 msgid "Новинки"
 msgstr "Новинки"
 
-#: .\catalog\templates\home.html:28 .\catalog\templates\product_detail.html:52
+#: .\catalog\templates\home.html:29 .\catalog\templates\product_detail.html:58
 msgid "Категория"
 msgstr "Категорія"
+
+#: .\catalog\templates\home.html:36 .\catalog\templates\home.html:46
+#: .\catalog\templates\product_detail.html:78
+#: .\catalog\templates\product_detail.html:86 .\catalog\templates\sales.html:33
+msgid "Цена"
+msgstr "Ціна"
+
+#: .\catalog\templates\home.html:38 .\catalog\templates\product_detail.html:81
+#: .\catalog\templates\sales.html:34
+msgid "Цена распродажи"
+msgstr "Ціна розпродажу"
 
 #: .\catalog\templates\payment_page.html:4
 msgid "Информация о оплате"
@@ -286,77 +372,24 @@ msgstr "Інформація про політику конфіденційно�
 msgid "политика конфиденциальности"
 msgstr "політика конфіденційності"
 
-#: .\catalog\templates\product_detail.html:53
+#: .\catalog\templates\product_detail.html:59
 msgid "Описание"
 msgstr "Опис"
 
-#: .\catalog\templates\product_detail.html:59
-#: .\catalog\templates\product_detail.html:66
+#: .\catalog\templates\product_detail.html:65
+#: .\catalog\templates\product_detail.html:72
 msgid "Нет данных"
 msgstr "Немає даних"
 
-#: .\catalog\templates\product_detail.html:89
-msgid ""
-"Отправка посылки по предоплате 150грн. или полной предоплате на счет ФОП. "
-"Отправляем новой почтой или укрпочтой на ваш выбор."
-msgstr ""
-"Надсилання посилки за передоплатою 150грн. або повною передоплатою на "
-"рахунок ФОП.Надсилаємо новою поштою або укрупоштою на ваш вибір."
-
-#: .\catalog\templates\product_detail.html:94
+#: .\catalog\templates\product_detail.html:97
 msgid "Остатки"
 msgstr "Залишок"
 
-#: .\catalog\templates\product_detail.html:100
-msgid "Наличие"
-msgstr "Наявність"
-
-#: .\catalog\templates\product_detail.html:101
-msgid "Действие"
-msgstr "Дія"
-
-#: .\catalog\templates\product_detail.html:111
-msgid "В наличии"
-msgstr "В наявності"
-
-#: .\catalog\templates\product_detail.html:113
-msgid "Заканчивается"
-msgstr "Закінчується"
-
-#: .\catalog\templates\product_detail.html:115
-msgid "Нет в наличии"
-msgstr "Немає в наявності"
-
-#: .\catalog\templates\product_detail.html:122
-#: .\catalog\templates\product_detail.html:126
-msgid "в корзину"
-msgstr "У кошик"
-
-#: .\catalog\templates\product_detail.html:138
-msgid "Купить в Telegram"
-msgstr "Купити у Telegram"
-
-#: .\catalog\templates\product_detail.html:142
-msgid "Купить в Viber"
-msgstr "Купити у Viber"
-
-#: .\catalog\templates\product_detail.html:145
-msgid "Добрый день! Меня интересует"
-msgstr "Добрий день! Мене цікавить"
-
-#: .\catalog\templates\product_detail.html:146
-msgid "Купить в Messenger"
-msgstr "Купити у Messenger"
-
-#: .\catalog\templates\product_detail.html:150
-msgid "Купить в Instagram"
-msgstr "Купити у Instagram"
-
-#: .\catalog\templates\product_detail.html:156
+#: .\catalog\templates\product_detail.html:134
 msgid "Все изображения"
 msgstr "Усі зображення"
 
-#: .\catalog\templates\product_detail.html:163
+#: .\catalog\templates\product_detail.html:141
 msgid "Нет изображений"
 msgstr "Немає зображень"
 
@@ -368,49 +401,148 @@ msgstr "Додому"
 msgid "Нет товаров в распродаже"
 msgstr "Немає товарів у розпродажі"
 
-#: .\catalog\views.py:18
+#: .\catalog\templates\thank_you_page.html:4
+msgid "Спасибо за заказ!"
+msgstr "Дякуемо за замовлення!"
+
+#: .\catalog\templates\thank_you_page.html:11
+msgid "Спасибо за заказ"
+msgstr "Дякуемо за замовлення"
+
+#: .\catalog\templates\thank_you_page.html:18
+msgid "Спасибо за ваш заказ!"
+msgstr "Дякуемо за ваше замовлення!"
+
+#: .\catalog\templates\thank_you_page.html:19
+msgid "Номер вашего заказа:"
+msgstr "Номер вашого замовлення:"
+
+#: .\catalog\templates\thank_you_page.html:22
+msgid ""
+"Вы также можете связаться с нами в социальных сетях, если у вас есть вопросы "
+"или вы хотите быстрее обработать ваш заказ"
+msgstr ""
+"Ви також можете зв'язатися з нами у соціальних мережах, якщо у вас є питання "
+"або ви хочете швидше обробити ваше замовлення"
+
+#: .\catalog\templates\thank_you_page.html:98
+msgid "Общая сумма заказа"
+msgstr "Загальна сума замовлення"
+
+#: .\catalog\templates\thank_you_page.html:105
+msgid "Информация о заказе"
+msgstr "Інформація про замовлення"
+
+#: .\catalog\templates\thank_you_page.html:155
+msgid "Статус заказа"
+msgstr "Статус замовлення"
+
+#: .\catalog\templates\thank_you_page.html:164
+msgid "Вернуться на главную"
+msgstr "Повернутися на головну"
+
+#: .\catalog\views.py:20
 msgid "Головна сторінка"
 msgstr "Головна сторінка"
 
-#: .\catalog\views.py:20
+#: .\catalog\views.py:22
 msgid "Главная страница"
 msgstr "Головна сторінка"
 
-#: .\catalog\views.py:187
-msgid "Политика конфиденциальности"
-msgstr "Політика конфіденційності"
+#: .\catalog\views.py:141
+#, fuzzy
+#| msgid "Контакты"
+msgid "Контакти"
+msgstr "Контакти"
 
-#: .\deva7km\settings.py:117
+#: .\deva7km\settings.py:120
 msgid "Russian"
 msgstr "Русский"
 
-#: .\deva7km\settings.py:118
+#: .\deva7km\settings.py:121
 msgid "Ukrainian"
 msgstr "Українська"
 
-#~ msgid "Все товары"
-#~ msgstr "Усі товари"
+#, fuzzy
+#~| msgid "Политика конфиденциальности"
+#~ msgid "Політика конфіденційності"
+#~ msgstr "Політика конфіденційності"
 
-#~ msgid "Список категорий и товаров"
-#~ msgstr "Список категорій і товарів"
+#~ msgid "Итого"
+#~ msgstr "Разом"
 
-#~ msgid "Нет категорий"
-#~ msgstr "Немає категорій"
+#~ msgid "грн."
+#~ msgstr "грн."
 
-#~ msgid "Telegram Button Click"
-#~ msgstr "Клік кнопки Telegram"
+#, fuzzy
+#~| msgid "О сайте"
+#~ msgid "Про сайт"
+#~ msgstr "Про сайт"
 
-#~ msgid "Viber Button Click"
-#~ msgstr "Клік кнопки Viber"
+#~ msgid "Имя:"
+#~ msgstr "Ім'я:"
 
-#~ msgid "product"
-#~ msgstr "product"
+#~ msgid "Фамилия:"
+#~ msgstr "Прізвище:"
 
-#~ msgid "Социальные сети:"
-#~ msgstr "Соціальні мережі:"
+#, fuzzy
+#~| msgid "Способ доставки"
+#~ msgid "Способ доставки:"
+#~ msgstr "Спосіб доставки"
 
-#~ msgid "Telegram"
-#~ msgstr "Telegram"
+#, fuzzy
+#~| msgid "Населенный пункт"
+#~ msgid "Населенный пункт:"
+#~ msgstr "Населений пункт"
 
-#~ msgid "Viber"
-#~ msgstr "Viber"
+#, fuzzy
+#~| msgid "Способ оплаты"
+#~ msgid "Способ оплаты:"
+#~ msgstr "Спосіб оплати"
+
+#, fuzzy
+#~| msgid "Комментарий к заказу"
+#~ msgid "Комментарий к заказу:"
+#~ msgstr "Коментар до замовлення"
+
+#~ msgid ""
+#~ "Отправка посылки по предоплате 150грн. или полной предоплате на счет ФОП. "
+#~ "Отправляем новой почтой или укрпочтой на ваш выбор."
+#~ msgstr ""
+#~ "Надсилання посилки за передоплатою 150грн. або повною передоплатою на "
+#~ "рахунок ФОП. Надсилаємо новою поштою або укрпоштою на ваш вибір."
+
+#~ msgid "Messenger"
+#~ msgstr "Messenger"
+
+#~ msgid "Кол-во"
+#~ msgstr "Кіл-cть"
+
+#, fuzzy
+#~| msgid "Корзина"
+#~ msgid "Корзинa"
+#~ msgstr "Кошик"
+
+#~ msgid " купить"
+#~ msgstr " купити"
+
+#~ msgid " нет в наличии"
+#~ msgstr " немає у наявності"
+
+#~ msgid "Купить в Telegram"
+#~ msgstr "Купити у Telegram"
+
+#~ msgid "Купить в Viber"
+#~ msgstr "Купити у Viber"
+
+#~ msgid "Добрый день! Меня интересует"
+#~ msgstr "Добрий день! Мене цікавить"
+
+#~ msgid "Купить в Messenger"
+#~ msgstr "Купити у Messenger"
+
+#~ msgid "Купить в Instagram"
+#~ msgstr "Купити у Instagram"
+
+#~ msgid " в корзину"
+#~ msgstr " у кошик"

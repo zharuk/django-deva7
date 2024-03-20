@@ -48,7 +48,7 @@ def generate_sales_report_by_day() -> str:
             total_non_cash_sales_amount += sale_amount
 
         for item in sale.items.all():
-            sales_by_items[item.product_modification].append(item)
+            sales_by_items[item.product_modification.product].append(item)
 
     # Обработка возвратов
     for ret in returns:
@@ -56,21 +56,23 @@ def generate_sales_report_by_day() -> str:
         total_returns_amount += return_amount
 
         for item in ret.items.all():
-            returns_by_items[item.product_modification].append(item)
+            returns_by_items[item.product_modification.product].append(item)
 
     # Выводим заголовки с отформатированной датой сегодняшнего дня
     report_str = f"Продажи за {formatted_today}\n"
 
     # Обработка продаж по товарам с сортировкой по артикулу
-    for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
-        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+    for product, items in sorted(sales_by_items.items(), key=lambda x: x[0].sku):
+        total_amount = product.sale_price * sum(item.quantity for item in items) if product.sale_price > 0 else product.price * sum(item.quantity for item in items)
+        report_str += f"➡️ {product.sku} ({sum(item.quantity for item in items)} шт. сумма {total_amount}грн.)\n"
 
     # Выводим заголовок для возвратов
     report_str += f"\nВозвраты за {formatted_today}\n"
 
     # Обработка возвратов по товарам с сортировкой по артикулу
-    for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
-        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+    for product, items in sorted(returns_by_items.items(), key=lambda x: x[0].sku):
+        total_amount = product.sale_price * sum(item.quantity for item in items) if product.sale_price > 0 else product.price * sum(item.quantity for item in items)
+        report_str += f"➡️ {product.sku} ({sum(item.quantity for item in items)} шт. сумма {total_amount}грн.)\n"
 
     # Выводим общие суммы
     report_str += (f"\n{'Общая сумма продаж'}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
@@ -82,7 +84,7 @@ def generate_sales_report_by_day() -> str:
     report_str += "\nТОП 3 продаж за сегодня\n"
     for rank, (product, quantity) in enumerate(top_sales, start=1):
         total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
-        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
+        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:.2f} грн.)\n"
 
     return report_str
 
@@ -131,7 +133,7 @@ def generate_sales_report_by_yesterday() -> str:
             total_non_cash_sales_amount += sale_amount
 
         for item in sale.items.all():
-            sales_by_items[item.product_modification].append(item)
+            sales_by_items[item.product_modification.product].append(item)
 
     # Обработка возвратов
     for ret in returns:
@@ -139,21 +141,23 @@ def generate_sales_report_by_yesterday() -> str:
         total_returns_amount += return_amount
 
         for item in ret.items.all():
-            returns_by_items[item.product_modification].append(item)
+            returns_by_items[item.product_modification.product].append(item)
 
     # Выводим заголовки с отформатированной датой вчерашнего дня
     report_str = f"Продажи за вчера ({formatted_yesterday})\n"
 
     # Обработка продаж по товарам с сортировкой по артикулу
-    for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
-        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+    for product, items in sorted(sales_by_items.items(), key=lambda x: x[0].sku):
+        total_amount = product.sale_price * sum(item.quantity for item in items) if product.sale_price > 0 else product.price * sum(item.quantity for item in items)
+        report_str += f"➡️ {product.sku} ({sum(item.quantity for item in items)} шт. сумма {total_amount}грн.)\n"
 
     # Выводим заголовок для возвратов
     report_str += "\nВозвраты за вчера\n"
 
     # Обработка возвратов по товарам с сортировкой по артикулу
-    for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
-        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+    for product, items in sorted(returns_by_items.items(), key=lambda x: x[0].sku):
+        total_amount = product.sale_price * sum(item.quantity for item in items) if product.sale_price > 0 else product.price * sum(item.quantity for item in items)
+        report_str += f"➡️ {product.sku} ({sum(item.quantity for item in items)} шт. сумма {total_amount}грн.)\n"
 
     # Выводим общие суммы
     report_str += (f"\n{'Общая сумма продаж'}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
@@ -165,7 +169,7 @@ def generate_sales_report_by_yesterday() -> str:
     report_str += "\nТОП 3 продаж за вчера\n"
     for rank, (product, quantity) in enumerate(top_sales, start=1):
         total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
-        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
+        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:.2f} грн.)\n"
 
     return report_str
 
@@ -218,7 +222,7 @@ def generate_sales_report_by_week() -> str:
             total_non_cash_sales_amount += sale_amount
 
         for item in sale.items.all():
-            sales_by_items[item.product_modification].append(item)
+            sales_by_items[item.product_modification.product].append(item)
 
     # Обработка возвратов
     for ret in returns:
@@ -226,21 +230,23 @@ def generate_sales_report_by_week() -> str:
         total_returns_amount += return_amount
 
         for item in ret.items.all():
-            returns_by_items[item.product_modification].append(item)
+            returns_by_items[item.product_modification.product].append(item)
 
     # Выводим заголовки с отформатированными датами
     report_str = f"Продажи за неделю ({formatted_start_date} - {formatted_end_date})\n"
 
     # Обработка продаж по товарам с сортировкой по артикулу
-    for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
-        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+    for product, items in sorted(sales_by_items.items(), key=lambda x: x[0].sku):
+        total_amount = product.sale_price * sum(item.quantity for item in items) if product.sale_price > 0 else product.price * sum(item.quantity for item in items)
+        report_str += f"➡️ {product.sku} ({sum(item.quantity for item in items)} шт. сумма {total_amount}грн.)\n"
 
     # Выводим заголовок для возвратов
     report_str += f"\nВозвраты за неделю ({formatted_start_date} - {formatted_end_date})\n"
 
     # Обработка возвратов по товарам с сортировкой по артикулу
-    for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
-        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+    for product, items in sorted(returns_by_items.items(), key=lambda x: x[0].sku):
+        total_amount = product.sale_price * sum(item.quantity for item in items) if product.sale_price > 0 else product.price * sum(item.quantity for item in items)
+        report_str += f"➡️ {product.sku} ({sum(item.quantity for item in items)} шт. сумма {total_amount}грн.)\n"
 
     # Выводим общие суммы
     report_str += (f"\n{'Общая сумма продаж'}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
@@ -252,7 +258,7 @@ def generate_sales_report_by_week() -> str:
     report_str += "\nТОП 3 продаж за неделю\n"
     for rank, (product, quantity) in enumerate(top_sales, start=1):
         total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
-        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
+        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:.2f} грн.)\n"
 
     return report_str
 
@@ -305,7 +311,7 @@ def generate_sales_report_by_month() -> str:
             total_non_cash_sales_amount += sale_amount
 
         for item in sale.items.all():
-            sales_by_items[item.product_modification].append(item)
+            sales_by_items[item.product_modification.product].append(item)
 
     # Обработка возвратов
     for ret in returns:
@@ -313,21 +319,23 @@ def generate_sales_report_by_month() -> str:
         total_returns_amount += return_amount
 
         for item in ret.items.all():
-            returns_by_items[item.product_modification].append(item)
+            returns_by_items[item.product_modification.product].append(item)
 
     # Выводим заголовки с отформатированными датами
     report_str = f"Продажи за месяц ({formatted_start_date} - {formatted_end_date})\n"
 
     # Обработка продаж по товарам с сортировкой по артикулу
-    for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
-        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+    for product, items in sorted(sales_by_items.items(), key=lambda x: x[0].sku):
+        total_amount = product.sale_price * sum(item.quantity for item in items) if product.sale_price > 0 else product.price * sum(item.quantity for item in items)
+        report_str += f"➡️ {product.sku} ({sum(item.quantity for item in items)} шт. сумма {total_amount:.2f}грн.)\n"
 
     # Выводим заголовок для возвратов
     report_str += f"\nВозвраты за месяц ({formatted_start_date} - {formatted_end_date})\n"
 
     # Обработка возвратов по товарам с сортировкой по артикулу
-    for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
-        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+    for product, items in sorted(returns_by_items.items(), key=lambda x: x[0].sku):
+        total_amount = product.sale_price * sum(item.quantity for item in items) if product.sale_price > 0 else product.price * sum(item.quantity for item in items)
+        report_str += f"➡️ {product.sku} ({sum(item.quantity for item in items)} шт. сумма {total_amount:.2f}грн.)\n"
 
     # Выводим общие суммы
     report_str += (f"\n{'Общая сумма продаж'}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
@@ -339,7 +347,7 @@ def generate_sales_report_by_month() -> str:
     report_str += "\nТОП 3 продаж за месяц\n"
     for rank, (product, quantity) in enumerate(top_sales, start=1):
         total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
-        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
+        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:.2f} грн.)\n"
 
     return report_str
 
@@ -392,7 +400,7 @@ def generate_sales_report_by_year() -> str:
             total_non_cash_sales_amount += sale_amount
 
         for item in sale.items.all():
-            sales_by_items[item.product_modification].append(item)
+            sales_by_items[item.product_modification.product].append(item)
 
     # Обработка возвратов
     for ret in returns:
@@ -400,21 +408,23 @@ def generate_sales_report_by_year() -> str:
         total_returns_amount += return_amount
 
         for item in ret.items.all():
-            returns_by_items[item.product_modification].append(item)
+            returns_by_items[item.product_modification.product].append(item)
 
     # Выводим заголовки с обновленным форматом
     report_str = f"Продажи за год ({formatted_start_date} - {formatted_end_date})\n"
 
     # Обработка продаж по товарам с сортировкой по артикулу
-    for product_modification, items in sorted(sales_by_items.items(), key=lambda x: x[0].custom_sku):
-        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+    for product, items in sorted(sales_by_items.items(), key=lambda x: x[0].sku):
+        total_amount = product.sale_price * sum(item.quantity for item in items) if product.sale_price > 0 else product.price * sum(item.quantity for item in items)
+        report_str += f"➡️ {product.sku} ({sum(item.quantity for item in items)} шт. сумма {total_amount:.2f}грн.)\n"
 
     # Выводим заголовок для возвратов
     report_str += f"\nВозвраты за год ({formatted_start_date} - {formatted_end_date})\n"
 
     # Обработка возвратов по товарам с сортировкой по артикулу
-    for product_modification, items in sorted(returns_by_items.items(), key=lambda x: x[0].custom_sku):
-        report_str += f"➡️ {product_modification.custom_sku} ({sum(item.quantity for item in items)} шт. сумма {product_modification.sale_price * sum(item.quantity for item in items) if product_modification.sale_price > 0 else product_modification.price * sum(item.quantity for item in items)}грн.)\n"
+    for product, items in sorted(returns_by_items.items(), key=lambda x: x[0].sku):
+        total_amount = product.sale_price * sum(item.quantity for item in items) if product.sale_price > 0 else product.price * sum(item.quantity for item in items)
+        report_str += f"➡️ {product.sku} ({sum(item.quantity for item in items)} шт. сумма {total_amount:.2f}грн.)\n"
 
     # Выводим общие суммы
     report_str += (f"\n{'Общая сумма продаж'}: {total_sales_amount:.2f} грн. (нал.: {total_cash_sales_amount:.2f}"
@@ -426,7 +436,7 @@ def generate_sales_report_by_year() -> str:
     report_str += "\nТОП 3 продаж за год\n"
     for rank, (product, quantity) in enumerate(top_sales, start=1):
         total_amount = product.sale_price * quantity if product.sale_price > 0 else product.price * quantity
-        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:} грн.)\n"
+        report_str += f"{rank}. {product.title} - {product.sku} - {quantity} шт. (на сумму {total_amount:.2f} грн.)\n"
 
     return report_str
 
@@ -442,18 +452,19 @@ def get_total_stock():
     for modification in available_modifications:
         stock_quantity = modification.stock
 
-        # Используем sale_price, если он больше 0, иначе используем обычную цену price
-        price = modification.sale_price if modification.sale_price > 0 else modification.price
+        # Используем цену товара (sale_price), если она больше 0, иначе используем обычную цену (price)
+        price = modification.product.sale_price if modification.product.sale_price > 0 else modification.product.price
 
         total_stock_amount += price * stock_quantity
         amount_str = "{:.2f}".format(price * stock_quantity).rstrip("0").rstrip(".")
         report_str += (
             f"➡️ {modification.custom_sku} "
-            f"({stock_quantity} шт. сумма {amount_str}грн.)\n"
+            f"({stock_quantity} шт. сумма {amount_str} грн.)\n"
         )
 
     total_stock_amount_str = "{:.2f}".format(total_stock_amount).rstrip("0").rstrip(".")
     report_str += f"\nОбщая сумма всех остатков: {total_stock_amount_str} грн."
 
     return report_str
+
 
