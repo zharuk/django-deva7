@@ -206,7 +206,7 @@ msgstr "Видалити"
 
 #: .\catalog\templates\cart.html:57 .\catalog\templates\complete_order.html:55
 msgid "Итого количество товаров"
-msgstr "Загальна кількість товарів:"
+msgstr "Загальна кількість товарів"
 
 #: .\catalog\templates\cart.html:58 .\catalog\templates\complete_order.html:56
 msgid "Итоговая цена:"
