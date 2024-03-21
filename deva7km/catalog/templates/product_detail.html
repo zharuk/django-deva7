@@ -29,27 +29,6 @@
   });
 </script>
 
-<script>
-    // Функция, которая будет вызываться при нажатии на кнопку добавления товара в корзину
-    function addToCart() {
-        // Отправляем событие добавления товара в корзину Facebook Pixel
-        fbq('track', 'AddToCart', {
-            content_ids: ['{{ product.sku }}'], // ID товара
-            content_type: 'product', // Тип контента (товар)
-            content_name: '{{ product.title }}', // Название товара
-            content_category: '{{ product.category.name }}', // Категория товара
-            value: {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %}, // Стоимость товара
-            currency: 'UAH' // Валюта товара
-        });
-    }
-
-    // Находим кнопку добавления товара в корзину по классу и добавляем обработчик события
-    document.querySelector('.btn.btn-primary.btn-sm').addEventListener('click', function() {
-        // Вызываем функцию добавления товара в корзину
-        addToCart();
-    });
-</script>
-
 <div class="row">
     <div class="col-lg-8">
         <!-- Блок с информацией о товаре -->
