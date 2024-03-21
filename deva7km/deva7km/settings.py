@@ -117,8 +117,8 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LANGUAGES = [
-    ("ru", _("Russian")),
     ("uk", _("Ukrainian")),
+    ("ru", _("Russian")),
 ]
 
 LOCALE_PATHS = (
