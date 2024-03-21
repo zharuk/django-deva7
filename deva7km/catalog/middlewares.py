@@ -10,10 +10,13 @@ class FrontendLanguageMiddleware:
         # Проверяем, если запрос пришел из админки
         if request.path.startswith('/' + settings.ADMIN_URL):
             # Если запрос из админки, активируем язык по умолчанию (например, английский)
-            activate('ru')
+            activate(settings.LANGUAGE_CODE)
         else:
             # В противном случае активируем язык, выбранный пользователем на фронтенде
-            activate(request.LANGUAGE_CODE)
+            if not request.LANGUAGE_CODE:  # Здесь была ошибка, нужно request.LANGUAGE_CODE -> request.LANGUAGE
+                activate('uk')
+            else:
+                activate(request.LANGUAGE_CODE)
 
         response = self.get_response(request)
         return response
