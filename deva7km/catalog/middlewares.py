@@ -13,7 +13,14 @@ class FrontendLanguageMiddleware:
             activate(settings.LANGUAGE_CODE)
         else:
             # В противном случае активируем язык, выбранный пользователем на фронтенде
-            activate(request.LANGUAGE_CODE)
+            if 'language_selected' not in request.session:
+                # Если пользователь новый и не выбрал язык, устанавливаем украинский язык по умолчанию
+                activate('uk')
+                # Устанавливаем флаг выбора языка в сессии пользователя
+                request.session['language_selected'] = True
+            else:
+                # Если язык уже был выбран пользователем, активируем его
+                activate(request.LANGUAGE)
 
         response = self.get_response(request)
         return response
