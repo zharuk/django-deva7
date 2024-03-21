@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'admin_reorder.middleware.ModelAdminReorder',
+    'catalog.middlewares.FrontendLanguageMiddleware',
 ]
 
 ROOT_URLCONF = 'deva7km.urls'
@@ -116,8 +117,8 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LANGUAGES = [
-    ("uk", _("Ukrainian")),
     ("ru", _("Russian")),
+    ("uk", _("Ukrainian")),
 ]
 
 LOCALE_PATHS = (
