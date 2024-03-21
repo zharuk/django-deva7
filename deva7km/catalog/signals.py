@@ -118,15 +118,6 @@ def generate_product_slug(sender, instance, **kwargs):
         instance.slug = f"{slug_base}-{instance.sku}"
 
 
-# # Сигнал для генерации slug для модели ProductModification
-# @receiver(pre_save, sender=ProductModification)
-# def generate_modification_slug(sender, instance, **kwargs):
-#     if not instance.slug:
-#         slug_base = slugify(
-#             unidecode(f"{instance.product.title} - {instance.custom_sku} - {instance.color} - {instance.size}"))
-#         instance.slug = slug_base
-
-
 # Сигнал для генерации slug для модели Category
 @receiver(pre_save, sender=Category)
 def generate_category_slug(sender, instance, **kwargs):
