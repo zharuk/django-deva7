@@ -29,7 +29,7 @@
 <form id="language-form" class="form-inline my-2 my-lg-0 pt-1 pb-1 pl-1 pr-1 ml-auto justify-content-end" action="{% url 'set_language' %}" method="post">
     {% csrf_token %}
     <select id="language-select" class="form-control form-control-sm mr-sm-2" name="language">
-        <script src="{% static 'path/to/language_switch.js' %}"></script>
+        <script src="{% static 'js/language_switch.js' %}"></script>
         {% get_current_language as LANGUAGE_CODE %}
         {% get_available_languages as LANGUAGES %}
         {% get_language_info_list for LANGUAGES as languages %}
@@ -117,12 +117,5 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://kit.fontawesome.com/1e82b11167.js" crossorigin="anonymous"></script>
 <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}?v=2">
-<!--<script>
-    // Обработчик изменения значения в селекте языков
-    document.getElementById('language-select').addEventListener('change', function() {
-        // Отправка формы при изменении значения
-        document.getElementById('language-form').submit();
-    });
-</script>-->
 </body>
 </html>
