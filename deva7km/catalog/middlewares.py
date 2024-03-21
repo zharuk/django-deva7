@@ -20,7 +20,7 @@ class FrontendLanguageMiddleware:
                 request.session['language_selected'] = True
             else:
                 # Если язык уже был выбран пользователем, активируем его
-                activate(request.LANGUAGE)
+                activate(request.LANGUAGE_CODE)
 
         response = self.get_response(request)
         return response
