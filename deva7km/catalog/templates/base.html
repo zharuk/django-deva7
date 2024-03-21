@@ -25,7 +25,7 @@
     <!-- End Meta Pixel Code -->
 </head>
 <body>
-<!-- Форма переключения языков -->
+<<!-- Форма переключения языков -->
 <form id="language-form" class="form-inline my-2 my-lg-0 pt-1 pb-1 pl-1 pr-1 ml-auto justify-content-end" action="{% url 'set_language' %}" method="post">
     {% csrf_token %}
     <select id="language-select" class="form-control form-control-sm mr-sm-2" name="language">
@@ -49,7 +49,7 @@
             {% get_available_languages as LANGUAGES %}
             {% get_language_info_list for LANGUAGES as languages %}
             {% for language in languages %}
-            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+            <option value="{{ language.code }}"{% if language.code == 'uk' %} selected{% endif %}> <!-- Добавляем атрибут selected для украинского языка -->
                 {% trans language.name_local %} ({{ language.code }})
             </option>
             {% endfor %}
