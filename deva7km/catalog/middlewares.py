@@ -10,7 +10,7 @@ class FrontendLanguageMiddleware:
         # Проверяем, если запрос пришел из админки
         if request.path.startswith('/' + settings.ADMIN_URL):
             # Если запрос из админки, активируем язык по умолчанию (например, английский)
-            activate(settings.LANGUAGE_CODE)
+            activate(settings.LANGUAGE_CODE_ADMIN)
         else:
             # В противном случае активируем язык, выбранный пользователем на фронтенде
             activate(request.LANGUAGE_CODE)
