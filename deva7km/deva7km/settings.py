@@ -103,7 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'uk'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'Europe/Kiev'
 
@@ -116,8 +116,8 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LANGUAGES = [
-    ("ru", _("Russian")),
     ("uk", _("Ukrainian")),
+    ("ru", _("Russian")),
 ]
 
 LOCALE_PATHS = (
