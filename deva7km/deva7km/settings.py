@@ -63,7 +63,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'admin_reorder.middleware.ModelAdminReorder',
-    'catalog.middlewares.FrontendLanguageMiddleware',
 ]
 
 ROOT_URLCONF = 'deva7km.urls'
