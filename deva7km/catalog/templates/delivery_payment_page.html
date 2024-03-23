@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static i18n %}
-
 {% block title %}{% trans 'Информация о доставке и оплате' %}{% endblock %}
 
 {% block breadcrumbs %}
@@ -20,7 +19,7 @@
             <div class="col-12 mb-4">
                 <div class="card h-100">
                     <div class="card-body">
-                        <p class="card-text">{{ payment_page_post.content|safe }}</p>
+                        <p class="card-text">{{ delivery_payment_page_post.content|safe }}</p>
                     </div>
                 </div>
             </div>

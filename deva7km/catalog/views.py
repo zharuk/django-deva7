@@ -108,7 +108,7 @@ def sales(request):
 
 
 def contacts_page(request):
-    contact_page_post = get_object_or_404(
+    contacts_page_post = get_object_or_404(
         BlogPost,
         Q(title='Контакти') | Q(title='Контакты')
     )
@@ -120,7 +120,8 @@ def contacts_page(request):
     cart_total_quantity, cart_total_price = get_cart_info(request)
 
     # Отображаем страницу contacts_page.html, передавая категории и выбранный блог
-    return render(request, 'contacts_page.html', {'categories': categories, 'contact_page_post': contact_page_post,
+    return render(request, 'contacts_page.html', {'categories': categories,
+                                                  'contacts_page_post': contacts_page_post,
                                                   'cart_total_quantity': cart_total_quantity,
                                                   'cart_total_price': cart_total_price})
 
