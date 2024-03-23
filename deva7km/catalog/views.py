@@ -4,7 +4,6 @@ from django.http import HttpResponse
 from django.template import loader
 from django.utils.translation import get_language
 from django.views import View
-from transliterate.utils import _
 
 from catalog.forms import OrderForm
 from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem
@@ -108,24 +107,6 @@ def sales(request):
                                           'cart_total_price': cart_total_price})
 
 
-def about_page(request):
-    about_page_post = get_object_or_404(
-        BlogPost,
-        Q(title='Про сайт') | Q(title='О сайте')
-    )
-
-    # Получаем категории и сортируем их по количеству продуктов
-    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-
-    # Получение данных о корзине
-    cart_total_quantity, cart_total_price = get_cart_info(request)
-
-    # Отображаем страницу about_page.html, передавая категории, выбранный блог и данные о корзине
-    return render(request, 'about_page.html', {'categories': categories, 'about_page_post': about_page_post,
-                                               'cart_total_quantity': cart_total_quantity,
-                                               'cart_total_price': cart_total_price})
-
-
 def contacts_page(request):
     contact_page_post = get_object_or_404(
         BlogPost,
@@ -144,28 +125,21 @@ def contacts_page(request):
                                                   'cart_total_price': cart_total_price})
 
 
-def delivery_page(request):
-    delivery_page_post = get_object_or_404(BlogPost, title='Доставка')
+def delivery_payment_page(request):
+    delivery_payment_page_post = get_object_or_404(
+        BlogPost,
+        Q(title='Доставка и оплата') | Q(title='Доставка і оплата')
+    )
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
 
     # Получение данных о корзине
     cart_total_quantity, cart_total_price = get_cart_info(request)
 
-    return render(request, 'delivery_page.html', {'categories': categories, 'delivery_page_post': delivery_page_post,
-                                                  'cart_total_quantity': cart_total_quantity,
-                                                  'cart_total_price': cart_total_price})
-
-
-def payment_page(request):
-    payment_page_post = get_object_or_404(BlogPost, title='Оплата')
-    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-
-    # Получение данных о корзине
-    cart_total_quantity, cart_total_price = get_cart_info(request)
-
-    return render(request, 'payment_page.html', {'categories': categories, 'payment_page_post': payment_page_post,
-                                                 'cart_total_quantity': cart_total_quantity,
-                                                 'cart_total_price': cart_total_price})
+    return render(request, 'delivery_payment_page.html',
+                  {'categories': categories,
+                           'delivery_payment_page_post': delivery_payment_page_post,
+                           'cart_total_quantity': cart_total_quantity,
+                           'cart_total_price': cart_total_price})
 
 
 def privacy_policy_page(request):

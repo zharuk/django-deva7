@@ -2,10 +2,7 @@
 
 <!-- contact_menu_bottom.html -->
 <div class="d-flex flex-wrap">
-    <a class="nav-link" href="{% url 'about' %}">{% trans 'О сайте' %}</a>
     <a class="nav-link" href="{% url 'contacts' %}">{% trans 'Контакты' %}</a>
-    <a class="nav-link" href="{% url 'delivery' %}">{% trans 'Доставка' %}</a>
-    <a class="nav-link" href="{% url 'payment' %}">{% trans 'Оплата' %}</a>
+    <a class="nav-link" href="{% url 'delivery_payment_page' %}">{% trans 'Доставка и оплата' %}</a>
     <a class="nav-link" href="{% url 'privacy_policy' %}">{% trans 'Политика конфиденциальности' %}</a>
-    <!-- Добавьте дополнительные пункты по необходимости -->
 </div>
