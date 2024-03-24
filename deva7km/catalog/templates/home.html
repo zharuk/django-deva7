@@ -18,11 +18,11 @@
     {% for product in latest_products %}
     <div class="col-md-4 mb-4">
         <div class="card h-100 position-relative">
+            {% if product.is_sale and product.retail_sale_price > 0 %}
             <span class="badge bg-danger position-absolute top-0 start-0 m-2">
-                {% if product.is_sale and product.retail_sale_price > 0 %}
                 <span class="text-white">{% trans 'Распродажа' %}</span>
-                {% endif %}
             </span>
+            {% endif %}
             <a href="{% url 'product_detail' product.category.slug product.slug %}">
                 <div class="card-img-top img-fluid align-self-stretch" style="height: 300px; overflow: hidden; display: flex; align-items: center;">
                     <img src="{{ product.large_image_url }}" class="img-fluid mx-auto" alt="{{ product.title }}" style="max-height: 100%; margin-top: 5px;">

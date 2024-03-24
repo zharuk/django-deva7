@@ -20,11 +20,11 @@
         {% for product in products %}
             <div class="col-md-4 mb-4">
                 <div class="card h-100 position-relative">
-                    <span class="badge bg-danger position-absolute top-0 start-0 m-2">
-                        {% if product.is_sale and product.retail_sale_price > 0 %}
-                        <span class="text-white">{% trans 'Распродажа' %}</span>
-                        {% endif %}
-                    </span>
+                    {% if product.is_sale and product.retail_sale_price > 0 %}
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2">
+                            <span class="text-white">{% trans 'Распродажа' %}</span>
+                        </span>
+                    {% endif %}
                     <a href="{% url 'product_detail' category.slug product.slug %}">
                         <div class="card-img-top img-fluid align-self-stretch" style="height: 300px; overflow: hidden; display: flex; align-items: center;">
                             <img src="{{ product.large_image_url }}" class="img-fluid mx-auto" alt="{{ product.title }}" style="max-height: 100%; margin-top: 5px;">
@@ -39,18 +39,18 @@
                             <p>{% trans 'Цвета' %}: {{ product.get_colors }}</p>
                             <p>{% trans 'Размеры' %}: {{ product.get_sizes }}</p>
                             {% if product.is_sale and product.retail_sale_price > 0 %}
-                            <p class="text-danger">
-                                {% if product.retail_price > 0 %}
-                                <del>{% trans 'цена' %}: {{ product.retail_price }} {{ product.currency }}</del><br>
-                                {% endif %}
-                                <strong>{% trans 'цена распродажи' %}: {{ product.retail_sale_price }} {{ product.currency }}</strong>
-                            </p>
+                                <p class="text-danger">
+                                    {% if product.retail_price > 0 %}
+                                        <del>{% trans 'цена' %}: {{ product.retail_price }} {{ product.currency }}</del><br>
+                                    {% endif %}
+                                    <strong>{% trans 'цена распродажи' %}: {{ product.retail_sale_price }} {{ product.currency }}</strong>
+                                </p>
                             {% else %}
-                            <p>
-                                {% if product.retail_price > 0 %}
-                                <strong>{% trans 'цена' %}: {{ product.retail_price }} {{ product.currency }}</strong>
-                                {% endif %}
-                            </p>
+                                <p>
+                                    {% if product.retail_price > 0 %}
+                                        <strong>{% trans 'цена' %}: {{ product.retail_price }} {{ product.currency }}</strong>
+                                    {% endif %}
+                                </p>
                             {% endif %}
                         </div>
                     </div>
