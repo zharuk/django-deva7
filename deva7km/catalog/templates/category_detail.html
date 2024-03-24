@@ -19,9 +19,16 @@
     <div class="row">
         {% for product in products %}
             <div class="col-md-4 mb-4">
-                <div class="card h-100 d-flex flex-column justify-content-between position-relative">
+                <div class="card h-100 position-relative">
+                    <span class="badge bg-danger position-absolute top-0 start-0 m-2">
+                        {% if product.is_sale and product.retail_sale_price > 0 %}
+                        <span class="text-white">{% trans 'Распродажа' %}</span>
+                        {% endif %}
+                    </span>
                     <a href="{% url 'product_detail' category.slug product.slug %}">
-                        <img src="{{ product.large_image_url }}" class="card-img-top img-fluid align-self-stretch" alt="{{ product.title }}">
+                        <div class="card-img-top img-fluid align-self-stretch" style="height: 300px; overflow: hidden; display: flex; align-items: center;">
+                            <img src="{{ product.large_image_url }}" class="img-fluid mx-auto" alt="{{ product.title }}" style="max-height: 100%; margin-top: 5px;">
+                        </div>
                     </a>
                     <div class="card-body">
                         <h5 class="card-title">
@@ -32,25 +39,24 @@
                             <p>{% trans 'Цвета' %}: {{ product.get_colors }}</p>
                             <p>{% trans 'Размеры' %}: {{ product.get_sizes }}</p>
                             {% if product.is_sale and product.retail_sale_price > 0 %}
-                                <p class="text-danger">
-                                    {% if product.retail_price > 0 %}
-                                        <del>{% trans 'цена' %}: {{ product.retail_price }} {{ product.currency }}</del><br>
-                                    {% endif %}
-                                    <strong>{% trans 'цена распродажи' %}: {{ product.retail_sale_price }} {{ product.currency }}</strong>
-                                </p>
-                                <span class="badge bg-danger position-absolute" style="top: 5px; left: 5px; font-size: 1em;">
-                                    <span class="text-white">{% trans 'Распродажа' %}</span>
-                                </span>
+                            <p class="text-danger">
+                                {% if product.retail_price > 0 %}
+                                <del>{% trans 'цена' %}: {{ product.retail_price }} {{ product.currency }}</del><br>
+                                {% endif %}
+                                <strong>{% trans 'цена распродажи' %}: {{ product.retail_sale_price }} {{ product.currency }}</strong>
+                            </p>
                             {% else %}
-                                <p>
-                                    {% if product.retail_price > 0 %}
-                                        <strong>{% trans 'цена' %}: {{ product.retail_price }} {{ product.currency }}</strong>
-                                    {% endif %}
-                                </p>
+                            <p>
+                                {% if product.retail_price > 0 %}
+                                <strong>{% trans 'цена' %}: {{ product.retail_price }} {{ product.currency }}</strong>
+                                {% endif %}
+                            </p>
                             {% endif %}
                         </div>
                     </div>
-                    <a href="{% url 'product_detail' category.slug product.slug %}" class="btn btn-primary w-100">{% trans 'Перейти' %}</a>
+                    <div class="card-footer">
+                        <a href="{% url 'product_detail' category.slug product.slug %}" class="btn btn-primary w-100">{% trans 'Перейти' %}</a>
+                    </div>
                 </div>
             </div>
         {% endfor %}
