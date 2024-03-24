@@ -185,9 +185,6 @@ def generate_product_modifications_on_m2m_change(sender, instance, action, rever
                         color=color,
                         size=size,
                         stock=0,  # Установите начальный остаток по вашему усмотрению
-                        price=instance.price,  # Установите начальную цену по вашему усмотрению
-                        sale_price=instance.sale_price,
-                        currency=instance.currency,
                         custom_sku=f"{instance.sku}-{color.name}-{size.name}",
                     )
                     modification.save()
