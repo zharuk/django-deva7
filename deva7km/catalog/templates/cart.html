@@ -83,12 +83,9 @@
     }));
 
     fbq('track', 'InitiateCheckout', {
-      contents,
-      content_ids: contentIds,
-      content_type: 'product',
-      value: totalPrice,
-      currency: 'UAH',
-      num_items: totalQuantity
+      content_ids: ['test_id'],
+      value: 100,
+      currency: 'UAH'
     });
   }
 </script>
