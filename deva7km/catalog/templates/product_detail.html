@@ -40,10 +40,17 @@
       currency: 'UAH'
     });
   }
-</script>
 
-<!-- Вставляем функцию addToCart() в обработчик события нажатия на кнопку добавления в корзину -->
-<button type="submit" class="btn btn-primary btn-sm" onclick="addToCart()"><i class="fa-solid fa-cart-shopping"></i></button>
+  // Добавляем вызов функции addToCart() при нажатии на кнопку добавления в корзину
+  document.addEventListener('DOMContentLoaded', function() {
+    var addToCartButtons = document.querySelectorAll('.btn-add-to-cart');
+    addToCartButtons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        addToCart();
+      });
+    });
+  });
+</script>
 
 <div class="row">
     <div class="col-lg-8">
