@@ -132,18 +132,3 @@
     {% endfor %}
 </div>
 {% endblock %}
-
-{% block extra_js %}
-<script>
-  function trackAddToCart(sku, name, category, price, currency) {
-    fbq('track', 'AddToCart', {
-      content_ids: [sku],
-      content_type: 'product',
-      content_name: name,
-      content_category: category,
-      value: price,
-      currency: currency
-    });
-  }
-</script>
-{% endblock %}
