@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.utils.translation import get_language
 from django.views import View
+import json
 
 from catalog.forms import OrderForm
 from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem
@@ -259,9 +260,11 @@ def cart_view(request):
 
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
 
+    cart_items_json = json.dumps([{'modification': {'custom_sku': item['modification'].custom_sku}, 'quantity': item['quantity']} for item in cart_items])
+
     return render(request, 'cart.html',
                   {'categories': categories, 'cart_items': cart_items, 'cart_total_price': cart_total_price,
-                   'cart_total_quantity': cart_total_quantity})
+                   'cart_total_quantity': cart_total_quantity, 'cart_items_json': cart_items_json})
 
 
 def get_cart_info(request):
