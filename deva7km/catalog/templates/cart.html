@@ -12,6 +12,26 @@
     </nav>
 {% endblock %}
 {% block content %}
+
+<script>
+  function trackInitiateCheckout(products, totalPrice, totalQuantity) {
+    const contentIds = products.map(product => product.modification.custom_sku);
+    const contents = products.map(product => ({
+      id: product.modification.custom_sku,
+      quantity: product.quantity
+    }));
+
+    fbq('track', 'InitiateCheckout', {
+      contents,
+      content_ids: contentIds,
+      content_type: 'product',
+      value: totalPrice,
+      currency: 'UAH',
+      num_items: totalQuantity
+    });
+  }
+</script>
+
     <h1>{% trans 'Корзина' %}</h1>
     <div class="table-responsive">
         <table class="table">
@@ -73,23 +93,3 @@
     </script>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-  function trackInitiateCheckout(products, totalPrice, totalQuantity) {
-    const contentIds = products.map(product => product.modification.custom_sku);
-    const contents = products.map(product => ({
-      id: product.modification.custom_sku,
-      quantity: product.quantity
-    }));
-
-    fbq('track', 'InitiateCheckout', {
-      contents,
-      content_ids: contentIds,
-      content_type: 'product',
-      value: totalPrice,
-      currency: 'UAH',
-      num_items: totalQuantity
-    });
-  }
-</script>
-{% endblock %}
