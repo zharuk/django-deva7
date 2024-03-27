@@ -14,15 +14,7 @@
 {% block content %}
 
 <script>
-    fbq('track', 'InitiateCheckout', {
-      contents,
-      content_ids: contentIds,
-      content_type: 'product',
-      value: totalPrice,
-      currency: 'UAH',
-      num_items: totalQuantity
-    });
-  }
+  fbq('track', 'InitiateCheckout');
 </script>
 
     <h1>{% trans 'Корзина' %}</h1>
@@ -75,7 +67,7 @@
             <button type="submit" class="btn btn-warning btn-sm">{% trans 'Очистить корзину' %}</button>
         </form>
         <button type="button" class="btn btn-primary btn-sm ml-2 mb-2" onclick="goBack()">{% trans 'Продолжить покупки' %}</button>
-        <a href="{% url 'complete_order' %}" class="btn btn-success btn-sm ml-2 mb-2 {% if cart_items %}{% else %}disabled{% endif %}" onclick="trackInitiateCheckout({{ cart_items_json|safe }}, {{ cart_total_price }}, {{ cart_total_quantity }})">
+        <a href="{% url 'complete_order' %}" class="btn btn-success btn-sm ml-2 mb-2 {% if cart_items %}{% else %}disabled{% endif %}">
             {% trans 'Оформить заказ' %}
         </a>
     </div>
@@ -85,4 +77,3 @@
         }
     </script>
 {% endblock %}
-
