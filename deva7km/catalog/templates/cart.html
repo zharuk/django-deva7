@@ -89,7 +89,7 @@
             <button type="submit" class="btn btn-warning btn-sm">{% trans 'Очистить корзину' %}</button>
         </form>
         <button type="button" class="btn btn-primary btn-sm ml-2 mb-2" onclick="goBack()">{% trans 'Продолжить покупки' %}</button>
-        <a href="{% url 'complete_order' %}" class="btn btn-success btn-sm ml-2 mb-2 {% if cart_items %}{% else %}disabled{% endif %}" onsubmit="trackInitiateCheckout('{{ modification.custom_sku }}', '{{ product.title }}', '{{ product.category.name }}', {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %}, 'UAH'); return true;">
+        <a href="{% url 'complete_order' %}" class="btn btn-success btn-sm ml-2 mb-2 {% if cart_items %}{% else %}disabled{% endif %}" onsubmit="trackInitiateCheckout('{{ modification.custom_sku }}', '{{ product.title }}', '{{ product.category.name }}', {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %}, 'UAH')">
             {% trans 'Оформить заказ' %}
         </a>
     </div>
