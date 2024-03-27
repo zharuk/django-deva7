@@ -29,6 +29,22 @@
   });
 </script>
 
+<script>
+  function addToCart() {
+    fbq('track', 'AddToCart', {
+      content_ids: ['{{ product.sku }}'],
+      content_type: 'product',
+      content_name: '{{ product.title }}',
+      content_category: '{{ product.category.name }}',
+      value: {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %},
+      currency: 'UAH'
+    });
+  }
+</script>
+
+<!-- Вставляем функцию addToCart() в обработчик события нажатия на кнопку добавления в корзину -->
+<button type="submit" class="btn btn-primary btn-sm" onclick="addToCart()"><i class="fa-solid fa-cart-shopping"></i></button>
+
 <div class="row">
     <div class="col-lg-8">
         <!-- Блок с информацией о товаре -->
