@@ -78,9 +78,9 @@
     document.getElementById("checkout-form").addEventListener("submit", function(event) {
         // Отправим данные о корзине при начале оформления заказа
         fbq('track', 'InitiateCheckout', {
-            contents: {{ cart_items_json }},
+            contents: {{ cart_items_json|safe }},
             content_type: 'product',
-            value: {{ cart_total_price }},
+            value: {{ cart_total_price|safe }},
             currency: 'UAH'
         });
     });
