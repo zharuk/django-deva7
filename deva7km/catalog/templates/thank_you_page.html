@@ -14,10 +14,6 @@
 {% endblock %}
 
 {% block content %}
-<script>
-  fbq('track', 'InitiateCheckout');
-</script>
-
 <div class="container mt-5">
     <h1>{% trans 'Спасибо за ваш заказ!' %}</h1>
     <h3>{% trans 'Номер вашего заказа:' %} <span class="badge badge-danger">{{ order.id }}</span></h3>
