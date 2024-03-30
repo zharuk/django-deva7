@@ -22,11 +22,11 @@
         {% endfor %}
     ];
 
-    var contentType = 'product_group';
+    var contentType = 'product';
 
     var checkoutData = {
         'value': '{{ cart_total_price }}',
-        'currency': 'UAH.',
+        'currency': 'UAH',
         'content_ids': contentIds,
         'content_type': contentType
     };
