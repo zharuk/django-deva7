@@ -16,7 +16,26 @@
 {% block content %}
 
 <script>
-  fbq('track', 'InitiateCheckout');
+    // Создаем массив идентификаторов товаров
+    var contentIds = [
+        {% for item in cart_items %}
+            '{{ item.modification.product.id }}',
+        {% endfor %}
+    ];
+
+    // Определяем тип контента
+    var contentType = 'product_group'; // Тип контента - группа товаров
+
+    // Создаем объект с информацией о заказе
+    var checkoutData = {
+        'value': '{{ cart_total_price }}', // Общая сумма заказа
+        'currency': 'грн.', // Валюта заказа
+        'content_ids': contentIds, // Массив идентификаторов товаров
+        'content_type': contentType // Тип контента
+    };
+
+    // Отправляем данные о начале оформления заказа
+    fbq('track', 'InitiateCheckout', checkoutData);
 </script>
 
 <div class="container mt-5">
