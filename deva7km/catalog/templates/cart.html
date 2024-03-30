@@ -12,11 +12,6 @@
     </nav>
 {% endblock %}
 {% block content %}
-
-<script>
-  fbq('track', 'InitiateCheckout');
-</script>
-
     <h1>{% trans 'Корзина' %}</h1>
     <div class="table-responsive">
         <table class="table">
@@ -76,4 +71,30 @@
             window.history.back();
         }
     </script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function trackInitiateCheckout(products, totalPrice, totalQuantity) {
+    const contentIds = products.map(product => product.modification.custom_sku);
+    const contents = products.map(product => ({
+      id: product.modification.custom_sku,
+      quantity: product.quantity
+    }));
+
+    fbq('track', 'InitiateCheckout', {
+      contents,
+      content_ids: contentIds,
+      content_type: 'product',
+      value: totalPrice,
+      currency: 'UAH',
+      num_items: totalQuantity
+    });
+  }
+
+  const initiateCheckoutButton = document.querySelector('a.btn-success');
+  initiateCheckoutButton.addEventListener('click', () => {
+    trackInitiateCheckout({{ cart_items_json|safe }}, {{ cart_total_price }}, {{ cart_total_quantity }});
+  });
+</script>
 {% endblock %}
