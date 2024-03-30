@@ -16,17 +16,14 @@
 {% block content %}
 
 <script>
-    // Создаем массив идентификаторов товаров
     var contentIds = [
         {% for item in cart_items %}
-            '{{ item.modification.product.id }}',
+            {'id': '{{ item.modification.custom_sku }}', 'quantity': {{ item.quantity }}},
         {% endfor %}
     ];
 
-    // Определяем тип контента
     var contentType = 'product_group';
 
-    // Создаем объект с информацией о заказе
     var checkoutData = {
         'value': '{{ cart_total_price }}',
         'currency': 'UAH.',
@@ -34,7 +31,6 @@
         'content_type': contentType
     };
 
-    // Отправляем данные о начале оформления заказа
     fbq('track', 'InitiateCheckout', checkoutData);
 </script>
 
