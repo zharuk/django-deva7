@@ -14,6 +14,31 @@
 {% endblock %}
 
 {% block content %}
+
+<script>
+    // Создаем массив словарей с информацией о покупке
+    var contents = [
+        {% for item in order.items.all %}
+            {'id': '{{ item.product_modification.custom_sku }}', 'quantity': {{ item.quantity }}},
+        {% endfor %}
+    ];
+
+    // Определяем тип контента
+    var contentType = 'product_group';
+
+    // Создаем объект с информацией о покупке
+    var purchaseData = {
+        'content_type': contentType,
+        'contents': contents,
+        'currency': 'UAH',
+        'num_items': {{ order.items.count }},
+        'value': {{ total_amount }}
+    };
+
+    // Отправляем данные о покупке
+    fbq('track', 'Purchase', purchaseData);
+</script>
+
 <div class="container mt-5">
     <h1>{% trans 'Спасибо за ваш заказ!' %}</h1>
     <h3>{% trans 'Номер вашего заказа:' %} <span class="badge badge-danger">{{ order.id }}</span></h3>
@@ -165,26 +190,4 @@
 </div>
 {% endblock %}
 
-<script>
-    // Создаем массив словарей с информацией о покупке
-    var contents = [
-        {% for item in order.items.all %}
-            {'id': '{{ item.product_modification.custom_sku }}', 'quantity': {{ item.quantity }}},
-        {% endfor %}
-    ];
 
-    // Определяем тип контента
-    var contentType = 'product_group';
-
-    // Создаем объект с информацией о покупке
-    var purchaseData = {
-        'content_type': contentType,
-        'contents': contents,
-        'currency': 'UAH',
-        'num_items': {{ order.items.count }},
-        'value': {{ total_amount }}
-    };
-
-    // Отправляем данные о покупке
-    fbq('track', 'Purchase', purchaseData);
-</script>
