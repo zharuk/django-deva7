@@ -24,14 +24,14 @@
     ];
 
     // Определяем тип контента
-    var contentType = 'product_group'; // Тип контента - группа товаров
+    var contentType = 'product_group';
 
     // Создаем объект с информацией о заказе
     var checkoutData = {
-        'value': '{{ cart_total_price }}', // Общая сумма заказа
-        'currency': 'грн.', // Валюта заказа
-        'content_ids': contentIds, // Массив идентификаторов товаров
-        'content_type': contentType // Тип контента
+        'value': '{{ cart_total_price }}',
+        'currency': 'UAH.',
+        'content_ids': contentIds,
+        'content_type': contentType
     };
 
     // Отправляем данные о начале оформления заказа
