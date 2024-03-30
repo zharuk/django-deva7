@@ -260,12 +260,9 @@ def cart_view(request):
 
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
 
-    cart_items_json = json.dumps([{'modification': {'custom_sku': item['modification'].custom_sku}, 'quantity': item['quantity']} for item in cart_items])
-    print(cart_items_json)
-
     return render(request, 'cart.html',
                   {'categories': categories, 'cart_items': cart_items, 'cart_total_price': cart_total_price,
-                   'cart_total_quantity': cart_total_quantity, 'cart_items_json': cart_items_json})
+                   'cart_total_quantity': cart_total_quantity})
 
 
 def get_cart_info(request):
