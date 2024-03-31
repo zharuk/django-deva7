@@ -149,7 +149,8 @@
 </script>
 
 <script>
-    function trackPurchase() {
+    // Функция для отслеживания события начала оформления заказа
+    function trackInitiateCheckout() {
         var contentIds = [
             {% for item in cart_items %}
                 {'id': '{{ item.modification.custom_sku }}', 'quantity': {{ item.quantity }}},
@@ -158,16 +159,20 @@
 
         var contentType = 'product';
 
-        var purchaseData = {
-            'content_type': contentType,
-            'contents': contentIds,
+        var initiateCheckoutData = {
+            'value': '{{ cart_total_price }}',
             'currency': 'UAH',
-            'num_items': {{ cart_total_quantity }},
-            'value': '{{ cart_total_price }}'
+            'content_ids': contentIds,
+            'content_type': contentType
         };
 
-        fbq('track', 'Purchase', purchaseData);
+        fbq('track', 'InitiateCheckout', initiateCheckoutData);
     }
+
+    // Вызов функции для отслеживания события начала оформления заказа при загрузке страницы
+    window.onload = function() {
+        trackInitiateCheckout();
+    };
 </script>
 
 {% endblock %}
