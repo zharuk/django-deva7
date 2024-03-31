@@ -5,6 +5,7 @@
     <link>http://deva7km.com.ua/feed_fb/</link>
     <description>Фид товаров для отображения в Facebook</description>
     <language>ru</language>
+    <id>927149128929734</id>
     {% for product in products %}
       {% for modification in product.modifications.all %}
         <item>
@@ -29,7 +30,7 @@
           <g:gender>female</g:gender>
           <g:brand>Дева</g:brand>
           <g:condition>new</g:condition>
-          <g:content_type>product</g:content_type>
+          <g:product_type>Clothing</g:product_type>
           {% if product.is_active %}
             <g:status>active</g:status>
           {% else %}
