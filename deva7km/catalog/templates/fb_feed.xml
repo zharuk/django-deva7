@@ -15,9 +15,9 @@
           <link>{{ product.get_absolute_url }}</link>
           <g:image_link>{{ modification.get_first_large_image_modification_url }}</g:image_link>
           <g:additional_image_link>{{ modification.get_all_large_images_except_first }}</g:additional_image_link>
-          <g:price>{{ modification.price }} {{modification.currency}}</g:price>
-          {% if modification.sale_price > 0 %}
-          <g:sale_price>{{ modification.sale_price }} {{ modification.currency }}</g:sale_price>
+          <g:price>{{ product.retail_price }} {{ product.currency }}</g:price>
+          {% if product.retail_sale_price > 0 %}
+          <g:sale_price>{{ product.retail_sale_price }} {{ product.currency }}</g:sale_price>
           {% endif %}
           <g:availability>{% if modification.stock %}in stock{% else %}out of stock{% endif %}</g:availability>
           <g:quantity_to_sell_on_facebook>{{ modification.stock }}</g:quantity_to_sell_on_facebook>
@@ -29,7 +29,7 @@
           <g:gender>female</g:gender>
           <g:brand>Дева</g:brand>
           <g:condition>new</g:condition>
-          {% if modification.is_active %}
+          {% if product.is_active %}
             <g:status>active</g:status>
           {% else %}
             <g:status>archived</g:status>
