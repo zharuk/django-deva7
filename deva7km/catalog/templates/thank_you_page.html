@@ -4,7 +4,6 @@
 {% block title %}{% trans 'Спасибо за заказ!' %}{% endblock %}
 
 {% block breadcrumbs %}
-    <!-- Хлебные крошки для страницы Спасибо за заказ -->
     <nav aria-label="breadcrumb" style="margin-top: 5px;">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">{% trans 'Главная' %}</a></li>
@@ -14,27 +13,6 @@
 {% endblock %}
 
 {% block content %}
-
-<script>
-    var contents = [
-        {% for item in order.items.all %}
-            {'id': '{{ item.product_modification.custom_sku }}', 'quantity': {{ item.quantity }}},
-        {% endfor %}
-    ];
-
-    var contentType = 'product';
-
-    var purchaseData = {
-        'content_type': contentType,
-        'contents': contents,
-        'currency': 'UAH',
-        'num_items': {{ order.items.count }},
-        'value': {{ total_amount }}
-    };
-
-    fbq('track', 'Purchase', purchaseData);
-</script>
-
 <div class="container mt-5">
     <h1>{% trans 'Спасибо за ваш заказ!' %}</h1>
     <h3>{% trans 'Номер вашего заказа:' %} <span class="badge badge-danger">{{ order.id }}</span></h3>
@@ -46,7 +24,7 @@
     </div>
     <div class="collapse" id="social-links">
         <ul class="list-group list-group-flush">
-            <div class="row mb-3"> <!-- Добавлен класс mb-3 для отступа снизу -->
+            <div class="row mb-3">
                 <div class="col">
                     <li class="list-group-item">
                         <a id="telegram-link" href="https://t.me/divaua" target="_blank">
@@ -62,7 +40,7 @@
                     </li>
                 </div>
             </div>
-            <div class="row mb-3"> <!-- Добавлен класс mb-3 для отступа снизу -->
+            <div class="row mb-3">
                 <div class="col">
                     <li class="list-group-item">
                         <a id="messenger-link" href="https://m.me/432162513828457" target="_blank">
@@ -103,7 +81,7 @@
                         <td>{{ item.quantity }}</td>
                         <td>
                             {% if item.product_modification.product.retail_sale_price > 0 %}
-                                <del>{{ item.retail_total_price.1 }} грн.</del><br> <!-- Зачеркнутая цена -->
+                                <del>{{ item.retail_total_price.1 }} грн.</del><br>
                                 {{ item.retail_total_price.0 }} грн.
                             {% else %}
                                 {{ item.retail_total_price.1 }} грн.
@@ -181,7 +159,7 @@
         </div>
     </div>
 </div>
-<div class="container mt-3 mb-5 text-center"> <!-- Добавлены классы для отступа снизу и центрирования -->
+<div class="container mt-3 mb-5 text-center">
     <a href="/" class="btn btn-primary">{% trans 'Вернуться на главную' %}</a>
 </div>
 {% endblock %}

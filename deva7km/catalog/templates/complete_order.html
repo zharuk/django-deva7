@@ -15,25 +15,6 @@
 
 {% block content %}
 
-<script>
-    var contentIds = [
-        {% for item in cart_items %}
-            {'id': '{{ item.modification.custom_sku }}', 'quantity': {{ item.quantity }}},
-        {% endfor %}
-    ];
-
-    var contentType = 'product';
-
-    var checkoutData = {
-        'value': '{{ cart_total_price }}',
-        'currency': 'UAH',
-        'content_ids': contentIds,
-        'content_type': contentType
-    };
-
-    fbq('track', 'InitiateCheckout', checkoutData);
-</script>
-
 <div class="container mt-5">
     <h1>{% trans 'Оформление заказа' %}</h1>
     <!-- Секция для списка товаров в заказе -->
@@ -78,7 +59,7 @@
 
     <!-- Форма для данных о клиенте и заказе -->
     {% trans '* обязательные' %}
-    <form method="post">
+    <form method="post" onsubmit="trackPurchase();">
         {% csrf_token %}
         <div class="row">
             <!-- Левая колонка для десктопной версии -->
@@ -144,4 +125,49 @@
         </div>
     </form>
 </div>
+
+<script>
+    function trackPurchase() {
+        var contentIds = [
+            {% for item in cart_items %}
+                {'id': '{{ item.modification.custom_sku }}', 'quantity': {{ item.quantity }}},
+            {% endfor %}
+        ];
+
+        var contentType = 'product';
+
+        var purchaseData = {
+            'content_type': contentType,
+            'contents': contentIds,
+            'currency': 'UAH',
+            'num_items': {{ cart_total_quantity }},
+            'value': '{{ cart_total_price }}'
+        };
+
+        fbq('track', 'Purchase', purchaseData);
+    }
+</script>
+
+<script>
+    function trackPurchase() {
+        var contentIds = [
+            {% for item in cart_items %}
+                {'id': '{{ item.modification.custom_sku }}', 'quantity': {{ item.quantity }}},
+            {% endfor %}
+        ];
+
+        var contentType = 'product';
+
+        var purchaseData = {
+            'content_type': contentType,
+            'contents': contentIds,
+            'currency': 'UAH',
+            'num_items': {{ cart_total_quantity }},
+            'value': '{{ cart_total_price }}'
+        };
+
+        fbq('track', 'Purchase', purchaseData);
+    }
+</script>
+
 {% endblock %}
