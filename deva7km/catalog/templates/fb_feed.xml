@@ -29,6 +29,7 @@
           <g:gender>female</g:gender>
           <g:brand>Дева</g:brand>
           <g:condition>new</g:condition>
+          <g:content_type>product</g:content_type>
           {% if product.is_active %}
             <g:status>active</g:status>
           {% else %}
