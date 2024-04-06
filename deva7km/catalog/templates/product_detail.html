@@ -20,8 +20,8 @@
 {% block content %}
 <script>
   fbq('track', 'ViewContent', {
-    content_ids: ['{{ product.sku }}'],
-    content_type: 'product_group',
+    content_ids: [{% for modification in modifications %}'{{ modification.custom_sku }}',{% endfor %}],
+    content_type: 'product',
     content_name: '{{ product.title }}',
     content_category: '{{ product.category.name }}',
     value: {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %},

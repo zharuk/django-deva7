@@ -10,7 +10,6 @@
       {% for modification in product.modifications.all %}
         <item>
           <g:id>{{ modification.custom_sku }}</g:id>
-          <g:item_group_id>{{ product.sku }}</g:item_group_id>
           <title>{{ product.title }}</title>
           <description>{{ product.description }}</description>
           <link>{{ product.get_absolute_url }}</link>
