@@ -4,8 +4,8 @@ from django.http import HttpResponse
 from django.template import loader
 from django.utils.translation import get_language
 from django.views import View
-import json
 
+from catalog.email_utils import send_new_order_notification_email
 from catalog.forms import OrderForm
 from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem
 from django.shortcuts import render, get_object_or_404, redirect
@@ -139,9 +139,9 @@ def delivery_payment_page(request):
 
     return render(request, 'delivery_payment_page.html',
                   {'categories': categories,
-                           'delivery_payment_page_post': delivery_payment_page_post,
-                           'cart_total_quantity': cart_total_quantity,
-                           'cart_total_price': cart_total_price})
+                   'delivery_payment_page_post': delivery_payment_page_post,
+                   'cart_total_quantity': cart_total_quantity,
+                   'cart_total_price': cart_total_price})
 
 
 def privacy_policy_page(request):
@@ -329,11 +329,17 @@ def complete_order(request):
             for modification in modifications:
                 quantity = cart.get(str(modification.custom_sku), 0)
                 if quantity > 0:
-                    order_item = OrderItem.objects.create(
+                    OrderItem.objects.create(
                         order=order,
                         product_modification=modification,
                         quantity=quantity
                     )
+
+            print(cart_items)
+            print(cart_total_price)
+            print(cart_total_quantity)
+            # Отправка уведомления о новом заказе администратору
+            send_new_order_notification_email(order, cart_items, cart_total_price, cart_total_quantity)
 
             # Очищаем корзину после оформления заказа
             del request.session['cart']

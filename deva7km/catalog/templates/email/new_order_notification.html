@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Новый заказ</title>
+</head>
+<body>
+    <h1>Новый заказ № {{ order.id }}</h1>
+    <h2>Детали заказа:</h2>
+    <p>Имя: {{ order.name }} {{ order.surname }}</p>
+    <p>Телефон: {{ order.phone }}</p>
+    <p>Email: {{ order.email }}</p>
+    <p>Способ связи: {{ order.contact_method }}</p>
+    <p>Способ доставки: {{ order.delivery_method }}</p>
+    <p>Город: {{ order.city }}</p>
+    <p>Отделение почты: {{ order.post_office }}</p>
+    <p>Способ оплаты: {{ order.payment_method }}</p>
+    <p>Комментарий: {{ order.comment }}</p>
+    <p></p>
+    <h3>Товары в заказе:</h3>
+    <ul>
+        {% for item in cart_items %}
+    <li>
+        {{ item.modification }}
+        - {{ item.quantity }} шт.
+        {% if item.item_total_sale > 0 %}
+            {{ item.item_total_sale }} грн.
+        {% else %}
+            {{ item.item_total_regular }} грн.
+        {% endif %}
+    </li>
+    {% endfor %}
+    </ul>
+    <p>Итого: {{ cart_total_quantity }} товаров на сумму {{ cart_total_price }} грн.</p>
+</body>
+</html>
