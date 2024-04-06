@@ -35,8 +35,8 @@
                             <p>{% trans 'Цвета' %}: {{ product.get_colors }}</p>
                             <p>{% trans 'Размеры' %}: {{ product.get_sizes }}</p>
                             <p class="text-danger">
-                                <del>{% trans 'Цена' %}: {{ product.price }} {{ product.currency }}</del><br>
-                                <strong>{% trans 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }}</strong>
+                                <del>{% trans 'Цена' %}: {{ product.retail_price }} {{ product.currency }}</del><br>
+                                <strong>{% trans 'Цена распродажи' %}: {{ product.retail_sale_price }} {{ product.currency }}</strong>
                             </p>
                         </div>
                     </div>
