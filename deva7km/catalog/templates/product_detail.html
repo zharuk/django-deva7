@@ -28,7 +28,7 @@
     currency: 'UAH'
   });
 
-  function trackAddToCart(sku, name, category, price, currency) {
+  function trackAddToCart(sku, name, category, price, currency, num_items) {
     fbq('track', 'AddToCart', {
       content_ids: [sku],
       content_type: 'product',
