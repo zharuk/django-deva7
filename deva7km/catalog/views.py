@@ -335,9 +335,6 @@ def complete_order(request):
                         quantity=quantity
                     )
 
-            print(cart_items)
-            print(cart_total_price)
-            print(cart_total_quantity)
             # Отправка уведомления о новом заказе администратору
             send_new_order_notification_email(order, cart_items, cart_total_price, cart_total_quantity)
 

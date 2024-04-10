@@ -28,7 +28,7 @@
     currency: 'UAH'
   });
 
-  function trackAddToCart(sku, name, category, price, currency) {
+  function trackAddToCart(sku, name, category, price, currency, num_items) {
     fbq('track', 'AddToCart', {
       content_ids: [sku],
       content_type: 'product',
@@ -36,6 +36,7 @@
       content_category: category,
       value: price,
       currency: currency
+      num_items: num_items
     });
   }
 </script>
@@ -100,7 +101,7 @@
                                 <td>{{ modification.color.name }}</td>
                                 <td>{{ modification.size.name }}</td>
                                 <td>
-                                    <form action="{% url 'add_to_cart' modification.custom_sku %}" method="post" onsubmit="trackAddToCart('{{ modification.custom_sku }}', '{{ product.title }}', '{{ product.category.name }}', {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %}, 'UAH'); return true;">
+                                    <form action="{% url 'add_to_cart' modification.custom_sku %}" method="post" onsubmit="trackAddToCart('{{ modification.custom_sku }}', '{{ product.title }}', '{{ product.category.name }}', {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %}, 'UAH', this.quantity.value); return true;">
                                         {% csrf_token %}
                                         <div class="input-group">
                                             <input type="number" name="quantity" class="form-control form-control-sm col-6 col-sm-4 col-md-3 col-lg-5" value="1" min="1" max="{{ modification.stock }}">
