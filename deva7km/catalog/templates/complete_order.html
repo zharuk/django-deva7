@@ -153,26 +153,33 @@
     function trackInitiateCheckout() {
         var contentIds = [
             {% for item in cart_items %}
-                {'id': '{{ item.modification.custom_sku }}', 'quantity': {{ item.quantity }}},
+                '{{ item.modification.custom_sku }}',
             {% endfor %}
         ];
 
         var contentType = 'product';
+        var numItems = {{ cart_total_quantity }};
+        var totalValue = 0;
+
+        {% for item in cart_items %}
+            totalValue += {{ item.item_total_sale|default:item.item_total_regular }} * {{ item.quantity }};
+        {% endfor %}
 
         var initiateCheckoutData = {
-            'value': '{{ cart_total_price }}',
+            'value': totalValue,
             'currency': 'UAH',
             'content_ids': contentIds,
-            'content_type': contentType
+            'content_type': contentType,
+            'num_items': numItems
         };
 
         fbq('track', 'InitiateCheckout', initiateCheckoutData);
     }
 
-    // Вызов функции для отслеживания события начала оформления заказа при загрузке страницы
-    window.onload = function() {
-        trackInitiateCheckout();
-    };
+// Вызов функции для отслеживания события начала оформления заказа при загрузке страницы
+window.onload = function() {
+    trackInitiateCheckout();
+};
 </script>
 
 {% endblock %}
