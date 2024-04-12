@@ -130,17 +130,18 @@
     function trackPurchase() {
         var contentIds = [
             {% for item in cart_items %}
-                {'id': '{{ item.modification.custom_sku }}', 'quantity': {{ item.quantity }}},
+                '{{ item.modification.custom_sku }}',
             {% endfor %}
         ];
 
         var contentType = 'product';
+        var numItems = {{ cart_total_quantity }};
 
         var purchaseData = {
             'content_type': contentType,
-            'contents': contentIds,
+            'content_ids': contentIds,
             'currency': 'UAH',
-            'num_items': {{ cart_total_quantity }},
+            'num_items': numItems,
             'value': '{{ cart_total_price }}'
         };
 
