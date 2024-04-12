@@ -162,7 +162,7 @@
         var totalValue = 0;
 
         {% for item in cart_items %}
-            totalValue += {{ item.item_total_sale|default:item.item_total_regular }} * {{ item.quantity }};
+            totalValue += {{ item.item_total_sale|default:item.item_total_regular }};
         {% endfor %}
 
         var initiateCheckoutData = {
