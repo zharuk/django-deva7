@@ -39,6 +39,23 @@
       num_items: num_items
     });
   }
+
+    // Функция для отслеживания добавления товара в корзину и перехода на социальную сеть
+  function trackAddToCartAndRedirect(socialMediaLink) {
+    // Получаем информацию о товаре
+    var sku = '{{ product.sku }}';
+    var name = '{{ product.title }}';
+    var category = '{{ product.category.name }}';
+    var price = {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %};
+    var currency = 'UAH';
+    var num_items = 1; // Предполагаем, что добавляется один товар
+
+    // Вызываем функцию отслеживания добавления в корзину
+    trackAddToCart(sku, name, category, price, currency, num_items);
+
+    // Выполняем переход по ссылке на социальную сеть
+    window.open(socialMediaLink, '_blank');
+  }
 </script>
 
 <div class="row">
@@ -115,6 +132,43 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Блок социальных сетей -->
+        <div class="social-media">
+            {% translate 'или купите через социальные сети:' %}
+            <div class="row mb-3 mt-3">
+                <div class="col">
+                    <li class="list-group-item">
+                        <a id="telegram-link" href="#" onclick="trackAddToCartAndRedirect('https://t.me/divaua');">
+                            <i class="fa-brands fa-telegram fa-bounce fa-xl" style="color: #0088cc;"></i> Telegram
+                        </a>
+                    </li>
+                </div>
+                <div class="col">
+                    <li class="list-group-item">
+                        <a id="viber-link" href="#" onclick="trackAddToCartAndRedirect('viber://chat?number=%2B380635622568');">
+                            <i class="fa-brands fa-viber fa-bounce fa-xl" style="color: #665cac;"></i> Viber
+                        </a>
+                    </li>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <li class="list-group-item">
+                        <a id="messenger-link" href="#" onclick="trackAddToCartAndRedirect('https://m.me/432162513828457');">
+                            <i class="fa-brands fa-facebook-messenger fa-bounce fa-xl" style="color: #0084FF;"></i> Messenger
+                        </a>
+                    </li>
+                </div>
+                <div class="col">
+                    <li class="list-group-item">
+                        <a id="instagram-link" href="#" onclick="trackAddToCartAndRedirect('https://ig.me/m/deva7km');">
+                            <i class="fa-brands fa-instagram fa-bounce fa-xl" style="color: #E4405F;"></i> Instagram
+                        </a>
+                    </li>
+                </div>
             </div>
         </div>
     </div>
