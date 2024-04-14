@@ -19,11 +19,11 @@
             {% for product in products %}
                 {% for modification in product.modifications.all %}
                     <offer id="{{ product.sku }}-{{ forloop.counter }}" available="{% if modification.stock %}true{% else %}false{% endif %}">
-                        {% with base_price=modification.sale_price|default:modification.price %}
+                        {% with base_price=product.sale_price|default:product.price %}
                             {% with markup_amount=100 %}
                                 <price>{{ base_price|add:markup_amount }}</price>
                                 {% if modification.sale_price > 0 %}
-                                    <price_old>{{ modification.price|add:markup_amount }}</price_old>
+                                    <price_old>{{ product.price|add:markup_amount }}</price_old>
                                     <price_promo>{{ base_price|add:markup_amount }}</price_promo>
                                 {% endif %}
                             {% endwith %}
