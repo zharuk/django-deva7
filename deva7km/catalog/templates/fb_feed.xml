@@ -5,38 +5,36 @@
     <link>http://deva7km.com.ua/feed_fb/</link>
     <description>Фид товаров для отображения в Facebook</description>
     <language>ru</language>
-    <id>927149128929734</id>
     {% for product in products %}
-      {% for modification in product.modifications.all %}
-        <item>
-          <g:id>{{ modification.custom_sku }}</g:id>
-          <title>{{ product.title }}</title>
-          <description>{{ product.description }}</description>
-          <link>{{ product.get_absolute_url }}</link>
-          <g:image_link>{{ modification.get_first_large_image_modification_url }}</g:image_link>
-          <g:additional_image_link>{{ modification.get_all_large_images_except_first }}</g:additional_image_link>
-          <g:price>{{ product.retail_price }} {{ product.currency }}</g:price>
-          {% if product.retail_sale_price > 0 %}
-          <g:sale_price>{{ product.retail_sale_price }} {{ product.currency }}</g:sale_price>
-          {% endif %}
-          <g:availability>{% if modification.stock %}in stock{% else %}out of stock{% endif %}</g:availability>
-          <g:quantity_to_sell_on_facebook>{{ modification.stock }}</g:quantity_to_sell_on_facebook>
-          <g:brand>Дева</g:brand>
-          <g:color>{{ modification.color.name }}</g:color>
-          <g:size>{{ modification.size.name }}</g:size>
-          <g:fb_product_category>1660</g:fb_product_category>
-          <g:age_group>adult</g:age_group>
-          <g:gender>female</g:gender>
-          <g:brand>Дева</g:brand>
-          <g:condition>new</g:condition>
-          <g:product_type>Clothing</g:product_type>
-          {% if product.is_active %}
-            <g:status>active</g:status>
-          {% else %}
-            <g:status>archived</g:status>
-          {% endif %}
-        </item>
-      {% endfor %}
+      <item>
+        <g:id>{{ product.sku }}</g:id>
+        <title>{{ product.title }}</title>
+        <description>{{ product.description }}</description>
+        <link>{{ product.get_absolute_url }}</link>
+        <g:image_link>{{ product.collage_image_url }}</g:image_link>
+        {% for image_link in product.get_all_large_images %}
+            <g:additional_image_link>'{{ image_link }}'</g:additional_image_link>
+        {% endfor %}
+        <g:price>{{ product.retail_price }} {{ product.currency }}</g:price>
+        {% if product.retail_sale_price > 0 %}
+        <g:sale_price>{{ product.retail_sale_price }} {{ product.currency }}</g:sale_price>
+        {% endif %}
+        <g:availability>{% if product.get_total_stock %}in stock{% else %}out of stock{% endif %}</g:availability>
+        <g:quantity_to_sell_on_facebook>{{ product.get_total_stock }}</g:quantity_to_sell_on_facebook>
+        <g:brand>Дева</g:brand>
+        <g:colors>{{ product.get_colors }}</g:colors>
+        <g:sizes>{{ product.get_sizes }}</g:sizes>
+        <g:fb_product_category>1660</g:fb_product_category>
+        <g:age_group>adult</g:age_group>
+        <g:gender>female</g:gender>
+        <g:condition>new</g:condition>
+        <g:product_type>Clothing</g:product_type>
+        {% if product.is_active %}
+          <g:status>active</g:status>
+        {% else %}
+          <g:status>archived</g:status>
+        {% endif %}
+      </item>
     {% endfor %}
   </channel>
 </rss>

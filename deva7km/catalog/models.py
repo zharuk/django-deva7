@@ -39,6 +39,14 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     is_sale = models.BooleanField(default=False, verbose_name='Распродажа')
     is_active = models.BooleanField(default=True, verbose_name='Включен')
+    collage_image = models.ImageField(upload_to='collage_images/', null=True, blank=True,
+                                      verbose_name='Коллаж изображений')
+    collage_thumbnail = ImageSpecField(
+        source='collage_image',
+        processors=[ResizeToFit(100, 100)],
+        format='JPEG',
+        options={'quality': 60}
+    )
 
     def get_absolute_url(self):
         return BASE_URL + reverse('product_detail', args=[self.category.slug, self.slug], current_app='catalog')
@@ -49,6 +57,29 @@ class Product(models.Model):
         if images:
             return BASE_URL + images[0].large_image.url
         return None
+
+    # Метод для получения всех больших изображений товара
+    def get_all_large_images(self):
+        # Получаем все изображения товара
+        images = Image.objects.filter(modification__product=self)
+        # Формируем список ссылок на большие изображения
+        image_links = [BASE_URL + image.large_image.url for image in images]
+        # Возвращаем список ссылок на большие изображения
+        return image_links
+
+    # Метод для получения URL коллажа изображения товара
+    def collage_image_url(self):
+        if self.collage_image:
+            return BASE_URL + self.collage_image.url
+        return None
+
+    # Метод миниатюры коллажа товара
+    def get_collage_thumbnail(self):
+        if self.collage_image:
+            return format_html('<img src="{}" />', self.collage_thumbnail.url)
+        return 'Нет миниатюры'
+
+    get_collage_thumbnail.short_description = 'Миниатюра коллажа'
 
     # Переопределение метода save для автоматической транслитерации артикула
     def save(self, *args, **kwargs):

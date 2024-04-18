@@ -2,6 +2,7 @@ from adminsortable2.admin import SortableAdminMixin, SortableStackedInline
 from ckeditor.widgets import CKEditorWidget
 from django.contrib import admin
 from django.db import models
+from django.utils.html import format_html
 from modeltranslation.admin import TranslationAdmin
 
 from .models import (
@@ -92,10 +93,10 @@ class ProductModificationInline(admin.TabularInline):
 class ProductAdmin(TranslationAdmin):
     inlines = [ProductModificationInline]
     list_display = ('title', 'sku', 'category', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
-                    'sale_price', 'thumbnail_image', 'created_at')
+                    'sale_price', 'get_collage_thumbnail', 'created_at')
     search_fields = ('sku', 'title')
     list_filter = ('sku', 'category', 'colors', 'sizes',)
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('get_collage_thumbnail', 'created_at', 'updated_at', )
     ordering = ['-created_at']
     list_per_page = 25
 
