@@ -24,7 +24,7 @@
         <g:brand>Дева</g:brand>
         <g:colors>{{ product.get_colors }}</g:colors>
         <g:sizes>{{ product.get_sizes }}</g:sizes>
-        <g:fb_product_category>357</g:fb_product_category>
+        <g:fb_product_category>2271</g:fb_product_category>
         <g:age_group>adult</g:age_group>
         <g:gender>female</g:gender>
         <g:condition>new</g:condition>
