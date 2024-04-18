@@ -138,38 +138,30 @@
         <!-- Блок социальных сетей -->
         <div class="social-media">
             <p style="margin-bottom: 5px;">{% translate 'или купите через социальные сети:' %}</p>
-            <div class="row mb-3">
-                <div class="col">
-                    <li class="list-group-item">
-                        <a id="messenger-link" onclick="trackAddToCartAndRedirect('https://m.me/432162513828457');">
-                            <i class="fa-brands fa-facebook-messenger fa-xl" style="color: #0084FF;"></i> Messenger
-                        </a>
-                    </li>
-                </div>
-                <div class="col">
-                    <li class="list-group-item">
-                        <a id="instagram-link" onclick="trackAddToCartAndRedirect('https://ig.me/m/deva7km');">
-                            <i class="fa-brands fa-instagram fa-xl" style="color: #E4405F;"></i> Instagram
-                        </a>
-                    </li>
-                </div>
-            </div>
-            <div class="row mb-3 mt-3">
-                <div class="col">
-                    <li class="list-group-item">
-                        <a id="telegram-link" onclick="trackAddToCartAndRedirect('https://t.me/Natadeva_7km');">
-                            <i class="fa-brands fa-telegram fa-xl" style="color: #0088cc;"></i> Telegram
-                        </a>
-                    </li>
-                </div>
-                <div class="col">
-                    <li class="list-group-item">
-                        <a id="viber-link" onclick="trackAddToCartAndRedirect('viber://chat?number=%2B380687876849');">
-                            <i class="fa-brands fa-viber fa-xl" style="color: #665cac;"></i> Viber
-                        </a>
-                    </li>
-                </div>
-            </div>
+            <ul class="row mb-3 list-unstyled">
+                <li class="col">
+                    <a class="btn btn-primary btn-block" onclick="trackAddToCartAndRedirect('https://m.me/432162513828457');">
+                        <i class="fa-brands fa-facebook-messenger fa-lg" style="color: #0084ff;"></i> Messenger
+                    </a>
+                </li>
+                <li class="col">
+                    <a class="btn btn-primary btn-block" onclick="trackAddToCartAndRedirect('https://ig.me/m/deva7km');">
+                        <i class="fa-brands fa-instagram fa-lg" style="color: #E4405F;"></i> Instagram
+                    </a>
+                </li>
+            </ul>
+            <ul class="row mb-3 list-unstyled">
+                <li class="col">
+                    <a class="btn btn-primary btn-block" onclick="trackAddToCartAndRedirect('https://t.me/Natadeva_7km');">
+                        <i class="fa-brands fa-telegram fa-lg" style="color: #0088cc;"></i> Telegram
+                    </a>
+                </li>
+                <li class="col">
+                    <a class="btn btn-primary btn-block" onclick="trackAddToCartAndRedirect('viber://chat?number=%2B380687876849');">
+                        <i class="fa-brands fa-viber fa-lg" style="color: #665cac;"></i> Viber
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
