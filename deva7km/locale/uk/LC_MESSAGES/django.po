@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-13 14:48+0300\n"
+"POT-Creation-Date: 2024-04-18 11:22+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,7 +41,7 @@ msgstr "Telegram"
 
 #: .\catalog\forms.py:13
 msgid "WhatsApp"
-msgstr ""
+msgstr "WhatsApp"
 
 #: .\catalog\forms.py:14
 msgid "Viber"
@@ -95,15 +95,15 @@ msgstr "Спосіб оплати"
 msgid "Комментарий к заказу"
 msgstr "Коментар до замовлення"
 
-#: .\catalog\models.py:704
+#: .\catalog\models.py:735
 msgid "В ожидании"
 msgstr "В очікуванні"
 
-#: .\catalog\models.py:705
+#: .\catalog\models.py:736
 msgid "Завершено"
 msgstr "Завершено"
 
-#: .\catalog\models.py:706
+#: .\catalog\models.py:737
 msgid "Отменено"
 msgstr "Скасовано"
 
@@ -201,68 +201,75 @@ msgstr "Оформити замовлення"
 msgid "Распродажа"
 msgstr "Розпродаж"
 
-#: .\catalog\templates\category_detail.html:38 .\catalog\templates\home.html:37
-#: .\catalog\templates\product_detail.html:68 .\catalog\templates\sales.html:34
+#: .\catalog\templates\category_detail.html:34 .\catalog\templates\home.html:32
+#: .\catalog\templates\sales.html:30
+#, fuzzy
+#| msgid "Нет изображений"
+msgid "Нет изображения"
+msgstr "Немає зображень"
+
+#: .\catalog\templates\category_detail.html:44 .\catalog\templates\home.html:43
+#: .\catalog\templates\product_detail.html:68 .\catalog\templates\sales.html:41
 msgid "Артикул"
 msgstr "Артикул"
 
-#: .\catalog\templates\category_detail.html:39 .\catalog\templates\home.html:38
-#: .\catalog\templates\product_detail.html:69 .\catalog\templates\sales.html:35
+#: .\catalog\templates\category_detail.html:45 .\catalog\templates\home.html:44
+#: .\catalog\templates\product_detail.html:69 .\catalog\templates\sales.html:42
 msgid "Цвета"
 msgstr "Кольори"
 
-#: .\catalog\templates\category_detail.html:40 .\catalog\templates\home.html:39
-#: .\catalog\templates\product_detail.html:76 .\catalog\templates\sales.html:36
+#: .\catalog\templates\category_detail.html:46 .\catalog\templates\home.html:45
+#: .\catalog\templates\product_detail.html:76 .\catalog\templates\sales.html:43
 msgid "Размеры"
 msgstr "Розміри"
 
-#: .\catalog\templates\category_detail.html:44
-#: .\catalog\templates\category_detail.html:51
+#: .\catalog\templates\category_detail.html:50
+#: .\catalog\templates\category_detail.html:57
 msgid "цена"
-msgstr ""
+msgstr "ціна"
 
-#: .\catalog\templates\category_detail.html:46
+#: .\catalog\templates\category_detail.html:52
 #, fuzzy
 #| msgid "Цена распродажи"
 msgid "цена распродажи"
 msgstr "Ціна розпродажу"
 
-#: .\catalog\templates\category_detail.html:58 .\catalog\templates\home.html:57
-#: .\catalog\templates\sales.html:44
+#: .\catalog\templates\category_detail.html:64 .\catalog\templates\home.html:63
+#: .\catalog\templates\sales.html:51
 msgid "Перейти"
 msgstr "Перейти"
 
-#: .\catalog\templates\category_detail.html:69
-#: .\catalog\templates\sales.html:55
+#: .\catalog\templates\category_detail.html:75
+#: .\catalog\templates\sales.html:62
 msgid "First"
 msgstr "Перша"
 
-#: .\catalog\templates\category_detail.html:74
-#: .\catalog\templates\sales.html:60
+#: .\catalog\templates\category_detail.html:80
+#: .\catalog\templates\sales.html:67
 msgid "Previous"
 msgstr "Попередня"
 
-#: .\catalog\templates\category_detail.html:81
-#: .\catalog\templates\sales.html:67
+#: .\catalog\templates\category_detail.html:87
+#: .\catalog\templates\sales.html:74
 msgid "Страница"
 msgstr "Сторінка"
 
-#: .\catalog\templates\category_detail.html:81
-#: .\catalog\templates\sales.html:67
+#: .\catalog\templates\category_detail.html:87
+#: .\catalog\templates\sales.html:74
 msgid "из"
 msgstr "з"
 
-#: .\catalog\templates\category_detail.html:86
-#: .\catalog\templates\sales.html:72
+#: .\catalog\templates\category_detail.html:92
+#: .\catalog\templates\sales.html:79
 msgid "Next"
 msgstr "Наступна"
 
-#: .\catalog\templates\category_detail.html:91
-#: .\catalog\templates\sales.html:77
+#: .\catalog\templates\category_detail.html:97
+#: .\catalog\templates\sales.html:84
 msgid "Last"
 msgstr "Остання"
 
-#: .\catalog\templates\category_detail.html:100
+#: .\catalog\templates\category_detail.html:106
 msgid "Нет товаров в этой категории"
 msgstr "Немає товарів в цій категорії"
 
@@ -353,18 +360,19 @@ msgstr "Інформація про доставку та оплату"
 msgid "Новинки"
 msgstr "Новинки"
 
-#: .\catalog\templates\home.html:36 .\catalog\templates\product_detail.html:66
+#: .\catalog\templates\home.html:42 .\catalog\templates\product_detail.html:66
+#: .\catalog\templates\sales.html:40
 msgid "Категория"
 msgstr "Категорія"
 
-#: .\catalog\templates\home.html:43 .\catalog\templates\home.html:50
+#: .\catalog\templates\home.html:49 .\catalog\templates\home.html:56
 #: .\catalog\templates\product_detail.html:86
-#: .\catalog\templates\product_detail.html:94 .\catalog\templates\sales.html:38
+#: .\catalog\templates\product_detail.html:94 .\catalog\templates\sales.html:45
 msgid "Цена"
 msgstr "Ціна"
 
-#: .\catalog\templates\home.html:45 .\catalog\templates\product_detail.html:89
-#: .\catalog\templates\sales.html:39
+#: .\catalog\templates\home.html:51 .\catalog\templates\product_detail.html:89
+#: .\catalog\templates\sales.html:46
 msgid "Цена распродажи"
 msgstr "Ціна розпродажу"
 
@@ -405,7 +413,7 @@ msgstr "Немає зображень"
 msgid "Домой"
 msgstr "Додому"
 
-#: .\catalog\templates\sales.html:86
+#: .\catalog\templates\sales.html:93
 msgid "Нет товаров в распродаже"
 msgstr "Немає товарів у розпродажі"
 
