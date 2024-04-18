@@ -128,54 +128,54 @@
 
 <script>
     function trackPurchase() {
-        var contentIds = [
-            {% for item in cart_items %}
-                '{{ item.modification.custom_sku }}',
-            {% endfor %}
-        ];
+    var contentIds = [
+        {% for item in cart_items %}
+            '{{ item.modification.product.sku }}',
+        {% endfor %}
+    ];
 
-        var contentType = 'product';
-        var numItems = {{ cart_total_quantity }};
+    var contentType = 'product';
+    var numItems = {{ cart_total_quantity }};
 
-        var purchaseData = {
-            'content_type': contentType,
-            'content_ids': contentIds,
-            'currency': 'UAH',
-            'num_items': numItems,
-            'value': '{{ cart_total_price }}'
-        };
+    var purchaseData = {
+        'content_type': contentType,
+        'content_ids': contentIds,
+        'currency': 'UAH',
+        'num_items': numItems,
+        'value': '{{ cart_total_price }}'
+    };
 
-        fbq('track', 'Purchase', purchaseData);
-    }
+    fbq('track', 'Purchase', purchaseData);
+}
 </script>
 
 <script>
     // Функция для отслеживания события начала оформления заказа
     function trackInitiateCheckout() {
-        var contentIds = [
-            {% for item in cart_items %}
-                '{{ item.modification.custom_sku }}',
-            {% endfor %}
-        ];
-
-        var contentType = 'product';
-        var numItems = {{ cart_total_quantity }};
-        var totalValue = 0;
-
+    var contentIds = [
         {% for item in cart_items %}
-            totalValue += {{ item.item_total_sale|default:item.item_total_regular }};
+            '{{ item.modification.product.sku }}',
         {% endfor %}
+    ];
 
-        var initiateCheckoutData = {
-            'value': totalValue,
-            'currency': 'UAH',
-            'content_ids': contentIds,
-            'content_type': contentType,
-            'num_items': numItems
-        };
+    var contentType = 'product';
+    var numItems = {{ cart_total_quantity }};
+    var totalValue = 0;
 
-        fbq('track', 'InitiateCheckout', initiateCheckoutData);
-    }
+    {% for item in cart_items %}
+        totalValue += {{ item.item_total_sale|default:item.item_total_regular }};
+    {% endfor %}
+
+    var initiateCheckoutData = {
+        'value': totalValue,
+        'currency': 'UAH',
+        'content_ids': contentIds,
+        'content_type': contentType,
+        'num_items': numItems
+    };
+
+    fbq('track', 'InitiateCheckout', initiateCheckoutData);
+}
 
 // Вызов функции для отслеживания события начала оформления заказа при загрузке страницы
 window.onload = function() {
