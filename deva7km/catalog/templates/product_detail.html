@@ -20,7 +20,7 @@
 {% block content %}
 <script>
   fbq('track', 'ViewContent', {
-    content_ids: [{% for modification in modifications %}'{{ modification.custom_sku }}',{% endfor %}],
+    content_ids: ['{{ product.sku }}'],
     content_type: 'product',
     content_name: '{{ product.title }}',
     content_category: '{{ product.category.name }}',
@@ -30,7 +30,7 @@
 
   function trackAddToCart(sku, name, category, price, currency, num_items) {
     fbq('track', 'AddToCart', {
-      content_ids: [sku],
+      content_ids: ['{{ product.sku }}'],
       content_type: 'product',
       content_name: name,
       content_category: category,
