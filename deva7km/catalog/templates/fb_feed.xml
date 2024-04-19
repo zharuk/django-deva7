@@ -12,9 +12,11 @@
         <description>{{ product.description }}</description>
         <link>{{ product.get_absolute_url }}</link>
         <g:image_link>{{ product.collage_image_url }}</g:image_link>
-        {% for image_link in product.get_all_large_images %}
-            <g:additional_image_link>'{{ image_link }}'</g:additional_image_link>
-        {% endfor %}
+        {% with additional_images=product.get_all_large_images|join:", " %}
+          {% if additional_images %}
+            <g:additional_image_link>{{ additional_images }}</g:additional_image_link>
+          {% endif %}
+        {% endwith %}
         <g:price>{{ product.retail_price }} {{ product.currency }}</g:price>
         {% if product.retail_sale_price > 0 %}
         <g:sale_price>{{ product.retail_sale_price }} {{ product.currency }}</g:sale_price>
