@@ -52,11 +52,11 @@ class SaleAdmin(admin.ModelAdmin):
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
     list_per_page = 25
 
-    # Метод для запрета на редактирование, если продажа завершена
-    def has_change_permission(self, request, obj=None):
-        if obj and obj.status == 'completed':
-            return False
-        return super().has_change_permission(request, obj)
+    # # Метод для запрета на редактирование, если продажа завершена
+    # def has_change_permission(self, request, obj=None):
+    #     if obj and obj.status == 'completed':
+    #         return False
+    #     return super().has_change_permission(request, obj)
 
 
 class ImageInline(SortableStackedInline):
