@@ -62,36 +62,15 @@ def get_large_image_url_input_file(custom_sku):
 
 
 @sync_to_async
-def get_first_image_for_product(sku):
+def get_collage_image_for_product(sku):
     try:
-        base_url = BASE_URL
-
         # Получаем основной товар по артикулу
         product = Product.objects.get(sku=sku)
 
-        # Получаем все модификации этого товара
-        modifications = product.modifications.all()
+        # Получаем URL изображения коллажа
+        collage_image_url = product.collage_image_url()
 
-        for modification in modifications:
-            # Получаем все изображения для этой модификации
-            images = modification.images.all()
-
-            if images:
-                # Берем первое изображение
-                first_image = images.first()
-
-                # Определяем URL изображения
-                image_url = first_image.image.url if first_image else None
-
-                if image_url:
-                    # Формируем полный URL изображения
-                    full_url = urljoin(base_url, image_url)
-
-                    # Возвращаем полный URL
-                    return URLInputFile(full_url)
-
-        logging.warning("Для данного основного товара нет изображений.")
-        return None
+        return collage_image_url
 
     except Product.DoesNotExist:
         logging.error("Основной товар с данным артикулом не найден.")

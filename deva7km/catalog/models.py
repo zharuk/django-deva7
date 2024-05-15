@@ -70,6 +70,7 @@ class Product(models.Model):
     # Метод для получения URL коллажа изображения товара
     def collage_image_url(self):
         if self.collage_image:
+            print(BASE_URL + self.collage_image.url)
             return BASE_URL + self.collage_image.url
         return None
 

@@ -1,9 +1,9 @@
 from aiogram import Router, Bot
 from aiogram.filters import Command
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, URLInputFile
 from deva7km.settings import BOT_TOKEN
 from tg_bot.keyboards.keyboards import create_inline_kb_main_sku, create_inline_kb_return
-from tg_bot.services.products import get_modifications_info, get_first_image_for_product
+from tg_bot.services.products import get_modifications_info, get_collage_image_for_product
 from tg_bot.services.users import admin_access_control_decorator
 import re
 
@@ -69,11 +69,11 @@ async def process_callback_query_sku(callback: CallbackQuery):
     sku = callback.data.split("_")[0]
     # вызываем функцию для отображения модификаций товара
     string = await get_modifications_info(sku)
-    # Отправляем фотографии модификаций в чат
-    image = await get_first_image_for_product(sku)
-    if image:
+    # Отправляем изображение коллажа в чат
+    collage_image_url = await get_collage_image_for_product(sku)
+    if collage_image_url:
         await bot.send_photo(chat_id=callback.from_user.id,
-                             photo=image,
+                             photo=URLInputFile(collage_image_url),
                              caption=string, reply_markup=kb)
         await callback.answer()
     else:
