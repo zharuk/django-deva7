@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from django.views.generic import TemplateView
 
 from catalog import views
 from catalog.views import home, contacts_page, \
@@ -16,6 +17,7 @@ urlpatterns = [
     path('feed_fb/', FacebookFeedView.as_view(), name='facebook_feed'),
     path('feed_google/', GoogleFeedView.as_view(), name='google_feed'),
     path('feed_rozetka/', RozetkaFeedView.as_view(), name='rozetka_feed'),
+    re_path(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
 ]
 
 urlpatterns += i18n_patterns(

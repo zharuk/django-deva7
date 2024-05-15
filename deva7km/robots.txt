@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /static/
+Disallow: /media/
+Allow: /
+Sitemap: https://deva7km.com.ua/sitemap.xml
