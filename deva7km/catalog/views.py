@@ -164,50 +164,6 @@ def telegram_page(request):
     return render(request, 'telegram_page.html')
 
 
-# Представления для формирования фида Facebook
-class FacebookFeedView(View):
-    @staticmethod
-    def get(request, *args, **kwargs):
-        products = Product.objects.filter(is_active=True)
-        modifications = ProductModification.objects.all()
-        images = Image.objects.all()
-        context = {'products': products, 'modifications': modifications, 'images': images, 'request': request}
-        template = loader.get_template('fb_feed.xml')
-        xml_content = template.render(context)
-        response = HttpResponse(xml_content, content_type='application/xml')
-        return response
-
-
-# Представления для формирования фида Google
-class GoogleFeedView(View):
-    @staticmethod
-    def get(request, *args, **kwargs):
-        products = Product.objects.filter(is_active=True)
-        modifications = ProductModification.objects.all()
-        images = Image.objects.all()
-        context = {'products': products, 'modifications': modifications, 'images': images, 'request': request}
-        template = loader.get_template('google_feed.xml')
-        xml_content = template.render(context)
-        response = HttpResponse(xml_content, content_type='application/xml')
-        return response
-
-
-# Представления для формирования фида Rozetka
-class RozetkaFeedView(View):
-    @staticmethod
-    def get(request, *args, **kwargs):
-        products = Product.objects.filter(is_active=True)
-        modifications = ProductModification.objects.all()
-        images = Image.objects.all()
-        categories = Category.objects.all()  # Получаем все категории
-        context = {'products': products, 'modifications': modifications, 'images': images, 'categories': categories,
-                   'request': request}
-        template = loader.get_template('rozetka_feed.xml')
-        xml_content = template.render(context)
-        response = HttpResponse(xml_content, content_type='application/xml')
-        return response
-
-
 def add_to_cart(request, custom_sku):
     modification = get_object_or_404(ProductModification, custom_sku=custom_sku)
     quantity = int(request.POST.get('quantity', 1))  # Получаем количество товара из формы

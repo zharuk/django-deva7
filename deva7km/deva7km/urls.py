@@ -5,9 +5,10 @@ from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 
 from catalog import views
+from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView
 from catalog.views import home, contacts_page, \
-    category_detail, product_detail, sales, telegram_page, FacebookFeedView, GoogleFeedView, \
-    RozetkaFeedView, privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page
+    category_detail, product_detail, sales, telegram_page, \
+    privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page
 
 from django.conf.urls.i18n import i18n_patterns
 
