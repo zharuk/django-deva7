@@ -1,9 +1,6 @@
 from django.db import transaction
 from django.db.models import Count, Q
-from django.http import HttpResponse
-from django.template import loader
 from django.utils.translation import get_language
-from django.views import View
 
 from catalog.email_utils import send_new_order_notification_email
 from catalog.forms import OrderForm

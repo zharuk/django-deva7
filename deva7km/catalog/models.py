@@ -241,7 +241,12 @@ class Category(models.Model):
     slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='Слаг')
     description = models.TextField(blank=True, verbose_name='Описание категории')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     rz_id = models.IntegerField(default=0, verbose_name='ID категории на Rozetka')
+
+    def get_absolute_url(self):
+        # Убедитесь, что имя маршрута ('category_detail') соответствует вашему urls.py
+        return reverse('category_detail', kwargs={'category_slug': self.slug})
 
     def __str__(self):
         return self.name
