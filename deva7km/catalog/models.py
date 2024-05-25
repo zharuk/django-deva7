@@ -49,7 +49,7 @@ class Product(models.Model):
     )
 
     def get_absolute_url(self):
-        return BASE_URL + reverse('product_detail', args=[self.category.slug, self.slug], current_app='catalog')
+        return reverse('product_detail', args=[self.category.slug, self.slug])
 
     # Метод для отображения большого изображения товара
     def large_image_url(self):
@@ -715,6 +715,9 @@ class BlogPost(models.Model):
     content = RichTextField(verbose_name='Содержание')
     slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='Слаг')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+
+    def get_absolute_url(self):
+        return ''
 
     def __str__(self):
         return self.title

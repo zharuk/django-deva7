@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 
@@ -12,12 +13,17 @@ from catalog.views import home, contacts_page, \
 
 from django.conf.urls.i18n import i18n_patterns
 
+from catalog.sitemaps import get_sitemaps  # Импортируем функцию get_sitemaps
+
+sitemaps = get_sitemaps()  # Получаем динамически созданный словарь карт сайта
+
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path('i18n/', include('django.conf.urls.i18n')),
     path('feed_fb/', FacebookFeedView.as_view(), name='facebook_feed'),
     path('feed_google/', GoogleFeedView.as_view(), name='google_feed'),
     path('feed_rozetka/', RozetkaFeedView.as_view(), name='rozetka_feed'),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),  # Используем переменную sitemaps
     re_path(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
 ]
 
