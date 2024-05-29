@@ -6,29 +6,41 @@ from tg_bot.services.sells import get_product_modification
 # создание объекта Inventory и его элементов
 async def create_inventory(user_data, telegram_user):
     products_list = user_data.get('products_list', [])
-
     inventory = Inventory(
         telegram_user=telegram_user,
         status='completed',
         source='telegram',
     )
 
-    # Сохранение объекта Sale
-    await sync_to_async(inventory.save)()
+    try:
+        # Сохранение объекта Inventory
+        await sync_to_async(inventory.save)()
 
-    for product_info in products_list:
-        modification_sku = product_info.get('choosingModification', '')
-        quantity = int(product_info.get('enteringQuantity', ''))
+        for product_info in products_list:
+            modification_sku = product_info.get('choosingModification', '')
+            entering_quantity = product_info.get('enteringQuantity', '')
 
-        product_modification = await get_product_modification(modification_sku)
+            # Проверка корректности данных
+            if not entering_quantity.isdigit():
+                raise ValueError(f"Некорректное значение количества товара: {entering_quantity}")
 
-        inventory_item = InventoryItem(
-            inventory=inventory,
-            product_modification=product_modification,
-            quantity=quantity,
-        )
-        await sync_to_async(inventory_item.save)()
+            quantity = int(entering_quantity)
 
-    # Сохранение объекта Sale
-    await sync_to_async(inventory.save)()
-    return inventory
+            product_modification = await get_product_modification(modification_sku)
+
+            inventory_item = InventoryItem(
+                inventory=inventory,
+                product_modification=product_modification,
+                quantity=quantity,
+            )
+            await sync_to_async(inventory_item.save)()
+
+        # Повторное сохранение объекта Inventory
+        await sync_to_async(inventory.save)()
+        return inventory
+
+    except ValueError as e:
+        # Логирование ошибки
+        print(f"Ошибка при создании инвентаризации: {e}")
+        # Возвращаем None в случае ошибки
+        return None

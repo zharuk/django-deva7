@@ -27,7 +27,7 @@ async def command_inventory_handler(message: Message, state: FSMContext):
     await message.answer('Выберите товар для оприходования 👇', reply_markup=kb)
 
 
-# обработчик который бы отлавливал callback_query=inventory
+# обработчик callback_query=inventory
 @router.callback_query(lambda callback: 'inventory' == callback.data)
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_inventory(callback: CallbackQuery, state: FSMContext):
@@ -38,7 +38,7 @@ async def process_callback_query_inventory(callback: CallbackQuery, state: FSMCo
     await callback.answer()
 
 
-# обработчик который бы отлавливал callback_query=sku для inventory и выводил кнопки с модификациями конкретного товара
+# обработчик callback_query=sku для inventory
 @router.callback_query(StateFilter(InventoryStates.choosingSKU))
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext):
@@ -49,16 +49,16 @@ async def process_callback_query_sku(callback: CallbackQuery, state: FSMContext)
         user_data = await state.get_data()
         kb = await create_inline_kb_modifications(sku, callback='inventory')
         await callback.message.answer(
-            f'Вы выбрали для оприходования модель ➡️ {hbold(user_data["choosingSKU"])}\nвыберите '
-            f'модификацию 👇', reply_markup=kb)
+            f'Вы выбрали для оприходования модель ➡️ {hbold(user_data["choosingSKU"])}\nвыберите модификацию 👇',
+            reply_markup=kb
+        )
         await callback.answer()
     else:
-        await callback.message.answer('выберите основной товар или нажмите отмена! 👆')
+        await callback.message.answer('Выберите основной товар или нажмите отмена! 👆')
         await callback.answer()
 
 
-# обработчик который бы отлавливал callback_query=modifications для inventory и выводил количество
-# товара на остатке, а также указать сколько товара нужно продать
+# обработчик callback_query=modifications для inventory
 @router.callback_query(StateFilter(InventoryStates.choosingModification))
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_modifications(callback: CallbackQuery, state: FSMContext):
@@ -72,18 +72,24 @@ async def process_callback_query_modifications(callback: CallbackQuery, state: F
         kb = await create_inline_kb_numbers(quantity=50)
         await bot.send_photo(chat_id=callback.from_user.id,
                              photo=thumbnail_input_file,
-                             caption=f'Вы выбрали для оприходования модификацию ➡️ {hbold(user_data["choosingModification"])}\n'
-                                     f'Введите количество товара для оприходования:', reply_markup=kb)
+                             caption=f'Вы выбрали для оприходования модификацию ➡️ {hbold(user_data["choosingModification"])}\nВведите количество товара для оприходования:',
+                             reply_markup=kb)
         await callback.answer()
     else:
-        await callback.message.answer('выберите модификацию или нажмите отмена! 👆')
+        await callback.message.answer('Выберите модификацию или нажмите отмена! 👆')
         await callback.answer()
 
 
-# обработчик который бы предлагал добавить еще товар для оприходования
-@router.callback_query(StateFilter(InventoryStates.enteringQuantity), lambda callback: callback.data not in ['add_more', 'finish'])
+# обработчик для добавления еще товара
+@router.callback_query(StateFilter(InventoryStates.enteringQuantity),
+                       lambda callback: callback.data not in ['add_more', 'finish'])
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_numbers(callback: CallbackQuery, state: FSMContext):
+    if not callback.data.isdigit():
+        await callback.message.answer('Некорректное количество. Пожалуйста, выберите правильное количество товара.')
+        await callback.answer()
+        return
+
     await state.update_data(enteringQuantity=callback.data)
     user_data = await state.get_data()
     product_info = {
@@ -98,7 +104,6 @@ async def process_callback_query_numbers(callback: CallbackQuery, state: FSMCont
         user_data['products_list'] = [product_info]
         await state.update_data(user_data)
 
-    # Создание строки с товарами
     products_text = ""
     for product in user_data['products_list']:
         custom_sku = product['choosingModification']
@@ -106,12 +111,12 @@ async def process_callback_query_numbers(callback: CallbackQuery, state: FSMCont
         products_text += f'{custom_sku} - {quantity}шт.\n'
     kb = await create_inline_kb_add_more()
 
-    await callback.message.answer(f'Вы выбрали для оприходования ➡️\n\n{products_text}\n выберите еще товар '
-                                  f'или завершите приход', reply_markup=kb)
+    await callback.message.answer(
+        f'Вы выбрали для оприходования ➡️\n\n{products_text}\nвыберите еще товар или завершите приход', reply_markup=kb)
     await callback.answer()
 
 
-# обработчик который бы отлавливал callback_query=add_more для inventory
+# обработчик для добавления еще товара
 @router.callback_query(StateFilter(InventoryStates.enteringQuantity), lambda callback: 'add_more' == callback.data)
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_add_more(callback: CallbackQuery, state: FSMContext):
@@ -121,7 +126,7 @@ async def process_callback_query_add_more(callback: CallbackQuery, state: FSMCon
     await callback.answer()
 
 
-# обработчик который бы реагировал на кнопку "Завершить"
+# обработчик для завершения оприходования
 @router.callback_query(StateFilter(InventoryStates.enteringQuantity), lambda callback: 'finish' == callback.data)
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_finish_button(callback: CallbackQuery, state: FSMContext):
@@ -129,33 +134,35 @@ async def process_callback_query_finish_button(callback: CallbackQuery, state: F
     await process_callback_query_finish_inventory(callback, state)
 
 
-# обработчик который бы реагировал на кнопку "Завершить" в оприходовании
+# обработчик завершения оприходования
 @router.callback_query(StateFilter(InventoryStates.finish), lambda callback: 'finish' == callback.data)
 @admin_access_control_decorator(access='admin')
 async def process_callback_query_finish_inventory(callback: CallbackQuery, state: FSMContext):
     user_data = await state.get_data()
 
-    # данные о пользователе
     user_id = callback.from_user.id
     user_name = callback.from_user.username
     user_first_name = callback.from_user.first_name
     user_last_name = callback.from_user.last_name
     telegram_user = await get_or_create_telegram_user(user_id, user_name, user_first_name, user_last_name)
 
-    # Создание строки с товарами
     products_text = ""
     for product in user_data['products_list']:
         custom_sku = product['choosingModification']
         quantity = product['enteringQuantity']
         products_text += f'{custom_sku} - {quantity}шт.\n'
 
-    # Создание оприходования
     inventory = await create_inventory(user_data, telegram_user)
-    kb = await create_main_menu_kb()
+    if inventory is None:
+        await callback.message.answer(
+            '❌ Произошла ошибка при проведении оприходования. Пожалуйста, попробуйте еще раз.')
+        await state.clear()
+        await callback.answer()
+        return
 
+    kb = await create_main_menu_kb()
     await callback.message.answer(
         f'✅ Оприходование успешно проведено на сумму {await sync_to_async(inventory.calculate_total_amount)()}грн.\n\n'
-        f'вы оприходовали:\n{products_text}\n',
-        reply_markup=kb)
+        f'Список товаров для оприходования: \n\n{products_text}', reply_markup=kb)
     await state.clear()
     await callback.answer()
