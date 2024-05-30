@@ -1,0 +1,13 @@
+{% load static %}
+{% load i18n %}
+
+<!-- Блок содержащий основное меню и форму поиска -->
+<form class="form-inline my-2 my-lg-0 mr-2 align-items-center" action="{% url 'product_search' %}" method="get">
+    {% csrf_token %}
+    <div class="input-group input-group-sm">
+        <input class="form-control form-control-sm" type="text" name="query" placeholder="{% trans 'Поиск' %}">
+        <div class="input-group-append">
+            <button class="btn btn-primary btn-sm" type="submit">{% trans 'Найти' %}</button>
+        </div>
+    </div>
+</form>

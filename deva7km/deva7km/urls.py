@@ -9,7 +9,7 @@ from catalog import views
 from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView
 from catalog.views import home, contacts_page, \
     category_detail, product_detail, sales, telegram_page, \
-    privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page
+    privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page, product_search
 
 from django.conf.urls.i18n import i18n_patterns
 
@@ -23,8 +23,9 @@ urlpatterns = [
     path('feed_fb/', FacebookFeedView.as_view(), name='facebook_feed'),
     path('feed_google/', GoogleFeedView.as_view(), name='google_feed'),
     path('feed_rozetka/', RozetkaFeedView.as_view(), name='rozetka_feed'),
-    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),  # Используем переменную sitemaps
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     re_path(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
+    path('search/', product_search, name='product_search'),
 ]
 
 urlpatterns += i18n_patterns(

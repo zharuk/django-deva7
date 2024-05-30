@@ -35,3 +35,9 @@ class OrderForm(forms.Form):
                                        widget=forms.RadioSelect)
 
     comment = forms.CharField(label=_('Комментарий к заказу'), required=False)
+
+
+
+
+class ProductSearchForm(forms.Form):
+    query = forms.CharField(label=_('Поиск'), max_length=200, required=False)

@@ -1,9 +1,9 @@
-from django.db import transaction
+from django.db import transaction, models
 from django.db.models import Count, Q
 from django.utils.translation import get_language
 
 from catalog.email_utils import send_new_order_notification_email
-from catalog.forms import OrderForm
+from catalog.forms import OrderForm, ProductSearchForm
 from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -327,3 +327,17 @@ def thank_you_page(request):
         'total_amount': total_amount,
         'categories': categories,
     })
+
+
+# поиск
+def product_search(request):
+    form = ProductSearchForm(request.GET)
+    query = request.GET.get('query')
+    results = []
+
+    if query:
+        results = Product.objects.filter(
+            models.Q(title__icontains=query) | models.Q(sku__icontains=query)
+        )
+
+    return render(request, 'product_search.html', {'form': form, 'results': results})

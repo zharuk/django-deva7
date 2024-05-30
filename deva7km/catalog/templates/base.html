@@ -10,47 +10,11 @@
     <script src="{% static 'facebook_pixel.js' %}"></script>
 </head>
 <body>
-<!-- Форма переключения языков -->
-<form id="language-form" class="form-inline my-2 my-lg-0 pt-1 pb-1 pl-1 pr-1 ml-auto justify-content-end" action="{% url 'set_language' %}" method="post">
-    {% csrf_token %}
-    <select id="language-select" class="form-control form-control-sm mr-sm-2" name="language">
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-            var languageSelect = document.getElementById('language-select');
-
-            languageSelect.addEventListener('change', function() {
-                var languageForm = document.getElementById('language-form');
-                languageForm.submit(); // Отправляем форму на сервер
-            });
-        });
-
-        // Обработчик изменения значения в селекте языков
-            document.getElementById('language-select').addEventListener('change', function() {
-                // Отправка формы при изменении значения
-                document.getElementById('language-form').submit();
-            });
-        </script>
-            {% get_current_language as LANGUAGE_CODE %}
-            {% get_available_languages as LANGUAGES %}
-            {% get_language_info_list for LANGUAGES as languages %}
-            {% for language in languages %}
-            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                {% trans language.name_local %} ({{ language.code }})
-            </option>
-            {% endfor %}
-    </select>
-    <!-- Добавляем иконку корзины со ссылкой на страницу корзины -->
-    <div class="navbar-cart">
-        <a class="navbar-brand" href="{% url 'cart_view' %}">
-            <i class="fa-solid fa-cart-shopping fa-lg"></i>
-            <span class="cart-info">
-                {% trans 'Товаров' %}: {{ cart_total_quantity }} | {% trans 'Сумма' %}: {{ cart_total_price }} грн.
-            </span>
-        </a>
-    </div>
-</form>
-
 <header>
+    <div class="d-flex justify-content-end pt-1 pb-1">
+        {% include 'search_menu.html' %}
+        {% include 'languages_menu.html' %}
+    </div>
     <!-- Основная навигационная панель -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <a class="navbar-brand" href="/">
@@ -63,6 +27,10 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
             {% include 'main_menu.html' %}
+            {% include 'header_links.html' %}
+        </div>
+        <div class="d-flex justify-content-center">
+            {% include 'cart_info.html' %}
         </div>
     </nav>
 </header>

@@ -1,0 +1,36 @@
+<!-- languages_menu.html -->
+{% load i18n %}
+<html lang="{% get_current_language as LANGUAGE_CODE %}{% if LANGUAGE_CODE == 'ru' %}ru{% elif LANGUAGE_CODE == 'uk' %}uk{% else %}en{% endif %}">
+
+
+<form id="language-form" class="form-inline my-2 my-lg-0 mr-1" action="{% url 'set_language' %}" method="post">
+    {% csrf_token %}
+    <div class="ml-auto">
+        <select id="language-select" class="table-secondary form-control form-control-sm mr-sm-2" name="language">
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                var languageSelect = document.getElementById('language-select');
+
+                languageSelect.addEventListener('change', function() {
+                    var languageForm = document.getElementById('language-form');
+                    languageForm.submit(); // Отправляем форму на сервер
+                });
+            });
+
+            // Обработчик изменения значения в селекте языков
+                document.getElementById('language-select').addEventListener('change', function() {
+                    // Отправка формы при изменении значения
+                    document.getElementById('language-form').submit();
+                });
+            </script>
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %}
+                {% get_language_info_list for LANGUAGES as languages %}
+                {% for language in languages %}
+                <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                    {% trans language.name_local %} ({{ language.code }})
+                </option>
+                {% endfor %}
+        </select>
+    </div>
+</form>

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-18 11:22+0300\n"
+"POT-Creation-Date: 2024-05-30 16:41+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,37 +95,32 @@ msgstr "Спосіб оплати"
 msgid "Комментарий к заказу"
 msgstr "Коментар до замовлення"
 
-#: .\catalog\models.py:735
+#: .\catalog\forms.py:43 .\catalog\templates\product_search.html:17
+#: .\catalog\templates\search_menu.html:8
+msgid "Поиск"
+msgstr "Пошук"
+
+#: .\catalog\models.py:743
 msgid "В ожидании"
 msgstr "В очікуванні"
 
-#: .\catalog\models.py:736
+#: .\catalog\models.py:744
 msgid "Завершено"
 msgstr "Завершено"
 
-#: .\catalog\models.py:737
+#: .\catalog\models.py:745
 msgid "Отменено"
 msgstr "Скасовано"
 
-#: .\catalog\templates\base.html:8
+#: .\catalog\templates\base.html:9
 msgid "Сайт deva7km"
 msgstr "Сайт deva7km"
 
-#: .\catalog\templates\base.html:46
-msgid "Товаров"
-msgstr "Товарів"
-
-#: .\catalog\templates\base.html:46 .\catalog\templates\cart.html:25
-#: .\catalog\templates\complete_order.html:32
-#: .\catalog\templates\thank_you_page.html:71
-msgid "Сумма"
-msgstr "Сума"
-
-#: .\catalog\templates\base.html:56
+#: .\catalog\templates\base.html:21
 msgid "Дева"
 msgstr "Діва"
 
-#: .\catalog\templates\base.html:73 .\catalog\templates\cart.html:9
+#: .\catalog\templates\base.html:42 .\catalog\templates\cart.html:9
 #: .\catalog\templates\category_detail.html:8
 #: .\catalog\templates\complete_order.html:10
 #: .\catalog\templates\contacts_page.html:10
@@ -170,6 +165,12 @@ msgstr "Розмір"
 msgid "Количество"
 msgstr "Кількість"
 
+#: .\catalog\templates\cart.html:25 .\catalog\templates\cart_info.html:7
+#: .\catalog\templates\complete_order.html:32
+#: .\catalog\templates\thank_you_page.html:71
+msgid "Сумма"
+msgstr "Сума"
+
 #: .\catalog\templates\cart.html:26 .\catalog\templates\cart.html:49
 msgid "Удалить"
 msgstr "Видалити"
@@ -194,15 +195,20 @@ msgstr "Продовжити покупки"
 msgid "Оформить заказ"
 msgstr "Оформити замовлення"
 
+#: .\catalog\templates\cart_info.html:7
+msgid "Товаров"
+msgstr "Товарів"
+
 #: .\catalog\templates\category_detail.html:25 .\catalog\templates\home.html:23
-#: .\catalog\templates\main_menu.html:15 .\catalog\templates\sales.html:4
+#: .\catalog\templates\main_menu.html:14
+#: .\catalog\templates\product_search.html:31 .\catalog\templates\sales.html:4
 #: .\catalog\templates\sales.html:10 .\catalog\templates\sales.html:16
 #: .\catalog\templates\sales.html:22
 msgid "Распродажа"
 msgstr "Розпродаж"
 
 #: .\catalog\templates\category_detail.html:34 .\catalog\templates\home.html:32
-#: .\catalog\templates\sales.html:30
+#: .\catalog\templates\product_search.html:40 .\catalog\templates\sales.html:30
 #, fuzzy
 #| msgid "Нет изображений"
 msgid "Нет изображения"
@@ -235,7 +241,7 @@ msgid "цена распродажи"
 msgstr "Ціна розпродажу"
 
 #: .\catalog\templates\category_detail.html:64 .\catalog\templates\home.html:63
-#: .\catalog\templates\sales.html:51
+#: .\catalog\templates\product_search.html:70 .\catalog\templates\sales.html:51
 msgid "Перейти"
 msgstr "Перейти"
 
@@ -313,7 +319,7 @@ msgstr "Про сайт"
 #: .\catalog\templates\contact_menu_bottom.html:5
 #: .\catalog\templates\contacts_page.html:4
 #: .\catalog\templates\contacts_page.html:11
-#: .\catalog\templates\main_menu.html:20
+#: .\catalog\templates\header_links.html:6
 msgid "Контакты"
 msgstr "Контакти"
 
@@ -328,7 +334,7 @@ msgstr "Оплата"
 
 #: .\catalog\templates\contact_menu_bottom.html:6
 #: .\catalog\templates\delivery_payment_page.html:10
-#: .\catalog\templates\main_menu.html:23
+#: .\catalog\templates\header_links.html:9
 msgid "Доставка и оплата"
 msgstr "Доставка і оплата"
 
@@ -401,13 +407,57 @@ msgstr "Залишок"
 msgid "или купите через социальные сети:"
 msgstr "або купіть через соціальні мережі:"
 
-#: .\catalog\templates\product_detail.html:179
+#: .\catalog\templates\product_detail.html:171
 msgid "Все изображения"
 msgstr "Усі зображення"
 
-#: .\catalog\templates\product_detail.html:186
+#: .\catalog\templates\product_detail.html:178
 msgid "Нет изображений"
 msgstr "Немає зображень"
+
+#: .\catalog\templates\product_search.html:6
+#: .\catalog\templates\product_search.html:12
+msgid "Поиск товаров"
+msgstr "Пошук товарів"
+
+#: .\catalog\templates\product_search.html:24
+msgid "Результаты поиска:"
+msgstr "Результати пошуку:"
+
+#: .\catalog\templates\product_search.html:50
+#, fuzzy
+#| msgid "Артикул"
+msgid "Артикул:"
+msgstr "Артикул"
+
+#: .\catalog\templates\product_search.html:51
+#, fuzzy
+#| msgid "Цвета"
+msgid "Цвета:"
+msgstr "Кольори"
+
+#: .\catalog\templates\product_search.html:52
+#, fuzzy
+#| msgid "Размеры"
+msgid "Размеры:"
+msgstr "Розміри"
+
+#: .\catalog\templates\product_search.html:56
+#: .\catalog\templates\product_search.html:63
+#, fuzzy
+#| msgid "цена"
+msgid "цена:"
+msgstr "ціна"
+
+#: .\catalog\templates\product_search.html:58
+#, fuzzy
+#| msgid "Цена распродажи"
+msgid "цена распродажи:"
+msgstr "Ціна розпродажу"
+
+#: .\catalog\templates\product_search.html:77
+msgid "Ничего не найдено"
+msgstr "Нічого не знайдено"
 
 #: .\catalog\templates\sales.html:9
 msgid "Домой"
@@ -416,6 +466,10 @@ msgstr "Додому"
 #: .\catalog\templates\sales.html:93
 msgid "Нет товаров в распродаже"
 msgstr "Немає товарів у розпродажі"
+
+#: .\catalog\templates\search_menu.html:10
+msgid "Найти"
+msgstr "Знайти"
 
 #: .\catalog\templates\thank_you_page.html:4
 msgid "Спасибо за заказ!"
@@ -457,11 +511,11 @@ msgstr "Статус замовлення"
 msgid "Вернуться на главную"
 msgstr "Повернутися на головну"
 
-#: .\deva7km\settings.py:120
+#: .\deva7km\settings.py:121
 msgid "Russian"
 msgstr "Русский"
 
-#: .\deva7km\settings.py:121
+#: .\deva7km\settings.py:122
 msgid "Ukrainian"
 msgstr "Українська"
 
