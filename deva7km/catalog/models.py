@@ -48,8 +48,11 @@ class Product(models.Model):
         options={'quality': 60}
     )
 
+    # def get_absolute_url(self):
+    #     return reverse('product_detail', args=[self.category.slug, self.slug])
     def get_absolute_url(self):
-        return reverse('product_detail', args=[self.category.slug, self.slug])
+        relative_url = reverse('product_detail', args=[self.category.slug, self.slug])
+        return BASE_URL + relative_url
 
     # Метод для отображения большого изображения товара
     def large_image_url(self):

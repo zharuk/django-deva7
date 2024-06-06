@@ -331,7 +331,6 @@ def thank_you_page(request):
 
 # поиск
 def product_search(request):
-    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
     form = ProductSearchForm(request.GET)
     query = request.GET.get('query')
     results = []
@@ -341,4 +340,4 @@ def product_search(request):
             models.Q(title__icontains=query) | models.Q(sku__icontains=query)
         )
 
-    return render(request, 'product_search.html', {'form': form, 'results': results, 'categories': categories})
+    return render(request, 'product_search.html', {'form': form, 'results': results})
