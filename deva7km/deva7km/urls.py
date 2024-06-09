@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include, re_path
 from django.views.generic import TemplateView
@@ -9,11 +10,13 @@ from catalog import views
 from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView
 from catalog.views import home, contacts_page, \
     category_detail, product_detail, sales, telegram_page, \
-    privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page, product_search
+    privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page, product_search, \
+    ProfileDetailView
 
 from django.conf.urls.i18n import i18n_patterns
 
 from catalog.sitemaps import get_sitemaps  # Импортируем функцию get_sitemaps
+from django.contrib.auth import views as auth_views
 
 sitemaps = get_sitemaps()  # Получаем динамически созданный словарь карт сайта
 
@@ -29,7 +32,16 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
-    path('', home, name='home'),
+    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),  # URL для выхода из системы
+    path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),  # URL для смены пароля
+    path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),  # URL для подтверждения смены пароля
+    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),  # URL для сброса пароля
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),  # URL для подтверждения сброса пароля
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),  # URL для сброса пароля с использованием токена
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),  # URL для подтверждения сброса пароля
+    path('accounts/profile/', login_required(ProfileDetailView.as_view()), name='profile'),  # URL для просмотра профиля
+    path('', home, name='home'),  # URL для главной страницы
     path('add-to-cart/<str:custom_sku>/', views.add_to_cart, name='add_to_cart'),
     path('thank-you/', thank_you_page, name='thank_you_page'),
     path('cart/', cart_view, name='cart_view'),

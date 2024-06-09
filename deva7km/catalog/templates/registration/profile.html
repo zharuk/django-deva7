@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль пользователя</title>
+</head>
+<body>
+    <h1>Профиль пользователя</h1>
+    {% if user %}
+        <p>Объект пользователя: {{ user }}</p>
+        <p>Имя: {{ user.first_name }}</p>
+        <p>Фамилия: {{ user.last_name }}</p>
+        <p>Email: {{ user.email }}</p>
+    {% else %}
+        <p>Объект пользователя не передан в контекст</p>
+    {% endif %}
+    <!-- Другие поля профиля, если они есть -->
+</body>
+</html>
+{% endblock %}

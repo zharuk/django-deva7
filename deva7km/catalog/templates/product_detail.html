@@ -81,7 +81,7 @@
                 {% endfor %}
             </p>
             <div class="card-text">
-                {% if product.is_sale and product.retail_sale_price > 0 %}
+                {% if product.retail_sale_price > 0 %}
                         {% if product.retail_price > 0 %}
                             <del>{% translate 'Цена' %}: {{ product.retail_price }} {{ product.retail_currency }} грн.</del><br>
                         {% endif %}

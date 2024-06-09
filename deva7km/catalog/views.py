@@ -1,6 +1,9 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.db import transaction, models
 from django.db.models import Count, Q
 from django.utils.translation import get_language
+from django.views.generic import DetailView
 
 from catalog.email_utils import send_new_order_notification_email
 from catalog.forms import OrderForm, ProductSearchForm
@@ -341,3 +344,17 @@ def product_search(request):
         )
 
     return render(request, 'product_search.html', {'form': form, 'results': results})
+
+
+class ProfileDetailView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = 'registration/profile.html'
+    context_object_name = 'user'
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        return context
