@@ -1,10 +1,11 @@
-{% extends 'base.html' %}
-
+{% extends "base.html" %}
+{% load i18n %}
 {% block content %}
-<h2>Авторизация</h2>
-<form method="post">
+  <h2>{% trans "Вход" %}</h2>
+  <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Войти</button>
-</form>
+    <button type="submit" class="btn btn-primary">{% trans "Войти" %}</button>
+  </form>
+  <a href="{% url 'password_reset' %}">{% trans "Забыли пароль?" %}</a>
 {% endblock %}

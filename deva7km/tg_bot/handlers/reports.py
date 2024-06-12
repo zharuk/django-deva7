@@ -18,7 +18,7 @@ bot: Bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 
 # Обработчик команды /report
 @router.message(Command('report'))
-@admin_access_control_decorator(access='admin')
+@admin_access_control_decorator(access='seller')
 async def command_report_handler(message: Message, state: FSMContext):
     await state.clear()
     kb = await create_report_kb()
@@ -27,7 +27,7 @@ async def command_report_handler(message: Message, state: FSMContext):
 
 # обработчик который бы отлавливал callback_query=report
 @router.callback_query(lambda callback: 'report' == callback.data)
-@admin_access_control_decorator(access='admin')
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_sell(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     kb = await create_report_kb()
@@ -37,7 +37,7 @@ async def process_callback_query_sell(callback: CallbackQuery, state: FSMContext
 
 # обработка отчетов
 @router.callback_query(lambda callback: callback.data in ['today', 'yesterday', 'week', 'month', 'year', 'total_stock'])
-@admin_access_control_decorator(access='admin')
+@admin_access_control_decorator(access='seller')
 async def process_callback_query_sell(callback: CallbackQuery):
     query_data = callback.data
 

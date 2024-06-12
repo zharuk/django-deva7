@@ -5,6 +5,11 @@ from django.utils.translation import gettext_lazy as _
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+LOGIN_REDIRECT_URL = '/accounts/profile/'
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -72,7 +77,7 @@ ROOT_URLCONF = 'deva7km.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'catalog/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

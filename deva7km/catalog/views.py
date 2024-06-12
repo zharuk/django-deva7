@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db import transaction, models
@@ -358,3 +359,8 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
         return context
+
+
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html')
