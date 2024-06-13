@@ -1,0 +1,14 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+{{ block.super }}
+<div class="object-tools">
+    <ul class="object-tools">
+        <li>
+            <a href="{% url 'export_products_xlsx' %}">
+                Сформировать Excel с товарами
+            </a>
+        </li>
+    </ul>
+</div>
+{% endblock %}

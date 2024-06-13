@@ -21,6 +21,7 @@ sitemaps = get_sitemaps()  # Получаем динамически созда�
 
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
+    path('export-products-xlsx/', views.export_products_xlsx, name='export_products_xlsx'),
     path('i18n/', include('django.conf.urls.i18n')),
     path('feed_fb/', FacebookFeedView.as_view(), name='facebook_feed'),
     path('feed_google/', GoogleFeedView.as_view(), name='google_feed'),

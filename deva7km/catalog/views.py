@@ -5,12 +5,12 @@ from django.db import transaction, models
 from django.db.models import Count, Q
 from django.utils.translation import get_language
 from django.views.generic import DetailView
-
 from catalog.email_utils import send_new_order_notification_email
 from catalog.forms import OrderForm, ProductSearchForm
 from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from catalog.generate_xlsx import generate_product_xlsx
 
 
 def home(request):
@@ -347,6 +347,7 @@ def product_search(request):
     return render(request, 'product_search.html', {'form': form, 'results': results})
 
 
+# профиль пользователя
 class ProfileDetailView(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'registration/profile.html'
@@ -361,6 +362,14 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
+# логин пользователя
 @login_required
 def profile_view(request):
     return render(request, 'profile.html')
+
+
+# генерация товаров для checkbox
+def export_products_xlsx(request):
+    # Вызываем функцию для генерации XLSX
+    response = generate_product_xlsx(request)
+    return response

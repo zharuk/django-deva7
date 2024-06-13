@@ -2,6 +2,7 @@ from adminsortable2.admin import SortableAdminMixin, SortableStackedInline
 from ckeditor.widgets import CKEditorWidget
 from django.contrib import admin
 from django.db import models
+from django.urls import path
 from django.utils.html import format_html
 from modeltranslation.admin import TranslationAdmin
 
@@ -9,6 +10,7 @@ from .models import (
     Category, Color, Size, Product, ProductModification, Image, SaleItem, ReturnItem, Return,
     TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem, Sale, BlogPost, Order, OrderItem
 )
+from .generate_xlsx import generate_product_xlsx
 
 
 class TelegramUserAdmin(admin.ModelAdmin):
@@ -92,13 +94,30 @@ class ProductModificationInline(admin.TabularInline):
 
 class ProductAdmin(TranslationAdmin):
     inlines = [ProductModificationInline]
-    list_display = ('title', 'sku', 'category', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
-                    'sale_price', 'get_collage_thumbnail', 'created_at')
+    list_display = (
+        'title', 'sku', 'category', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
+        'sale_price', 'get_collage_thumbnail', 'created_at'
+    )
     search_fields = ('sku', 'title')
     list_filter = ('sku', 'category', 'colors', 'sizes',)
-    readonly_fields = ('get_collage_thumbnail', 'created_at', 'updated_at', )
+    readonly_fields = ('get_collage_thumbnail', 'created_at', 'updated_at',)
     ordering = ['-created_at']
     list_per_page = 25
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('export-products-xlsx/', self.admin_site.admin_view(self.export_products_xlsx), name='export-products-xlsx'),
+        ]
+        return custom_urls + urls
+
+    def export_products_xlsx(self, request):
+        return generate_product_xlsx()
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['export_products_xlsx_url'] = 'export-products-xlsx/'
+        return super().changelist_view(request, extra_context=extra_context)
 
 
 class InventoryItemInline(admin.TabularInline):
