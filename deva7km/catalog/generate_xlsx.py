@@ -45,7 +45,7 @@ def generate_product_xlsx(request):
         # Формируем строку данных для Excel
         row = [
             f"{product.title_uk if product.title_uk else product.title} №{product.sku} ({color_name}-{size_name})",  # Ім'я товару*
-            f"{product_code}-{color_name}-{size_name})",  # Код* (уникальный код товара)
+            f"{product_code}-{color_name}-{size_name}",  # Код* (уникальный код товара)
             category_name,  # Група товарів (наименование категории)
             "",  # Штрихкод
             "",  # Штрихкоди
