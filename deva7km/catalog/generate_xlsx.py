@@ -40,7 +40,7 @@ def generate_product_xlsx(request):
         size_name = modification.size.name if modification.size else ''
 
         # Формируем уникальный код товара на основе SKU основного товара и его модификаций
-        product_code = f"№{product.sku}"
+        product_code = {product.sku}
 
         # Формируем строку данных для Excel
         row = [
