@@ -8,7 +8,7 @@ from modeltranslation.admin import TranslationAdmin
 
 from .models import (
     Category, Color, Size, Product, ProductModification, Image, SaleItem, ReturnItem, Return,
-    TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem, Sale, BlogPost, Order, OrderItem
+    TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem, Sale, BlogPost, Order, OrderItem, PreOrder
 )
 from .generate_xlsx import generate_product_xlsx
 
@@ -107,7 +107,8 @@ class ProductAdmin(TranslationAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('export-products-xlsx/', self.admin_site.admin_view(self.export_products_xlsx), name='export-products-xlsx'),
+            path('export-products-xlsx/', self.admin_site.admin_view(self.export_products_xlsx),
+                 name='export-products-xlsx'),
         ]
         return custom_urls + urls
 
@@ -221,6 +222,14 @@ class OrderAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
+class PreOrderAdmin(admin.ModelAdmin):
+    list_display = (
+    'id', 'full_name', 'text', 'created_at', 'updated_at', 'receipt_issued', 'ttn', 'shipped_to_customer')
+    list_filter = ('receipt_issued', 'shipped_to_customer')
+    search_fields = ('full_name', 'text', 'ttn')
+
+
+admin.site.register(PreOrder, PreOrderAdmin)
 admin.site.register(BlogPost, BlogPostAdmin)
 admin.site.register(WriteOff, WriteOffAdmin)
 admin.site.register(Inventory, InventoryAdmin)

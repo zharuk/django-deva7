@@ -841,3 +841,27 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = 'Элемент заказа'
         verbose_name_plural = 'Элементы заказа'
+
+
+class PreOrder(models.Model):
+    # Поле для имени и фамилии
+    full_name = models.CharField("Имя и Фамилия", max_length=255)
+    # Текстовое поле с информацией, поддерживающее теги переноса строки
+    text = models.TextField("Информация", blank=True)
+    # Дата создания
+    created_at = models.DateTimeField("Дата создания", auto_now_add=True)
+    # Дата изменения
+    updated_at = models.DateTimeField("Дата изменения", auto_now=True)
+    # Пробит ли чек (по умолчанию False)
+    receipt_issued = models.BooleanField("Пробит ли чек", default=False)
+    # Поле для ТТН (цифровое поле на 30 символов)
+    ttn = models.CharField("Номер ТТН", max_length=30, blank=True)
+    # Отправлено ли покупателю (по умолчанию False)
+    shipped_to_customer = models.BooleanField("Отправлено ли покупателю", default=False)
+
+    class Meta:
+        verbose_name = "Предзаказ"
+        verbose_name_plural = "Предзаказы"
+
+    def __str__(self):
+        return f"предзаказ {self.id}"
