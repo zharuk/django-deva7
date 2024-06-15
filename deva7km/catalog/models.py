@@ -859,7 +859,7 @@ class PreOrder(models.Model):
     # Поле для ТТН (цифровое поле на 30 символов)
     ttn = models.CharField("ТТН", max_length=30, blank=True)
     # Отправлено ли покупателю (по умолчанию False)
-    shipped_to_customer = models.BooleanField("Отправлено ли покупателю", default=False)
+    shipped_to_customer = models.BooleanField("Отправлен", default=False)
 
     class Meta:
         verbose_name = "Предзаказ"
