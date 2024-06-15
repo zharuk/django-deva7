@@ -847,17 +847,17 @@ class PreOrder(models.Model):
     # Поле для имени и фамилии
     full_name = models.CharField("Имя и Фамилия", max_length=255)
     # Текстовое поле с информацией, поддерживающее теги переноса строки
-    text = models.TextField("Информация", blank=True)
+    text = models.TextField("Инфо", blank=True)
     # Поле для дропшипинга (по умолчанию False)
-    drop = models.BooleanField("Дроп ли", default=False)
+    drop = models.BooleanField("Дроп", default=False)
     # Дата создания
     created_at = models.DateTimeField("Дата создания", auto_now_add=True)
     # Дата изменения
     updated_at = models.DateTimeField("Дата изменения", auto_now=True)
     # Пробит ли чек (по умолчанию False)
-    receipt_issued = models.BooleanField("Пробит ли чек", default=False)
+    receipt_issued = models.BooleanField("Чек", default=False)
     # Поле для ТТН (цифровое поле на 30 символов)
-    ttn = models.CharField("Номер ТТН", max_length=30, blank=True)
+    ttn = models.CharField("ТТН", max_length=30, blank=True)
     # Отправлено ли покупателю (по умолчанию False)
     shipped_to_customer = models.BooleanField("Отправлено ли покупателю", default=False)
 
