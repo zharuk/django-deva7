@@ -845,7 +845,7 @@ class OrderItem(models.Model):
 
 class PreOrder(models.Model):
     # Поле для имени и фамилии
-    full_name = models.CharField("Имя и Фамилия", max_length=255)
+    full_name = models.CharField("Имя и Фамилия", max_length=255, blank=True)
     # Текстовое поле с информацией, поддерживающее теги переноса строки
     text = models.TextField("Инфо", blank=True)
     # Поле для дропшипинга (по умолчанию False)
