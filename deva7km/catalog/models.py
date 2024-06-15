@@ -848,6 +848,8 @@ class PreOrder(models.Model):
     full_name = models.CharField("Имя и Фамилия", max_length=255)
     # Текстовое поле с информацией, поддерживающее теги переноса строки
     text = models.TextField("Информация", blank=True)
+    # Поле для дропшипинга (по умолчанию False)
+    drop = models.BooleanField("Дроп ли", default=False)
     # Дата создания
     created_at = models.DateTimeField("Дата создания", auto_now_add=True)
     # Дата изменения
@@ -864,4 +866,4 @@ class PreOrder(models.Model):
         verbose_name_plural = "Предзаказы"
 
     def __str__(self):
-        return f"предзаказ {self.id}"
+        return self.full_name
