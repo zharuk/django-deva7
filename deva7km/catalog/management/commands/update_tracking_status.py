@@ -1,17 +1,30 @@
 import requests
 from django.conf import settings
+from django.utils import timezone
+
 from catalog.models import PreOrder
+import logging
+
+# Настройка логирования в файл
+logging.basicConfig(
+    filename='logs/update_tracking.log',  # Укажите путь к файлу лога
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 
 def update_tracking_status():
-    api_key = getattr(settings, 'NOVA_POSHTA_API_KEY', None)  # Используем API ключ из настроек
+    api_key = getattr(settings, 'NOVA_POSHTA_API_KEY', None)
     if not api_key:
-        print('API key not found in settings')
+        logging.error('API key not found in settings')
         return
 
     url = 'https://api.novaposhta.ua/v2.0/json/'
 
-    preorders = PreOrder.objects.exclude(ttn='')
+    # Выбираем предзаказы, созданные в течение последних 10 дней
+    ten_days_ago = timezone.now() - timezone.timedelta(days=10)
+    preorders = PreOrder.objects.exclude(ttn='').filter(created_at__gte=ten_days_ago)
 
     for preorder in preorders:
         payload = {
@@ -34,8 +47,8 @@ def update_tracking_status():
             status = data['data'][0]['Status']
             preorder.status = status
             preorder.save()
-            print(f'Status for TTN {preorder.ttn} updated to {status}')
+            logging.info(f'Status for TTN {preorder.ttn} updated to {status}')
         else:
-            print(f'Failed to update status for TTN {preorder.ttn}')
+            logging.error(f'Failed to update status for TTN {preorder.ttn}')
 
-    print('Successfully updated tracking statuses')
+    logging.info('Successfully updated tracking statuses')
