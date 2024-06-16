@@ -43,20 +43,18 @@
                     <p>{% trans "Артикул" %}: {{ product.sku }}</p>
                     <p>{% trans "Цвета" %}: {{ product.get_colors }}</p>
                     <p>{% trans "Размеры" %}: {{ product.get_sizes }}</p>
-                    {% if product.is_sale and product.retail_sale_price > 0 %}
-                    <p class="text-danger">
-                        {% if product.retail_price > 0 %}
-                        <del>{% trans "Цена" %}: {{ product.retail_price }} {{ product.currency }}</del><br>
-                        {% endif %}
-                        <strong>{% trans "Цена распродажи" %}: {{ product.retail_sale_price }} {{ product.currency }}</strong>
-                    </p>
-                    {% else %}
                     <p>
-                        {% if product.retail_price > 0 %}
-                        <strong>{% trans "Цена" %}: {{ product.retail_price }} {{ product.currency }}</strong>
+                        {% if product.retail_sale_price > 0 %}
+                            <span class="text-danger">
+                                {% if product.retail_price > 0 %}
+                                    <del>{% trans "Цена" %}: {{ product.retail_price }} {{ product.currency }}</del><br>
+                                {% endif %}
+                                <strong>{% trans "Цена распродажи" %}: {{ product.retail_sale_price }} {{ product.currency }}</strong>
+                            </span>
+                        {% else %}
+                            <strong>{% trans "Цена" %}: {{ product.retail_price }} {{ product.currency }}</strong>
                         {% endif %}
                     </p>
-                    {% endif %}
                 </div>
             </div>
             <div class="card-footer">

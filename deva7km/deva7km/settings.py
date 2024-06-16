@@ -55,9 +55,14 @@ ADMIN_REORDER = (
                 'catalog.Return',)
      },
 
-    {'app': 'auth', 'models': ('auth.User', 'auth.Group', 'catalog.TelegramUser')}
+    # Third group: Orders and PreOrders
+    {'app': 'catalog', 'label': 'Заказы и предзаказы',
+     'models': ('catalog.Order',
+                'catalog.PreOrder',)
+     },
 
-    ,)
+    {'app': 'auth', 'models': ('auth.User', 'auth.Group', 'catalog.TelegramUser')}
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
