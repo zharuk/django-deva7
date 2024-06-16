@@ -145,6 +145,7 @@ IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic
 IMAGEKIT_DEFAULT_CACHEFILE_BACKEND = 'imagekit.cachefiles.backends.Simple'
 IMAGEKIT_DEFAULT_CACHEFILE_TIMEOUT = 60 * 60 * 24 * 7  # Неделя
 
+# логирование
 LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(LOGGING_DIR):
     os.makedirs(LOGGING_DIR)
@@ -179,6 +180,13 @@ LOGGING = {
             'filename': os.path.join(LOGGING_DIR, 'aiogram.log'),
             'formatter': 'verbose',
         },
+        'tracking_file': {  # Новый handler для логирования трекинга
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'encoding': 'utf-8',
+            'filename': os.path.join(LOGGING_DIR, 'tracking.log'),
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
         'django': {
@@ -191,8 +199,14 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'tracking': {  # Новый logger для отслеживания трекинга
+            'handlers': ['console', 'tracking_file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
     },
 }
+
 try:
     from .local_settings import *
 except ImportError:

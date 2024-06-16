@@ -6,6 +6,8 @@ from django.urls import path
 from django.utils.html import format_html
 from modeltranslation.admin import TranslationAdmin
 
+from deva7km import settings
+from .management.commands.update_tracking_status import update_tracking_status
 from .models import (
     Category, Color, Size, Product, ProductModification, Image, SaleItem, ReturnItem, Return,
     TelegramUser, Inventory, InventoryItem, WriteOff, WriteOffItem, Sale, BlogPost, Order, OrderItem, PreOrder
@@ -227,6 +229,22 @@ class PreOrderAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'full_name')
     list_filter = ('shipped_to_customer', 'receipt_issued', 'drop',)
     search_fields = ('full_name', 'text', 'ttn')
+
+    def update_tracking_status_action(self, request, queryset):
+        # Получаем API ключ из настроек
+        api_key = getattr(settings, 'NOVA_POSHTA_API_KEY', None)
+        if not api_key:
+            self.message_user(request, "Не указан API ключ Nova Poshta", level='ERROR')
+            return
+
+        # Вызываем функцию обновления статусов
+        update_tracking_status()
+
+        self.message_user(request, "Статусы заказов успешно обновлены")
+
+    update_tracking_status_action.short_description = "Обновить статусы заказов Nova Poshta"
+
+    actions = [update_tracking_status_action]
 
 
 admin.site.register(PreOrder, PreOrderAdmin)
