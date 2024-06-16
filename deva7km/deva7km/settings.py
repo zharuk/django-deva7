@@ -145,7 +145,6 @@ IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic
 IMAGEKIT_DEFAULT_CACHEFILE_BACKEND = 'imagekit.cachefiles.backends.Simple'
 IMAGEKIT_DEFAULT_CACHEFILE_TIMEOUT = 60 * 60 * 24 * 7  # Неделя
 
-# логирование
 LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(LOGGING_DIR):
     os.makedirs(LOGGING_DIR)
@@ -194,7 +193,6 @@ LOGGING = {
         },
     },
 }
-
 try:
     from .local_settings import *
 except ImportError:
