@@ -229,6 +229,7 @@ class PreOrderAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'full_name')
     list_filter = ('shipped_to_customer', 'receipt_issued', 'drop',)
     search_fields = ('full_name', 'text', 'ttn')
+    list_per_page = 10
 
     def update_tracking_status_action(self, request, queryset):
         # Получаем API ключ из настроек
