@@ -237,10 +237,11 @@ class PreOrderAdmin(admin.ModelAdmin):
             self.message_user(request, "Не указан API ключ Nova Poshta", level='ERROR')
             return
 
-        # Вызываем функцию обновления статусов
-        update_tracking_status()
+        # Вызываем функцию обновления статусов только для выбранных заказов
+        for preorder in queryset:
+            update_tracking_status(preorder)  # Передаем конкретный preorder
 
-        self.message_user(request, "Статусы заказов успешно обновлены")
+        self.message_user(request, "Статусы выбранных заказов успешно обновлены")
 
     update_tracking_status_action.short_description = "Обновить статусы заказов Nova Poshta"
 
