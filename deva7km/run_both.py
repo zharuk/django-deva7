@@ -2,6 +2,14 @@ import os
 import django
 import threading
 import time
+import logging
+
+# Настройка логгера
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    filename='logs/update_tracking.log'  # Укажите путь к файлу лога
+)
 
 
 def setup_django_environment():
@@ -15,7 +23,12 @@ def setup_django_environment():
 def run_update_tracking():
     # Поместим импорт здесь, чтобы убедиться, что Django настроен
     from catalog.management.commands import update_tracking_status
-    update_tracking_status.update_tracking_status()
+
+    try:
+        update_tracking_status.update_tracking_status()
+        logging.info('Обновление статусов треков выполнено успешно')
+    except Exception as e:
+        logging.error(f'Ошибка при выполнении обновления статусов треков: {str(e)}')
 
 
 def run_server():
