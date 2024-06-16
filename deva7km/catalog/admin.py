@@ -96,7 +96,7 @@ class ProductAdmin(TranslationAdmin):
     inlines = [ProductModificationInline]
     list_display = (
         'title', 'sku', 'category', 'get_colors', 'get_sizes', 'get_total_stock', 'price',
-        'sale_price', 'get_collage_thumbnail', 'created_at'
+        'sale_price', 'retail_price', 'retail_sale_price', 'get_collage_thumbnail', 'created_at'
     )
     search_fields = ('sku', 'title')
     list_filter = ('sku', 'category', 'colors', 'sizes',)
