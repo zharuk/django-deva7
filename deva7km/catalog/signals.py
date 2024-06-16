@@ -8,35 +8,10 @@ from .models import Product, ProductModification, Image, Category, Sale, SaleIte
     Inventory, WriteOffItem, WriteOff, BlogPost
 
 
-# Функция для автоматической установки цен в розницу и распродажных цен в розницу
-@receiver(pre_save, sender=Product)
-def set_retail_prices(sender, instance, **kwargs):
-    # Проверяем, что изначальное значение retail_price равно 0
-    if instance.retail_price == 0:
-        # Установка цены в розницу (обычная цена + 200)
-        instance.retail_price = instance.price + 200
-        # Установка распродажной цены в розницу (если sale_price не пусто)
-        if instance.sale_price and instance.retail_sale_price == 0:
-            instance.retail_sale_price = instance.sale_price + 200
-
-
-# сигнал для обновления цены модификаций при изменении цены товара.
-@receiver(post_save, sender=Product)
-def update_modifications_prices(sender, instance, **kwargs):
-    # Получаем все модификации, связанные с данным товаром
-    modifications = ProductModification.objects.filter(product=instance)
-
-    # Обновляем значения price и sale_price в каждой модификации
-    for modification in modifications:
-        modification.price = instance.price
-        modification.sale_price = instance.sale_price
-        modification.save()
-
-
 # сигнал который устанавливает атрибут is_sale для товара если sale_price > 0, иначе False.
 @receiver(pre_save, sender=Product)
 def set_is_sale(sender, instance, **kwargs):
-    if instance.sale_price > 0:
+    if instance.sale_price > 0 or instance.retail_sale_price > 0:
         instance.is_sale = True
     else:
         instance.is_sale = False
