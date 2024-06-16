@@ -1,28 +1,42 @@
 import os
+import django
 import threading
 
 
-# Функция для запуска runserver
+def setup_django_environment():
+    # Установка переменной окружения DJANGO_SETTINGS_MODULE
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'deva7km.settings')
+
+    # Инициализация Django
+    django.setup()
+
+
+def run_update_tracking():
+    # Поместим импорт здесь, чтобы убедиться, что Django настроен
+    from catalog.management.commands import update_tracking_status
+    update_tracking_status.update_tracking_status()
+
+
 def run_server():
+    # Запускаем сервер Django
     os.system("python manage.py runserver")
-
-
-# Функция для запуска runbot
-def run_bot():
-    os.system("python manage.py runbot")
 
 
 if __name__ == "__main__":
     try:
-        # Создание и запуск потока для runserver
+        # Настройка окружения Django
+        setup_django_environment()
+
+        # Создаем и запускаем поток для сервера
         server_thread = threading.Thread(target=run_server)
         server_thread.start()
 
-        # Запуск runbot в основном потоке
-        run_bot()
+        # Запускаем обновление статусов треков в основном потоке
+        run_update_tracking()
 
-        # Дождитесь завершения потока runserver
+        # Дожидаемся завершения потока сервера
         server_thread.join()
+
     except KeyboardInterrupt:
-        # При прерывании скрипта пользователем выполните необходимые действия
+        # Обработка прерывания пользователем
         print("run_both.py: Скрипт был прерван пользователем")

@@ -860,6 +860,8 @@ class PreOrder(models.Model):
     ttn = models.CharField("ТТН", max_length=30, blank=True)
     # Отправлено ли покупателю (по умолчанию False)
     shipped_to_customer = models.BooleanField("Отправлен", default=False)
+    # Статус посылки
+    status = models.CharField("Статус посылки", max_length=255, blank=True)
 
     class Meta:
         verbose_name = "Предзаказ"
