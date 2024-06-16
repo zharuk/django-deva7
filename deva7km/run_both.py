@@ -1,6 +1,7 @@
 import os
 import django
 import threading
+import time
 
 
 def setup_django_environment():
@@ -31,7 +32,10 @@ if __name__ == "__main__":
         server_thread = threading.Thread(target=run_server)
         server_thread.start()
 
-        # Запускаем обновление статусов треков в основном потоке
+        # Ждем некоторое время, чтобы сервер успел запуститься
+        time.sleep(10)  # Увеличьте это значение при необходимости
+
+        # Запускаем обновление статусов треков после запуска сервера
         run_update_tracking()
 
         # Дожидаемся завершения потока сервера
