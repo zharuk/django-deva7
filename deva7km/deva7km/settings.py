@@ -150,7 +150,6 @@ LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(LOGGING_DIR):
     os.makedirs(LOGGING_DIR)
 
-# bot logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
