@@ -1,11 +1,10 @@
-# update_tracking_status.py
-
 import requests
+from django.conf import settings
 from catalog.models import PreOrder
 
 
 def update_tracking_status():
-    api_key = '5cbd7778e124a4bb888fa25329535483'  # Замените на ваш API ключ
+    api_key = settings.NOVA_POSHTA_API_KEY  # Используем API ключ из настроек
     url = 'https://api.novaposhta.ua/v2.0/json/'
 
     preorders = PreOrder.objects.exclude(ttn='')
