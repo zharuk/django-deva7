@@ -1,10 +1,12 @@
 import requests
-from django.conf import settings
-from django.utils import timezone
-from catalog.models import PreOrder
+import time
 import logging
+from django.core.cache import cache
+from django.conf import settings
 
-logger_tracking = logging.getLogger('tracking')  # Логгер для отслеживания трекинга
+# Логирование
+logger_tracking = logging.getLogger('tracking')
+
 
 def update_tracking_status(preorder):
     api_key = getattr(settings, 'NOVA_POSHTA_API_KEY', None)
@@ -13,6 +15,18 @@ def update_tracking_status(preorder):
 
     url = 'https://api.novaposhta.ua/v2.0/json/'
 
+    # Попробуем получить статус из кэша
+    cache_key = f"tracking_status_{preorder.ttn}"
+    status = cache.get(cache_key)
+
+    if status:
+        # Если статус есть в кэше, обновляем и сохраняем предзаказ
+        preorder.status = status
+        preorder.save()
+        logger_tracking.info(f"Обновлен статус из кэша для заказа {preorder.id}. Новый статус: {status}")
+        return
+
+    # Если статуса нет в кэше, делаем запрос к API
     payload = {
         "apiKey": api_key,
         "modelName": "TrackingDocument",
@@ -26,6 +40,9 @@ def update_tracking_status(preorder):
         }
     }
 
+    # Добавим задержку перед запросом
+    time.sleep(1)
+
     response = requests.post(url, json=payload)
     data = response.json()
 
@@ -33,6 +50,9 @@ def update_tracking_status(preorder):
         status = data['data'][0]['Status']
         preorder.status = status
         preorder.save()
+
+        # Кэшируем статус на 10 минут
+        cache.set(cache_key, status, timeout=600)
 
         # Логирование успешного обновления статуса трекинга
         logger_tracking.info(f"Обновлен статус для заказа {preorder.id}. Новый статус: {status}")
@@ -43,3 +63,4 @@ def update_tracking_status(preorder):
     # Логирование всех запросов и ответов API
     logger_tracking.debug(f"API запрос для заказа {preorder.id}: {payload}")
     logger_tracking.debug(f"API ответ для заказа {preorder.id}: {data}")
+
