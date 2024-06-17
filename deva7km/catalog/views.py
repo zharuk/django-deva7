@@ -11,6 +11,11 @@ from catalog.models import Image, Category, Product, BlogPost, ProductModificati
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from catalog.generate_xlsx import generate_product_xlsx
+from django.contrib import messages
+from django.utils import timezone
+from datetime import timedelta
+from .management.commands.update_tracking_status import update_tracking_status
+from .models import PreOrder
 
 
 def home(request):
@@ -373,3 +378,15 @@ def export_products_xlsx(request):
     # Вызываем функцию для генерации XLSX
     response = generate_product_xlsx(request)
     return response
+
+
+# обновление статусов посылок
+def update_tracking_status_view(request):
+    ten_days_ago = timezone.now() - timedelta(days=10)
+    recent_preorders = PreOrder.objects.filter(created_at__gte=ten_days_ago)
+
+    for preorder in recent_preorders:
+        update_tracking_status(preorder)
+
+    messages.success(request, "Статусы всех заказов, созданных за последние 10 дней, успешно обновлены.")
+    return redirect('admin:catalog_preorder_changelist')

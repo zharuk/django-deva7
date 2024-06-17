@@ -10,7 +10,7 @@ from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView
 from catalog.views import home, contacts_page, \
     category_detail, product_detail, sales, telegram_page, \
     privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page, product_search, \
-    ProfileDetailView
+    ProfileDetailView, update_tracking_status_view
 
 from django.conf.urls.i18n import i18n_patterns
 
@@ -22,6 +22,7 @@ sitemaps = get_sitemaps()  # Получаем динамически созда�
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path('export-products-xlsx/', views.export_products_xlsx, name='export_products_xlsx'),
+    path('admin/update_tracking_status/', update_tracking_status_view, name='update_tracking_status'),
     path('i18n/', include('django.conf.urls.i18n')),
     path('feed_fb/', FacebookFeedView.as_view(), name='facebook_feed'),
     path('feed_google/', GoogleFeedView.as_view(), name='google_feed'),

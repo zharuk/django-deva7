@@ -225,28 +225,13 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 class PreOrderAdmin(admin.ModelAdmin):
+    change_list_template = "admin/catalog/preorder/change_list.html"
+
     list_display = ('id', 'full_name', 'text', 'drop', 'receipt_issued', 'ttn', 'shipped_to_customer', 'status', 'created_at', 'updated_at',)
     list_display_links = ('id', 'full_name')
     list_filter = ('shipped_to_customer', 'receipt_issued', 'drop',)
     search_fields = ('full_name', 'text', 'ttn')
     list_per_page = 10
-
-    def update_tracking_status_action(self, request, queryset):
-        # Получаем API ключ из настроек
-        api_key = getattr(settings, 'NOVA_POSHTA_API_KEY', None)
-        if not api_key:
-            self.message_user(request, "Не указан API ключ Nova Poshta", level='ERROR')
-            return
-
-        # Вызываем функцию обновления статусов только для выбранных заказов
-        for preorder in queryset:
-            update_tracking_status(preorder)  # Передаем конкретный preorder
-
-        self.message_user(request, "Статусы выбранных заказов успешно обновлены")
-
-    update_tracking_status_action.short_description = "Обновить статусы заказов Nova Poshta"
-
-    actions = [update_tracking_status_action]
 
 
 admin.site.register(PreOrder, PreOrderAdmin)

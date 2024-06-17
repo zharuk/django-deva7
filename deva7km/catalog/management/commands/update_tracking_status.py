@@ -6,7 +6,6 @@ import logging
 
 logger_tracking = logging.getLogger('tracking')  # Логгер для отслеживания трекинга
 
-
 def update_tracking_status(preorder):
     api_key = getattr(settings, 'NOVA_POSHTA_API_KEY', None)
     if not api_key:
