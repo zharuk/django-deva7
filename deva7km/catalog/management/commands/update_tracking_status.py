@@ -49,7 +49,7 @@ def update_tracking_status(preorder):
 
     if data['success']:
         status = data['data'][0]['Status']
-        current_time = timezone.localtime().strftime('%d-%m-%Y %H:%M:%S')
+        current_time = timezone.localtime().strftime('%d.%m.%Y %H:%M:%S')
 
         # Не обновляем статусы, содержащие "Відмова від отримання" и "Відправлення отримано"
         if "Відмова від отримання" in status or "Відправлення отримано" in status:
