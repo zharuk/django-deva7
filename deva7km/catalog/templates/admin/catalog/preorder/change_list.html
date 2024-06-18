@@ -1,14 +1,148 @@
 {% extends "admin/change_list.html" %}
 
-{% block object-tools %}
-{{ block.super }}
-<div class="object-tools">
-    <ul class="object-tools">
-        <li>
-            <a href="{% url 'update_tracking_status' %}">
-                Обновить статусы заказов Nova Poshta
-            </a>
-        </li>
-    </ul>
-</div>
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .mobile-view {
+            display: none;
+        }
+
+        .desktop-view {
+            display: table;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-view {
+                display: block;
+            }
+
+            .desktop-view {
+                display: none;
+            }
+        }
+
+        .boolean.true:after {
+            content: '\2714';  /* Зеленая галочка */
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .boolean.false:after {
+            content: '\2718';  /* Красный крестик */
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .preorder-block {
+            margin-bottom: 5px; /* Отступ после каждого блока данных */
+            background-color: #293133; /* Цвет фона для блоков */
+            padding: 10px;
+            border-radius: 5px; /* Скругленные углы */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень для блоков */
+            color: #B5B8B1; /* Цвет текста */
+        }
+
+        .preorder-block th,
+        .preorder-block td {
+            border: none; /* Убираем границы внутри блоков */
+            color: #B5B8B1; /* Цвет текста внутри блоков */
+        }
+
+        .button {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #293133; /* Цвет фона кнопки */
+            color: #fff; /* Цвет текста кнопки */
+            border: none; /* Убираем границу */
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            margin-top: 10px; /* Отступ сверху */
+            margin-bottom: 20px; /* Отступ снизу */
+        }
+
+        .button:hover {
+            background-color: #0056b3; /* Цвет фона кнопки при наведении */
+        }
+
+        .object-tools li:first-child {
+            z-index: 2;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="update-button-container">
+        <a href="{% url 'update_tracking_status' %}" class="button">
+            Обновить статусы заказов Nova Poshta
+        </a>
+    </div>
+    {{ block.super }}
+{% endblock %}
+
+{% block result_list %}
+    <div id="changelist">
+        <div class="results desktop-view">
+            {{ block.super }}
+        </div>
+        <div class="results mobile-view">
+            {% if cl.result_count %}
+                {% for obj in cl.result_list %}
+                    <div class="preorder-block">
+                        <table class="preorder-table">
+                            <tr>
+                                <th>ID:</th>
+                                <td>{{ obj.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Имя и Фамилия:</th>
+                                <td>{{ obj.full_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Инфо:</th>
+                                <td>{{ obj.text }}</td>
+                            </tr>
+                            <tr>
+                                <th>Дроп:</th>
+                                <td><span class="boolean {% if obj.drop %}true{% else %}false{% endif %}"></span></td>
+                            </tr>
+                            <tr>
+                                <th>Чек:</th>
+                                <td><span class="boolean {% if obj.receipt_issued %}true{% else %}false{% endif %}"></span></td>
+                            </tr>
+                            <tr>
+                                <th>ТТН:</th>
+                                <td>{{ obj.ttn }}</td>
+                            </tr>
+                            <tr>
+                                <th>Отправлен:</th>
+                                <td><span class="boolean {% if obj.shipped_to_customer %}true{% else %}false{% endif %}"></span></td>
+                            </tr>
+                            <tr>
+                                <th>Статус посылки:</th>
+                                <td>{{ obj.status }}</td>
+                            </tr>
+                            <tr>
+                                <th>Дата создания:</th>
+                                <td>{{ obj.created_at }}</td>
+                            </tr>
+                            <tr>
+                                <th>Дата изменения:</th>
+                                <td>{{ obj.updated_at }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align: center;">
+                                    <a href="{% url 'admin:catalog_preorder_change' obj.id %}" class="button">Перейти к заказу</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Нет результатов.</p>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
