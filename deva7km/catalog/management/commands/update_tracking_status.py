@@ -8,6 +8,7 @@ from django.utils import timezone
 # Логирование
 logger_tracking = logging.getLogger('tracking')
 
+
 def update_tracking_status(preorder):
     api_key = getattr(settings, 'NOVA_POSHTA_API_KEY', None)
     if not api_key:
@@ -48,7 +49,7 @@ def update_tracking_status(preorder):
 
     if data['success']:
         status = data['data'][0]['Status']
-        current_time = timezone.now().strftime('%d-%m-%Y %H:%M:%S')
+        current_time = timezone.localtime().strftime('%d-%m-%Y %H:%M:%S')
 
         # Не обновляем статусы, содержащие "Відмова від отримання" и "Відправлення отримано"
         if "Відмова від отримання" in status or "Відправлення отримано" in status:
