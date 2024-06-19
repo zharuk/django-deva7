@@ -347,9 +347,13 @@ def product_search(request):
 
     results = []
     if query:
+        # Фильтрация по названию или артикулу, и проверка на остаток товара
         results = Product.objects.filter(
             Q(title__icontains=query) | Q(sku__icontains=query)
-        )
+        ).order_by('title')  # Фильтрация по строке запроса и сортировка по названию
+
+        # Применение фильтрации по остатку через Python, так как Django ORM не позволяет это сделать напрямую
+        results = [product for product in results if product.get_total_stock() > 0]
 
     # Ограничение вывода результатов в AJAX-запросах
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -365,6 +369,7 @@ def product_search(request):
 
     return render(request, 'product_search.html', {'results': results, 'query': query})
 
+
 # Класс для AJAX поиска
 class AjaxProductSearch(View):
     def get(self, request):
@@ -372,9 +377,16 @@ class AjaxProductSearch(View):
 
         results = []
         if query:
+            # Фильтрация по названию или артикулу, и проверка на остаток товара
             results = Product.objects.filter(
                 Q(title__icontains=query) | Q(sku__icontains=query)
-            )[:10]  # Ограничение до 10 результатов
+            ).order_by('title')  # Фильтрация по строке запроса и сортировка по названию
+
+            # Применение фильтрации по остатку через Python, так как Django ORM не позволяет это сделать напрямую
+            results = [product for product in results if product.get_total_stock() > 0]
+
+            # Ограничение до 10 результатов
+            results = results[:10]
 
         data = [
             {
