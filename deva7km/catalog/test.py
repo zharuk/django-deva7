@@ -1,23 +1,18 @@
-import json
-import os
+from catalog.models import Product
+from django.db.models.functions import Lower
+from django.db.models import Q
 
-# Получаем полный путь к файлу 'db.json'
-file_path = os.path.join('C:\\Users\\user\\PycharmProjects\\django\\deva7km', 'db.json')
+# Тестовый запрос
+query = 'платье'.strip().lower()
 
-# Открываем файл в текущей кодировке (ibm866)
-with open(file_path, 'r', encoding='cp1251 ') as file:
-    # Читаем данные из файла
-    data = file.read()
+# Выполняем аннотацию и фильтрацию
+results = Product.objects.annotate(
+    title_lower=Lower('title'),
+    sku_lower=Lower('sku')
+).filter(
+    Q(title_lower__icontains=query) | Q(sku_lower__icontains=query)
+)
 
-# Перекодируем данные в utf-8
-data_utf8 = data.encode('utf-8').decode('utf-8')
-
-# Загружаем данные JSON
-json_data = json.loads(data_utf8)
-
-# Теперь вы можете работать с данными в кодировке utf-8
-
-# Если вы хотите сохранить данные в новом файле в utf-8
-new_file_path = os.path.join('C:\\Users\\user\\PycharmProjects\\django\\deva7km', 'новый_файл.json')
-with open(new_file_path, 'w', encoding='utf-8') as new_file:
-    json.dump(json_data, new_file, ensure_ascii=False, indent=4)
+# Печатаем результаты
+for product in results:
+    print(f"Результат: {product.title} (SKU: {product.sku})")

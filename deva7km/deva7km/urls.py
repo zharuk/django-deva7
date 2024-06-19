@@ -10,7 +10,7 @@ from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView
 from catalog.views import home, contacts_page, \
     category_detail, product_detail, sales, telegram_page, \
     privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page, product_search, \
-    ProfileDetailView, update_tracking_status_view
+    ProfileDetailView, update_tracking_status_view, AjaxProductSearch
 
 from django.conf.urls.i18n import i18n_patterns
 
@@ -30,6 +30,7 @@ urlpatterns = [
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     re_path(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
     path('search/', product_search, name='product_search'),
+    path('ajax/product-search/', AjaxProductSearch.as_view(), name='ajax_product_search'),  # AJAX поиск
 ]
 
 urlpatterns += i18n_patterns(

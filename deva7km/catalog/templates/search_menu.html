@@ -1,13 +1,75 @@
-{% load static %}
 {% load i18n %}
+<div class="form-inline my-2 my-lg-0 mr-2 align-items-center dropdown">
+    <form action="{% url 'product_search' %}" method="get" class="w-100" id="search-form">
+        <input class="form-control form-control-sm" type="text" id="ajax-search-input" name="query" placeholder="{% trans 'Поиск' %}" aria-expanded="false" aria-haspopup="true" autocomplete="off">
+        <div class="dropdown-menu w-100" id="search-results"></div>
+    </form>
+</div>
 
-<!-- Блок содержащий основное меню и форму поиска -->
-<form class="form-inline my-2 my-lg-0 mr-2 align-items-center" action="{% url 'product_search' %}" method="get">
-    {% csrf_token %}
-    <div class="input-group input-group-sm">
-        <input class="form-control form-control-sm" type="text" name="query" placeholder="{% trans 'Поиск' %}">
-        <div class="input-group-append">
-            <button class="btn btn-primary btn-sm" type="submit">{% trans 'Найти' %}</button>
-        </div>
-    </div>
-</form>
+<script type="text/javascript">
+    $(document).ready(function(){
+        console.log("jQuery загружен:", typeof $ !== 'undefined');
+
+        $('#ajax-search-input').on('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if ($('#search-results').hasClass('show')) {
+                    $('#search-results').removeClass('show');
+                }
+                $('#search-form').submit();
+            }
+        });
+
+        $('#ajax-search-input').on('input', function(){
+            let query = $(this).val();  // Удаляем преобразование в нижний регистр
+            console.log("Запрос:", query);
+
+            let resultsDropdown = $('#search-results');
+
+            if (query.length > 2) {
+                console.log("Отправка AJAX-запроса на сервер...");
+
+                $.ajax({
+                    url: "{% url 'ajax_product_search' %}",
+                    data: {'q': query},
+                    dataType: 'json',
+                    success: function(data){
+                        console.log("Ответ от сервера:", data);
+                        resultsDropdown.empty();
+                        if (data.length > 0) {
+                            data.forEach(product => {
+                                resultsDropdown.append(
+                                    '<a href="' + product.get_absolute_url + '" class="dropdown-item">' +
+                                        '<div class="d-flex align-items-center">' +
+                                            '<img src="' + product.collage_image_url + '" class="img-fluid" alt="' + product.title + '" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;">' +
+                                            '<span>' + product.title + '</span>' +
+                                        '</div>' +
+                                    '</a>'
+                                );
+                            });
+                            resultsDropdown.addClass('show');
+                        } else {
+                            resultsDropdown.append('<span class="dropdown-item">{% trans "Ничего не найдено" %}</span>');
+                            resultsDropdown.addClass('show');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Ошибка AJAX-запроса:", status, error);
+                        resultsDropdown.removeClass('show');
+                    }
+                });
+            } else {
+                console.log("Слишком короткий запрос, очистка результатов.");
+                resultsDropdown.empty();
+                resultsDropdown.removeClass('show');
+            }
+        });
+
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.dropdown').length) {
+                $('#search-results').removeClass('show');
+            }
+        });
+    });
+</script>
+

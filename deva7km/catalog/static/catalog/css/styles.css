@@ -1,0 +1,43 @@
+/* Стили для выпадающего списка результатов поиска */
+#search-results {
+    max-height: none; /* Убираем ограничение высоты */
+    overflow-y: visible; /* Убираем прокрутку */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Легкая тень для улучшения видимости */
+    z-index: 1000; /* Убедимся, что он всегда поверх других элементов */
+    background-color: #343a40; /* Цвет фона, соответствующий теме */
+    border-radius: 5px; /* Закругленные углы */
+    margin-top: 5px; /* Отступ от поля поиска */
+    width: calc(100% - 20px); /* Ширина с учетом отступа справа */
+    right: 10px; /* Отступ справа */
+    left: auto; /* Установка слева по умолчанию */
+    padding-right: 10px; /* Внутренний отступ справа */
+}
+
+#search-results .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 10px; /* Увеличенный отступ */
+    color: #fff; /* Цвет текста */
+    transition: background-color 0.3s; /* Плавный переход фона при наведении */
+    white-space: nowrap; /* Запрещаем перенос строк */
+    overflow: hidden; /* Скрываем текст, который не помещается */
+    text-overflow: ellipsis; /* Добавляем многоточие для длинного текста */
+    margin-right: 10px; /* Отступ справа для самих элементов */
+}
+
+#search-results .dropdown-item:hover {
+    background-color: #495057; /* Цвет фона при наведении */
+}
+
+#search-results .dropdown-item img {
+    width: 40px; /* Ширина изображения */
+    height: 40px; /* Высота изображения */
+    object-fit: cover; /* Изображение должно полностью заполнять контейнер */
+    margin-right: 10px; /* Отступ между изображением и текстом */
+}
+
+#search-results .dropdown-item span {
+    font-size: 14px; /* Размер шрифта */
+    color: #fff; /* Цвет текста */
+    max-width: calc(100% - 60px); /* Максимальная ширина текста с учетом отступов */
+}

@@ -3,7 +3,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db import transaction, models
 from django.db.models import Count, Q
+from django.db.models.functions import Lower
+from django.http import JsonResponse
 from django.utils.translation import get_language
+from django.views import View
 from django.views.generic import DetailView
 from catalog.email_utils import send_new_order_notification_email
 from catalog.forms import OrderForm, ProductSearchForm
@@ -338,18 +341,50 @@ def thank_you_page(request):
     })
 
 
-# поиск
+# Функция для обычного поиска
 def product_search(request):
-    form = ProductSearchForm(request.GET)
-    query = request.GET.get('query')
-    results = []
+    query = request.GET.get('query', '').strip()  # Оставляем запрос как есть, без приведения к нижнему регистру
 
+    results = []
     if query:
         results = Product.objects.filter(
-            models.Q(title__icontains=query) | models.Q(sku__icontains=query)
+            Q(title__icontains=query) | Q(sku__icontains=query)
         )
 
-    return render(request, 'product_search.html', {'form': form, 'results': results})
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        data = [
+            {
+                'title': product.title,
+                'get_absolute_url': product.get_absolute_url(),
+                'collage_image_url': product.collage_image.url if product.collage_image else '/static/images/default_image.png'
+            }
+            for product in results
+        ]
+        return JsonResponse(data, safe=False)
+
+    return render(request, 'product_search.html', {'results': results, 'query': query})
+
+
+# Класс для AJAX поиска
+class AjaxProductSearch(View):
+    def get(self, request):
+        query = request.GET.get('q', '').strip()  # Оставляем запрос как есть, без приведения к нижнему регистру
+
+        results = []
+        if query:
+            results = Product.objects.filter(
+                Q(title__icontains=query) | Q(sku__icontains=query)
+            )
+
+        data = [
+            {
+                'title': product.title,
+                'get_absolute_url': product.get_absolute_url(),
+                'collage_image_url': product.collage_image.url if product.collage_image else '/static/images/default_image.png'
+            }
+            for product in results
+        ]
+        return JsonResponse(data, safe=False)
 
 
 # профиль пользователя
