@@ -351,6 +351,7 @@ def product_search(request):
             Q(title__icontains=query) | Q(sku__icontains=query)
         )
 
+    # Ограничение вывода результатов в AJAX-запросах
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         data = [
             {
@@ -358,12 +359,11 @@ def product_search(request):
                 'get_absolute_url': product.get_absolute_url(),
                 'collage_image_url': product.collage_image.url if product.collage_image else '/static/images/default_image.png'
             }
-            for product in results
+            for product in results[:10]  # Ограничение до 10 результатов
         ]
         return JsonResponse(data, safe=False)
 
     return render(request, 'product_search.html', {'results': results, 'query': query})
-
 
 # Класс для AJAX поиска
 class AjaxProductSearch(View):
@@ -374,7 +374,7 @@ class AjaxProductSearch(View):
         if query:
             results = Product.objects.filter(
                 Q(title__icontains=query) | Q(sku__icontains=query)
-            )
+            )[:10]  # Ограничение до 10 результатов
 
         data = [
             {
