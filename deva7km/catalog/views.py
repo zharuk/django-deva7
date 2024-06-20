@@ -1,15 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.db import transaction, models
+from django.db import transaction
 from django.db.models import Count, Q
-from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.utils.translation import get_language
 from django.views import View
 from django.views.generic import DetailView
 from catalog.email_utils import send_new_order_notification_email
-from catalog.forms import OrderForm, ProductSearchForm
+from catalog.forms import OrderForm
 from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -19,6 +18,8 @@ from django.utils import timezone
 from datetime import timedelta
 from .management.commands.update_tracking_status import update_tracking_status
 from .models import PreOrder
+from asgiref.sync import sync_to_async
+import asyncio
 
 
 def home(request):
@@ -427,13 +428,18 @@ def export_products_xlsx(request):
     return response
 
 
-# обновление статусов посылок
-def update_tracking_status_view(request):
+async def update_tracking_status_view(request):
     ten_days_ago = timezone.now() - timedelta(days=10)
-    recent_preorders = PreOrder.objects.filter(created_at__gte=ten_days_ago)
 
-    for preorder in recent_preorders:
-        update_tracking_status(preorder)
+    # Асинхронное получение всех предзаказов за последние 10 дней
+    recent_preorders = await sync_to_async(list)(PreOrder.objects.filter(created_at__gte=ten_days_ago))
 
+    # Запускаем обновление статусов для всех найденных предзаказов
+    tasks = [update_tracking_status(preorder) for preorder in recent_preorders]
+    await asyncio.gather(*tasks)
+
+    # Уведомляем пользователя об успешном обновлении
     messages.success(request, "Статусы всех заказов, созданных за последние 10 дней, успешно обновлены.")
+
+    # Перенаправляем обратно на страницу списка предзаказов
     return redirect('admin:catalog_preorder_changelist')

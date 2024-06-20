@@ -1,17 +1,17 @@
+import aiohttp
+import asyncio
+
 from aiohttp import payload
-from django.core.cache import cache
 from django.utils import timezone
-import requests
-import logging
-import time
 from django.conf import settings
+import logging
 
 # Настройка логирования
 logger_tracking = logging.getLogger('tracking')
 
 
-def get_tracking_status_from_api(ttn, api_key):
-    """Запрос статуса посылки по API."""
+async def get_tracking_status_from_api(ttn, api_key):
+    """Асинхронный запрос статуса посылки по API."""
     url = 'https://api.novaposhta.ua/v2.0/json/'
     payload = {
         "apiKey": api_key,
@@ -25,32 +25,24 @@ def get_tracking_status_from_api(ttn, api_key):
             ]
         }
     }
-    response = requests.post(url, json=payload)
-    return response.json()
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=payload) as response:
+            response_data = await response.json()
+            return response_data
 
 
-def update_tracking_status(preorder):
+async def update_tracking_status(preorder):
     api_key = getattr(settings, 'NOVA_POSHTA_API_KEY', None)
     if not api_key:
-        logger_tracking.error("NOVA_POSHTA_API_KEY не установлен.")
-        return
-
-    # Попробуем получить статус из кэша
-    cache_key = f"tracking_status_{preorder.ttn}"
-    status_with_time = cache.get(cache_key)
-
-    if status_with_time:
-        # Если статус есть в кэше, обновляем и сохраняем предзаказ
-        preorder.status = status_with_time
-        preorder.save()
-        logger_tracking.info(f"Обновлен статус из кэша для заказа {preorder.id}. Новый статус: {status_with_time}")
+        logger_tracking.error("NOVA_POSHTА_API_KEY не установлен.")
         return
 
     # Добавим задержку перед запросом, если это необходимо
-    time.sleep(1)
+    await asyncio.sleep(1)
 
     # Получаем статус из API
-    data = get_tracking_status_from_api(preorder.ttn, api_key)
+    data = await get_tracking_status_from_api(preorder.ttn, api_key)
 
     if not data.get('success'):
         # Логирование ошибок при запросе статуса трекинга
@@ -70,21 +62,21 @@ def update_tracking_status(preorder):
 
     current_time = timezone.localtime().strftime('%d.%m.%Y %H:%M:%S')
 
-    # Игнорируем статусы "Відправлення отримано" и "Відмова від отримання"
-    if "Відправлення отримано" in status:
-        logger_tracking.info(f"Статус заказа {preorder.id} не был обновлен, так как он содержит '{status}'")
-        return
+    # Проверяем текущий статус в админке
+    current_admin_status = preorder.status
 
-    # Добавляем время обновления к статусу
-    status_with_time = f"{status} (обновлено: {current_time})"
-    preorder.status = status_with_time
-    preorder.save()
+    # Если текущий статус пустой или новый статус не "Відправлення отримано", обновляем статус
+    if not current_admin_status or "Відправлення отримано" not in status:
+        # Добавляем время обновления к статусу
+        status_with_time = f"{status} (обновлено: {current_time})"
+        preorder.status = status_with_time
+        await preorder.asave()  # Предполагаем, что метод asave() асинхронный
 
-    # Кэшируем статус на 10 минут
-    cache.set(cache_key, status_with_time, timeout=600)
+        # Логирование успешного обновления статуса трекинга
+        logger_tracking.info(f"Обновлен статус для заказа {preorder.id}. Новый статус: {status_with_time}")
 
-    # Логирование успешного обновления статуса трекинга
-    logger_tracking.info(f"Обновлен статус для заказа {preorder.id}. Новый статус: {status_with_time}")
+    else:
+        logger_tracking.info(f"Статус заказа {preorder.id} не был обновлен, так как текущий статус содержит '{status}'")
 
     # Логирование всех запросов и ответов API
     logger_tracking.debug(f"API запрос для заказа {preorder.id}: {payload}")
