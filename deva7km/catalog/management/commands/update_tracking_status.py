@@ -4,12 +4,24 @@ from asgiref.sync import sync_to_async
 from django.utils import timezone
 from django.conf import settings
 import logging
+from datetime import datetime, timedelta
+import re
 
 # Настройка логирования
 logger_tracking = logging.getLogger('tracking')
 
-# Настройка логирования
-logger_tracking = logging.getLogger('tracking')
+
+# Функция для извлечения времени из строки статуса
+def extract_update_time(status):
+    """Извлекает время последнего обновления из статуса, если оно есть."""
+    match = re.search(r'\(обновлено: (.*?)\)', status)
+    if match:
+        try:
+            return datetime.strptime(match.group(1), '%d.%m.%Y %H:%M:%S')
+        except ValueError:
+            logger_tracking.error(f"Не удалось распарсить время обновления из статуса: {status}")
+    return None
+
 
 async def get_tracking_status_from_api_nova_poshta(ttns, api_key):
     """Асинхронный запрос статуса посылки по API Nova Poshta."""
@@ -28,7 +40,7 @@ async def get_tracking_status_from_api_nova_poshta(ttns, api_key):
         "Accept": "application/json"
     }
 
-    logger_tracking.info(f"Отправка запроса для TTN {ttns}: {payload}")
+    logger_tracking.info(f"Отправка запроса для TTNs {ttns}: {payload}")
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=payload, headers=headers) as response:
@@ -49,6 +61,7 @@ async def get_tracking_status_from_api_nova_poshta(ttns, api_key):
                     f"Неверный тип ответа от API Nova Poshta для TTNs {ttns}. Получен тип: {content_type}. Ответ: {response_text}")
                 return None
 
+
 async def update_tracking_status(preorders):
     # Проверка и преобразование в список, если передан один объект
     if not isinstance(preorders, list):
@@ -58,14 +71,26 @@ async def update_tracking_status(preorders):
     carriers = {preorder.ttn: get_carrier(preorder.ttn) for preorder in preorders}
     ttns_nova_poshta = [ttn for ttn, carrier in carriers.items() if carrier == 'NovaPoshta']
 
+    now = timezone.now()
+    one_hour_ago = now - timedelta(hours=1)
+
     try:
         if not api_key and ttns_nova_poshta:
             logger_tracking.error("NOVA_POSHTA_API_KEY не установлен.")
             return
 
-        # Пакетная обработка для Nova Poshta
-        if ttns_nova_poshta:
-            data = await get_tracking_status_from_api_nova_poshta(ttns_nova_poshta, api_key)
+        # Фильтруем посылки для Nova Poshta, которые были обновлены более часа назад или имеют пустой статус
+        preorders_to_update = [
+            preorder for preorder in preorders
+            if (preorder.ttn in ttns_nova_poshta) and
+               (not preorder.status or extract_update_time(preorder.status) < one_hour_ago)
+        ]
+
+        # Получаем TTN для обновления
+        ttns_to_update = [preorder.ttn for preorder in preorders_to_update]
+
+        if ttns_to_update:
+            data = await get_tracking_status_from_api_nova_poshta(ttns_to_update, api_key)
             if data and data.get('success'):
                 for document in data.get('data', []):
                     ttn = document.get('Number')
@@ -77,10 +102,12 @@ async def update_tracking_status(preorders):
                             status_with_time = f"{status} (обновлено: {current_time})"
                             preorder.status = status_with_time
                             await sync_to_async(preorder.save)()
-                            logger_tracking.info(f"Обновлен статус для заказа {preorder.id}. Новый статус: {status_with_time}")
+                            logger_tracking.info(
+                                f"Обновлен статус для заказа {preorder.id}. Новый статус: {status_with_time}")
 
     except Exception as e:
         logger_tracking.error(f"Произошла ошибка при обновлении статуса: {e}")
+
 
 def get_carrier(ttn):
     """Определение службы доставки по номеру ТТН."""
@@ -90,6 +117,7 @@ def get_carrier(ttn):
         return 'NovaPoshta'
     else:
         return 'Unknown'
+
 
 async def get_tracking_status_from_api_ukrposhta(ttn):
     """Асинхронный запрос статуса посылки по API UkrPoshta.
@@ -103,5 +131,3 @@ async def get_tracking_status_from_api_ukrposhta(ttn):
         ]
     }
     return fake_response
-
-
