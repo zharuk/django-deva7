@@ -1,6 +1,5 @@
 import aiohttp
 import asyncio
-
 from asgiref.sync import sync_to_async
 from django.utils import timezone
 from django.conf import settings
@@ -8,7 +7,6 @@ import logging
 
 # Настройка логирования
 logger_tracking = logging.getLogger('tracking')
-
 
 async def get_tracking_status_from_api_nova_poshta(ttn, api_key):
     """Асинхронный запрос статуса посылки по API Nova Poshta."""
@@ -31,19 +29,25 @@ async def get_tracking_status_from_api_nova_poshta(ttn, api_key):
         "Accept": "application/json"
     }
 
+    logger_tracking.info(f"Отправка запроса для TTN {ttn}: {payload}")
+
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=payload, headers=headers) as response:
             if response.status != 200:
-                logger_tracking.error(f"Неудачный запрос к API Nova Poshta для заказа с TTN {ttn}. HTTP статус: {response.status}")
+                logger_tracking.error(
+                    f"Неудачный запрос к API Nova Poshta для заказа с TTN {ttn}. HTTP статус: {response.status}")
                 return None
 
             content_type = response.headers.get('Content-Type', '')
 
             if 'application/json' in content_type:
-                return await response.json()
+                data = await response.json()
+                logger_tracking.info(f"Получен ответ для TTN {ttn}: {data}")
+                return data
             else:
                 response_text = await response.text()
-                logger_tracking.error(f"Неверный тип ответа от API Nova Poshta для заказа с TTN {ttn}. Получен тип: {content_type}. Ответ: {response_text}")
+                logger_tracking.error(
+                    f"Неверный тип ответа от API Nova Poshta для заказа с TTN {ttn}. Получен тип: {content_type}. Ответ: {response_text}")
                 return None
 
 async def update_tracking_status(preorder):
@@ -51,7 +55,8 @@ async def update_tracking_status(preorder):
     carrier = get_carrier(preorder.ttn)
 
     try:
-        # Определяем, к какому API обращаться
+        logger_tracking.info(f"Начало обновления статуса для заказа {preorder.id} с TTN {preorder.ttn}")
+
         if carrier == 'NovaPoshta':
             if not api_key:
                 logger_tracking.error("NOVA_POSHTA_API_KEY не установлен.")
@@ -97,11 +102,11 @@ async def update_tracking_status(preorder):
             logger_tracking.info(f"Обновлен статус для заказа {preorder.id}. Новый статус: {status_with_time}")
 
         else:
-            logger_tracking.info(f"Статус заказа {preorder.id} не был обновлен, так как текущий статус содержит '{status}'")
+            logger_tracking.info(
+                f"Статус заказа {preorder.id} не был обновлен, так как текущий статус содержит '{status}'")
 
     except Exception as e:
         logger_tracking.error(f"Произошла ошибка при обновлении статуса для заказа {preorder.id}: {e}")
-
 
 def get_carrier(ttn):
     """Определение службы доставки по номеру ТТН."""
@@ -112,7 +117,6 @@ def get_carrier(ttn):
     else:
         return 'Unknown'
 
-
 async def get_tracking_status_from_api_ukrposhta(ttn):
     """Асинхронный запрос статуса посылки по API UkrPoshta.
        Здесь должен быть реальный запрос к API UkrPoshta, если он у вас есть."""
@@ -121,7 +125,7 @@ async def get_tracking_status_from_api_ukrposhta(ttn):
     fake_response = {
         "success": True,
         "data": [
-            {"Status": "Посилка відправлена"}
+            {"Status": "НЕТ ДАННЫХ"}
         ]
     }
     return fake_response
