@@ -9,7 +9,6 @@ import logging
 # Настройка логирования
 logger_tracking = logging.getLogger('tracking')
 
-
 async def get_tracking_status_from_api(ttn, api_key):
     """Асинхронный запрос статуса посылки по API."""
     url = 'https://api.novaposhta.ua/v2.0/json/'
@@ -28,9 +27,23 @@ async def get_tracking_status_from_api(ttn, api_key):
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=payload) as response:
-            response_data = await response.json()
+            # Проверяем статус ответа
+            if response.status != 200:
+                logger_tracking.error(f"Неудачный запрос к API Nova Poshta для заказа с TTN {ttn}. HTTP статус: {response.status}")
+                return None
+
+            content_type = response.headers.get('Content-Type', '')
+
+            if 'application/json' in content_type:
+                response_data = await response.json()
+            else:
+                response_text = await response.text()
+                logger_tracking.error(f"Неверный тип ответа от API Nova Poshta для заказа с TTN {ttn}. Получен тип: {content_type}. Ответ: {response_text}")
+                return None
+
             return response_data
 
+# Пример функции обновления статуса, которая вызывает `get_tracking_status_from_api`
 
 async def update_tracking_status(preorder):
     api_key = getattr(settings, 'NOVA_POSHTA_API_KEY', None)
@@ -44,6 +57,10 @@ async def update_tracking_status(preorder):
 
         # Получаем статус из API
         data = await get_tracking_status_from_api(preorder.ttn, api_key)
+
+        if not data:
+            logger_tracking.error(f"Не удалось получить данные от API для заказа {preorder.id}.")
+            return
 
         if not data.get('success'):
             logger_tracking.error(f"Ошибка при обновлении статуса для заказа {preorder.id}. Ответ API: {data}")
@@ -74,3 +91,4 @@ async def update_tracking_status(preorder):
 
     except Exception as e:
         logger_tracking.error(f"Произошла ошибка при обновлении статуса для заказа {preorder.id}: {e}")
+
