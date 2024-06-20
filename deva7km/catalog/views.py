@@ -428,18 +428,32 @@ def export_products_xlsx(request):
     return response
 
 
+import logging
+
+# Настройка логирования
+logger_tracking = logging.getLogger('tracking')
+
+
 async def update_tracking_status_view(request):
-    ten_days_ago = timezone.now() - timedelta(days=10)
+    try:
+        ten_days_ago = timezone.now() - timedelta(days=10)
 
-    # Асинхронное получение всех предзаказов за последние 10 дней
-    recent_preorders = await sync_to_async(list)(PreOrder.objects.filter(created_at__gte=ten_days_ago))
+        # Асинхронное получение всех предзаказов за последние 10 дней
+        recent_preorders = await sync_to_async(list)(PreOrder.objects.filter(created_at__gte=ten_days_ago))
 
-    # Запускаем обновление статусов для всех найденных предзаказов
-    tasks = [update_tracking_status(preorder) for preorder in recent_preorders]
-    await asyncio.gather(*tasks)
+        # Запускаем обновление статусов для всех найденных предзаказов
+        tasks = [update_tracking_status(preorder) for preorder in recent_preorders]
+        await asyncio.gather(*tasks)
 
-    # Уведомляем пользователя об успешном обновлении
-    messages.success(request, "Статусы всех заказов, созданных за последние 10 дней, успешно обновлены.")
+        # Уведомляем пользователя об успешном обновлении
+        await sync_to_async(messages.success)(request,
+                                              "Статусы всех заказов, созданных за последние 10 дней, успешно обновлены.")
+
+    except Exception as e:
+        # Логирование ошибки
+        logger_tracking.error(f"Произошла ошибка при обновлении статусов: {e}")
+        # Уведомление пользователя об ошибке
+        await sync_to_async(messages.error)(request, "Произошла ошибка при обновлении статусов.")
 
     # Перенаправляем обратно на страницу списка предзаказов
-    return redirect('admin:catalog_preorder_changelist')
+    return await sync_to_async(redirect)('admin:catalog_preorder_changelist')

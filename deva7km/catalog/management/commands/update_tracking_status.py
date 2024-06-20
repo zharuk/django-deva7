@@ -1,7 +1,7 @@
 import aiohttp
 import asyncio
 
-from aiohttp import payload
+from asgiref.sync import sync_to_async
 from django.utils import timezone
 from django.conf import settings
 import logging
@@ -35,49 +35,42 @@ async def get_tracking_status_from_api(ttn, api_key):
 async def update_tracking_status(preorder):
     api_key = getattr(settings, 'NOVA_POSHTA_API_KEY', None)
     if not api_key:
-        logger_tracking.error("NOVA_POSHTА_API_KEY не установлен.")
+        logger_tracking.error("NOVA_POSHTA_API_KEY не установлен.")
         return
 
-    # Добавим задержку перед запросом, если это необходимо
-    await asyncio.sleep(1)
+    try:
+        # Добавим задержку перед запросом, если это необходимо
+        await asyncio.sleep(1)
 
-    # Получаем статус из API
-    data = await get_tracking_status_from_api(preorder.ttn, api_key)
+        # Получаем статус из API
+        data = await get_tracking_status_from_api(preorder.ttn, api_key)
 
-    if not data.get('success'):
-        # Логирование ошибок при запросе статуса трекинга
-        logger_tracking.error(f"Ошибка при обновлении статуса для заказа {preorder.id}. Ответ API: {data}")
-        return
+        if not data.get('success'):
+            logger_tracking.error(f"Ошибка при обновлении статуса для заказа {preorder.id}. Ответ API: {data}")
+            return
 
-    if not data.get('data'):
-        # Логирование отсутствия данных в ответе API
-        logger_tracking.error(f"Ответ API не содержит данных для заказа {preorder.id}. Ответ API: {data}")
-        return
+        if not data.get('data'):
+            logger_tracking.error(f"Ответ API не содержит данных для заказа {preorder.id}. Ответ API: {data}")
+            return
 
-    status = data['data'][0].get('Status')
-    if not status:
-        # Логирование отсутствия статуса в ответе API
-        logger_tracking.error(f"Ответ API не содержит статус для заказа {preorder.id}. Ответ API: {data}")
-        return
+        status = data['data'][0].get('Status')
+        if not status:
+            logger_tracking.error(f"Ответ API не содержит статус для заказа {preorder.id}. Ответ API: {data}")
+            return
 
-    current_time = timezone.localtime().strftime('%d.%m.%Y %H:%M:%S')
+        current_time = timezone.localtime().strftime('%d.%m.%Y %H:%M:%S')
+        current_admin_status = preorder.status
 
-    # Проверяем текущий статус в админке
-    current_admin_status = preorder.status
+        # Обновляем статус, если он пустой или не содержит "Відправлення отримано"
+        if not current_admin_status or "Відправлення отримано" not in status:
+            status_with_time = f"{status} (обновлено: {current_time})"
+            preorder.status = status_with_time
+            await sync_to_async(preorder.save)()  # Оборачиваем в sync_to_async, если метод не асинхронный
 
-    # Если текущий статус пустой или новый статус не "Відправлення отримано", обновляем статус
-    if not current_admin_status or "Відправлення отримано" not in status:
-        # Добавляем время обновления к статусу
-        status_with_time = f"{status} (обновлено: {current_time})"
-        preorder.status = status_with_time
-        await preorder.asave()  # Предполагаем, что метод asave() асинхронный
+            logger_tracking.info(f"Обновлен статус для заказа {preorder.id}. Новый статус: {status_with_time}")
 
-        # Логирование успешного обновления статуса трекинга
-        logger_tracking.info(f"Обновлен статус для заказа {preorder.id}. Новый статус: {status_with_time}")
+        else:
+            logger_tracking.info(f"Статус заказа {preorder.id} не был обновлен, так как текущий статус содержит '{status}'")
 
-    else:
-        logger_tracking.info(f"Статус заказа {preorder.id} не был обновлен, так как текущий статус содержит '{status}'")
-
-    # Логирование всех запросов и ответов API
-    logger_tracking.debug(f"API запрос для заказа {preorder.id}: {payload}")
-    logger_tracking.debug(f"API ответ для заказа {preorder.id}: {data}")
+    except Exception as e:
+        logger_tracking.error(f"Произошла ошибка при обновлении статуса для заказа {preorder.id}: {e}")
