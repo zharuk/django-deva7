@@ -89,7 +89,8 @@ async def update_tracking_status(preorders):
                         preorder = next((p for p in preorders if p.ttn == ttn), None)
                         if preorder:
                             preorder_id = preorder.id  # Сохраняем идентификатор предзаказа
-                            if "Відправлення отримано" in status:
+                            clean_status = status.strip().lower()  # Очистка и приведение к нижнему регистру
+                            if "відправлення отримано" in clean_status:
                                 await sync_to_async(preorder.delete)()  # Удаляем предзаказ
                                 logger_tracking.info(
                                     f"Предзаказ {preorder_id} с TTN {ttn} был удален, так как статус 'Відправлення отримано'.")
