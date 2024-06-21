@@ -1,8 +1,10 @@
 {% extends "admin/change_list.html" %}
+{% load static %}
 
 {% block extrastyle %}
     {{ block.super }}
     <style>
+        /* Common Styles */
         .mobile-view {
             display: none;
         }
@@ -19,52 +21,93 @@
             .desktop-view {
                 display: none;
             }
-        }
 
-        .boolean.true:after {
-            content: '\2714';  /* Зеленая галочка */
-            color: #007bff;
-            font-weight: bold;
-        }
+            .preorder-block {
+                margin-bottom: 10px; /* Space after each block */
+                padding: 15px;
+                border-radius: 5px; /* Rounded corners */
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow */
+                font-size: 14px; /* Smaller font size for better fit */
+            }
 
-        .boolean.false:after {
-            content: '\2718';  /* Красный крестик */
-            color: #dc3545;
-            font-weight: bold;
-        }
+            .preorder-table {
+                width: 100%;
+                border-collapse: collapse; /* Consistent borders */
+            }
 
-        .preorder-block {
-            margin-bottom: 5px; /* Отступ после каждого блока данных */
-            background-color: #293133; /* Цвет фона для блоков */
-            padding: 10px;
-            border-radius: 5px; /* Скругленные углы */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень для блоков */
-            color: #B5B8B1; /* Цвет текста */
-        }
+            .preorder-table th, .preorder-table td {
+                padding: 8px; /* Padding for table cells */
+                text-align: left;
+            }
 
-        .preorder-block th,
-        .preorder-block td {
-            border: none; /* Убираем границы внутри блоков */
-            color: #B5B8B1; /* Цвет текста внутри блоков */
-        }
+            .preorder-table th {
+                width: 40%; /* Fixed width for headers */
+            }
 
-        .button {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #293133; /* Цвет фона кнопки */
-            color: #fff; /* Цвет текста кнопки */
-            border: none; /* Убираем границу */
-            text-align: center;
-            text-decoration: none;
-            font-size: 14px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-            margin-top: 10px; /* Отступ сверху */
-            margin-bottom: 20px; /* Отступ снизу */
-        }
+            .button {
+                display: inline-block;
+                padding: 10px 20px;
+                border: none; /* Remove border */
+                text-align: center;
+                text-decoration: none;
+                font-size: 14px;
+                border-radius: 4px;
+                transition: background-color 0.3s ease;
+                margin-top: 10px; /* Space above */
+                margin-bottom: 20px; /* Space below */
+            }
 
-        .button:hover {
-            background-color: #0056b3; /* Цвет фона кнопки при наведении */
+            /* Light Theme */
+            body.light-mode .preorder-block {
+                background-color: #ffffff; /* Light background */
+                color: #333333; /* Dark text */
+                border: 1px solid #e0e0e0; /* Light border */
+            }
+
+            body.light-mode .preorder-table th {
+                background-color: #f2f2f2; /* Light background for headers */
+                color: #333; /* Dark text */
+            }
+
+            body.light-mode .preorder-table td {
+                background-color: #ffffff; /* Light background for cells */
+                color: #333; /* Dark text */
+            }
+
+            body.light-mode .button {
+                background-color: #007bff; /* Main button color */
+                color: #fff; /* White text */
+            }
+
+            body.light-mode .button:hover {
+                background-color: #0056b3; /* Dark blue on hover */
+            }
+
+            /* Dark Theme */
+            body.dark-mode .preorder-block {
+                background-color: #333333; /* Slightly lighter dark background */
+                color: #f1f1f1; /* Light text */
+                border: 1px solid #555555; /* Slightly lighter dark border */
+            }
+
+            body.dark-mode .preorder-table th {
+                background-color: #444444; /* Dark background for table headers */
+                color: #f1f1f1; /* Light text */
+            }
+
+            body.dark-mode .preorder-table td {
+                background-color: #333333; /* Match the block background */
+                color: #e0e0e0; /* Light text for table data */
+            }
+
+            body.dark-mode .button {
+                background-color: #505050; /* Dark grey button */
+                color: #fff; /* White text */
+            }
+
+            body.dark-mode .button:hover {
+                background-color: #6c757d; /* Lighter grey on hover */
+            }
         }
 
         .object-tools li:first-child {
@@ -106,11 +149,15 @@
                             </tr>
                             <tr>
                                 <th>Дроп:</th>
-                                <td><span class="boolean {% if obj.drop %}true{% else %}false{% endif %}"></span></td>
+                                <td>
+                                    <img src="{% static 'admin/img/icon-' %}{{ obj.drop|yesno:'yes,no' }}.svg" alt="{% if obj.drop %}Да{% else %}Нет{% endif %}">
+                                </td>
                             </tr>
                             <tr>
                                 <th>Чек:</th>
-                                <td><span class="boolean {% if obj.receipt_issued %}true{% else %}false{% endif %}"></span></td>
+                                <td>
+                                    <img src="{% static 'admin/img/icon-' %}{{ obj.receipt_issued|yesno:'yes,no' }}.svg" alt="{% if obj.receipt_issued %}Да{% else %}Нет{% endif %}">
+                                </td>
                             </tr>
                             <tr>
                                 <th>ТТН:</th>
@@ -118,7 +165,9 @@
                             </tr>
                             <tr>
                                 <th>Отправлен:</th>
-                                <td><span class="boolean {% if obj.shipped_to_customer %}true{% else %}false{% endif %}"></span></td>
+                                <td>
+                                    <img src="{% static 'admin/img/icon-' %}{{ obj.shipped_to_customer|yesno:'yes,no' }}.svg" alt="{% if obj.shipped_to_customer %}Да{% else %}Нет{% endif %}">
+                                </td>
                             </tr>
                             <tr>
                                 <th>Статус посылки:</th>
