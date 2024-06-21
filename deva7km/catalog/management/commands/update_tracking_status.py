@@ -4,26 +4,12 @@ from asgiref.sync import sync_to_async
 from django.utils import timezone
 from django.conf import settings
 import logging
-from datetime import datetime, timedelta
 import re
+from datetime import timedelta
 
 # Настройка логирования
 logger_tracking = logging.getLogger('tracking')
 
-# Функция для извлечения времени из строки статуса
-def extract_update_time(status):
-    """Извлекает время последнего обновления из статуса, если оно есть."""
-    match = re.search(r'\(обновлено: (.*?)\)', status)
-    if match:
-        try:
-            # Преобразуем время в offset-naive datetime
-            naive_time = datetime.strptime(match.group(1), '%d.%m.%Y %H:%M:%S')
-            # Преобразуем offset-naive в offset-aware, используя текущий часовой пояс
-            aware_time = timezone.make_aware(naive_time, timezone.get_current_timezone())
-            return aware_time
-        except ValueError:
-            logger_tracking.error(f"Не удалось распарсить время обновления из статуса: {status}")
-    return None
 
 async def get_tracking_status_from_api_nova_poshta(ttns, api_key):
     """Асинхронный запрос статуса посылки по API Nova Poshta."""
@@ -63,6 +49,7 @@ async def get_tracking_status_from_api_nova_poshta(ttns, api_key):
                     f"Неверный тип ответа от API Nova Poshta для TTNs {ttns}. Получен тип: {content_type}. Ответ: {response_text}")
                 return None
 
+
 async def update_tracking_status(preorders):
     # Проверка и преобразование в список, если передан один объект
     if not isinstance(preorders, list):
@@ -77,15 +64,18 @@ async def update_tracking_status(preorders):
 
     try:
         if not api_key and ttns_nova_poshta:
-            logger_tracking.error("NOVA_POSHTA_API_KEY не установлен.")
+            logger_tracking.error("NOVA_POSHTА_API_KEY не установлен.")
             return
 
-        # Фильтруем посылки для Nova Poshta, которые были обновлены более часа назад или имеют пустой статус
+        # Фильтруем посылки для Nova Poshta
         preorders_to_update = []
         for preorder in preorders:
             if preorder.ttn in ttns_nova_poshta:
-                update_time = extract_update_time(preorder.status)
-                if not preorder.status or (update_time and update_time < one_hour_ago):
+                if not preorder.status or preorder.status.strip() == "":
+                    # Если статус пустой, обновляем независимо от времени последнего обновления
+                    preorders_to_update.append(preorder)
+                elif preorder.updated_at < one_hour_ago:
+                    # Если статус не пустой и прошло больше часа с последнего обновления
                     preorders_to_update.append(preorder)
 
         # Получаем TTN для обновления
@@ -100,14 +90,20 @@ async def update_tracking_status(preorders):
                     if ttn and status:
                         preorder = next((p for p in preorders if p.ttn == ttn), None)
                         if preorder:
-                            current_time = timezone.localtime().strftime('%d.%m.%Y %H:%M:%S')  # Исправлено форматирование
-                            status_with_time = f"{status} (обновлено: {current_time})"
-                            preorder.status = status_with_time
-                            await sync_to_async(preorder.save)()
-                            logger_tracking.info(f"Обновлен статус для заказа {preorder.id}. Новый статус: {status_with_time}")
+                            preorder_id = preorder.id  # Сохраняем идентификатор предзаказа
+                            if status == "Відправлення отримано":
+                                await sync_to_async(preorder.delete)()  # Удаляем предзаказ
+                                logger_tracking.info(
+                                    f"Предзаказ {preorder_id} с TTN {ttn} был удален, так как статус 'Відправлення отримано'.")
+                            else:
+                                preorder.status = status  # Обновляем только статус без времени
+                                await sync_to_async(preorder.save)()
+                                logger_tracking.info(
+                                    f"Обновлен статус для предзаказа {preorder_id}. Новый статус: {status}")
 
     except Exception as e:
         logger_tracking.error(f"Произошла ошибка при обновлении статуса: {e}")
+
 
 def get_carrier(ttn):
     """Определение службы доставки по номеру ТТН."""
@@ -117,6 +113,7 @@ def get_carrier(ttn):
         return 'NovaPoshta'
     else:
         return 'Unknown'
+
 
 async def get_tracking_status_from_api_ukrposhta(ttn):
     """Асинхронный запрос статуса посылки по API UkrPoshta.
