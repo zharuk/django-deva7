@@ -1,10 +1,8 @@
 import aiohttp
-import asyncio
 from asgiref.sync import sync_to_async
 from django.utils import timezone
 from django.conf import settings
 import logging
-import re
 from datetime import timedelta
 
 # Настройка логирования
@@ -91,7 +89,7 @@ async def update_tracking_status(preorders):
                         preorder = next((p for p in preorders if p.ttn == ttn), None)
                         if preorder:
                             preorder_id = preorder.id  # Сохраняем идентификатор предзаказа
-                            if status == "Відправлення отримано":
+                            if "Відправлення отримано" in status:
                                 await sync_to_async(preorder.delete)()  # Удаляем предзаказ
                                 logger_tracking.info(
                                     f"Предзаказ {preorder_id} с TTN {ttn} был удален, так как статус 'Відправлення отримано'.")
