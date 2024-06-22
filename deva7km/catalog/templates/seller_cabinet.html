@@ -7,7 +7,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/slate/bootstrap.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        /* Общие стили */
+        /* Общие стили для улучшения адаптивности и компактности */
         .item {
             padding: 10px;
             border: 1px solid #ccc;
@@ -33,7 +33,7 @@
             color: #bdc3c7;
         }
 
-        /* Стили для адаптивности и масштабирования на мобильных устройствах */
+        /* Стили для уменьшения размера шрифта в выпадающем списке и таблице */
         @media (max-width: 768px) {
             .table-responsive {
                 overflow-x: auto;
@@ -61,6 +61,35 @@
                 font-size: 12px; /* Уменьшаем размер шрифта для выпадающего списка */
             }
         }
+
+        /* Стили для уменьшения размера шрифта в выпадающем списке и элементах списка */
+        #available-items .item {
+            padding: 5px; /* Уменьшаем отступы */
+            font-size: 12px; /* Уменьшаем размер шрифта */
+            margin-bottom: 5px; /* Уменьшаем расстояние между элементами */
+        }
+
+        .btn-success {
+            background-color: #2ecc71;
+            border-color: #27ae60;
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+            border-color: #229954;
+        }
+
+        /* Адаптивные стили для поля поиска */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .search-container .form-control {
+            width: 100%;
+            max-width: 600px; /* Ограничиваем максимальную ширину */
+        }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
@@ -69,8 +98,9 @@
         <h1 class="text-center mb-4">Кабинет продавца</h1>
 
         <div class="row mb-4">
-            <div class="col-sm-12 col-md-8 mb-2 mb-md-0">
-                <input type="text" id="search-article" class="form-control form-control-sm" placeholder="Введите артикул">
+            <!-- Измените col-sm-12 col-md-8 на col-12, чтобы поле поиска занимало всю ширину -->
+            <div class="col-12">
+                <input type="text" id="search-article" class="form-control" placeholder="Введите артикул">
             </div>
         </div>
 
@@ -91,8 +121,8 @@
                 <table id="selected-items-table" class="table table-dark table-striped">
                     <thead>
                         <tr>
-                            <th>Артикул</th> <!-- Заменяем "Наименование" на "Артикул" -->
-                            <th>Количество</th>
+                            <th>Арт.</th> <!-- Изменено на "Артикул" -->
+                            <th>Кол-во</th>
                             <th>Сумма</th>
                             <th>Удалить</th>
                         </tr>
@@ -103,7 +133,7 @@
                 </table>
             </div>
             <p class="text-right font-weight-bold">Итоговая сумма: <span id="total-amount">0</span> грн</p>
-            <button id="sell-button" class="btn btn-success btn-block btn-sm">Продать</button>
+            <button id="sell-button" class="btn btn-success btn-block">Продать</button>
         </div>
     </div>
 
