@@ -461,10 +461,12 @@ async def update_tracking_status_view(request):
     return await sync_to_async(redirect)('admin:catalog_preorder_changelist')
 
 
+@login_required
 def seller_cabinet(request):
     return render(request, 'seller_cabinet.html')
 
 
+@login_required
 def search_article(request):
     article = request.GET.get('article', '')
     modifications = ProductModification.objects.filter(custom_sku__icontains=article)
