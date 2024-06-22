@@ -463,7 +463,12 @@ async def update_tracking_status_view(request):
 
 @login_required
 def seller_cabinet(request):
-    return render(request, 'seller_cabinet.html')
+    # Пытаемся найти незаконченные продажи пользователя
+    pending_sale = Sale.objects.filter(user=request.user, status='pending').first()
+
+    return render(request, 'seller_cabinet.html', {
+        'pending_sale': pending_sale,
+    })
 
 
 @login_required
@@ -471,25 +476,6 @@ def search_article(request):
     article = request.GET.get('article', '')
     modifications = ProductModification.objects.filter(custom_sku__icontains=article)
     return render(request, 'partials/available_items.html', {'modifications': modifications})
-
-
-@csrf_exempt
-def add_item_to_sale(request):
-    item_id = request.POST.get('item_id')
-    quantity = int(request.POST.get('quantity', 1))
-    product_modification = ProductModification.objects.get(id=item_id)
-
-    sale, created = Sale.objects.get_or_create(
-        user=request.user, status='pending',
-        defaults={'source': 'site'}
-    )
-    SaleItem.objects.create(
-        sale=sale, product_modification=product_modification, quantity=quantity
-    )
-
-    items_html = render_to_string('partials/selected_items.html', {'sale': sale})
-    total_amount = sale.calculate_total_amount()
-    return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
 
 
 @csrf_exempt
@@ -504,9 +490,57 @@ def remove_item_from_sale(request):
 
 
 @csrf_exempt
-def confirm_sale(request):
-    sale = Sale.objects.get(user=request.user, status='pending')
-    sale.status = 'completed'
-    sale.save()
+def add_item_to_sale(request):
+    try:
+        item_id = request.POST.get('item_id')
+        quantity = int(request.POST.get('quantity', 1))
+        product_modification = get_object_or_404(ProductModification, id=item_id)
 
-    return JsonResponse({'message': 'Продажа успешно завершена!'})
+        # Проверка наличия товара
+        if product_modification.stock <= 0:
+            return JsonResponse({'error': 'Товар отсутствует на складе'}, status=400)
+
+        sale, created = Sale.objects.get_or_create(
+            user=request.user, status='pending',
+            defaults={'source': 'site'}
+        )
+        SaleItem.objects.create(
+            sale=sale, product_modification=product_modification, quantity=quantity
+        )
+
+        items_html = render_to_string('partials/selected_items.html', {'sale': sale})
+        total_amount = sale.calculate_total_amount()
+        return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
+
+    except ProductModification.DoesNotExist:
+        return JsonResponse({'error': 'Товар не найден'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+def confirm_sale(request):
+    try:
+        sale = Sale.objects.get(user=request.user, status='pending')
+        sale.status = 'completed'
+        sale.save()
+        return JsonResponse({'message': 'Продажа успешно завершена!'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def get_pending_sale_items(request):
+    sale_id = request.GET.get('sale_id')
+    sale = Sale.objects.get(id=sale_id, user=request.user, status='pending')
+    items_html = render_to_string('partials/selected_items.html', {'sale': sale})
+    total_amount = sale.calculate_total_amount()
+    return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
+
+
+@csrf_exempt
+@login_required
+def clear_sale(request):
+    sale = Sale.objects.get(user=request.user, status='pending')
+    sale.items.all().delete()  # Удаляем все позиции из заказа
+    return JsonResponse({'message': 'Корзина очищена!'})

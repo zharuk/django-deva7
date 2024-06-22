@@ -1,8 +1,9 @@
-<!-- Фрагмент для отображения доступных товаров -->
-<div class="list-group">
-    {% for item in modifications %}
-    <button class="list-group-item list-group-item-action add-item-button" data-item-id="{{ item.id }}">
-        {{ item.product.title }} - {{ item.custom_sku }} ({{ item.stock }} в наличии)
-    </button>
-    {% endfor %}
+{% for modification in modifications %}
+<div class="item">
+    <img src="{{ modification.thumbnail_image_modification_url }}" alt="{{ modification.product.title }}" class="thumbnail">
+    <div class="details">
+        {{ modification.product.title }} - {{ modification.custom_sku }} ({{ modification.stock }} в наличии)
+    </div>
+    <button class="btn btn-sm btn-warning add-item-button" data-item-id="{{ modification.id }}">+</button>
 </div>
+{% endfor %}
