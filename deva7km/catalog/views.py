@@ -4,12 +4,14 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Count, Q
 from django.http import JsonResponse
+from django.template.loader import render_to_string
 from django.utils.translation import get_language
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
 from catalog.email_utils import send_new_order_notification_email
 from catalog.forms import OrderForm
-from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem
+from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem, Sale, SaleItem
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from catalog.generate_xlsx import generate_product_xlsx
@@ -457,3 +459,52 @@ async def update_tracking_status_view(request):
 
     # Перенаправляем обратно на страницу списка предзаказов
     return await sync_to_async(redirect)('admin:catalog_preorder_changelist')
+
+
+def seller_cabinet(request):
+    return render(request, 'seller_cabinet.html')
+
+
+def search_article(request):
+    article = request.GET.get('article', '')
+    modifications = ProductModification.objects.filter(custom_sku__icontains=article)
+    return render(request, 'partials/available_items.html', {'modifications': modifications})
+
+
+@csrf_exempt
+def add_item_to_sale(request):
+    item_id = request.POST.get('item_id')
+    quantity = int(request.POST.get('quantity', 1))
+    product_modification = ProductModification.objects.get(id=item_id)
+
+    sale, created = Sale.objects.get_or_create(
+        user=request.user, status='pending',
+        defaults={'source': 'site'}
+    )
+    SaleItem.objects.create(
+        sale=sale, product_modification=product_modification, quantity=quantity
+    )
+
+    items_html = render_to_string('partials/selected_items.html', {'sale': sale})
+    total_amount = sale.calculate_total_amount()
+    return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
+
+
+@csrf_exempt
+def remove_item_from_sale(request):
+    item_id = request.POST.get('item_id')
+    SaleItem.objects.get(id=item_id).delete()
+
+    sale = Sale.objects.get(user=request.user, status='pending')
+    items_html = render_to_string('partials/selected_items.html', {'sale': sale})
+    total_amount = sale.calculate_total_amount()
+    return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
+
+
+@csrf_exempt
+def confirm_sale(request):
+    sale = Sale.objects.get(user=request.user, status='pending')
+    sale.status = 'completed'
+    sale.save()
+
+    return JsonResponse({'message': 'Продажа успешно завершена!'})

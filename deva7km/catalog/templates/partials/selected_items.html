@@ -1,0 +1,9 @@
+<!-- Фрагмент для отображения выбранных товаров -->
+{% for item in sale.items.all %}
+<tr>
+    <td>{{ item.product_modification.product.title }} - {{ item.product_modification.custom_sku }}</td>
+    <td>{{ item.quantity }}</td>
+    <td>{{ item.total_price }}</td>
+    <td><button class="btn btn-danger remove-item-button btn-sm" data-item-id="{{ item.id }}">Удалить</button></td>
+</tr>
+{% endfor %}

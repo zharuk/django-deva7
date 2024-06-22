@@ -31,6 +31,11 @@ urlpatterns = [
     re_path(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
     path('search/', product_search, name='product_search'),
     path('ajax/product-search/', AjaxProductSearch.as_view(), name='ajax_product_search'),  # AJAX поиск
+    path('seller_cabinet/', views.seller_cabinet, name='seller_cabinet'),
+    path('search_article/', views.search_article, name='search_article'),
+    path('add_item_to_sale/', views.add_item_to_sale, name='add_item_to_sale'),
+    path('remove_item_from_sale/', views.remove_item_from_sale, name='remove_item_from_sale'),
+    path('confirm_sale/', views.confirm_sale, name='confirm_sale'),
 ]
 
 urlpatterns += i18n_patterns(
