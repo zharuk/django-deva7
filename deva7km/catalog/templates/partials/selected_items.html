@@ -7,7 +7,10 @@
     <td>{{ item.quantity }}</td>
     <td>{{ item.total_price }}</td>
     <td class="text-right">
-        <button class="btn btn-sm btn-danger remove-item-button" data-item-id="{{ item.id }}">-</button>
+        <!-- Заменяем текст кнопки на иконку Font Awesome -->
+        <button class="btn btn-sm btn-danger remove-item-button" data-item-id="{{ item.id }}" data-product-id="{{ item.product_modification.id }}">
+            <i class="fas fa-minus"></i>
+        </button>
     </td>
 </tr>
 {% endfor %}

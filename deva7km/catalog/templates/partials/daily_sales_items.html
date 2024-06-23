@@ -1,0 +1,14 @@
+{% for sale in daily_sales %}
+<tr>
+    <td>{{ sale.id }}</td>
+    <td>
+        {% for item in sale.items.all %}
+        <div class="item-content" style="margin-bottom: 10px;">
+            <img src="{{ item.product_modification.thumbnail_image_modification_url }}" alt="{{ item.product_modification.product.title }}">
+            <span>{{ item.product_modification.custom_sku }}</span>
+        </div>
+        {% endfor %}
+    </td>
+    <td>{{ sale.created_at|date:"H:i" }}</td> <!-- Использование фильтра для отображения только времени -->
+</tr>
+{% endfor %}

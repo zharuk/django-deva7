@@ -466,8 +466,20 @@ def seller_cabinet(request):
     # Пытаемся найти незаконченные продажи пользователя
     pending_sale = Sale.objects.filter(user=request.user, status='pending').first()
 
+    # Получаем текущую дату
+    today = timezone.now().date()
+
+    # Получаем все завершенные продажи за текущий день
+    daily_sales = Sale.objects.filter(created_at__date=today, status='completed')
+
+    # Считаем итоговую сумму за день
+    total_daily_sales_amount = sum(sale.calculate_total_amount() for sale in daily_sales)
+
     return render(request, 'seller_cabinet.html', {
         'pending_sale': pending_sale,
+        'daily_sales': daily_sales,
+        'total_daily_sales_amount': total_daily_sales_amount,
+        'today': today,
     })
 
 
@@ -544,3 +556,20 @@ def clear_sale(request):
     sale = Sale.objects.get(user=request.user, status='pending')
     sale.items.all().delete()  # Удаляем все позиции из заказа
     return JsonResponse({'message': 'Корзина очищена!'})
+
+
+@login_required
+def get_daily_sales(request):
+    today = timezone.now().date()
+    daily_sales = Sale.objects.filter(created_at__date=today, status='completed')
+    total_daily_sales_amount = sum(sale.calculate_total_amount() for sale in daily_sales)
+
+    # Рендеринг HTML для таблицы с продажами
+    sales_html = render_to_string('partials/daily_sales_items.html', {
+        'daily_sales': daily_sales,
+    })
+
+    return JsonResponse({
+        'sales_html': sales_html,
+        'total_amount': total_daily_sales_amount,
+    })

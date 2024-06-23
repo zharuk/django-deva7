@@ -10,7 +10,8 @@ from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView
 from catalog.views import home, contacts_page, \
     category_detail, product_detail, sales, telegram_page, \
     privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page, product_search, \
-    ProfileDetailView, update_tracking_status_view, AjaxProductSearch, get_pending_sale_items, clear_sale
+    ProfileDetailView, update_tracking_status_view, AjaxProductSearch, get_pending_sale_items, clear_sale, \
+    get_daily_sales
 
 from django.conf.urls.i18n import i18n_patterns
 
@@ -38,6 +39,7 @@ urlpatterns = [
     path('confirm_sale/', views.confirm_sale, name='confirm_sale'),
     path('get_pending_sale_items/', get_pending_sale_items, name='get_pending_sale_items'),
     path('clear_sale/', clear_sale, name='clear_sale'),  # Новый путь
+    path('get-daily-sales/', get_daily_sales, name='get_daily_sales'),
 ]
 
 urlpatterns += i18n_patterns(

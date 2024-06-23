@@ -309,6 +309,10 @@ class Sale(models.Model):
                                       verbose_name='Способ оплаты')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
 
+    @property
+    def items(self):
+        return SaleItem.objects.filter(sale=self)
+
     def calculate_total_amount(self):
         total_amount = 0
         for item in self.items.all():
