@@ -462,32 +462,42 @@ async def update_tracking_status_view(request):
 
 
 @login_required
-def seller_cabinet(request):
-    # Пытаемся найти незаконченные продажи пользователя
+def seller_cabinet_main(request):
+    return render(request, 'seller_cabinet/main.html')
+
+@login_required
+def seller_cabinet_sales(request):
     pending_sale = Sale.objects.filter(user=request.user, status='pending').first()
-
-    # Получаем текущую дату
     today = timezone.now().date()
-
-    # Получаем все завершенные продажи за текущий день
     daily_sales = Sale.objects.filter(created_at__date=today, status='completed')
-
-    # Считаем итоговую сумму за день
     total_daily_sales_amount = sum(sale.calculate_total_amount() for sale in daily_sales)
 
-    return render(request, 'seller_cabinet.html', {
+    return render(request, 'seller_cabinet/sales/seller_sales.html', {
         'pending_sale': pending_sale,
         'daily_sales': daily_sales,
         'total_daily_sales_amount': total_daily_sales_amount,
         'today': today,
     })
 
+from django.core.paginator import Paginator
 
 @login_required
 def search_article(request):
     article = request.GET.get('article', '')
-    modifications = ProductModification.objects.filter(custom_sku__icontains=article)
-    return render(request, 'partials/available_items.html', {'modifications': modifications})
+    page_number = int(request.GET.get('page', 1))
+    if len(article) >= 3:
+        modifications = ProductModification.objects.filter(custom_sku__icontains=article)
+        paginator = Paginator(modifications, 5)  # 5 результатов на страницу
+        page_obj = paginator.get_page(page_number)
+        has_more = page_obj.has_next()
+    else:
+        page_obj = []
+        has_more = False
+    return render(request, 'seller_cabinet/sales/partials/available_items.html', {
+        'modifications': page_obj,
+        'has_more': has_more,
+        'next_page_number': page_number + 1 if has_more else None
+    })
 
 
 @csrf_exempt
@@ -496,10 +506,9 @@ def remove_item_from_sale(request):
     SaleItem.objects.get(id=item_id).delete()
 
     sale = Sale.objects.get(user=request.user, status='pending')
-    items_html = render_to_string('partials/selected_items.html', {'sale': sale})
+    items_html = render_to_string('seller_cabinet/sales/partials/selected_items.html', {'sale': sale})
     total_amount = sale.calculate_total_amount()
     return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
-
 
 @csrf_exempt
 def add_item_to_sale(request):
@@ -508,7 +517,6 @@ def add_item_to_sale(request):
         quantity = int(request.POST.get('quantity', 1))
         product_modification = get_object_or_404(ProductModification, id=item_id)
 
-        # Проверка наличия товара
         if product_modification.stock <= 0:
             return JsonResponse({'error': 'Товар отсутствует на складе'}, status=400)
 
@@ -520,7 +528,7 @@ def add_item_to_sale(request):
             sale=sale, product_modification=product_modification, quantity=quantity
         )
 
-        items_html = render_to_string('partials/selected_items.html', {'sale': sale})
+        items_html = render_to_string('seller_cabinet/sales/partials/selected_items.html', {'sale': sale})
         total_amount = sale.calculate_total_amount()
         return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
 
@@ -528,7 +536,6 @@ def add_item_to_sale(request):
         return JsonResponse({'error': 'Товар не найден'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-
 
 @csrf_exempt
 def confirm_sale(request):
@@ -540,23 +547,20 @@ def confirm_sale(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-
 @login_required
 def get_pending_sale_items(request):
     sale_id = request.GET.get('sale_id')
     sale = Sale.objects.get(id=sale_id, user=request.user, status='pending')
-    items_html = render_to_string('partials/selected_items.html', {'sale': sale})
+    items_html = render_to_string('seller_cabinet/sales/partials/selected_items.html', {'sale': sale})
     total_amount = sale.calculate_total_amount()
     return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
-
 
 @csrf_exempt
 @login_required
 def clear_sale(request):
     sale = Sale.objects.get(user=request.user, status='pending')
-    sale.items.all().delete()  # Удаляем все позиции из заказа
+    sale.items.all().delete()
     return JsonResponse({'message': 'Корзина очищена!'})
-
 
 @login_required
 def get_daily_sales(request):
@@ -564,8 +568,7 @@ def get_daily_sales(request):
     daily_sales = Sale.objects.filter(created_at__date=today, status='completed')
     total_daily_sales_amount = sum(sale.calculate_total_amount() for sale in daily_sales)
 
-    # Рендеринг HTML для таблицы с продажами
-    sales_html = render_to_string('partials/daily_sales_items.html', {
+    sales_html = render_to_string('seller_cabinet/sales/partials/daily_sales_items.html', {
         'daily_sales': daily_sales,
     })
 

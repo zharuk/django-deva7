@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Кабинет продавца{% endblock %}</title>
+    <!-- Подключаем тему Slate для Bootstrap 5 -->
+    <link href="https://bootswatch.com/5/slate/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+        }
+        .alert {
+            display: none;
+        }
+        .search-container {
+            position: relative;
+        }
+        .clear-search {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+        .search-results {
+            margin-top: 10px;
+            padding: 0;  /* Убираем padding */
+            border: none;  /* Убираем границу */
+            background-color: transparent;  /* Делаем фон прозрачным */
+        }
+        .search-item {
+            display: flex;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #444;
+        }
+        .search-item:last-child {
+            border-bottom: none;
+        }
+        .item-thumbnail {
+            flex: 0 0 50px;
+        }
+        .item-details {
+            flex: 1;
+            margin-left: 10px;
+        }
+        .item-add-button {
+            flex: 0 0 50px;
+            text-align: right;
+        }
+        .more-results {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

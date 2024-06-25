@@ -1,0 +1,12 @@
+{% extends 'seller_cabinet/base.html' %}
+
+{% block title %}Кабинет продавца{% endblock %}
+
+{% block content %}
+    <h1>Кабинет продавца</h1>
+    <ul class="list-group">
+        <li class="list-group-item"><a href="{% url 'seller_cabinet_sales' %}">Продажи</a></li>
+        <li class="list-group-item"><a href="#">Возвраты</a></li>
+        <!-- Добавьте другие ссылки на функционал здесь -->
+    </ul>
+{% endblock %}

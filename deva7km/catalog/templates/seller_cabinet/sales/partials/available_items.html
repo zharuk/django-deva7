@@ -1,0 +1,23 @@
+<div class="search-results">
+    {% for modification in modifications %}
+    <div class="item search-item" data-item-id="{{ modification.id }}" data-quantity="{{ modification.stock }}">
+        <div class="item-thumbnail">
+            <img src="{{ modification.thumbnail_image_modification_url }}" alt="{{ modification.product.title }}" class="thumbnail">
+        </div>
+        <div class="item-details">
+            <div class="item-title">{{ modification.product.title }} - {{ modification.custom_sku }}</div>
+            <div class="item-stock">({{ modification.stock }} в наличии)</div>
+        </div>
+        <div class="item-add-button">
+            <button class="btn btn-sm btn-warning add-item-button" data-item-id="{{ modification.id }}">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+    {% if has_more %}
+    <div class="more-results">
+        <button class="btn btn-sm btn-primary" id="load-more-results" data-next-page="{{ next_page_number }}">Загрузить еще</button>
+    </div>
+    {% endif %}
+</div>
