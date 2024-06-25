@@ -59,6 +59,7 @@ async def update_tracking_status(preorders):
 
     now = timezone.now()
     one_hour_ago = now - timedelta(hours=1)
+    thirty_days_ago = now - timedelta(days=30)
 
     try:
         if not api_key and ttns_nova_poshta:
@@ -90,12 +91,13 @@ async def update_tracking_status(preorders):
                         if preorder:
                             preorder_id = preorder.id  # Сохраняем идентификатор предзаказа
                             clean_status = status.strip().lower()  # Очистка и приведение к нижнему регистру
-                            if "відправлення отримано" in clean_status:
+                            if "відправлення отримано" in clean_status and preorder.updated_at < thirty_days_ago:
                                 await sync_to_async(preorder.delete)()  # Удаляем предзаказ
                                 logger_tracking.info(
-                                    f"Предзаказ {preorder_id} с TTN {ttn} был удален, так как статус 'Відправлення отримано'.")
+                                    f"Предзаказ {preorder_id} с TTN {ttn} был удален, так как статус 'Відправлення отримано' и прошло более 30 дней.")
                             else:
                                 preorder.status = status  # Обновляем только статус без времени
+                                preorder.updated_at = now  # Обновляем время последнего обновления
                                 await sync_to_async(preorder.save)()
                                 logger_tracking.info(
                                     f"Обновлен статус для предзаказа {preorder_id}. Новый статус: {status}")
