@@ -53,16 +53,16 @@ $(document).ready(function() {
                     $('#selected-items-table tbody').html(data.items_html);
                     $('#total-amount').text(data.total_amount);
                     showAlert('success', 'Товар успешно добавлен');
-                    let itemRow = $('#available-items .item[data-item-id="' + itemId + '"]');
+                    let itemRow = $(`#available-items .item[data-item-id="${itemId}"]`);
                     let currentQuantity = parseInt(itemRow.data('quantity'));
                     if (currentQuantity > 1) {
                         let newQuantity = currentQuantity - 1;
                         itemRow.data('quantity', newQuantity);
-                        itemRow.find('.quantity').text(`(${newQuantity} в наличии)`);
+                        itemRow.find('.item-stock').text(`(${newQuantity} в наличии)`);
                     } else {
                         itemRow.remove();
                     }
-                    updateDailySales();
+                    updateDailySales(false);  // Обновление без автоматического открытия аккордеона
                 }
             },
             error: function(xhr) {
@@ -85,12 +85,12 @@ $(document).ready(function() {
                 $('#selected-items-table tbody').html(data.items_html);
                 $('#total-amount').text(data.total_amount);
                 showAlert('success', 'Товар успешно удален');
-                let itemRow = $('#available-items .item[data-item-id="' + productId + '"]');
+                let itemRow = $(`#available-items .item[data-item-id="${productId}"]`);
                 if (itemRow.length) {
                     let currentQuantity = parseInt(itemRow.data('quantity'));
                     let newQuantity = currentQuantity + 1;
                     itemRow.data('quantity', newQuantity);
-                    itemRow.find('.quantity').text(`(${newQuantity} в наличии)`);
+                    itemRow.find('.item-stock').text(`(${newQuantity} в наличии)`);
                 } else {
                     loadSearchResults(currentQuery, currentPage);
                 }
@@ -130,7 +130,7 @@ $(document).ready(function() {
                 $('#selected-items-table tbody').empty();
                 $('#total-amount').text('0');
                 showAlert('success', 'Продажа успешно завершена!');
-                updateDailySales();
+                updateDailySales(false);  // Обновление без автоматического открытия аккордеона
                 // Сброс поля поиска и результатов поиска
                 $('#search-article').val('');
                 $('#clear-search').hide();
@@ -159,12 +159,15 @@ $(document).ready(function() {
         });
     }
 
-    function updateDailySales() {
+    function updateDailySales(openAccordion = true) {
         $.ajax({
             url: get_daily_sales_url,
             method: 'GET',
             success: function(data) {
                 $('#daily-sales').html(data.sales_html);
+                if (!openAccordion) {
+                    $('#collapseOne').removeClass('show');
+                }
             },
             error: function(xhr) {
                 showAlert('error', xhr.responseJSON.error);
