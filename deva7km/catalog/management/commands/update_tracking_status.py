@@ -106,9 +106,9 @@ async def update_tracking_status(preorders):
 
 def get_carrier(ttn):
     """Определение службы доставки по номеру ТТН."""
-    if ttn.startswith('0503'):
+    if ttn.startswith('050'):
         return 'UkrPoshta'
-    elif ttn.startswith('2045'):
+    elif ttn.startswith('204'):
         return 'NovaPoshta'
     else:
         return 'Unknown'
