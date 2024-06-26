@@ -8,11 +8,6 @@ $(document).ready(function() {
         const query = $(this).val();
         currentQuery = query;
         currentPage = 1;
-        if (query.length > 0) {
-            $('#clear-search').show();
-        } else {
-            $('#clear-search').hide();
-        }
         debounceTimer = setTimeout(function() {
             if (query.length >= 3) {
                 loadSearchResults(query, currentPage);
@@ -24,16 +19,37 @@ $(document).ready(function() {
 
     $('#clear-search').click(function() {
         $('#search-article').val('');
-        $('#clear-search').hide();
         $('#available-items').empty();
     });
 
+    function loadSearchResults(query, page, append = false) {
+        $.ajax({
+            url: search_article_url,
+            method: 'GET',
+            data: {
+                'article': query,
+                'page': page
+            },
+            success: function(data) {
+                if (append) {
+                    $('.more-results').remove();
+                    $('#available-items').append(data);
+                } else {
+                    $('#available-items').html(data);
+                }
+                $('.search-results').show();
+            },
+            error: function(xhr) {
+                showAlert('error', xhr.responseJSON.error);
+            }
+        });
+    }
+
     function showAlert(type, message) {
         const alertDiv = type === 'success' ? $('#success-alert') : $('#error-alert');
-        alertDiv.text(message).addClass('show');
-        setTimeout(function() {
-            alertDiv.removeClass('show');
-        }, 2000);
+        const alertMessage = type === 'success' ? $('#success-message') : $('#error-message');
+        alertMessage.text(message);
+        alertDiv.show().delay(1500).fadeOut(500);
     }
 
     $(document).on('click', '.add-item-button', function() {
@@ -62,7 +78,7 @@ $(document).ready(function() {
                     } else {
                         itemRow.remove();
                     }
-                    updateDailySales(false);  // Обновление без автоматического открытия аккордеона
+                    loadDailySales();  // Обновление таблицы продаж за день
                 }
             },
             error: function(xhr) {
@@ -130,10 +146,9 @@ $(document).ready(function() {
                 $('#selected-items-table tbody').empty();
                 $('#total-amount').text('0');
                 showAlert('success', 'Продажа успешно завершена!');
-                updateDailySales(false);  // Обновление без автоматического открытия аккордеона
+                loadDailySales();  // Обновление таблицы продаж за день
                 // Сброс поля поиска и результатов поиска
                 $('#search-article').val('');
-                $('#clear-search').hide();
                 $('#available-items').empty();
             },
             error: function(xhr) {
@@ -142,32 +157,19 @@ $(document).ready(function() {
         });
     });
 
-    if (pending_sale_id) {
-        $.ajax({
-            url: get_pending_sale_items_url,
-            method: 'GET',
-            data: {
-                'sale_id': pending_sale_id
-            },
-            success: function(data) {
-                $('#selected-items-table tbody').html(data.items_html);
-                $('#total-amount').text(data.total_amount);
-            },
-            error: function(xhr) {
-                showAlert('error', xhr.responseJSON.error);
-            }
-        });
-    }
+    $(document).on('click', '#load-more-results', function() {
+        const nextPage = $(this).data('next-page');
+        currentPage = nextPage;
+        loadSearchResults(currentQuery, currentPage, true);
+    });
 
-    function updateDailySales(openAccordion = true) {
+    function loadDailySales() {
         $.ajax({
             url: get_daily_sales_url,
             method: 'GET',
             success: function(data) {
-                $('#daily-sales').html(data.sales_html);
-                if (!openAccordion) {
-                    $('#collapseOne').removeClass('show');
-                }
+                $('#daily-sales-table-body').html(data.sales_html);
+                $('#total-daily-sales-amount').text(data.total_amount);
             },
             error: function(xhr) {
                 showAlert('error', xhr.responseJSON.error);
@@ -175,33 +177,6 @@ $(document).ready(function() {
         });
     }
 
-    setInterval(updateDailySales, 30000);
-
-    $(document).on('click', '#load-more-results', function() {
-        currentPage = $(this).data('next-page');
-        loadSearchResults(currentQuery, currentPage, true);
-    });
-
-    function loadSearchResults(query, page, append = false) {
-        $.ajax({
-            url: search_article_url,
-            method: 'GET',
-            data: {
-                'article': query,
-                'page': page
-            },
-            success: function(data) {
-                if (append) {
-                    $('.more-results').remove();
-                    $('#available-items').append(data);
-                } else {
-                    $('#available-items').html(data);
-                }
-                $('.search-results .search-item:last-child').removeClass('search-item:last-child');
-            },
-            error: function(xhr) {
-                showAlert('error', xhr.responseJSON.error);
-            }
-        });
-    }
+    // Загрузка ежедневных продаж при загрузке страницы
+    loadDailySales();
 });

@@ -1,38 +1,14 @@
-<div class="accordion" id="dailySalesAccordion">
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingDailySales">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDailySales" aria-expanded="true" aria-controls="collapseDailySales">
-                Ежедневные продажи
-            </button>
-        </h2>
-        <div id="collapseDailySales" class="accordion-collapse collapse show" aria-labelledby="headingDailySales" data-bs-parent="#dailySalesAccordion">
-            <div class="accordion-body">
-                <table class="table table-dark table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Список товаров</th>
-                            <th>Время продажи</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for sale in daily_sales %}
-                        <tr>
-                            <td>{{ sale.id }}</td>
-                            <td>
-                                {% for item in sale.items.all %}
-                                <div class="item-content" style="display: flex; align-items: center; margin-bottom: 10px;">
-                                    <img src="{{ item.product_modification.thumbnail_image_modification_url }}" alt="{{ item.product_modification.product.title }}" class="thumbnail">
-                                    <span>{{ item.product_modification.custom_sku }} ({{ item.quantity }})</span>
-                                </div>
-                                {% endfor %}
-                            </td>
-                            <td>{{ sale.created_at|date:"H:i" }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+{% for sale in daily_sales %}
+<tr>
+    <td>{{ sale.id }}</td>
+    <td>
+        {% for item in sale.items.all %}
+        <div class="item-content" style="display: flex; align-items: center; margin-bottom: 10px;">
+            <img src="{{ item.product_modification.thumbnail_image_modification_url }}" alt="{{ item.product_modification.product.title }}" class="thumbnail">
+            <span>{{ item.product_modification.custom_sku }} ({{ item.quantity }})</span>
         </div>
-    </div>
-</div>
+        {% endfor %}
+    </td>
+    <td>{{ sale.created_at|date:"H:i" }}</td>
+</tr>
+{% endfor %}

@@ -465,6 +465,7 @@ async def update_tracking_status_view(request):
 def seller_cabinet_main(request):
     return render(request, 'seller_cabinet/main.html')
 
+
 @login_required
 def seller_cabinet_sales(request):
     pending_sale = Sale.objects.filter(user=request.user, status='pending').first()
@@ -479,7 +480,9 @@ def seller_cabinet_sales(request):
         'today': today,
     })
 
+
 from django.core.paginator import Paginator
+
 
 @login_required
 def search_article(request):
@@ -510,6 +513,7 @@ def remove_item_from_sale(request):
     total_amount = sale.calculate_total_amount()
     return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
 
+
 @csrf_exempt
 def add_item_to_sale(request):
     try:
@@ -537,6 +541,7 @@ def add_item_to_sale(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
 @csrf_exempt
 def confirm_sale(request):
     try:
@@ -547,6 +552,7 @@ def confirm_sale(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
 @login_required
 def get_pending_sale_items(request):
     sale_id = request.GET.get('sale_id')
@@ -555,6 +561,7 @@ def get_pending_sale_items(request):
     total_amount = sale.calculate_total_amount()
     return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
 
+
 @csrf_exempt
 @login_required
 def clear_sale(request):
@@ -562,10 +569,11 @@ def clear_sale(request):
     sale.items.all().delete()
     return JsonResponse({'message': 'Корзина очищена!'})
 
+
 @login_required
 def get_daily_sales(request):
     today = timezone.now().date()
-    daily_sales = Sale.objects.filter(created_at__date=today, status='completed')
+    daily_sales = Sale.objects.filter(created_at__date=today, status='completed').order_by('-created_at')
     total_daily_sales_amount = sum(sale.calculate_total_amount() for sale in daily_sales)
 
     sales_html = render_to_string('seller_cabinet/sales/partials/daily_sales_items.html', {

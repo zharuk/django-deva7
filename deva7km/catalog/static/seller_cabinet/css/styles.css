@@ -1,10 +1,9 @@
-/* catalog/static/seller_cabinet/css/styles.css */
-
 .thumbnail {
     width: 50px;
     height: 50px;
     object-fit: cover;
 }
+
 .alert {
     position: fixed;
     top: 20px;
@@ -15,48 +14,74 @@
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
 }
+
 .alert.show {
     display: block;
     opacity: 1;
 }
-}
+
 .search-container {
-    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
 }
-.clear-search {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
+
+#clear-search {
+    margin-left: 10px;
+    white-space: nowrap;
 }
+
 .search-results {
     margin-top: 10px;
     padding: 0;
     border: none;
     background-color: transparent;
 }
+
 .search-item {
     display: flex;
     align-items: center;
     padding: 5px 0;
     border-bottom: 1px solid #444;
 }
+
 .search-item:last-child {
     border-bottom: none;
 }
+
 .item-thumbnail {
     flex: 0 0 50px;
 }
+
 .item-details {
     flex: 1;
     margin-left: 10px;
 }
+
 .item-add-button {
     flex: 0 0 50px;
     text-align: right;
 }
+
 .more-results {
     text-align: center;
     margin-top: 10px;
+}
+
+.table-responsive {
+    font-size: 0.85rem; /* Уменьшение шрифта */
+}
+
+.table td, .table th {
+    padding: 0.25rem; /* Уменьшение отступов */
+}
+
+@media (max-width: 576px) {
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table {
+        white-space: nowrap; /* Предотвращение переноса строк в таблице */
+    }
 }
