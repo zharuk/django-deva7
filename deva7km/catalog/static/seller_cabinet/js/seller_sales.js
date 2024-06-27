@@ -3,6 +3,28 @@ $(document).ready(function() {
     let currentPage = 1;
     let currentQuery = '';
 
+    // Загрузка текущих данных корзины при загрузке страницы
+    if (pending_sale_id) {
+        loadPendingSaleItems(pending_sale_id);
+    }
+
+    function loadPendingSaleItems(saleId) {
+        $.ajax({
+            url: get_pending_sale_items_url,
+            method: 'GET',
+            data: {
+                'sale_id': saleId
+            },
+            success: function(data) {
+                $('#selected-items-table tbody').html(data.items_html);
+                $('#total-amount').text(data.total_amount);
+            },
+            error: function(xhr) {
+                console.error("Error loading pending sale items:", xhr);
+            }
+        });
+    }
+
     $('#search-article').on('input', function() {
         clearTimeout(debounceTimer);
         const query = $(this).val();
@@ -49,18 +71,23 @@ $(document).ready(function() {
         const alertDiv = type === 'success' ? $('#success-alert') : $('#error-alert');
         const alertMessage = type === 'success' ? $('#success-message') : $('#error-message');
         alertMessage.text(message);
-        alertDiv.show().delay(1500).fadeOut(500);
+        alertDiv.addClass('show');
+
+        setTimeout(function() {
+            alertDiv.removeClass('show');
+        }, 2000);
     }
 
     $(document).on('click', '.add-item-button', function() {
         const itemId = $(this).data('item-id');
+        const csrfToken = $('#csrf-form [name=csrfmiddlewaretoken]').val();
         $.ajax({
             url: add_item_to_sale_url,
             method: 'POST',
             data: {
                 'item_id': itemId,
                 'quantity': 1,
-                'csrfmiddlewaretoken': csrf_token
+                'csrfmiddlewaretoken': csrfToken
             },
             success: function(data) {
                 if (data.error) {
@@ -82,7 +109,11 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-                showAlert('error', xhr.responseJSON.error);
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    showAlert('error', xhr.responseJSON.error);
+                } else {
+                    showAlert('error', 'Произошла ошибка при добавлении товара');
+                }
             }
         });
     });
@@ -90,12 +121,13 @@ $(document).ready(function() {
     $(document).on('click', '.remove-item-button', function() {
         const itemId = $(this).data('item-id');
         const productId = $(this).data('product-id');
+        const csrfToken = $('#csrf-form [name=csrfmiddlewaretoken]').val();
         $.ajax({
             url: remove_item_from_sale_url,
             method: 'POST',
             data: {
                 'item_id': itemId,
-                'csrfmiddlewaretoken': csrf_token
+                'csrfmiddlewaretoken': csrfToken
             },
             success: function(data) {
                 $('#selected-items-table tbody').html(data.items_html);
@@ -112,17 +144,22 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-                showAlert('error', xhr.responseJSON.error);
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    showAlert('error', xhr.responseJSON.error);
+                } else {
+                    showAlert('error', 'Произошла ошибка при удалении товара');
+                }
             }
         });
     });
 
     $('#clear-order').click(function() {
+        const csrfToken = $('#csrf-form [name=csrfmiddlewaretoken]').val();
         $.ajax({
             url: clear_sale_url,
             method: 'POST',
             data: {
-                'csrfmiddlewaretoken': csrf_token
+                'csrfmiddlewaretoken': csrfToken
             },
             success: function(data) {
                 $('#selected-items-table tbody').empty();
@@ -130,17 +167,22 @@ $(document).ready(function() {
                 showAlert('success', 'Заказ успешно очищен');
             },
             error: function(xhr) {
-                showAlert('error', xhr.responseJSON.error);
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    showAlert('error', xhr.responseJSON.error);
+                } else {
+                    showAlert('error', 'Произошла ошибка при очистке заказа');
+                }
             }
         });
     });
 
     $('#sell-button').click(function() {
+        const csrfToken = $('#csrf-form [name=csrfmiddlewaretoken]').val();
         $.ajax({
             url: confirm_sale_url,
             method: 'POST',
             data: {
-                'csrfmiddlewaretoken': csrf_token
+                'csrfmiddlewaretoken': csrfToken
             },
             success: function(data) {
                 $('#selected-items-table tbody').empty();
@@ -152,7 +194,11 @@ $(document).ready(function() {
                 $('#available-items').empty();
             },
             error: function(xhr) {
-                showAlert('error', xhr.responseJSON.error);
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    showAlert('error', xhr.responseJSON.error);
+                } else {
+                    showAlert('error', 'Произошла ошибка при завершении продажи');
+                }
             }
         });
     });
@@ -166,13 +212,13 @@ $(document).ready(function() {
     function loadDailySales() {
         $.ajax({
             url: get_daily_sales_url,
-            method: 'GET',
-            success: function(data) {
-                $('#daily-sales-table-body').html(data.sales_html);
-                $('#total-daily-sales-amount').text(data.total_amount);
+            type: 'GET',
+            success: function(response) {
+                $('#daily-sales-table-body').html(response.sales_html);
+                $('#total-daily-sales-amount').text(response.total_amount);
             },
             error: function(xhr) {
-                showAlert('error', xhr.responseJSON.error);
+                console.error(xhr);
             }
         });
     }

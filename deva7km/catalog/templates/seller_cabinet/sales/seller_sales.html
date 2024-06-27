@@ -5,11 +5,13 @@
 
 {% block content %}
     <h1>Продажи</h1>
-    <div class="alert alert-dismissible alert-danger fade show" id="error-alert" role="alert" style="display:none;">
+    <div class="alert alert-danger alert-dismissible fade" id="error-alert" role="alert">
         <strong>Ошибка!</strong> <span id="error-message"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div class="alert alert-dismissible alert-success fade show" id="success-alert" role="alert" style="display:none;">
+    <div class="alert alert-success alert-dismissible fade" id="success-alert" role="alert">
         <strong>Успех!</strong> <span id="success-message"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
     <div class="input-group mb-3">
@@ -38,11 +40,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Выбранные товары будут отображаться здесь -->
+                    {% include 'seller_cabinet/sales/partials/selected_items.html' %}
                 </tbody>
             </table>
         </div>
-        <p class="text-right font-weight-bold">Итоговая сумма: <span id="total-amount">0</span> грн</p>
+        <p class="text-right font-weight-bold">Итоговая сумма: <span id="total-amount">{{ pending_sale.total_amount }}</span> грн</p>
         <button id="clear-order" class="btn btn-danger btn-block">Очистить заказ</button>
         <button id="sell-button" class="btn btn-success btn-block">Продать</button>
     </div>
@@ -54,16 +56,24 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Список товаров</th>
-                        <th>Время продажи</th>
+                        <th></th>
+                        <th>Товары</th>
+                        <th>Цена</th>
+                        <th>Кол-во</th>
+                        <th>Время</th>
                     </tr>
                 </thead>
                 <tbody id="daily-sales-table-body">
-                    <!-- Ежедневные продажи будут отображаться здесь -->
+                    {% include 'seller_cabinet/sales/partials/daily_sales_table.html' %}
                 </tbody>
             </table>
         </div>
-        <p class="text-right font-weight-bold">Итоговая сумма продаж за день: <span id="total-daily-sales-amount">0</span> грн</p>
+        <p class="text-right font-weight-bold">
+          Итоговая сумма продаж за день:
+          <span class="badge bg-primary">
+            <span id="total-daily-sales-amount">{{ total_daily_sales_amount }}</span> грн
+          </span>
+        </p>
     </div>
 {% endblock %}
 
@@ -76,7 +86,7 @@
         const confirm_sale_url = '{% url "confirm_sale" %}';
         const get_pending_sale_items_url = '{% url "get_pending_sale_items" %}';
         const get_daily_sales_url = '{% url "get_daily_sales" %}';
-        const search_article_url = '{% url "search_article" %}';
+        const search_article_url = '{% url "search_article" %}';  <!-- Добавили переменную -->
         const pending_sale_id = {% if pending_sale %} '{{ pending_sale.id }}' {% else %} null {% endif %};
     </script>
     <script src="{% static 'seller_cabinet/js/seller_sales.js' %}"></script>

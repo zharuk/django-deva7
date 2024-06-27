@@ -514,14 +514,31 @@ def remove_item_from_sale(request):
     return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
 
 
+logger = logging.getLogger(__name__)
+
+
 @csrf_exempt
 def add_item_to_sale(request):
     try:
+        logger.debug("Received POST data: %s", request.POST)
+
         item_id = request.POST.get('item_id')
-        quantity = int(request.POST.get('quantity', 1))
+        quantity = request.POST.get('quantity', 1)
+
+        if not item_id:
+            logger.error("Item ID is missing")
+            return JsonResponse({'error': 'Item ID is missing'}, status=400)
+
+        try:
+            quantity = int(quantity)
+        except ValueError:
+            logger.error("Invalid quantity: %s", quantity)
+            return JsonResponse({'error': 'Invalid quantity'}, status=400)
+
         product_modification = get_object_or_404(ProductModification, id=item_id)
 
         if product_modification.stock <= 0:
+            logger.error("Product is out of stock: %s", item_id)
             return JsonResponse({'error': 'Товар отсутствует на складе'}, status=400)
 
         sale, created = Sale.objects.get_or_create(
@@ -537,10 +554,11 @@ def add_item_to_sale(request):
         return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
 
     except ProductModification.DoesNotExist:
+        logger.error("ProductModification does not exist for item_id: %s", item_id)
         return JsonResponse({'error': 'Товар не найден'}, status=404)
     except Exception as e:
+        logger.error("Exception occurred: %s", str(e))
         return JsonResponse({'error': str(e)}, status=500)
-
 
 @csrf_exempt
 def confirm_sale(request):
@@ -574,9 +592,18 @@ def clear_sale(request):
 def get_daily_sales(request):
     today = timezone.now().date()
     daily_sales = Sale.objects.filter(created_at__date=today, status='completed').order_by('-created_at')
-    total_daily_sales_amount = sum(sale.calculate_total_amount() for sale in daily_sales)
+    total_daily_sales_amount = 0
 
-    sales_html = render_to_string('seller_cabinet/sales/partials/daily_sales_items.html', {
+    for sale in daily_sales:
+        sale.total_quantity = sum(item.quantity for item in sale.items.all())
+        sale.total_price = 0
+        for item in sale.items.all():
+            item_price = item.product_modification.product.get_actual_wholesale_price()
+            item.total_price = item.quantity * item_price
+            sale.total_price += item.total_price
+        total_daily_sales_amount += sale.total_price
+
+    sales_html = render_to_string('seller_cabinet/sales/partials/daily_sales_table.html', {
         'daily_sales': daily_sales,
     })
 

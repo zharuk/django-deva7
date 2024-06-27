@@ -94,7 +94,8 @@ async def update_tracking_status(preorders):
                             if ("відправлення отримано" in clean_status or "відмова від отримання" in clean_status) and preorder.created_at < thirty_days_ago:
                                 await sync_to_async(preorder.delete)()  # Удаляем предзаказ
                                 logger_tracking.info(
-                                    f"Предзаказ {preorder_id} с TTN {ttn} был удален, так как статус '{status}' и прошло более 30 дней с момента создания.")
+                                    f"Предзаказ {preorder_id} с TTN {ttn} был удален, так как статус '{status}' и "
+                                    f"прошло более 30 дней с момента создания.")
                             else:
                                 preorder.status = status  # Обновляем только статус без времени
                                 preorder.updated_at = now  # Обновляем время последнего обновления

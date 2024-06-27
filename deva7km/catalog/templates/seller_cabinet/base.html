@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <title>{% block title %}Кабинет продавца{% endblock %}</title>
     {% load static %}
-    <!-- Подключаем тему Slate для Bootstrap 5 -->
     <link href="https://bootswatch.com/5/slate/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Подключаем общий стиль -->
     <link rel="stylesheet" href="{% static 'seller_cabinet/css/styles.css' %}">
 </head>
 <body>
     <div class="container mt-5">
+        <form id="csrf-form">
+            {% csrf_token %}
+        </form>
         {% block content %}
         {% endblock %}
     </div>

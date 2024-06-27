@@ -1,79 +1,41 @@
 .thumbnail {
-    width: 50px;
-    height: 50px;
+    width: 40px !important; /* Увеличение размера миниатюр */
+    height: 40px !important; /* Увеличение размера миниатюр */
     object-fit: cover;
 }
 
-.alert {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: auto;
-    z-index: 1000;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-}
-
-.alert.show {
-    display: block;
-    opacity: 1;
-}
-
-.search-container {
-    display: flex;
-    align-items: center;
-    width: 100%;
-}
-
-#clear-search {
-    margin-left: 10px;
-    white-space: nowrap;
-}
-
-.search-results {
-    margin-top: 10px;
-    padding: 0;
-    border: none;
-    background-color: transparent;
-}
-
-.search-item {
-    display: flex;
-    align-items: center;
-    padding: 5px 0;
-    border-bottom: 1px solid #444;
-}
-
-.search-item:last-child {
-    border-bottom: none;
-}
-
-.item-thumbnail {
-    flex: 0 0 50px;
-}
-
-.item-details {
-    flex: 1;
-    margin-left: 10px;
-}
-
-.item-add-button {
-    flex: 0 0 50px;
-    text-align: right;
-}
-
-.more-results {
-    text-align: center;
-    margin-top: 10px;
-}
-
 .table-responsive {
-    font-size: 0.85rem; /* Уменьшение шрифта */
+    font-size: 0.8rem !important; /* Увеличение шрифта */
 }
 
 .table td, .table th {
-    padding: 0.25rem; /* Уменьшение отступов */
+    padding: 0.3rem !important; /* Увеличение отступов */
+}
+
+.table th, .table td {
+    text-align: center; /* Выравнивание текста по центру */
+}
+
+.total-sale-price {
+    text-align: right; /* Выравнивание общей суммы продажи по правому краю */
+    padding-top: 10px; /* Увеличение отступа сверху */
+}
+
+.item-image, .item-content, .item-price, .item-quantity {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px; /* Увеличение отступа снизу */
+}
+
+.item-image {
+    flex-direction: column;
+}
+
+.item-content span, .item-price span, .item-quantity span {
+    display: block;
+    text-align: center;
+    width: 100%;
 }
 
 @media (max-width: 576px) {
@@ -84,4 +46,101 @@
     .table {
         white-space: nowrap; /* Предотвращение переноса строк в таблице */
     }
+
+    .table td, .table th {
+        padding: 0.2rem !important; /* Увеличение отступов на маленьких экранах */
+    }
+
+    .item-content {
+        display: block; /* Сделать элементы блока для лучшего размещения на мобильных */
+        text-align: left; /* Выравнивание текста по левому краю */
+    }
+
+    .item-content img {
+        margin-bottom: 5px; /* Добавить отступ снизу для изображений */
+    }
+}
+
+.total-sale-price {
+    text-align: right !important; /* Выравнивание текста по правому краю */
+    padding-top: 10px;
+}
+
+/* Новые стили для выпадающего списка искомых товаров */
+.search-results {
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    margin-top: 10px;
+}
+
+.search-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+
+.item-thumbnail img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+}
+
+.item-details {
+    flex-grow: 1;
+    margin-left: 0.5rem;
+}
+
+.item-title {
+    font-weight: bold;
+    color: #343a40; /* Темный цвет текста для названия товара */
+}
+
+.item-stock {
+    font-size: 0.875rem;
+    color: #343a40 !important; /* Темный цвет текста для количества на складе */
+}
+
+.item-add-button {
+    margin-left: 0.5rem;
+}
+
+.more-results {
+    padding: 0.5rem;
+    border-top: 1px solid #dee2e6;
+    text-align: center;
+}
+
+/* Стили для яркого текста в поле поиска */
+#search-article {
+    color: #ffffff; /* Яркий цвет шрифта */
+    background-color: #343a40; /* Цвет фона */
+}
+
+#search-article::placeholder {
+    color: #cccccc; /* Цвет текста-заполнителя */
+}
+
+/* Стили для всплывающих сообщений */
+.alert-dismissible {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    width: auto;
+    max-width: 300px;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.alert-dismissible.show {
+    opacity: 1;
 }

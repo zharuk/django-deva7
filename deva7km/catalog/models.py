@@ -48,8 +48,11 @@ class Product(models.Model):
         options={'quality': 60}
     )
 
-    # def get_absolute_url(self):
-    #     return reverse('product_detail', args=[self.category.slug, self.slug])
+    def get_actual_wholesale_price(self):
+        if self.sale_price > 0:
+            return self.sale_price
+        return self.price
+
     def get_absolute_url(self):
         relative_url = reverse('product_detail', args=[self.category.slug, self.slug])
         return BASE_URL + relative_url
