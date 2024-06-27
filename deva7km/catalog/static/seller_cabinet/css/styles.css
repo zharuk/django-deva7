@@ -1,5 +1,4 @@
 .thumbnail {
-    width: 40px !important; /* Увеличение размера миниатюр */
     height: 40px !important; /* Увеличение размера миниатюр */
     object-fit: cover;
 }
