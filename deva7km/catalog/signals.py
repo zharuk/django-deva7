@@ -28,6 +28,7 @@ def update_stock_write_off(sender, instance, **kwargs):
 # Общий обработчик для обновления остатков товара при продаже
 @receiver([post_save, post_delete], sender=SaleItem)
 def update_or_restore_stock(sender, instance, **kwargs):
+    print(1)
     product_modification = instance.product_modification
 
     if kwargs.get('created', False):
@@ -59,13 +60,14 @@ def update_stock_inventory(sender, instance, **kwargs):
     product_modification.save()
 
 
-# метод для возврата остатка при удалении продажи
-@receiver(pre_delete, sender=Sale)
-def return_stock_on_delete(sender, instance, **kwargs):
-    for item in instance.items.all():
-        product_modification = item.product_modification
-        product_modification.stock += item.quantity
-        product_modification.save()
+# #метод для возврата остатка при удалении продажи
+# @receiver(pre_delete, sender=Sale)
+# def return_stock_on_delete(sender, instance, **kwargs):
+#     print(2)
+#     for item in instance.items.all():
+#         product_modification = item.product_modification
+#         product_modification.stock += item.quantity
+#         product_modification.save()
 
 
 #  метод для возврата остатка при удалении возврата

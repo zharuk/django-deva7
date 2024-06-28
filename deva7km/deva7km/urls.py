@@ -41,6 +41,7 @@ urlpatterns = [
     path('seller_cabinet/sale/get_pending_sale_items/', views.get_pending_sale_items, name='get_pending_sale_items'),
     path('seller_cabinet/sale/clear_sale/', views.clear_sale, name='clear_sale'),
     path('seller_cabinet/sale/get-daily-sales/', views.get_daily_sales, name='get_daily_sales'),
+    path('seller_cabinet/sale/cancel_sale/', views.cancel_sale, name='cancel_sale'),
 ]
 
 urlpatterns += i18n_patterns(

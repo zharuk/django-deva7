@@ -19,7 +19,7 @@
         <button id="clear-search" class="btn btn-danger" type="button">Очистить</button>
     </div>
 
-    <div id="available-items" class="my-4 search-results">
+    <div id="available-items" class="my-4 search-results hidden">
         <!-- Список доступных товаров будет загружаться сюда через AJAX -->
     </div>
 
@@ -29,9 +29,9 @@
 
     <div id="selected-items" class="my-5">
         <h2>Выбранные товары</h2>
-        <div class="table-responsive">
-            <table id="selected-items-table" class="table table-dark table-striped">
-                <thead>
+        <div class="table-responsive table-wrapper">
+            <table id="selected-items-table" class="table table-dark table-hover">
+                <thead class="table-dark">
                     <tr>
                         <th>Арт.</th>
                         <th>Кол-во</th>
@@ -44,16 +44,18 @@
                 </tbody>
             </table>
         </div>
-        <p class="text-right font-weight-bold">Итоговая сумма: <span id="total-amount">{{ pending_sale.total_amount }}</span> грн</p>
-        <button id="clear-order" class="btn btn-danger btn-block">Очистить заказ</button>
-        <button id="sell-button" class="btn btn-success btn-block">Продать</button>
+        <p class="text-end fw-bold">Итоговая сумма: <span id="total-amount">{{ pending_sale.total_amount }}</span> грн</p>
+        <div class="d-flex justify-content-end">
+            <button id="clear-order" class="btn btn-danger me-2">Очистить заказ</button>
+            <button id="sell-button" class="btn btn-success">Продать</button>
+        </div>
     </div>
 
     <div id="daily-sales" class="my-5">
         <h2>Ежедневные продажи</h2>
-        <div class="table-responsive">
-            <table class="table table-dark table-striped">
-                <thead>
+        <div class="table-responsive table-wrapper">
+            <table class="table table-dark">
+                <thead class="table-dark">
                     <tr>
                         <th>ID</th>
                         <th></th>
@@ -68,12 +70,31 @@
                 </tbody>
             </table>
         </div>
-        <p class="text-right font-weight-bold">
+        <p class="text-end fw-bold">
           Итоговая сумма продаж за день:
           <span class="badge bg-primary">
             <span id="total-daily-sales-amount">{{ total_daily_sales_amount }}</span> грн
           </span>
         </p>
+    </div>
+
+    <!-- Модальное окно для подтверждения удаления -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmDeleteModalLabel">Подтверждение удаления</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Вы уверены, что хотите удалить эту продажу?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteButton">Удалить</button>
+          </div>
+        </div>
+      </div>
     </div>
 {% endblock %}
 
@@ -86,7 +107,8 @@
         const confirm_sale_url = '{% url "confirm_sale" %}';
         const get_pending_sale_items_url = '{% url "get_pending_sale_items" %}';
         const get_daily_sales_url = '{% url "get_daily_sales" %}';
-        const search_article_url = '{% url "search_article" %}';  <!-- Добавили переменную -->
+        const cancel_sale_url = '{% url "cancel_sale" %}';
+        const search_article_url = '{% url "search_article" %}';
         const pending_sale_id = {% if pending_sale %} '{{ pending_sale.id }}' {% else %} null {% endif %};
     </script>
     <script src="{% static 'seller_cabinet/js/seller_sales.js' %}"></script>

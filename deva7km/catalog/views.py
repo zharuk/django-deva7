@@ -611,3 +611,18 @@ def get_daily_sales(request):
         'sales_html': sales_html,
         'total_amount': total_daily_sales_amount,
     })
+
+
+@csrf_exempt
+@login_required
+def cancel_sale(request):
+    try:
+        sale_id = request.POST.get('sale_id')
+        sale = Sale.objects.get(id=sale_id, user=request.user, status='completed')
+        sale.delete()
+        return JsonResponse({'message': 'Продажа успешно удалена!'})
+    except Sale.DoesNotExist:
+        return JsonResponse({'error': 'Продажа не найдена или уже удалена.'}, status=404)
+    except Exception as e:
+        logger.error(f"Ошибка при удалении продажи: {e}")
+        return JsonResponse({'error': str(e)}, status=500)

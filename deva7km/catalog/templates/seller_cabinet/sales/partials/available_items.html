@@ -1,4 +1,4 @@
-<div class="search-results">
+<div class="search-results {% if not modifications %}hidden{% endif %}">
     {% for modification in modifications %}
     <div class="item search-item d-flex align-items-center p-2 border-bottom" data-item-id="{{ modification.id }}" data-quantity="{{ modification.stock }}">
         <div class="item-thumbnail">

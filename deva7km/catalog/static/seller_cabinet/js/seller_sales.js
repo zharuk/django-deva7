@@ -5,10 +5,12 @@ $(document).ready(function() {
 
     // Загрузка текущих данных корзины при загрузке страницы
     if (pending_sale_id) {
+        console.log("Загрузка данных текущей корзины для продажи ID:", pending_sale_id);
         loadPendingSaleItems(pending_sale_id);
     }
 
     function loadPendingSaleItems(saleId) {
+        console.log("Запрос данных для продажи ID:", saleId);
         $.ajax({
             url: get_pending_sale_items_url,
             method: 'GET',
@@ -16,11 +18,12 @@ $(document).ready(function() {
                 'sale_id': saleId
             },
             success: function(data) {
+                console.log("Данные текущей корзины успешно загружены");
                 $('#selected-items-table tbody').html(data.items_html);
                 $('#total-amount').text(data.total_amount);
             },
             error: function(xhr) {
-                console.error("Error loading pending sale items:", xhr);
+                console.error("Ошибка при загрузке данных текущей корзины:", xhr);
             }
         });
     }
@@ -34,17 +37,22 @@ $(document).ready(function() {
             if (query.length >= 3) {
                 loadSearchResults(query, currentPage);
             } else {
-                $('#available-items').empty();
+                clearSearchResults();
             }
         }, 300);
     });
 
     $('#clear-search').click(function() {
         $('#search-article').val('');
-        $('#available-items').empty();
+        clearSearchResults();
     });
 
+    function clearSearchResults() {
+        $('#available-items').empty().addClass('hidden');
+    }
+
     function loadSearchResults(query, page, append = false) {
+        console.log("Поиск товаров по артикулу:", query, "Страница:", page);
         $.ajax({
             url: search_article_url,
             method: 'GET',
@@ -53,15 +61,17 @@ $(document).ready(function() {
                 'page': page
             },
             success: function(data) {
+                console.log("Результаты поиска загружены");
                 if (append) {
                     $('.more-results').remove();
                     $('#available-items').append(data);
                 } else {
                     $('#available-items').html(data);
                 }
-                $('.search-results').show();
+                $('#available-items').removeClass('hidden').show();
             },
             error: function(xhr) {
+                console.error("Ошибка при загрузке результатов поиска:", xhr);
                 showAlert('error', xhr.responseJSON.error);
             }
         });
@@ -81,6 +91,7 @@ $(document).ready(function() {
     $(document).on('click', '.add-item-button', function() {
         const itemId = $(this).data('item-id');
         const csrfToken = $('#csrf-form [name=csrfmiddlewaretoken]').val();
+        console.log("Добавление товара ID:", itemId);
         $.ajax({
             url: add_item_to_sale_url,
             method: 'POST',
@@ -90,6 +101,7 @@ $(document).ready(function() {
                 'csrfmiddlewaretoken': csrfToken
             },
             success: function(data) {
+                console.log("Товар успешно добавлен");
                 if (data.error) {
                     showAlert('error', data.error);
                 } else {
@@ -109,6 +121,7 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
+                console.error("Ошибка при добавлении товара:", xhr);
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     showAlert('error', xhr.responseJSON.error);
                 } else {
@@ -122,6 +135,7 @@ $(document).ready(function() {
         const itemId = $(this).data('item-id');
         const productId = $(this).data('product-id');
         const csrfToken = $('#csrf-form [name=csrfmiddlewaretoken]').val();
+        console.log("Удаление товара ID:", itemId);
         $.ajax({
             url: remove_item_from_sale_url,
             method: 'POST',
@@ -130,6 +144,7 @@ $(document).ready(function() {
                 'csrfmiddlewaretoken': csrfToken
             },
             success: function(data) {
+                console.log("Товар успешно удален");
                 $('#selected-items-table tbody').html(data.items_html);
                 $('#total-amount').text(data.total_amount);
                 showAlert('success', 'Товар успешно удален');
@@ -144,6 +159,7 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
+                console.error("Ошибка при удалении товара:", xhr);
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     showAlert('error', xhr.responseJSON.error);
                 } else {
@@ -155,6 +171,7 @@ $(document).ready(function() {
 
     $('#clear-order').click(function() {
         const csrfToken = $('#csrf-form [name=csrfmiddlewaretoken]').val();
+        console.log("Очистка заказа");
         $.ajax({
             url: clear_sale_url,
             method: 'POST',
@@ -162,11 +179,13 @@ $(document).ready(function() {
                 'csrfmiddlewaretoken': csrfToken
             },
             success: function(data) {
+                console.log("Заказ успешно очищен");
                 $('#selected-items-table tbody').empty();
                 $('#total-amount').text('0');
                 showAlert('success', 'Заказ успешно очищен');
             },
             error: function(xhr) {
+                console.error("Ошибка при очистке заказа:", xhr);
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     showAlert('error', xhr.responseJSON.error);
                 } else {
@@ -178,6 +197,7 @@ $(document).ready(function() {
 
     $('#sell-button').click(function() {
         const csrfToken = $('#csrf-form [name=csrfmiddlewaretoken]').val();
+        console.log("Подтверждение продажи");
         $.ajax({
             url: confirm_sale_url,
             method: 'POST',
@@ -185,15 +205,16 @@ $(document).ready(function() {
                 'csrfmiddlewaretoken': csrfToken
             },
             success: function(data) {
+                console.log("Продажа успешно завершена");
                 $('#selected-items-table tbody').empty();
                 $('#total-amount').text('0');
                 showAlert('success', 'Продажа успешно завершена!');
                 loadDailySales();  // Обновление таблицы продаж за день
-                // Сброс поля поиска и результатов поиска
                 $('#search-article').val('');
-                $('#available-items').empty();
+                clearSearchResults();
             },
             error: function(xhr) {
+                console.error("Ошибка при подтверждении продажи:", xhr);
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     showAlert('error', xhr.responseJSON.error);
                 } else {
@@ -210,19 +231,55 @@ $(document).ready(function() {
     });
 
     function loadDailySales() {
+        console.log("Загрузка ежедневных продаж");
         $.ajax({
             url: get_daily_sales_url,
             type: 'GET',
             success: function(response) {
+                console.log("Ежедневные продажи успешно загружены");
                 $('#daily-sales-table-body').html(response.sales_html);
                 $('#total-daily-sales-amount').text(response.total_amount);
             },
             error: function(xhr) {
-                console.error(xhr);
+                console.error("Ошибка при загрузке ежедневных продаж:", xhr);
             }
         });
     }
 
-    // Загрузка ежедневных продаж при загрузке страницы
+    $(document).on('click', '.cancel-sale-button', function() {
+        const saleId = $(this).data('sale-id');
+        $('#confirmDeleteButton').data('sale-id', saleId); // Сохранение ID продажи в кнопке подтверждения
+        $('#confirmDeleteModal').modal('show'); // Показ модального окна
+    });
+
+    $('#confirmDeleteButton').click(function() {
+        const saleId = $(this).data('sale-id');
+        const csrfToken = $('#csrf-form [name=csrfmiddlewaretoken]').val();
+        console.log("Отмена продажи ID:", saleId);
+        $.ajax({
+            url: cancel_sale_url,
+            method: 'POST',
+            data: {
+                'sale_id': saleId,
+                'csrfmiddlewaretoken': csrfToken
+            },
+            success: function(data) {
+                console.log("Продажа успешно удалена");
+                showAlert('success', 'Продажа успешно удалена');
+                loadDailySales(); // Обновление таблицы продаж за день
+                $('#confirmDeleteModal').modal('hide'); // Скрыть модальное окно после успешного удаления
+            },
+            error: function(xhr) {
+                console.error("Ошибка при удалении продажи:", xhr);
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    showAlert('error', xhr.responseJSON.error);
+                } else {
+                    showAlert('error', 'Произошла ошибка при удалении продажи');
+                }
+                $('#confirmDeleteModal').modal('hide'); // Скрыть модальное окно в случае ошибки
+            }
+        });
+    });
+
     loadDailySales();
 });

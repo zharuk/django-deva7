@@ -1,30 +1,58 @@
+/* Общие стили для уменьшения ширины таблиц и выравнивания кнопок */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.table-wrapper {
+    width: 100%;
+    margin: 0 auto;
+}
+
+#selected-items, #daily-sales {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.btn-group-right {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+/* Увеличение размера миниатюр для десктопной версии */
 .thumbnail {
-    height: 40px !important; /* Увеличение размера миниатюр */
+    height: 50px !important;
     object-fit: cover;
 }
 
+/* Настройки таблицы для десктопной версии */
 .table-responsive {
-    font-size: 0.7rem !important; /* Увеличение шрифта */
+    font-size: 1rem; /* Увеличение размера шрифта */
 }
 
 .table td, .table th {
-    padding: 0.3rem !important; /* Увеличение отступов */
+    padding: 0.75rem !important; /* Увеличение отступов */
+    text-align: center;
 }
 
-.table th, .table td {
-    text-align: center; /* Выравнивание текста по центру */
+/* Стили для строк таблицы */
+.daily-sale-row {
+    background-color: #2a2a2a; /* Цвет фона для строк */
 }
 
-.total-sale-price {
-    text-align: right; /* Выравнивание общей суммы продажи по правому краю */
-    padding-top: 10px; /* Увеличение отступа сверху */
+.daily-sale-total {
+    background-color: #1a1a1a; /* Цвет фона для строки с итоговой суммой */
+    border-top: 2px solid #444444; /* Верхняя граница */
 }
 
+/* Стили для элементов в таблице */
 .item-image, .item-content, .item-price, .item-quantity {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 10px; /* Увеличение отступа снизу */
+    margin-bottom: 10px;
 }
 
 .item-image {
@@ -37,35 +65,47 @@
     width: 100%;
 }
 
+/* Адаптивные стили для мобильных устройств */
 @media (max-width: 576px) {
     .table-responsive {
+        font-size: 0.7rem !important; /* Уменьшение размера шрифта */
         overflow-x: auto;
     }
 
     .table {
-        white-space: nowrap; /* Предотвращение переноса строк в таблице */
+        white-space: nowrap;
     }
 
     .table td, .table th {
-        padding: 0.2rem !important; /* Увеличение отступов на маленьких экранах */
+        padding: 0.3rem !important; /* Уменьшение отступов для мобильных устройств */
     }
 
     .item-content {
-        display: block; /* Сделать элементы блока для лучшего размещения на мобильных */
-        text-align: left; /* Выравнивание текста по левому краю */
+        display: block;
+        text-align: left;
     }
 
     .item-content img {
-        margin-bottom: 5px; /* Добавить отступ снизу для изображений */
+        margin-bottom: 5px;
+    }
+
+    /* Уменьшение размера миниатюр для мобильных устройств */
+    .thumbnail {
+        height: 30px !important;
+        object-fit: cover;
+    }
+
+    /* Уменьшение размера шрифта для поиска на мобильных устройствах */
+    .search-item .item-title {
+        font-size: 0.8rem; /* Уменьшение размера шрифта */
+    }
+
+    .search-item .item-stock {
+        font-size: 0.7rem; /* Уменьшение размера шрифта */
     }
 }
 
-.total-sale-price {
-    text-align: right !important; /* Выравнивание текста по правому краю */
-    padding-top: 10px;
-}
-
-/* Новые стили для выпадающего списка искомых товаров */
+/* Стили для выпадающего списка искомых товаров */
 .search-results {
     max-height: 400px;
     overflow-y: auto;
@@ -73,6 +113,8 @@
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
     margin-top: 10px;
+    position: relative; /* Убедитесь, что элементы поиска не влияют на остальную часть макета */
+    z-index: 10; /* Повышенный z-index для предотвращения перекрытий */
 }
 
 .search-item {
@@ -100,12 +142,12 @@
 
 .item-title {
     font-weight: bold;
-    color: #343a40; /* Темный цвет текста для названия товара */
+    color: #343a40;
 }
 
 .item-stock {
     font-size: 0.875rem;
-    color: #343a40 !important; /* Темный цвет текста для количества на складе */
+    color: #343a40 !important;
 }
 
 .item-add-button {
@@ -120,12 +162,12 @@
 
 /* Стили для яркого текста в поле поиска */
 #search-article {
-    color: #ffffff; /* Яркий цвет шрифта */
-    background-color: #343a40; /* Цвет фона */
+    color: #ffffff;
+    background-color: #343a40;
 }
 
 #search-article::placeholder {
-    color: #cccccc; /* Цвет текста-заполнителя */
+    color: #cccccc;
 }
 
 /* Стили для всплывающих сообщений */
@@ -142,4 +184,13 @@
 
 .alert-dismissible.show {
     opacity: 1;
+}
+
+/* Стили для скрытия белой полоски в поиске */
+.search-results.hidden {
+    display: none;
+}
+
+.search-results:empty {
+    display: none;
 }
