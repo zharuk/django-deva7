@@ -489,7 +489,7 @@ def search_article(request):
     article = request.GET.get('article', '')
     page_number = int(request.GET.get('page', 1))
     if len(article) >= 3:
-        modifications = ProductModification.objects.filter(custom_sku__icontains=article)
+        modifications = ProductModification.objects.filter(custom_sku__icontains=article).order_by('id')  # Упорядочиваем по 'id'
         paginator = Paginator(modifications, 5)  # 5 результатов на страницу
         page_obj = paginator.get_page(page_number)
         has_more = page_obj.has_next()
@@ -583,9 +583,16 @@ def get_pending_sale_items(request):
 @csrf_exempt
 @login_required
 def clear_sale(request):
-    sale = Sale.objects.get(user=request.user, status='pending')
-    sale.items.all().delete()
-    return JsonResponse({'message': 'Корзина очищена!'})
+    try:
+        sale = Sale.objects.filter(user=request.user, status='pending').first()
+        if sale:
+            sale.items.all().delete()
+            return JsonResponse({'message': 'Корзина очищена!'})
+        else:
+            return JsonResponse({'error': 'Корзина пуста.'}, status=404)
+    except Exception as e:
+        logger.error(f"Ошибка при очистке корзины: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @login_required
