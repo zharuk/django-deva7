@@ -194,3 +194,22 @@
 .search-results:empty {
     display: none;
 }
+
+.break-word {
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.badge.bg-info.break-word {
+    display: block;  /* Переключает элемент в блочный контекст */
+    max-width: 100%; /* Ограничивает ширину элемента */
+}
+
+.text-black {
+    color: black !important;
+}
+
+.daily-sale-total {
+    border-bottom: 10px solid #272b30; /* Добавляет нижнюю границу */
+}

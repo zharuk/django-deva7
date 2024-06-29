@@ -1,4 +1,5 @@
 {% for sale in daily_sales %}
+{% if sale.items.count > 0 %}
 <tr class="daily-sale-row table-primary">
     <td rowspan="{{ sale.items.count }}">{{ sale.id }}</td>
     <td>
@@ -26,11 +27,20 @@
 {% endfor %}
 
 <tr class="daily-sale-total table-secondary">
-    <td colspan="6" class="text-end">
+    <td colspan="6">
         <div class="d-flex justify-content-between align-items-center">
-            <button class="btn btn-danger btn-sm cancel-sale-button me-2" data-sale-id="{{ sale.id }}">Удалить</button>
-            <span class="badge bg-dark">Сумма: {{ sale.total_price }} грн</span>
+            {% if sale.comment %}
+                <div class="d-flex align-items-center break-word">
+                    <span class="me-2">Комментарий:</span>
+                    <span class="badge bg-info break-word text-black">{{ sale.comment }}</span>
+                </div>
+            {% endif %}
+            <div class="ms-auto d-flex align-items-center">
+                <span class="badge bg-dark me-2">Сумма: {{ sale.total_price }} грн</span>
+                <button class="btn btn-danger btn-sm cancel-sale-button" data-sale-id="{{ sale.id }}">Удалить</button>
+            </div>
         </div>
     </td>
 </tr>
+{% endif %}
 {% endfor %}

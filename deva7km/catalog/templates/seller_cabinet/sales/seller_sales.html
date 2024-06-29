@@ -45,6 +45,10 @@
             </table>
         </div>
         <p class="text-end fw-bold">Итоговая сумма: <span id="total-amount">{{ pending_sale.total_amount }}</span> грн</p>
+        <div class="mb-3">
+            <label for="sale-comment" class="form-label">Комментарий к заказу</label>
+            <textarea id="sale-comment" class="form-control" rows="3">{{ pending_sale.comment }}</textarea>
+        </div>
         <div class="d-flex justify-content-end">
             <button id="clear-order" class="btn btn-danger me-2">Очистить заказ</button>
             <button id="sell-button" class="btn btn-success">Продать</button>
@@ -100,16 +104,28 @@
 
 {% block scripts %}
     <script>
-        const csrf_token = '{{ csrf_token }}';
-        const add_item_to_sale_url = '{% url "add_item_to_sale" %}';
-        const remove_item_from_sale_url = '{% url "remove_item_from_sale" %}';
-        const clear_sale_url = '{% url "clear_sale" %}';
-        const confirm_sale_url = '{% url "confirm_sale" %}';
-        const get_pending_sale_items_url = '{% url "get_pending_sale_items" %}';
-        const get_daily_sales_url = '{% url "get_daily_sales" %}';
-        const cancel_sale_url = '{% url "cancel_sale" %}';
-        const search_article_url = '{% url "search_article" %}';
-        const pending_sale_id = {% if pending_sale %} '{{ pending_sale.id }}' {% else %} null {% endif %};
+        let csrf_token = '{{ csrf_token }}';
+        let add_item_to_sale_url = '{% url "add_item_to_sale" %}';
+        let remove_item_from_sale_url = '{% url "remove_item_from_sale" %}';
+        let clear_sale_url = '{% url "clear_sale" %}';
+        let confirm_sale_url = '{% url "confirm_sale" %}';
+        let create_new_sale_url = '{% url "create_new_sale" %}';
+        let get_pending_sale_items_url = '{% url "get_pending_sale_items" %}';
+        let get_daily_sales_url = '{% url "get_daily_sales" %}';
+        let cancel_sale_url = '{% url "cancel_sale" %}';
+        let search_article_url = '{% url "search_article" %}';
+        let pending_sale_id = {% if pending_sale %} '{{ pending_sale.id }}' {% else %} null {% endif %};
+        console.log("Pending Sale ID:", pending_sale_id);
     </script>
-    <script src="{% static 'seller_cabinet/js/seller_sales.js' %}"></script>
+    <script src="{% static 'seller_cabinet/js/initializeSale.js' %}"></script>
+    <script src="{% static 'seller_cabinet/js/showAlert.js' %}"></script>
+    <script src="{% static 'seller_cabinet/js/loadPendingSaleItems.js' %}"></script>
+    <script src="{% static 'seller_cabinet/js/searchArticle.js' %}"></script>
+    <script src="{% static 'seller_cabinet/js/addItem.js' %}"></script>
+    <script src="{% static 'seller_cabinet/js/removeItem.js' %}"></script>
+    <script src="{% static 'seller_cabinet/js/clearOrder.js' %}"></script>
+    <script src="{% static 'seller_cabinet/js/sellButton.js' %}"></script>
+    <script src="{% static 'seller_cabinet/js/loadDailySales.js' %}"></script>
+    <script src="{% static 'seller_cabinet/js/cancelSale.js' %}"></script>
 {% endblock %}
+

@@ -5,6 +5,7 @@ from django.db import transaction
 from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
 from django.utils.translation import get_language
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -469,6 +470,9 @@ def seller_cabinet_main(request):
 @login_required
 def seller_cabinet_sales(request):
     pending_sale = Sale.objects.filter(user=request.user, status='pending').first()
+    if not pending_sale:
+        pending_sale = Sale.objects.create(user=request.user, status='pending', source='site')
+
     today = timezone.now().date()
     daily_sales = Sale.objects.filter(created_at__date=today, status='completed')
     total_daily_sales_amount = sum(sale.calculate_total_amount() for sale in daily_sales)
@@ -481,6 +485,7 @@ def seller_cabinet_sales(request):
     })
 
 
+
 from django.core.paginator import Paginator
 
 
@@ -489,7 +494,8 @@ def search_article(request):
     article = request.GET.get('article', '')
     page_number = int(request.GET.get('page', 1))
     if len(article) >= 3:
-        modifications = ProductModification.objects.filter(custom_sku__icontains=article).order_by('id')  # Упорядочиваем по 'id'
+        modifications = ProductModification.objects.filter(custom_sku__icontains=article).order_by(
+            'id')  # Упорядочиваем по 'id'
         paginator = Paginator(modifications, 5)  # 5 результатов на страницу
         page_obj = paginator.get_page(page_number)
         has_more = page_obj.has_next()
@@ -560,25 +566,47 @@ def add_item_to_sale(request):
         logger.error("Exception occurred: %s", str(e))
         return JsonResponse({'error': str(e)}, status=500)
 
+
 @csrf_exempt
 def confirm_sale(request):
-    try:
-        sale = Sale.objects.get(user=request.user, status='pending')
-        sale.status = 'completed'
-        sale.save()
-        return JsonResponse({'message': 'Продажа успешно завершена!'})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    if request.method == 'POST':
+        comment = request.POST.get('comment', '')
+        sale_id = request.POST.get('sale_id')
 
+        if not sale_id:
+            return JsonResponse({'error': 'Sale ID is missing'}, status=400)
+
+        try:
+            sale = Sale.objects.get(id=sale_id)
+            sale.status = 'completed'
+            sale.comment = comment
+            sale.save()
+            return JsonResponse({'message': 'Продажа успешно завершена'})
+        except Sale.DoesNotExist:
+            return JsonResponse({'error': 'Продажа не найдена'}, status=404)
+    return JsonResponse({'error': 'Недопустимый метод запроса'}, status=405)
+
+
+@csrf_exempt
+@login_required
+def create_new_sale(request):
+    if request.method == 'POST':
+        pending_sale = Sale.objects.filter(user=request.user, status='pending').first()
+        if not pending_sale:
+            pending_sale = Sale.objects.create(user=request.user, status='pending', source='site')
+        return JsonResponse({'sale_id': pending_sale.id})
+    return JsonResponse({'error': 'Недопустимый метод запроса'}, status=405)
 
 @login_required
 def get_pending_sale_items(request):
     sale_id = request.GET.get('sale_id')
-    sale = Sale.objects.get(id=sale_id, user=request.user, status='pending')
-    items_html = render_to_string('seller_cabinet/sales/partials/selected_items.html', {'sale': sale})
-    total_amount = sale.calculate_total_amount()
-    return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
-
+    try:
+        sale = Sale.objects.get(id=sale_id, user=request.user, status='pending')
+        items_html = render_to_string('seller_cabinet/sales/partials/selected_items.html', {'sale': sale})
+        total_amount = sale.calculate_total_amount()
+        return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
+    except Sale.DoesNotExist:
+        return JsonResponse({'error': 'Продажа не найдена'}, status=404)
 
 @csrf_exempt
 @login_required

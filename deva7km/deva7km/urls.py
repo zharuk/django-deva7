@@ -38,6 +38,7 @@ urlpatterns = [
     path('seller_cabinet/sale/add_item_to_sale/', views.add_item_to_sale, name='add_item_to_sale'),
     path('seller_cabinet/sale/remove_item_from_sale/', views.remove_item_from_sale, name='remove_item_from_sale'),
     path('seller_cabinet/sale/confirm_sale/', views.confirm_sale, name='confirm_sale'),
+    path('seller_cabinet/sale/create_new_sale/', views.create_new_sale, name='create_new_sale'),  # Добавьте этот путь
     path('seller_cabinet/sale/get_pending_sale_items/', views.get_pending_sale_items, name='get_pending_sale_items'),
     path('seller_cabinet/sale/clear_sale/', views.clear_sale, name='clear_sale'),
     path('seller_cabinet/sale/get-daily-sales/', views.get_daily_sales, name='get_daily_sales'),
