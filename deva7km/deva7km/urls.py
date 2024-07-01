@@ -43,6 +43,9 @@ urlpatterns = [
     path('seller_cabinet/sale/clear_sale/', views.clear_sale, name='clear_sale'),
     path('seller_cabinet/sale/get-daily-sales/', views.get_daily_sales, name='get_daily_sales'),
     path('seller_cabinet/sale/cancel_sale/', views.cancel_sale, name='cancel_sale'),
+    path('seller_cabinet/preorder/', views.preorders, name='preorders'),
+    path('api/preorder/<int:preorder_id>/toggle_shipped/', views.toggle_shipped, name='toggle_shipped'),
+    path('api/preorder/<int:preorder_id>/toggle_receipt/', views.toggle_receipt, name='toggle_receipt'),
 ]
 
 urlpatterns += i18n_patterns(

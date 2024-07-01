@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
@@ -5,7 +7,6 @@ from django.db import transaction
 from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from django.utils.decorators import method_decorator
 from django.utils.translation import get_language
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -469,7 +470,10 @@ def seller_cabinet_main(request):
 
 @login_required
 def seller_cabinet_sales(request):
+    # Ищем незавершенную продажу для текущего пользователя
     pending_sale = Sale.objects.filter(user=request.user, status='pending').first()
+
+    # Если незавершенной продажи нет, создаем новую продажу
     if not pending_sale:
         pending_sale = Sale.objects.create(user=request.user, status='pending', source='site')
 
@@ -483,10 +487,6 @@ def seller_cabinet_sales(request):
         'total_daily_sales_amount': total_daily_sales_amount,
         'today': today,
     })
-
-
-
-from django.core.paginator import Paginator
 
 
 @login_required
@@ -597,6 +597,7 @@ def create_new_sale(request):
         return JsonResponse({'sale_id': pending_sale.id})
     return JsonResponse({'error': 'Недопустимый метод запроса'}, status=405)
 
+
 @login_required
 def get_pending_sale_items(request):
     sale_id = request.GET.get('sale_id')
@@ -607,6 +608,7 @@ def get_pending_sale_items(request):
         return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
     except Sale.DoesNotExist:
         return JsonResponse({'error': 'Продажа не найдена'}, status=404)
+
 
 @csrf_exempt
 @login_required
@@ -661,3 +663,43 @@ def cancel_sale(request):
     except Exception as e:
         logger.error(f"Ошибка при удалении продажи: {e}")
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def preorders(request):
+    preorders = PreOrder.objects.all()  # Извлекаем все предзаказы без фильтрации по пользователю
+
+    context = {
+        'preorders': preorders,
+    }
+    return render(request, 'seller_cabinet/preorders/preorders.html', context)
+
+
+@login_required
+def toggle_shipped(request, preorder_id):
+    preorder = get_object_or_404(PreOrder, id=preorder_id)
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            shipped_to_customer = data.get('shipped_to_customer')
+            preorder.shipped_to_customer = shipped_to_customer
+            preorder.save()
+            return JsonResponse({'success': True})
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+
+
+@login_required
+def toggle_receipt(request, preorder_id):
+    preorder = get_object_or_404(PreOrder, id=preorder_id)
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            receipt_issued = data.get('receipt_issued')
+            preorder.receipt_issued = receipt_issued
+            preorder.save()
+            return JsonResponse({'success': True})
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)

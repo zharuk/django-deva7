@@ -213,3 +213,82 @@
 .daily-sale-total {
     border-bottom: 10px solid #272b30; /* Добавляет нижнюю границу */
 }
+
+.card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.card-text {
+    font-size: 1rem;
+}
+
+.badge-container .badge {
+    display: block;
+}
+
+/* Новые стили для ограничения ширины бейджей */
+.badge-container .badge {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    margin: 5px;
+}
+
+.form-check-input.bg-warning {
+    background-color: #f89406 !important;
+    border-color: #f89406 !important;
+}
+
+.form-check-input.bg-success {
+    background-color: green !important;
+    border-color: green !important;
+}
+
+.form-check-input.bg-danger {
+    background-color: #ee5f5b !important;
+    border-color: #ee5f5b !important;
+}
+
+.switch-yellow .form-check-input {
+    background-color: #f89406;
+    border-color: #f89406;
+}
+
+.switch-yellow .form-check-input:checked {
+    background-color: #f89406;
+    border-color: #f89406;
+}
+
+.switch-red .form-check-input {
+    background-color: #ee5f5b;
+    border-color: #ee5f5b;
+}
+
+.switch-red .form-check-input:checked {
+    background-color: #ee5f5b;
+    border-color: #ee5f5b;
+}
+
+/* Стили для увеличения шрифта и жирного начертания для ТТН */
+.ttn-badge {
+    font-size: 1.1rem; /* Увеличивает размер шрифта */
+    font-weight: bold; /* Делает шрифт жирным */
+}
+
+/* Стили для переключателей в одну строку */
+.form-check-inline {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.form-check-inline .form-check-input {
+    margin-right: 5px;
+}

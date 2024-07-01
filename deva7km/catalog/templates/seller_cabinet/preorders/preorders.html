@@ -1,0 +1,85 @@
+{% extends "seller_cabinet/base.html" %}
+
+{% block title %}Предзаказы{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4" id="preorderTitle">Все предзаказы</h2>
+    <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
+        <input type="radio" class="btn-check" name="btnradio-top" id="btnradio-all-top" autocomplete="off" checked onclick="filterPreorders('all', 'Все предзаказы')">
+        <label class="btn btn-outline-primary btn-sm" for="btnradio-all-top">Все</label>
+
+        <input type="radio" class="btn-check" name="btnradio-top" id="btnradio-not-shipped-top" autocomplete="off" onclick="filterPreorders('not-shipped', 'Не отправленные')">
+        <label class="btn btn-outline-warning btn-sm" for="btnradio-not-shipped-top">Не отправленные</label>
+
+        <input type="radio" class="btn-check" name="btnradio-top" id="btnradio-not-receipted-top" autocomplete="off" onclick="filterPreorders('not-receipted', 'Не пробитые')">
+        <label class="btn btn-outline-danger btn-sm" for="btnradio-not-receipted-top">Не пробитые</label>
+    </div>
+    <div class="row" id="preorderContainer">
+        {% for preorder in preorders %}
+        <div class="col-md-4 mb-4 preorder-item all {% if not preorder.shipped_to_customer %}not-shipped{% endif %} {% if not preorder.receipt_issued %}not-receipted{% endif %}" id="preorder-{{ preorder.id }}">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ preorder.full_name }}</h5>
+                    <div class="badge-container">
+                        {% if preorder.shipped_to_customer and preorder.receipt_issued %}
+                        <span class="badge bg-success mb-2">Отправлен и пробит</span>
+                        {% else %}
+                            {% if not preorder.shipped_to_customer %}
+                            <span class="badge bg-warning text-dark mb-2">Не отправлено</span>
+                            {% endif %}
+                            {% if not preorder.receipt_issued %}
+                            <span class="badge bg-danger text-white mb-2">Не пробит чек</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="info-block">
+                        <p class="card-text mt-3">
+                            <strong>Инфо:</strong> {{ preorder.text|linebreaks }}<br>
+                            <strong>Дроп:</strong>
+                            {% if preorder.drop %}
+                            <i class="fas fa-check-circle text-success"></i>
+                            {% else %}
+                            <i class="fas fa-times-circle text-danger"></i>
+                            {% endif %}
+                            <br>
+                            <strong>Дата создания:</strong> {{ preorder.created_at|date:"d.m.Y H:i" }}<br>
+                            <strong>Дата изменения:</strong> {{ preorder.updated_at|date:"d.m.Y H:i" }}<br>
+                            <strong>ТТН:</strong> <span class="badge bg-light ttn-badge" id="ttn-{{ preorder.id }}">{{ preorder.ttn }}</span><br>
+                            <strong>Статус посылки:</strong> {{ preorder.status }}<br>
+                        </p>
+                    </div>
+                    <div class="form-check form-switch d-inline-block me-3">
+                        <input class="form-check-input {% if preorder.shipped_to_customer %}bg-success{% else %}bg-warning{% endif %}" type="checkbox" id="shipped_to_customer_{{ preorder.id }}" {% if preorder.shipped_to_customer %}checked{% endif %} onchange="toggleShipped({{ preorder.id }}, this.checked)">
+                        <label class="form-check-label" for="shipped_to_customer_{{ preorder.id }}">Отправлен</label>
+                    </div>
+                    <div class="form-check form-switch d-inline-block">
+                        <input class="form-check-input {% if preorder.receipt_issued %}bg-success{% else %}bg-danger{% endif %}" type="checkbox" id="receipt_issued_{{ preorder.id }}" {% if preorder.receipt_issued %}checked{% endif %} onchange="toggleReceipt({{ preorder.id }}, this.checked)">
+                        <label class="form-check-label" for="receipt_issued_{{ preorder.id }}">Чек</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
+        <input type="radio" class="btn-check" name="btnradio-bottom" id="btnradio-all-bottom" autocomplete="off" checked onclick="filterPreorders('all', 'Все предзаказы')">
+        <label class="btn btn-outline-primary btn-sm" for="btnradio-all-bottom">Все</label>
+
+        <input type="radio" class="btn-check" name="btnradio-bottom" id="btnradio-not-shipped-bottom" autocomplete="off" onclick="filterPreorders('not-shipped', 'Не отправленные')">
+        <label class="btn btn-outline-warning btn-sm" for="btnradio-not-shipped-bottom">Не отправленные</label>
+
+        <input type="radio" class="btn-check" name="btnradio-bottom" id="btnradio-not-receipted-bottom" autocomplete="off" onclick="filterPreorders('not-receipted', 'Не пробитые')">
+        <label class="btn btn-outline-danger btn-sm" for="btnradio-not-receipted-bottom">Не пробитые</label>
+    </div>
+</div>
+
+{% block scripts %}
+{% load static %}
+<script src="{% static 'seller_cabinet/js/updateBadges.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/filterPreorders.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/toggleShipped.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/toggleReceipt.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/ttnFormat.js' %}"></script>
+{% endblock %}
+{% endblock %}
