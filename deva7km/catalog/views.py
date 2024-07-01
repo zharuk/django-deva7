@@ -667,7 +667,7 @@ def cancel_sale(request):
 
 @login_required
 def preorders(request):
-    preorders = PreOrder.objects.all()  # Извлекаем все предзаказы без фильтрации по пользователю
+    preorders = PreOrder.objects.all().order_by('-created_at')
 
     context = {
         'preorders': preorders,
