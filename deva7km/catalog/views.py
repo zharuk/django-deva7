@@ -703,3 +703,22 @@ def toggle_receipt(request, preorder_id):
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+
+@login_required
+def get_preorders(request):
+    preorders = PreOrder.objects.all().order_by('-created_at')
+    preorder_data = []
+    for preorder in preorders:
+        preorder_data.append({
+            'id': preorder.id,
+            'full_name': preorder.full_name,
+            'text': preorder.text,
+            'drop': preorder.drop,
+            'created_at': preorder.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'updated_at': preorder.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'receipt_issued': preorder.receipt_issued,
+            'ttn': preorder.ttn,
+            'shipped_to_customer': preorder.shipped_to_customer,
+            'status': preorder.status,
+        })
+    return JsonResponse({'preorders': preorder_data})

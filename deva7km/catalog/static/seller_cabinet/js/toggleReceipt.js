@@ -30,9 +30,6 @@ function toggleReceipt(id, isChecked) {
             updateBadges(preorderElement, preorderElement.querySelector(`#shipped_to_customer_${id}`).checked, isChecked);
             // Update the display based on current filter
             filterPreorders(activeFilter, document.querySelector('.btn-group .btn-check:checked + .btn').innerText);
-            console.log(`Preorder ${id} receipt_issued updated to ${isChecked}`);
-        } else {
-            console.error('Failed to update receipt_issued');
         }
     })
     .catch(error => {

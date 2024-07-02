@@ -46,6 +46,7 @@ urlpatterns = [
     path('seller_cabinet/preorder/', views.preorders, name='preorders'),
     path('api/preorder/<int:preorder_id>/toggle_shipped/', views.toggle_shipped, name='toggle_shipped'),
     path('api/preorder/<int:preorder_id>/toggle_receipt/', views.toggle_receipt, name='toggle_receipt'),
+    path('api/get_preorders/', views.get_preorders, name='get_preorders'),
 ]
 
 urlpatterns += i18n_patterns(
