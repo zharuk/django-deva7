@@ -1,7 +1,4 @@
-// fetchPreorders.js
-
-var activeFilter = 'all';
-
+// Обновляем fetchPreorders для добавления обработчиков иконок редактирования
 function fetchPreorders() {
     $.ajax({
         url: '/api/get_preorders/',
@@ -16,7 +13,10 @@ function fetchPreorders() {
                     '" id="preorder-' + preorder.id + '">' +
                     '<div class="card">' +
                     '<div class="card-body">' +
+                    '<div class="d-flex justify-content-between align-items-start">' +
                     '<h5 class="card-title">' + preorder.full_name + '</h5>' +
+                    '<i class="fas fa-edit edit-icon" data-id="' + preorder.id + '" style="cursor:pointer;"></i>' +
+                    '</div>' +
                     '<div class="badge-container">' +
                     (preorder.shipped_to_customer && preorder.receipt_issued ?
                         '<span class="badge bg-success mb-2">Отправлен и пробит</span>' :
@@ -55,6 +55,9 @@ function fetchPreorders() {
 
             // Применить текущий активный фильтр после обновления данных
             applyFilter(activeFilter);
+
+            // Добавим обработчики для иконок редактирования после обновления предзаказов
+            addEditIconListeners();
         }
     });
 }

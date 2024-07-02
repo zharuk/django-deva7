@@ -722,3 +722,48 @@ def get_preorders(request):
             'status': preorder.status,
         })
     return JsonResponse({'preorders': preorder_data})
+
+
+@csrf_exempt
+def create_preorder(request):
+    if request.method == 'POST':
+        try:
+            full_name = request.POST.get('full_name')
+            text = request.POST.get('text')
+            drop = request.POST.get('drop') == 'on'
+            ttn = request.POST.get('ttn')
+            status = request.POST.get('status')
+
+            logger.debug(
+                f"Creating PreOrder with full_name={full_name}, text={text}, drop={drop}, ttn={ttn}, status={status}")
+
+            preorder = PreOrder.objects.create(
+                full_name=full_name,
+                text=text,
+                drop=drop,
+                ttn=ttn,
+                status=status
+            )
+            return JsonResponse({'success': True, 'preorder_id': preorder.id})
+        except Exception as e:
+            logger.error(f"Error creating PreOrder: {e}")
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+
+@csrf_exempt
+def update_preorder(request, preorder_id):
+    if request.method == 'POST':
+        try:
+            preorder = PreOrder.objects.get(id=preorder_id)
+            preorder.full_name = request.POST.get('full_name')
+            preorder.text = request.POST.get('text')
+            preorder.drop = request.POST.get('drop') == 'on'
+            preorder.ttn = request.POST.get('ttn')
+            preorder.status = request.POST.get('status')
+            preorder.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            logger.error(f"Error updating PreOrder: {e}")
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
