@@ -58,6 +58,9 @@ function fetchPreorders() {
 
             // Добавим обработчики для иконок редактирования после обновления предзаказов
             addEditIconListeners();
+
+            // Форматируем ТТН после загрузки данных
+            formatTtn();
         }
     });
 }
@@ -70,6 +73,16 @@ function applyFilter(filter) {
         if (filter === 'all' || preorder.classList.contains(filter)) {
             preorder.style.display = 'block';
         }
+    });
+}
+
+// Форматирование ТТН
+function formatTtn() {
+    const ttnElements = document.querySelectorAll('.badge.bg-light.ttn-badge');
+    ttnElements.forEach(ttnElement => {
+        const ttn = ttnElement.innerText.replace(/\s/g, ''); // Удаление всех пробелов
+        const formattedTtn = ttn.replace(/(\d{4})(?=\d)/g, '$1 ').trim(); // Разбивка по 4 цифры
+        ttnElement.innerText = formattedTtn;
     });
 }
 

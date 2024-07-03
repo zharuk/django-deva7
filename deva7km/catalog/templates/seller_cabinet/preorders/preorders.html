@@ -4,10 +4,17 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4" id="preorderTitle">Все предзаказы</h2>
-    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#preorderModal" onclick="openAddModal()">
-        Добавить предзаказ
-    </button>
+    <div class="row">
+        <div class="col-md-9">
+            <h2 class="mb-4" id="preorderTitle">Все предзаказы</h2>
+        </div>
+        <div class="col-md-3">
+            <button type="button" class="btn btn-primary mb-3 float-end" data-bs-toggle="modal" data-bs-target="#preorderModal" onclick="openAddModal()">
+                Добавить предзаказ
+            </button>
+        </div>
+    </div>
+
     <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
         <input type="radio" class="btn-check" name="btnradio-top" id="btnradio-all-top" autocomplete="off" checked onclick="filterPreorders('all', 'Все предзаказы')">
         <label class="btn btn-outline-primary btn-sm" for="btnradio-all-top">Все</label>
@@ -18,6 +25,7 @@
         <input type="radio" class="btn-check" name="btnradio-top" id="btnradio-not-receipted-top" autocomplete="off" onclick="filterPreorders('not-receipted', 'Не пробитые')">
         <label class="btn btn-outline-danger btn-sm" for="btnradio-not-receipted-top">Не пробитые</label>
     </div>
+
     <div class="row" id="preorderContainer">
         {% for preorder in preorders %}
         <div class="col-md-4 mb-4 preorder-item all {% if not preorder.shipped_to_customer %}not-shipped{% endif %} {% if not preorder.receipt_issued %}not-receipted{% endif %}" id="preorder-{{ preorder.id }}">
@@ -68,6 +76,7 @@
         </div>
         {% endfor %}
     </div>
+
     <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
         <input type="radio" class="btn-check" name="btnradio-bottom" id="btnradio-all-bottom" autocomplete="off" checked onclick="filterPreorders('all', 'Все предзаказы')">
         <label class="btn btn-outline-primary btn-sm" for="btnradio-all-bottom">Все</label>
@@ -120,12 +129,11 @@
 
 {% block scripts %}
 {% load static %}
-<script src="{% static 'seller_cabinet/js/updateBadges.js' %}"></script>
-<script src="{% static 'seller_cabinet/js/filterPreorders.js' %}"></script>
-<script src="{% static 'seller_cabinet/js/toggleShipped.js' %}"></script>
-<script src="{% static 'seller_cabinet/js/toggleReceipt.js' %}"></script>
-<script src="{% static 'seller_cabinet/js/ttnFormat.js' %}"></script>
-<script src="{% static 'seller_cabinet/js/fetchPreorders.js' %}"></script>
-<script src="{% static 'seller_cabinet/js/preorders.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/preorders/updateBadges.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/preorders/filterPreorders.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/preorders/toggleShipped.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/preorders/toggleReceipt.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/preorders/fetchPreorders.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/preorders/preorders.js' %}"></script>
 {% endblock %}
 {% endblock %}
