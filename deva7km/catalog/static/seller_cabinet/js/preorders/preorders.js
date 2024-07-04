@@ -1,5 +1,3 @@
-// preorders.js
-
 document.addEventListener('DOMContentLoaded', function() {
     const preorderForm = document.getElementById('preorderForm');
 
@@ -7,6 +5,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Добавим обработчики для иконок редактирования сразу после загрузки страницы
     addEditIconListeners();
+
+    // Проверка, чтобы избежать повторного вызова fetchPreorders
+    if (!window.fetchPreordersCalled) {
+        window.fetchPreordersCalled = true;
+        fetchPreorders();
+    }
 });
 
 function handleFormSubmit(event) {
@@ -17,16 +21,6 @@ function handleFormSubmit(event) {
 
     const preorderId = document.getElementById('preorderId').value;
     const formData = new FormData(event.target);
-
-    // Получаем текущий текст описания
-    let currentDescription = formData.get('text');
-
-    // Проверка и удаление лишних "Инфо"
-    if (currentDescription) {
-        const infoPattern = /(?:Инфо: )+/g;
-        currentDescription = currentDescription.replace(infoPattern, 'Инфо: ').trim();
-        formData.set('text', currentDescription);
-    }
 
     let url = '/api/preorder/create/';
     if (preorderId) {

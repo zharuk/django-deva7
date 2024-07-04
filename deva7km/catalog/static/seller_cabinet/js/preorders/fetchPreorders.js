@@ -1,5 +1,7 @@
-// Обновляем fetchPreorders для добавления обработчиков иконок редактирования
 function fetchPreorders() {
+    if (window.isFetching) return; // Если уже выполняется запрос, выходим из функции
+    window.isFetching = true;
+
     $.ajax({
         url: '/api/get_preorders/',
         method: 'GET',
@@ -64,6 +66,9 @@ function fetchPreorders() {
         },
         error: function (error) {
             console.error('Error fetching preorders:', error);
+        },
+        complete: function () {
+            window.isFetching = false; // Разрешаем следующий запрос
         }
     });
 }
@@ -94,5 +99,8 @@ setInterval(fetchPreorders, 60000);
 
 // Вызовите fetchPreorders сразу после загрузки страницы
 $(document).ready(function () {
-    fetchPreorders();
+    if (!window.fetchPreordersCalled) {
+        window.fetchPreordersCalled = true;
+        fetchPreorders();
+    }
 });
