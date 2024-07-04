@@ -29,34 +29,52 @@ def generate_product_xlsx(request):
                                                                    'product__category').all():
         product = modification.product
         category_name = product.category.name if product.category else ''
-        price = product.retail_sale_price if product.retail_sale_price > 0 else product.retail_price
 
-        # Формируем название товара с учетом украинского или русского названия цвета и размера
-        if modification.color and modification.color.name_uk:
-            color_name = modification.color.name_uk
-        else:
-            color_name = modification.color.name  # Русское название, если украинское не задано
-
+        # Получение названий цвета и размера
+        color_name = modification.color.name if modification.color else ''
         size_name = modification.size.name if modification.size else ''
 
         # Формируем уникальный код товара на основе SKU основного товара и его модификаций
         product_code = product.sku
 
-        # Формируем строку данных для Excel
-        row = [
-            f"{product.title_uk if product.title_uk else product.title} №{product_code} ({color_name}-{size_name})",  # Ім'я товару*
-            f"{product_code}-{color_name}-{size_name}",  # Код* (уникальный код товара)
+        # Получение цены для розничной и оптовой продажи
+        retail_price = product.retail_sale_price if product.retail_sale_price > 0 else product.retail_price
+        wholesale_price = product.sale_price if product.sale_price > 0 else product.price
+
+        # Формируем название товара для розничной и оптовой продажи
+        retail_title = f"РОЗ. {product.title} №{product_code} ({color_name}-{size_name})"
+        wholesale_title = f"ОПТ. {product.title} №{product_code} ({color_name}-{size_name})"
+
+        # Формируем строки данных для розничной и оптовой продажи
+        retail_row = [
+            retail_title,  # Ім'я товару*
+            f"{product_code}-{color_name}-{size_name}-роз",  # Код* (уникальный код товара)
             category_name,  # Група товарів (наименование категории)
             "",  # Штрихкод
             "",  # Штрихкоди
             "",  # УКТ ЗЕД
-            price,  # Ціна (в гривнях)*
+            retail_price,  # Ціна (в гривнях)*
             "",  # Ваговий товар
             "товар",  # Тип товару
             "З",  # Податкові ставки
             ""  # Залишок (запас товара)
         ]
-        data_rows.append(row)
+
+        wholesale_row = [
+            wholesale_title,  # Ім'я товару*
+            f"{product_code}-{color_name}-{size_name}-опт",  # Код* (уникальный код товара)
+            category_name,  # Група товарів (наименование категории)
+            "",  # Штрихкод
+            "",  # Штрихкоди
+            "",  # УКТ ЗЕД
+            wholesale_price,  # Ціна (в гривнях)*
+            "",  # Ваговий товар
+            "товар",  # Тип товару
+            "З",  # Податкові ставки
+            ""  # Залишок (запас товара)
+        ]
+
+        data_rows.extend([retail_row, wholesale_row])
 
     # Сортируем список по столбцу "Код"
     data_rows.sort(key=lambda x: x[1])  # x[1] - это столбец "Код"
