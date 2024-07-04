@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include, re_path
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 
 from catalog import views
 from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView
@@ -30,6 +30,7 @@ urlpatterns = [
     path('feed_rozetka/', RozetkaFeedView.as_view(), name='rozetka_feed'),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     re_path(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
+    re_path(r'^favicon\.ico$', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
     path('search/', product_search, name='product_search'),
     path('ajax/product-search/', AjaxProductSearch.as_view(), name='ajax_product_search'),  # AJAX поиск
     path('seller_cabinet/', views.seller_cabinet_main, name='seller_cabinet_main'),
