@@ -89,8 +89,8 @@ function formatTtn() {
     });
 }
 
-// Запуск функции fetchPreorders каждые 5 секунд
-setInterval(fetchPreorders, 5000);
+// Запуск функции fetchPreorders каждые 60 секунд
+setInterval(fetchPreorders, 60000);
 
 // Вызовите fetchPreorders сразу после загрузки страницы
 $(document).ready(function () {
