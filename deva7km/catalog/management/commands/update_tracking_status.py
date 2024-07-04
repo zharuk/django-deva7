@@ -8,7 +8,6 @@ from datetime import timedelta
 # Настройка логирования
 logger_tracking = logging.getLogger('tracking')
 
-
 async def get_tracking_status_from_api_nova_poshta(ttns, api_key):
     """Асинхронный запрос статуса посылки по API Nova Poshta."""
     url = 'https://api.novaposhta.ua/v2.0/json/'
@@ -17,7 +16,7 @@ async def get_tracking_status_from_api_nova_poshta(ttns, api_key):
         "modelName": "TrackingDocument",
         "calledMethod": "getStatusDocuments",
         "methodProperties": {
-            "Documents": [{"DocumentNumber": ttn} for ttn in ttns]
+            "Documents": [{"DocumentNumber": ttn.replace(' ', '')} for ttn in ttns]  # Удаляем пробелы
         }
     }
 
@@ -47,14 +46,13 @@ async def get_tracking_status_from_api_nova_poshta(ttns, api_key):
                     f"Неверный тип ответа от API Nova Poshta для TTNs {ttns}. Получен тип: {content_type}. Ответ: {response_text}")
                 return None
 
-
 async def update_tracking_status(preorders):
     # Проверка и преобразование в список, если передан один объект
     if not isinstance(preorders, list):
         preorders = [preorders]
 
     api_key = getattr(settings, 'NOVA_POSHTA_API_KEY', None)
-    carriers = {preorder.ttn: get_carrier(preorder.ttn) for preorder in preorders}
+    carriers = {preorder.ttn.replace(' ', ''): get_carrier(preorder.ttn.replace(' ', '')) for preorder in preorders}  # Удаляем пробелы
     ttns_nova_poshta = [ttn for ttn, carrier in carriers.items() if carrier == 'NovaPoshta']
 
     now = timezone.now()
@@ -69,7 +67,7 @@ async def update_tracking_status(preorders):
         # Фильтруем посылки для Nova Poshta
         preorders_to_update = []
         for preorder in preorders:
-            if preorder.ttn in ttns_nova_poshta:
+            if preorder.ttn.replace(' ', '') in ttns_nova_poshta:  # Удаляем пробелы
                 if not preorder.status or preorder.status.strip() == "":
                     # Если статус пустой, обновляем независимо от времени последнего обновления
                     preorders_to_update.append(preorder)
@@ -78,7 +76,7 @@ async def update_tracking_status(preorders):
                     preorders_to_update.append(preorder)
 
         # Получаем TTN для обновления
-        ttns_to_update = [preorder.ttn for preorder in preorders_to_update]
+        ttns_to_update = [preorder.ttn.replace(' ', '') for preorder in preorders_to_update]  # Удаляем пробелы
 
         if ttns_to_update:
             data = await get_tracking_status_from_api_nova_poshta(ttns_to_update, api_key)
@@ -87,7 +85,7 @@ async def update_tracking_status(preorders):
                     ttn = document.get('Number')
                     status = document.get('Status')
                     if ttn and status:
-                        preorder = next((p for p in preorders if p.ttn == ttn), None)
+                        preorder = next((p for p in preorders if p.ttn.replace(' ', '') == ttn), None)  # Удаляем пробелы
                         if preorder:
                             preorder_id = preorder.id  # Сохраняем идентификатор предзаказа
                             clean_status = status.strip().lower()  # Очистка и приведение к нижнему регистру
@@ -106,16 +104,15 @@ async def update_tracking_status(preorders):
     except Exception as e:
         logger_tracking.error(f"Произошла ошибка при обновлении статуса: {e}")
 
-
 def get_carrier(ttn):
     """Определение службы доставки по номеру ТТН."""
+    ttn = ttn.replace(' ', '')  # Удаляем пробелы
     if ttn.startswith('050'):
         return 'UkrPoshta'
     elif ttn.startswith('204'):
         return 'NovaPoshta'
     else:
         return 'Unknown'
-
 
 async def get_tracking_status_from_api_ukrposhta(ttn):
     """Асинхронный запрос статуса посылки по API UkrPoshta.

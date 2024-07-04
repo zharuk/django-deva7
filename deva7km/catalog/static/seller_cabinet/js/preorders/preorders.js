@@ -18,6 +18,16 @@ function handleFormSubmit(event) {
     const preorderId = document.getElementById('preorderId').value;
     const formData = new FormData(event.target);
 
+    // Получаем текущий текст описания
+    let currentDescription = formData.get('text');
+
+    // Проверка и удаление лишних "Инфо"
+    if (currentDescription) {
+        const infoPattern = /(?:Инфо: )+/g;
+        currentDescription = currentDescription.replace(infoPattern, 'Инфо: ').trim();
+        formData.set('text', currentDescription);
+    }
+
     let url = '/api/preorder/create/';
     if (preorderId) {
         url = `/api/preorder/${preorderId}/update/`;
@@ -57,17 +67,25 @@ function openEditModal(id) {
     const preorderElement = document.getElementById(`preorder-${id}`);
     if (preorderElement) {
         const fullName = preorderElement.querySelector('.card-title');
-        const text = preorderElement.querySelector('.info-block p');
+        const infoBlock = preorderElement.querySelector('.info-text');
         const drop = preorderElement.querySelector('.fa-check-circle');
         const ttn = preorderElement.querySelector('.ttn-badge');
-        const status = preorderElement.querySelector('.info-block p:nth-child(4)');
+        const status = preorderElement.querySelector('.status-text');
 
         document.getElementById('preorderId').value = id;
-        document.getElementById('fullName').value = fullName ? fullName.textContent : '';
-        document.getElementById('text').value = text ? text.innerText : '';
+        document.getElementById('fullName').value = fullName ? fullName.textContent.trim() : '';
+
+        // Извлечение текста из HTML и замена <br> на '\n', удаление пустых строк
+        let textContent = infoBlock ? infoBlock.innerHTML.replace(/<br\s*\/?>/g, '\n').trim() : '';
+        textContent = textContent.split('\n').filter(line => line.trim() !== '').join('\n');
+        document.getElementById('text').value = textContent;
+
         document.getElementById('drop').checked = drop ? true : false;
-        document.getElementById('ttn').value = ttn ? ttn.textContent : '';
-        document.getElementById('status').value = status ? status.innerText : '';
+        document.getElementById('ttn').value = ttn ? ttn.textContent.trim() : '';
+
+        let statusContent = status ? status.textContent.trim() : '';
+        document.getElementById('status').value = statusContent;
+
         document.getElementById('preorderModalLabel').textContent = 'Редактировать предзаказ';
         $('#preorderModal').modal('show');
     } else {

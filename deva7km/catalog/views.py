@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -7,6 +8,7 @@ from django.db import transaction
 from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
 from django.utils.translation import get_language
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -724,6 +726,7 @@ def get_preorders(request):
     return JsonResponse({'preorders': preorder_data})
 
 
+
 @csrf_exempt
 def create_preorder(request):
     if request.method == 'POST':
@@ -751,19 +754,22 @@ def create_preorder(request):
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
 
 
+@login_required
 @csrf_exempt
 def update_preorder(request, preorder_id):
     if request.method == 'POST':
         try:
             preorder = PreOrder.objects.get(id=preorder_id)
-            preorder.full_name = request.POST.get('full_name')
-            preorder.text = request.POST.get('text')
+            preorder.full_name = request.POST.get('full_name').strip()
+            preorder.text = request.POST.get('text').replace('\r\n', '\n').strip()
             preorder.drop = request.POST.get('drop') == 'on'
-            preorder.ttn = request.POST.get('ttn')
-            preorder.status = request.POST.get('status')
+            preorder.ttn = request.POST.get('ttn').strip()
+            preorder.status = request.POST.get('status').strip()
+            preorder.updated_at = timezone.now()
             preorder.save()
             return JsonResponse({'success': True})
         except Exception as e:
             logger.error(f"Error updating PreOrder: {e}")
             return JsonResponse({'success': False, 'error': str(e)}, status=400)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+

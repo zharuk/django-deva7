@@ -25,12 +25,12 @@ function fetchPreorders() {
                     '</div>' +
                     '<div class="info-block">' +
                     '<p class="card-text mt-3">' +
-                    '<strong>Инфо:</strong> ' + preorder.text.replace(/\n/g, '<br>') + '<br>' +
+                    '<strong>Инфо:</strong> <span class="info-text">' + preorder.text.replace(/\n/g, '<br>') + '</span><br>' + // Добавляем класс info-text
                     '<strong>Дроп:</strong> ' + (preorder.drop ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>') + '<br>' +
                     '<strong>Дата создания:</strong> ' + preorder.created_at + '<br>' +
                     '<strong>Дата изменения:</strong> ' + preorder.updated_at + '<br>' +
                     '<strong>ТТН:</strong> <span class="badge bg-light ttn-badge" id="ttn-' + preorder.id + '">' + preorder.ttn + '</span><br>' +
-                    '<strong>Статус посылки:</strong> ' + preorder.status + '<br>' +
+                    '<strong>Статус посылки:</strong> <span class="status-text">' + preorder.status + '</span><br>' + // Добавляем класс status-text
                     '</p>' +
                     '</div>' +
                     '<div class="form-check form-switch d-inline-block me-3">' +
@@ -61,6 +61,9 @@ function fetchPreorders() {
 
             // Форматируем ТТН после загрузки данных
             formatTtn();
+        },
+        error: function (error) {
+            console.error('Error fetching preorders:', error);
         }
     });
 }
