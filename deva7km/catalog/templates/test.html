@@ -1,0 +1,29 @@
+<!-- catalog/templates/catalog/test.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <button onclick="sendMessage()">Send Message</button>
+    <script>
+        var socket = new WebSocket('ws://' + window.location.host + '/ws/test/');
+
+        socket.onmessage = function(e) {
+            var data = JSON.parse(e.data);
+            console.log(data.message);
+        };
+
+        socket.onclose = function(e) {
+            console.error('WebSocket closed unexpectedly');
+        };
+
+        function sendMessage() {
+            socket.send(JSON.stringify({
+                'message': 'Hello, WebSocket!'
+            }));
+        }
+    </script>
+</body>
+</html>

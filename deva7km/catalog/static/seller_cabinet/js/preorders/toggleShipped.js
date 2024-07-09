@@ -1,35 +1,18 @@
-function toggleShipped(id, isChecked) {
-    fetch(`/api/preorder/${id}/toggle_shipped/`, {
+function toggleShipped(preorderId, isChecked) {
+    const url = `/api/preorder/${preorderId}/toggle_shipped/`;
+
+    fetch(url, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({ shipped_to_customer: isChecked })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            const preorderElement = document.getElementById(`preorder-${id}`);
-            const shippedInput = preorderElement.querySelector(`#shipped_to_customer_${id}`);
-            if (isChecked) {
-                preorderElement.classList.remove('not-shipped');
-                shippedInput.classList.remove('bg-warning');
-                shippedInput.classList.add('bg-success');
-            } else {
-                preorderElement.classList.add('not-shipped');
-                shippedInput.classList.remove('bg-success');
-                shippedInput.classList.add('bg-warning');
-            }
-            // Update badges
-            updateBadges(preorderElement, isChecked, preorderElement.querySelector(`#receipt_issued_${id}`).checked);
-            // Update the display based on current filter
-            filterPreorders(activeFilter, document.querySelector('.btn-group .btn-check:checked + .btn').innerText);
+        if (!data.success) {
+            console.error('Failed to toggle shipped:', data.error);
         }
     })
     .catch(error => {

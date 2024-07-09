@@ -1,0 +1,34 @@
+{% extends 'seller_cabinet/base.html' %}
+
+{% block title %}Предзаказы{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Предзаказы</h1>
+    <div class="row" id="preorders-container">
+        {% for preorder in preorders %}
+            <div class="col-md-4 mb-4" data-id="{{ preorder.id }}">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ preorder.full_name }}</h5>
+                        <p class="card-text">{{ preorder.text }}</p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Дроп:</strong> {{ preorder.drop }}</li>
+                            <li class="list-group-item"><strong>Дата создания:</strong> {{ preorder.created_at }}</li>
+                            <li class="list-group-item"><strong>Дата изменения:</strong> {{ preorder.updated_at }}</li>
+                            <li class="list-group-item"><strong>Чек:</strong> {{ preorder.receipt_issued }}</li>
+                            <li class="list-group-item"><strong>ТТН:</strong> {{ preorder.ttn }}</li>
+                            <li class="list-group-item"><strong>Отправлен:</strong> {{ preorder.shipped_to_customer }}</li>
+                            <li class="list-group-item"><strong>Статус:</strong> {{ preorder.status }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <a href="{% url 'preorder_create' %}" class="btn btn-primary mt-4">Создать новый предзаказ</a>
+{% endblock %}
+
+{% block scripts %}
+    {% load static %}
+    <script src="{% static 'seller_cabinet/js/preorders/preorder.js' %}"></script>
+{% endblock %}

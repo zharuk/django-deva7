@@ -1,3 +1,4 @@
+# deva7km/urls.py
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -5,20 +6,17 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include, re_path
 from django.views.generic import TemplateView, RedirectView
 
-from catalog import views
+from catalog import views, consumers
 from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView
-from catalog.views import home, contacts_page, \
-    category_detail, product_detail, sales, telegram_page, \
+from catalog.views import home, contacts_page, category_detail, product_detail, sales, telegram_page, \
     privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page, product_search, \
-    ProfileDetailView, update_tracking_status_view, AjaxProductSearch, get_pending_sale_items, clear_sale, \
-    get_daily_sales
+    ProfileDetailView, update_tracking_status_view
 
 from django.conf.urls.i18n import i18n_patterns
-
-from catalog.sitemaps import get_sitemaps  # Импортируем функцию get_sitemaps
+from catalog.sitemaps import get_sitemaps
 from django.contrib.auth import views as auth_views
 
-sitemaps = get_sitemaps()  # Получаем динамически созданный словарь карт сайта
+sitemaps = get_sitemaps()
 
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
@@ -32,49 +30,26 @@ urlpatterns = [
     re_path(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
     re_path(r'^favicon\.ico$', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
     path('search/', product_search, name='product_search'),
-    path('ajax/product-search/', AjaxProductSearch.as_view(), name='ajax_product_search'),  # AJAX поиск
     path('seller_cabinet/', views.seller_cabinet_main, name='seller_cabinet_main'),
-    path('seller_cabinet/sale/', views.seller_cabinet_sales, name='seller_cabinet_sales'),
-    path('seller_cabinet/sale/search_article/', views.search_article, name='search_article'),
-    path('seller_cabinet/sale/add_item_to_sale/', views.add_item_to_sale, name='add_item_to_sale'),
-    path('seller_cabinet/sale/remove_item_from_sale/', views.remove_item_from_sale, name='remove_item_from_sale'),
-    path('seller_cabinet/sale/confirm_sale/', views.confirm_sale, name='confirm_sale'),
-    path('seller_cabinet/sale/create_new_sale/', views.create_new_sale, name='create_new_sale'),  # Добавьте этот путь
-    path('seller_cabinet/sale/get_pending_sale_items/', views.get_pending_sale_items, name='get_pending_sale_items'),
-    path('seller_cabinet/sale/clear_sale/', views.clear_sale, name='clear_sale'),
-    path('seller_cabinet/sale/get-daily-sales/', views.get_daily_sales, name='get_daily_sales'),
-    path('seller_cabinet/sale/cancel_sale/', views.cancel_sale, name='cancel_sale'),
-    path('seller_cabinet/preorder/', views.preorders, name='preorders'),
-    path('api/preorder/<int:preorder_id>/toggle_shipped/', views.toggle_shipped, name='toggle_shipped'),
-    path('api/preorder/<int:preorder_id>/toggle_receipt/', views.toggle_receipt, name='toggle_receipt'),
-    path('api/get_preorders/', views.get_preorders, name='get_preorders'),
-    path('api/preorder/create/', views.create_preorder, name='create_preorder'),
-    path('api/preorder/<int:preorder_id>/update/', views.update_preorder, name='update_preorder'),
+    path('seller_cabinet/sales/', views.seller_cabinet_sales, name='seller_cabinet_sales'),
+    path('seller_cabinet/preorder/add/', views.preorder_create, name='preorder_create'),
+    path('seller_cabinet/preorder/<int:pk>/edit/', views.preorder_edit, name='preorder_edit'),
+    path('seller_cabinet/preorder/', views.preorder_list, name='preorder_list'),
+    path('seller_cabinet/preorder/create/', views.preorder_create, name='preorder_create'),
+    path('seller_cabinet/preorder/<int:pk>/edit/', views.preorder_edit, name='preorder_edit'),
 ]
 
 urlpatterns += i18n_patterns(
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='registration/logged_out.html'), name='logout'),
     path('accounts/profile/', ProfileDetailView.as_view(), name='profile'),
-    path('password_change/',
-         auth_views.PasswordChangeView.as_view(template_name='registration/password_change_form.html'),
-         name='password_change'),
-    path('password_change/done/',
-         auth_views.PasswordChangeDoneView.as_view(template_name='registration/password_change_done.html'),
-         name='password_change_done'),
-    path('password_reset/', auth_views.PasswordResetView.as_view(template_name='registration/password_reset_form.html'),
-         name='password_reset'),
-    path('password_reset/done/',
-         auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'),
-         name='password_reset_done'),
-    path('reset/<uidb64>/<token>/',
-         auth_views.PasswordResetConfirmView.as_view(template_name='registration/password_reset_confirm.html'),
-         name='password_reset_confirm'),
-    path('reset/done/',
-         auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'),
-         name='password_reset_complete'),
-
-    path('', home, name='home'),  # URL для главной страницы
+    path('password_change/', auth_views.PasswordChangeView.as_view(template_name='registration/password_change_form.html'), name='password_change'),
+    path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='registration/password_change_done.html'), name='password_change_done'),
+    path('password_reset/', auth_views.PasswordResetView.as_view(template_name='registration/password_reset_form.html'), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/password_reset_confirm.html'), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),
+    path('', home, name='home'),
     path('add-to-cart/<str:custom_sku>/', views.add_to_cart, name='add_to_cart'),
     path('thank-you/', thank_you_page, name='thank_you_page'),
     path('cart/', cart_view, name='cart_view'),
@@ -93,3 +68,4 @@ urlpatterns += i18n_patterns(
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

@@ -1,0 +1,17 @@
+<!-- catalog/templates/seller_cabinet/preorders/preorder_form.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Предзаказ</title>
+    {% load static %}
+</head>
+<body>
+    <h1>{% if form.instance.pk %}Редактировать{% else %}Создать{% endif %} предзаказ</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить</button>
+    </form>
+    <a href="{% url 'preorder_list' %}">Назад к списку</a>
+</body>
+</html>

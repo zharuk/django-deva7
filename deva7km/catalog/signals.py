@@ -1,3 +1,8 @@
+import logging
+import time
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.db.models.signals import m2m_changed, post_save, pre_save, pre_delete, post_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
@@ -5,7 +10,7 @@ from transliterate import translit
 from itertools import product
 from unidecode import unidecode
 from .models import Product, ProductModification, Image, Category, Sale, SaleItem, ReturnItem, Return, InventoryItem, \
-    Inventory, WriteOffItem, WriteOff, BlogPost
+    Inventory, WriteOffItem, WriteOff, BlogPost, PreOrder
 
 
 # сигнал который устанавливает атрибут is_sale для товара если sale_price > 0, иначе False.
@@ -179,3 +184,38 @@ def generate_product_modifications_on_m2m_change(sender, instance, action, rever
                 if mod.color not in colors or mod.size not in sizes:
                     # Удаляем модификацию, если цвет или размер больше не связаны с товаром
                     mod.delete()
+
+
+@receiver(post_save, sender=PreOrder)
+def preorder_saved(sender, instance, created, **kwargs):
+    event_type = 'preorder_saved' if created else 'preorder_updated'
+    print(f"Signal post_save triggered for PreOrder: {instance.id}, event_type: {event_type}")
+    notify_preorder_change(sender=PreOrder, instance=instance, event_type=event_type)
+
+@receiver(post_delete, sender=PreOrder)
+def preorder_deleted(sender, instance, **kwargs):
+    print(f"Signal post_delete triggered for PreOrder: {instance.id}")
+    notify_preorder_change(sender=PreOrder, instance=instance, event_type='preorder_deleted')
+
+def notify_preorder_change(sender, instance, event_type, **kwargs):
+    print(f"notify_preorder_change called with event_type: {event_type}, instance: {instance}")
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'preorder_updates',
+        {
+            'type': 'notify_preorders_update',
+            'event': event_type,
+            'preorder': {
+                'id': instance.id,
+                'full_name': instance.full_name,
+                'text': instance.text,
+                'drop': instance.drop,
+                'created_at': instance.created_at.isoformat(),
+                'updated_at': instance.updated_at.isoformat(),
+                'receipt_issued': instance.receipt_issued,
+                'shipped_to_customer': instance.shipped_to_customer,
+                'status': instance.status,
+                'ttn': instance.ttn,
+            }
+        }
+    )

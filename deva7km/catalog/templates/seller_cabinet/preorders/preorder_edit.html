@@ -1,0 +1,16 @@
+<!-- catalog/templates/seller_cabinet/preorders/preorder_edit.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Редактировать Предзаказ</title>
+</head>
+<body>
+    <h1>Редактировать Предзаказ</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить изменения</button>
+    </form>
+    <a href="{% url 'preorder_list' %}">Назад к списку предзаказов</a>
+</body>
+</html>

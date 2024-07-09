@@ -1,6 +1,7 @@
 import json
 import re
 
+from channels.layers import get_channel_layer
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
@@ -14,7 +15,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
 from catalog.email_utils import send_new_order_notification_email
-from catalog.forms import OrderForm
+from catalog.forms import PreOrderForm
 from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem, Sale, SaleItem
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -24,8 +25,10 @@ from django.utils import timezone
 from datetime import timedelta
 from .management.commands.update_tracking_status import update_tracking_status
 from .models import PreOrder
-from asgiref.sync import sync_to_async
+from asgiref.sync import sync_to_async, async_to_sync
 import asyncio
+
+from .signals import notify_preorder_change
 
 
 def home(request):
@@ -278,7 +281,7 @@ def complete_order(request):
                            'item_total_sale': item_total_sale})
 
     if request.method == 'POST':
-        form = OrderForm(request.POST)
+        form = PreOrderForm(request.POST)
         if form.is_valid():
             # Создаем объект заказа
             order = Order(
@@ -317,7 +320,7 @@ def complete_order(request):
             return redirect('thank_you_page')  # Замените 'thank_you_page' на ваше имя URL-адреса
 
     else:
-        form = OrderForm()
+        form = PreOrderForm()
 
     return render(request, 'complete_order.html', {
         'form': form,
@@ -472,304 +475,37 @@ def seller_cabinet_main(request):
 
 @login_required
 def seller_cabinet_sales(request):
-    # Ищем незавершенную продажу для текущего пользователя
-    pending_sale = Sale.objects.filter(user=request.user, status='pending').first()
-
-    # Если незавершенной продажи нет, создаем новую продажу
-    if not pending_sale:
-        pending_sale = Sale.objects.create(user=request.user, status='pending', source='site')
-
-    today = timezone.now().date()
-    daily_sales = Sale.objects.filter(created_at__date=today, status='completed')
-    total_daily_sales_amount = sum(sale.calculate_total_amount() for sale in daily_sales)
-
-    return render(request, 'seller_cabinet/sales/seller_sales.html', {
-        'pending_sale': pending_sale,
-        'daily_sales': daily_sales,
-        'total_daily_sales_amount': total_daily_sales_amount,
-        'today': today,
-    })
+    return render(request, 'seller_cabinet/sales/seller_sales.html')
 
 
 @login_required
-def search_article(request):
-    article = request.GET.get('article', '')
-    page_number = int(request.GET.get('page', 1))
-    if len(article) >= 3:
-        modifications = ProductModification.objects.filter(custom_sku__icontains=article).order_by(
-            'id')  # Упорядочиваем по 'id'
-        paginator = Paginator(modifications, 5)  # 5 результатов на страницу
-        page_obj = paginator.get_page(page_number)
-        has_more = page_obj.has_next()
+def preorder_list(request):
+    preorders = PreOrder.objects.all().order_by('-created_at')
+    return render(request, 'seller_cabinet/preorders/preorder_list.html', {'preorders': preorders})
+
+
+@login_required
+def preorder_create(request):
+    if request.method == 'POST':
+        form = PreOrderForm(request.POST)
+        if form.is_valid():
+            preorder = form.save()
+            notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_saved')
+            return redirect('preorder_list')
     else:
-        page_obj = []
-        has_more = False
-    return render(request, 'seller_cabinet/sales/partials/available_items.html', {
-        'modifications': page_obj,
-        'has_more': has_more,
-        'next_page_number': page_number + 1 if has_more else None
-    })
+        form = PreOrderForm()
+    return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
 
 
-@csrf_exempt
-def remove_item_from_sale(request):
-    item_id = request.POST.get('item_id')
-    SaleItem.objects.get(id=item_id).delete()
-
-    sale = Sale.objects.get(user=request.user, status='pending')
-    items_html = render_to_string('seller_cabinet/sales/partials/selected_items.html', {'sale': sale})
-    total_amount = sale.calculate_total_amount()
-    return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
-
-
-logger = logging.getLogger(__name__)
-
-
-@csrf_exempt
-def add_item_to_sale(request):
-    try:
-        logger.debug("Received POST data: %s", request.POST)
-
-        item_id = request.POST.get('item_id')
-        quantity = request.POST.get('quantity', 1)
-
-        if not item_id:
-            logger.error("Item ID is missing")
-            return JsonResponse({'error': 'Item ID is missing'}, status=400)
-
-        try:
-            quantity = int(quantity)
-        except ValueError:
-            logger.error("Invalid quantity: %s", quantity)
-            return JsonResponse({'error': 'Invalid quantity'}, status=400)
-
-        product_modification = get_object_or_404(ProductModification, id=item_id)
-
-        if product_modification.stock <= 0:
-            logger.error("Product is out of stock: %s", item_id)
-            return JsonResponse({'error': 'Товар отсутствует на складе'}, status=400)
-
-        sale, created = Sale.objects.get_or_create(
-            user=request.user, status='pending',
-            defaults={'source': 'site'}
-        )
-        SaleItem.objects.create(
-            sale=sale, product_modification=product_modification, quantity=quantity
-        )
-
-        items_html = render_to_string('seller_cabinet/sales/partials/selected_items.html', {'sale': sale})
-        total_amount = sale.calculate_total_amount()
-        return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
-
-    except ProductModification.DoesNotExist:
-        logger.error("ProductModification does not exist for item_id: %s", item_id)
-        return JsonResponse({'error': 'Товар не найден'}, status=404)
-    except Exception as e:
-        logger.error("Exception occurred: %s", str(e))
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-@csrf_exempt
-def confirm_sale(request):
+@login_required
+def preorder_edit(request, pk):
+    preorder = get_object_or_404(PreOrder, pk=pk)
     if request.method == 'POST':
-        comment = request.POST.get('comment', '')
-        sale_id = request.POST.get('sale_id')
-
-        if not sale_id:
-            return JsonResponse({'error': 'Sale ID is missing'}, status=400)
-
-        try:
-            sale = Sale.objects.get(id=sale_id)
-            sale.status = 'completed'
-            sale.comment = comment
-            sale.save()
-            return JsonResponse({'message': 'Продажа успешно завершена'})
-        except Sale.DoesNotExist:
-            return JsonResponse({'error': 'Продажа не найдена'}, status=404)
-    return JsonResponse({'error': 'Недопустимый метод запроса'}, status=405)
-
-
-@csrf_exempt
-@login_required
-def create_new_sale(request):
-    if request.method == 'POST':
-        pending_sale = Sale.objects.filter(user=request.user, status='pending').first()
-        if not pending_sale:
-            pending_sale = Sale.objects.create(user=request.user, status='pending', source='site')
-        return JsonResponse({'sale_id': pending_sale.id})
-    return JsonResponse({'error': 'Недопустимый метод запроса'}, status=405)
-
-
-@login_required
-def get_pending_sale_items(request):
-    sale_id = request.GET.get('sale_id')
-    try:
-        sale = Sale.objects.get(id=sale_id, user=request.user, status='pending')
-        items_html = render_to_string('seller_cabinet/sales/partials/selected_items.html', {'sale': sale})
-        total_amount = sale.calculate_total_amount()
-        return JsonResponse({'items_html': items_html, 'total_amount': total_amount})
-    except Sale.DoesNotExist:
-        return JsonResponse({'error': 'Продажа не найдена'}, status=404)
-
-
-@csrf_exempt
-@login_required
-def clear_sale(request):
-    try:
-        sale = Sale.objects.filter(user=request.user, status='pending').first()
-        if sale:
-            sale.items.all().delete()
-            return JsonResponse({'message': 'Корзина очищена!'})
-        else:
-            return JsonResponse({'error': 'Корзина пуста.'}, status=404)
-    except Exception as e:
-        logger.error(f"Ошибка при очистке корзины: {e}")
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-@login_required
-def get_daily_sales(request):
-    today = timezone.now().date()
-    daily_sales = Sale.objects.filter(created_at__date=today, status='completed').order_by('-created_at')
-    total_daily_sales_amount = 0
-
-    for sale in daily_sales:
-        sale.total_quantity = sum(item.quantity for item in sale.items.all())
-        sale.total_price = 0
-        for item in sale.items.all():
-            item_price = item.product_modification.product.get_actual_wholesale_price()
-            item.total_price = item.quantity * item_price
-            sale.total_price += item.total_price
-        total_daily_sales_amount += sale.total_price
-
-    sales_html = render_to_string('seller_cabinet/sales/partials/daily_sales_table.html', {
-        'daily_sales': daily_sales,
-    })
-
-    return JsonResponse({
-        'sales_html': sales_html,
-        'total_amount': total_daily_sales_amount,
-    })
-
-
-@csrf_exempt
-@login_required
-def cancel_sale(request):
-    try:
-        sale_id = request.POST.get('sale_id')
-        sale = Sale.objects.get(id=sale_id, user=request.user, status='completed')
-        sale.delete()
-        return JsonResponse({'message': 'Продажа успешно удалена!'})
-    except Sale.DoesNotExist:
-        return JsonResponse({'error': 'Продажа не найдена или уже удалена.'}, status=404)
-    except Exception as e:
-        logger.error(f"Ошибка при удалении продажи: {e}")
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-@login_required
-def preorders(request):
-    preorders = PreOrder.objects.all().order_by('-created_at')
-
-    context = {
-        'preorders': preorders,
-    }
-    return render(request, 'seller_cabinet/preorders/preorders.html', context)
-
-
-@login_required
-def toggle_shipped(request, preorder_id):
-    preorder = get_object_or_404(PreOrder, id=preorder_id)
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            shipped_to_customer = data.get('shipped_to_customer')
-            preorder.shipped_to_customer = shipped_to_customer
-            preorder.save()
-            return JsonResponse({'success': True})
-        except json.JSONDecodeError:
-            return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
-    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
-
-
-@login_required
-def toggle_receipt(request, preorder_id):
-    preorder = get_object_or_404(PreOrder, id=preorder_id)
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            receipt_issued = data.get('receipt_issued')
-            preorder.receipt_issued = receipt_issued
-            preorder.save()
-            return JsonResponse({'success': True})
-        except json.JSONDecodeError:
-            return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
-    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
-
-@login_required
-def get_preorders(request):
-    preorders = PreOrder.objects.all().order_by('-created_at')
-    preorder_data = []
-    for preorder in preorders:
-        preorder_data.append({
-            'id': preorder.id,
-            'full_name': preorder.full_name,
-            'text': preorder.text,
-            'drop': preorder.drop,
-            'created_at': preorder.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            'updated_at': preorder.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
-            'receipt_issued': preorder.receipt_issued,
-            'ttn': preorder.ttn,
-            'shipped_to_customer': preorder.shipped_to_customer,
-            'status': preorder.status,
-        })
-    return JsonResponse({'preorders': preorder_data})
-
-
-
-@csrf_exempt
-def create_preorder(request):
-    if request.method == 'POST':
-        try:
-            full_name = request.POST.get('full_name')
-            text = request.POST.get('text')
-            drop = request.POST.get('drop') == 'on'
-            ttn = request.POST.get('ttn')
-            status = request.POST.get('status')
-
-            logger.debug(
-                f"Creating PreOrder with full_name={full_name}, text={text}, drop={drop}, ttn={ttn}, status={status}")
-
-            preorder = PreOrder.objects.create(
-                full_name=full_name,
-                text=text,
-                drop=drop,
-                ttn=ttn,
-                status=status
-            )
-            return JsonResponse({'success': True, 'preorder_id': preorder.id})
-        except Exception as e:
-            logger.error(f"Error creating PreOrder: {e}")
-            return JsonResponse({'success': False, 'error': str(e)}, status=400)
-    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
-
-
-@login_required
-@csrf_exempt
-def update_preorder(request, preorder_id):
-    if request.method == 'POST':
-        try:
-            preorder = PreOrder.objects.get(id=preorder_id)
-            preorder.full_name = request.POST.get('full_name').strip()
-            preorder.text = request.POST.get('text').replace('\r\n', '\n').strip()
-            preorder.drop = request.POST.get('drop') == 'on'
-            preorder.ttn = request.POST.get('ttn').strip()
-            preorder.status = request.POST.get('status').strip()
-            preorder.updated_at = timezone.now()
-            preorder.save()
-            return JsonResponse({'success': True})
-        except Exception as e:
-            logger.error(f"Error updating PreOrder: {e}")
-            return JsonResponse({'success': False, 'error': str(e)}, status=400)
-    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
-
+        form = PreOrderForm(request.POST, instance=preorder)
+        if form.is_valid():
+            preorder = form.save()
+            notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_updated')
+            return redirect('preorders')
+    else:
+        form = PreOrderForm(instance=preorder)
+    return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
