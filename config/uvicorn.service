@@ -1,0 +1,12 @@
+[Unit]
+Description=Uvicorn instance to serve deva7km
+After=network.target
+
+[Service]
+User=zharuk
+Group=www-data
+WorkingDirectory=/mnt/c/Users/user/PycharmProjects/django/deva7km
+ExecStart=/usr/bin/env uvicorn deva7km.asgi:application --host 127.0.0.1 --port 8000
+
+[Install]
+WantedBy=multi-user.target

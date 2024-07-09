@@ -13,8 +13,8 @@ def setup_django_environment():
 
 
 def run_server():
-    # Запускаем сервер Django
-    os.system("python manage.py runserver")
+    # Запускаем сервер Uvicorn
+    os.system("uvicorn deva7km.asgi:application --host 0.0.0.0 --port 8000")
 
 
 def run_bot():
