@@ -192,10 +192,12 @@ def preorder_saved(sender, instance, created, **kwargs):
     print(f"Signal post_save triggered for PreOrder: {instance.id}, event_type: {event_type}")
     notify_preorder_change(sender=PreOrder, instance=instance, event_type=event_type)
 
+
 @receiver(post_delete, sender=PreOrder)
 def preorder_deleted(sender, instance, **kwargs):
     print(f"Signal post_delete triggered for PreOrder: {instance.id}")
     notify_preorder_change(sender=PreOrder, instance=instance, event_type='preorder_deleted')
+
 
 def notify_preorder_change(sender, instance, event_type, **kwargs):
     print(f"notify_preorder_change called with event_type: {event_type}, instance: {instance}")

@@ -498,14 +498,61 @@ def preorder_create(request):
 
 
 @login_required
-def preorder_edit(request, pk):
-    preorder = get_object_or_404(PreOrder, pk=pk)
+def preorder_form(request, pk=None):
+    if pk:
+        preorder = get_object_or_404(PreOrder, pk=pk)
+    else:
+        preorder = None
+
     if request.method == 'POST':
         form = PreOrderForm(request.POST, instance=preorder)
         if form.is_valid():
             preorder = form.save()
-            notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_updated')
-            return redirect('preorders')
+            event_type = 'preorder_updated' if pk else 'preorder_saved'
+            notify_preorder_change(sender=PreOrder, instance=preorder, event_type=event_type)
+            return redirect('preorder_list')
     else:
         form = PreOrderForm(instance=preorder)
+
     return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
+
+
+@login_required
+def preorder_delete(request, pk):
+    preorder = get_object_or_404(PreOrder, pk=pk)
+    if request.method == 'POST':
+        preorder.delete()
+        notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_deleted')
+        return redirect('preorder_list')
+    return render(request, 'seller_cabinet/preorders/preorder_confirm_delete.html', {'preorder': preorder})
+
+
+@csrf_exempt
+@login_required
+def toggle_receipt(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        preorder_id = data.get('id')
+        status = data.get('status')
+
+        preorder = get_object_or_404(PreOrder, id=preorder_id)
+        preorder.receipt_issued = status
+        preorder.save()
+
+        notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_updated')
+        return JsonResponse({'status': 'success'})
+
+@csrf_exempt
+@login_required
+def toggle_shipped(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        preorder_id = data.get('id')
+        status = data.get('status')
+
+        preorder = get_object_or_404(PreOrder, id=preorder_id)
+        preorder.shipped_to_customer = status
+        preorder.save()
+
+        notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_updated')
+        return JsonResponse({'status': 'success'})

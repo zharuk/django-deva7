@@ -4,20 +4,48 @@
 
 {% block content %}
     <h1 class="mb-4">Предзаказы</h1>
+    <a href="{% url 'preorder_create' %}" class="btn btn-primary mt-4 mb-4">Создать новый предзаказ</a>
     <div class="row" id="preorders-container">
         {% for preorder in preorders %}
             <div class="col-md-4 mb-4" data-id="{{ preorder.id }}">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">{{ preorder.full_name }}</h5>
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title">{{ preorder.full_name }}</h5>
+                            <a href="{% url 'preorder_edit' preorder.id %}" class="text-muted">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                        <div class="mb-2">
+                            {% if not preorder.shipped_to_customer and not preorder.receipt_issued %}
+                                <span class="badge" style="background-color: #ee5f5b;">Не пробит</span>
+                                <span class="badge" style="background-color: #f89406;">Не отправлен</span>
+                            {% elif not preorder.shipped_to_customer %}
+                                <span class="badge" style="background-color: #f89406;">Не отправлен</span>
+                            {% elif not preorder.receipt_issued %}
+                                <span class="badge" style="background-color: #ee5f5b;">Не пробит</span>
+                            {% else %}
+                                <span class="badge" style="background-color: green;">Отправлен и пробит</span>
+                            {% endif %}
+                        </div>
                         <p class="card-text">{{ preorder.text }}</p>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item"><strong>Дроп:</strong> {{ preorder.drop }}</li>
                             <li class="list-group-item"><strong>Дата создания:</strong> {{ preorder.created_at }}</li>
                             <li class="list-group-item"><strong>Дата изменения:</strong> {{ preorder.updated_at }}</li>
-                            <li class="list-group-item"><strong>Чек:</strong> {{ preorder.receipt_issued }}</li>
+                            <li class="list-group-item">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input receipt-switch {% if preorder.receipt_issued %}bg-success{% else %}bg-danger{% endif %}" type="checkbox" data-id="{{ preorder.id }}" {% if preorder.receipt_issued %}checked{% endif %}>
+                                    <label class="form-check-label">Чек</label>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input shipped-switch {% if preorder.shipped_to_customer %}bg-success{% else %}bg-warning{% endif %}" type="checkbox" data-id="{{ preorder.id }}" {% if preorder.shipped_to_customer %}checked{% endif %}>
+                                    <label class="form-check-label">Отправлен</label>
+                                </div>
+                            </li>
                             <li class="list-group-item"><strong>ТТН:</strong> {{ preorder.ttn }}</li>
-                            <li class="list-group-item"><strong>Отправлен:</strong> {{ preorder.shipped_to_customer }}</li>
                             <li class="list-group-item"><strong>Статус:</strong> {{ preorder.status }}</li>
                         </ul>
                     </div>
@@ -25,10 +53,10 @@
             </div>
         {% endfor %}
     </div>
-    <a href="{% url 'preorder_create' %}" class="btn btn-primary mt-4">Создать новый предзаказ</a>
 {% endblock %}
 
 {% block scripts %}
     {% load static %}
     <script src="{% static 'seller_cabinet/js/preorders/preorder.js' %}"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet"> <!-- Подключение FontAwesome через CDN -->
 {% endblock %}

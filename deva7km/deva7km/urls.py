@@ -32,11 +32,14 @@ urlpatterns = [
     path('search/', product_search, name='product_search'),
     path('seller_cabinet/', views.seller_cabinet_main, name='seller_cabinet_main'),
     path('seller_cabinet/sales/', views.seller_cabinet_sales, name='seller_cabinet_sales'),
-    path('seller_cabinet/preorder/add/', views.preorder_create, name='preorder_create'),
-    path('seller_cabinet/preorder/<int:pk>/edit/', views.preorder_edit, name='preorder_edit'),
     path('seller_cabinet/preorder/', views.preorder_list, name='preorder_list'),
     path('seller_cabinet/preorder/create/', views.preorder_create, name='preorder_create'),
-    path('seller_cabinet/preorder/<int:pk>/edit/', views.preorder_edit, name='preorder_edit'),
+    path('preorder/add/', views.preorder_form, name='preorder_create'),
+    path('preorder/<int:pk>/edit/', views.preorder_form, name='preorder_edit'),
+    path('preorder/<int:pk>/delete/', views.preorder_delete, name='preorder_delete'),
+    path('preorder/toggle_receipt/', views.toggle_receipt, name='toggle_receipt'),
+    path('preorder/toggle_shipped/', views.toggle_shipped, name='toggle_shipped'),
+
 ]
 
 urlpatterns += i18n_patterns(
