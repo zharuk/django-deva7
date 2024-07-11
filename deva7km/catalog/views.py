@@ -17,7 +17,7 @@ from django.views.generic import DetailView
 from catalog.email_utils import send_new_order_notification_email
 from catalog.forms import PreOrderForm
 from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem, Sale, SaleItem
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, get_list_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from catalog.generate_xlsx import generate_product_xlsx
 from django.contrib import messages
@@ -466,6 +466,18 @@ async def update_tracking_status_view(request):
 
     # Перенаправляем обратно на страницу списка предзаказов
     return await sync_to_async(redirect)('admin:catalog_preorder_changelist')
+
+
+def ajax_product_search(request):
+    query = request.GET.get('q', '')
+    if query:
+        products = get_list_or_404(Product, title__icontains=query)
+    else:
+        products = []
+    data = {
+        'products': [product.title for product in products]
+    }
+    return JsonResponse(data)
 
 
 @login_required

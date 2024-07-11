@@ -10,7 +10,7 @@ from catalog import views, consumers
 from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView
 from catalog.views import home, contacts_page, category_detail, product_detail, sales, telegram_page, \
     privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page, product_search, \
-    ProfileDetailView, update_tracking_status_view
+    ProfileDetailView, update_tracking_status_view, ajax_product_search
 
 from django.conf.urls.i18n import i18n_patterns
 from catalog.sitemaps import get_sitemaps
@@ -30,6 +30,7 @@ urlpatterns = [
     re_path(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
     re_path(r'^favicon\.ico$', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
     path('search/', product_search, name='product_search'),
+    path('ajax/product_search/', ajax_product_search, name='ajax_product_search'),
     path('seller_cabinet/', views.seller_cabinet_main, name='seller_cabinet_main'),
     path('seller_cabinet/sales/', views.seller_cabinet_sales, name='seller_cabinet_sales'),
     path('seller_cabinet/preorder/', views.preorder_list, name='preorder_list'),
