@@ -186,6 +186,18 @@ def generate_product_modifications_on_m2m_change(sender, instance, action, rever
                     mod.delete()
 
 
+def format_ttn(ttn):
+    ttn = ttn.replace(" ", "")  # Удаляем все пробелы
+    formatted_ttn = " ".join([ttn[i:i + 4] for i in range(0, len(ttn), 4)])
+    return formatted_ttn
+
+
+@receiver(pre_save, sender=PreOrder)
+def format_ttn_before_save(sender, instance, **kwargs):
+    if instance.ttn:
+        instance.ttn = format_ttn(instance.ttn)
+
+
 @receiver(post_save, sender=PreOrder)
 def preorder_saved(sender, instance, created, **kwargs):
     event_type = 'preorder_saved' if created else 'preorder_updated'
