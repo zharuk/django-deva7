@@ -200,7 +200,8 @@ document.addEventListener("DOMContentLoaded", function() {
         container.querySelector('.mb-2').innerHTML = getBadgesHTML(preorder);
     }
 
-    const socket = new WebSocket("ws://" + window.location.host + "/ws/preorders/");
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
 
     socket.onopen = function() {
         console.log("WebSocket connection established");
