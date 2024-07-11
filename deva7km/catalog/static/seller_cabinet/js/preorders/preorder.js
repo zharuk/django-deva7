@@ -23,6 +23,9 @@ document.addEventListener("DOMContentLoaded", function() {
         card.dataset.receipt = preorder.receipt_issued;
         card.innerHTML = `
             <div class="card">
+                <div class="badge-container mb-2 mt-2 ml-2">
+                    ${getBadgesHTML(preorder)}
+                </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title">${preorder.full_name}</h5>
@@ -30,28 +33,23 @@ document.addEventListener("DOMContentLoaded", function() {
                             <i class="fas fa-edit"></i>
                         </a>
                     </div>
-                    <div class="mb-2">
-                        ${getBadgesHTML(preorder)}
-                    </div>
                     <p class="card-text">${preorder.text}</p>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Дроп:</strong> ${preorder.drop}</li>
-                        <li class="list-group-item"><strong>Дата создания:</strong> ${preorder.created_at}</li>
-                        <li class="list-group-item"><strong>Дата изменения:</strong> ${preorder.updated_at}</li>
-                        <li class="list-group-item">
+                        <li class="list-group-item"><strong>ТТН:</strong> <span class="badge bg-light ttn-badge">${preorder.ttn}</span></li>
+                        <li class="list-group-item"><strong>Статус:</strong> ${preorder.status}</li>
+                        <li class="list-group-item"><strong>Дроп:</strong> ${preorder.drop ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>'}</li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input shipped-switch ${preorder.shipped_to_customer ? 'bg-success' : 'bg-warning'}" type="checkbox" data-id="${preorder.id}" ${preorder.shipped_to_customer ? 'checked' : ''}>
+                                <label class="form-check-label">Отправлен</label>
+                            </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input receipt-switch ${preorder.receipt_issued ? 'bg-success' : 'bg-danger'}" type="checkbox" data-id="${preorder.id}" ${preorder.receipt_issued ? 'checked' : ''}>
                                 <label class="form-check-label">Чек</label>
                             </div>
                         </li>
-                        <li class="list-group-item">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input shipped-switch ${preorder.shipped_to_customer ? 'bg-success' : 'bg-warning'}" type="checkbox" data-id="${preorder.id}" ${preorder.shipped_to_customer ? 'checked' : ''}>
-                                <label class="form-check-label">Отправлен</label>
-                            </div>
-                        </li>
-                        <li class="list-group-item"><strong>ТТН:</strong> ${preorder.ttn}</li>
-                        <li class="list-group-item"><strong>Статус:</strong> ${preorder.status}</li>
+                        <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> ${preorder.created_at}</small></li>
+                        <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> ${preorder.updated_at}</small></li>
                     </ul>
                 </div>
             </div>
@@ -60,18 +58,18 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function getBadgesHTML(preorder) {
+        let badges = '';
         if (!preorder.shipped_to_customer && !preorder.receipt_issued) {
-            return `
-                <span class="badge" style="background-color: #ee5f5b;">Не пробит</span>
-                <span class="badge" style="background-color: #f89406;">Не отправлен</span>
-            `;
+            badges += '<span class="badge mb-1" style="background-color: #ee5f5b;">Не пробит</span>';
+            badges += '<span class="badge" style="background-color: #f89406;">Не отправлен</span>';
         } else if (!preorder.shipped_to_customer) {
-            return `<span class="badge" style="background-color: #f89406;">Не отправлен</span>`;
+            badges += '<span class="badge" style="background-color: #f89406;">Не отправлен</span>';
         } else if (!preorder.receipt_issued) {
-            return `<span class="badge" style="background-color: #ee5f5b;">Не пробит</span>`;
+            badges += '<span class="badge" style="background-color: #ee5f5b;">Не пробит</span>';
         } else {
-            return `<span class="badge" style="background-color: green;">Отправлен и пробит</span>`;
+            badges += '<span class="badge" style="background-color: green;">Отправлен и пробит</span>';
         }
+        return badges;
     }
 
     function addPreorderToContainer(preorder) {
@@ -81,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
             preordersContainer.prepend(card);
             console.log("Preorder card appended at the beginning:", card);
             bindSwitchEvents(card);
+            bindCopyEvent(card);
         } else {
             console.log("Preorders container not found");
         }
@@ -92,27 +91,26 @@ document.addEventListener("DOMContentLoaded", function() {
         if (existingCard) {
             existingCard.querySelector('.card-title').textContent = preorder.full_name;
             existingCard.querySelector('.card-text').textContent = preorder.text;
-            existingCard.querySelector('.list-group-item:nth-child(1)').innerHTML = `<strong>Дроп:</strong> ${preorder.drop}`;
-            existingCard.querySelector('.list-group-item:nth-child(2)').innerHTML = `<strong>Дата создания:</strong> ${preorder.created_at}`;
-            existingCard.querySelector('.list-group-item:nth-child(3)').innerHTML = `<strong>Дата изменения:</strong> ${preorder.updated_at}`;
+            existingCard.querySelector('.list-group-item:nth-child(1)').innerHTML = `<strong>ТТН:</strong> <span class="badge bg-light ttn-badge">${preorder.ttn}</span>`;
+            existingCard.querySelector('.list-group-item:nth-child(2)').innerHTML = `<strong>Статус:</strong> ${preorder.status}`;
+            existingCard.querySelector('.list-group-item:nth-child(3)').innerHTML = `<strong>Дроп:</strong> ${preorder.drop ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>'}`;
             existingCard.querySelector('.list-group-item:nth-child(4)').innerHTML = `
+                <div class="form-check form-switch">
+                    <input class="form-check-input shipped-switch ${preorder.shipped_to_customer ? 'bg-success' : 'bg-warning'}" type="checkbox" data-id="${preorder.id}" ${preorder.shipped_to_customer ? 'checked' : ''}>
+                    <label class="form-check-label">Отправлен</label>
+                </div>
                 <div class="form-check form-switch">
                     <input class="form-check-input receipt-switch ${preorder.receipt_issued ? 'bg-success' : 'bg-danger'}" type="checkbox" data-id="${preorder.id}" ${preorder.receipt_issued ? 'checked' : ''}>
                     <label class="form-check-label">Чек</label>
                 </div>
             `;
-            existingCard.querySelector('.list-group-item:nth-child(5)').innerHTML = `<strong>ТТН:</strong> ${preorder.ttn}`;
-            existingCard.querySelector('.list-group-item:nth-child(6)').innerHTML = `
-                <div class="form-check form-switch">
-                    <input class="form-check-input shipped-switch ${preorder.shipped_to_customer ? 'bg-success' : 'bg-warning'}" type="checkbox" data-id="${preorder.id}" ${preorder.shipped_to_customer ? 'checked' : ''}>
-                    <label class="form-check-label">Отправлен</label>
-                </div>
-            `;
-            existingCard.querySelector('.list-group-item:nth-child(7)').innerHTML = `<strong>Статус:</strong> ${preorder.status}`;
-            existingCard.querySelector('.mb-2').innerHTML = getBadgesHTML(preorder);
+            existingCard.querySelector('.list-group-item:nth-child(5)').innerHTML = `<small><strong>Дата создания:</strong> ${preorder.created_at}</small>`;
+            existingCard.querySelector('.list-group-item:nth-child(6)').innerHTML = `<small><strong>Дата изменения:</strong> ${preorder.updated_at}</small>`;
+            existingCard.querySelector('.badge-container').innerHTML = getBadgesHTML(preorder);
             existingCard.dataset.shipped = preorder.shipped_to_customer;
             existingCard.dataset.receipt = preorder.receipt_issued;
             bindSwitchEvents(existingCard);
+            bindCopyEvent(existingCard);
             filterPreorders();
         } else {
             console.log("Preorder card not found for update, adding instead:", preorder);
@@ -155,7 +153,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
+            for (let i = 0; cookies.length; i++) {
                 const cookie = cookies[i].trim();
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -216,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function() {
             shipped_to_customer: type === 'shipped' ? status : container.querySelector(`.shipped-switch[data-id='${id}']`).checked,
             receipt_issued: type === 'receipt' ? status : container.querySelector(`.receipt-switch[data-id='${id}']`).checked
         };
-        container.querySelector('.mb-2').innerHTML = getBadgesHTML(preorder);
+        container.querySelector('.badge-container').innerHTML = getBadgesHTML(preorder);
     }
 
     function filterPreorders() {
@@ -271,5 +269,37 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     bindSwitchEvents(document);
+    bindCopyEvent(document);
     filterPreorders();
 });
+
+function bindCopyEvent(container) {
+    container.querySelectorAll('.ttn-badge').forEach(badge => {
+        badge.addEventListener('click', event => {
+            const ttn = event.target.textContent.trim();
+            navigator.clipboard.writeText(ttn).then(() => {
+                badge.classList.add('badge-copied');
+                setTimeout(() => {
+                    badge.classList.remove('badge-copied');
+                }, 2000);
+
+                const toast = document.createElement('div');
+                toast.className = 'toast align-items-center text-white bg-dark border-0';
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            Скопировано
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                `;
+                document.querySelector('.toast-container').appendChild(toast);
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.show();
+                setTimeout(() => {
+                    toast.remove();
+                }, 2000);
+            });
+        });
+    });
+}
