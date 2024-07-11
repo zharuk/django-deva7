@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", function() {
-    console.log("Document loaded");
-
     const preordersContainer = document.getElementById("preorders-container");
     const filterButtons = document.querySelectorAll('.filter-button');
     let activeFilter = 'all';
@@ -15,7 +13,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     function createPreorderCard(preorder) {
-        console.log("Creating card for preorder:", preorder);
         const card = document.createElement("div");
         card.className = "col-md-4 mb-4";
         card.dataset.id = preorder.id;
@@ -73,20 +70,15 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function addPreorderToContainer(preorder) {
-        console.log("Adding preorder to container:", preorder);
         const card = createPreorderCard(preorder);
         if (preordersContainer) {
             preordersContainer.prepend(card);
-            console.log("Preorder card appended at the beginning:", card);
             bindSwitchEvents(card);
             bindCopyEvent(card);
-        } else {
-            console.log("Preorders container not found");
         }
     }
 
     function updatePreorderInContainer(preorder) {
-        console.log("Updating preorder in container:", preorder);
         const existingCard = document.querySelector(`.col-md-4[data-id='${preorder.id}']`);
         if (existingCard) {
             existingCard.querySelector('.card-title').textContent = preorder.full_name;
@@ -113,19 +105,14 @@ document.addEventListener("DOMContentLoaded", function() {
             bindCopyEvent(existingCard);
             filterPreorders();
         } else {
-            console.log("Preorder card not found for update, adding instead:", preorder);
             addPreorderToContainer(preorder);
         }
     }
 
     function removePreorderFromContainer(preorderId) {
-        console.log("Removing preorder from container:", preorderId);
         const preorderCard = document.querySelector(`.col-md-4[data-id='${preorderId}']`);
         if (preorderCard) {
             preorderCard.remove();
-            console.log("Preorder card removed:", preorderId);
-        } else {
-            console.log("Preorder card not found for removal:", preorderId);
         }
     }
 
@@ -140,7 +127,6 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Success:', data);
             filterPreorders();
         })
         .catch((error) => {
@@ -244,10 +230,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        console.log("WebSocket message received:", data);
 
         if (data.event && data.preorder) {
-            console.log("PreOrder update received:", data.event, data.preorder);
             if (data.event === 'preorder_saved') {
                 updatePreorderInContainer(data.preorder);
             } else if (data.event === 'preorder_updated') {
@@ -259,8 +243,6 @@ document.addEventListener("DOMContentLoaded", function() {
             data.preorders.forEach(preorder => {
                 updatePreorderInContainer(preorder);
             });
-        } else {
-            console.log("Received message without event type");
         }
     };
 
