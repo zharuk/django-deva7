@@ -1,6 +1,8 @@
 import json
+from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import PreOrder
+
 
 class PreorderConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -32,19 +34,19 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         if filter_type:
             # Фильтруем предзаказы на основе типа фильтра
             if filter_type == 'all':
-                preorders = PreOrder.objects.all()
+                preorders = await sync_to_async(list)(PreOrder.objects.all())
             elif filter_type == 'not-shipped':
-                preorders = PreOrder.objects.filter(shipped_to_customer=False)
+                preorders = await sync_to_async(list)(PreOrder.objects.filter(shipped_to_customer=False))
             elif filter_type == 'not-receipted':
-                preorders = PreOrder.objects.filter(receipt_issued=False)
+                preorders = await sync_to_async(list)(PreOrder.objects.filter(receipt_issued=False))
             else:
-                preorders = PreOrder.objects.all()
+                preorders = await sync_to_async(list)(PreOrder.objects.all())
 
             await self.send_preorders(preorders)
 
     async def send_preorders(self, preorders=None):
         if preorders is None:
-            preorders = PreOrder.objects.all()
+            preorders = await sync_to_async(list)(PreOrder.objects.all())
 
         preorders_data = []
         for preorder in preorders:
