@@ -2,18 +2,31 @@ document.addEventListener("DOMContentLoaded", function() {
     console.log("Document loaded");
 
     const preordersContainer = document.getElementById("preorders-container");
+    const filterButtons = document.querySelectorAll('.filter-button');
+    let activeFilter = 'all';
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            activeFilter = this.getAttribute('data-filter');
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            filterPreorders();
+        });
+    });
 
     function createPreorderCard(preorder) {
         console.log("Creating card for preorder:", preorder);
         const card = document.createElement("div");
         card.className = "col-md-4 mb-4";
         card.dataset.id = preorder.id;
+        card.dataset.shipped = preorder.shipped_to_customer;
+        card.dataset.receipt = preorder.receipt_issued;
         card.innerHTML = `
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title">${preorder.full_name}</h5>
-                        <a href="{% url 'preorder_edit' preorder.id %}" class="text-muted">
+                        <a href="/preorder/${preorder.id}/edit/" class="text-muted">
                             <i class="fas fa-edit"></i>
                         </a>
                     </div>
@@ -97,7 +110,10 @@ document.addEventListener("DOMContentLoaded", function() {
             `;
             existingCard.querySelector('.list-group-item:nth-child(7)').innerHTML = `<strong>Статус:</strong> ${preorder.status}`;
             existingCard.querySelector('.mb-2').innerHTML = getBadgesHTML(preorder);
+            existingCard.dataset.shipped = preorder.shipped_to_customer;
+            existingCard.dataset.receipt = preorder.receipt_issued;
             bindSwitchEvents(existingCard);
+            filterPreorders();
         } else {
             console.log("Preorder card not found for update, adding instead:", preorder);
             addPreorderToContainer(preorder);
@@ -127,6 +143,7 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
+            filterPreorders();
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -157,6 +174,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 updateSwitchStatus('/preorder/toggle_receipt/', id, status);
                 updateSwitchClass(event.target, status, 'receipt');
                 updateBadges(container, id, status, 'receipt');
+                filterPreorders();
             });
         });
 
@@ -167,6 +185,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 updateSwitchStatus('/preorder/toggle_shipped/', id, status);
                 updateSwitchClass(event.target, status, 'shipped');
                 updateBadges(container, id, status, 'shipped');
+                filterPreorders();
             });
         });
     }
@@ -200,6 +219,24 @@ document.addEventListener("DOMContentLoaded", function() {
         container.querySelector('.mb-2').innerHTML = getBadgesHTML(preorder);
     }
 
+    function filterPreorders() {
+        const preorders = document.querySelectorAll('.col-md-4');
+        preorders.forEach(preorder => {
+            const shipped = preorder.dataset.shipped === 'true';
+            const receipt = preorder.dataset.receipt === 'true';
+
+            if (activeFilter === 'all') {
+                preorder.style.display = 'block';
+            } else if (activeFilter === 'not-shipped' && !shipped) {
+                preorder.style.display = 'block';
+            } else if (activeFilter === 'not-receipted' && !receipt) {
+                preorder.style.display = 'block';
+            } else {
+                preorder.style.display = 'none';
+            }
+        });
+    }
+
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
     const socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
 
@@ -220,6 +257,10 @@ document.addEventListener("DOMContentLoaded", function() {
             } else if (data.event === 'preorder_deleted') {
                 removePreorderFromContainer(data.preorder.id);
             }
+        } else if (data.event && data.event === 'preorder_list') {
+            data.preorders.forEach(preorder => {
+                updatePreorderInContainer(preorder);
+            });
         } else {
             console.log("Received message without event type");
         }
@@ -230,4 +271,5 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     bindSwitchEvents(document);
+    filterPreorders();
 });

@@ -1,19 +1,8 @@
-.form-check-input {
-    width: 20px;
-    height: 20px;
-}
-
-.form-check-input.bg-success {
-    background-color: green !important;
-    border-color: green !important;
-}
-
-.form-check-input.bg-danger {
-    background-color: #ee5f5b !important;
-    border-color: #ee5f5b !important;
-}
-
-.form-check-input.bg-warning {
-    background-color: #f89406 !important;
-    border-color: #f89406 !important;
+.badge-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px; /* Расстояние между бейджами */
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    margin-left: 0.5rem;
 }

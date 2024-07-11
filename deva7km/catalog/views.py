@@ -542,6 +542,7 @@ def toggle_receipt(request):
         notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_updated')
         return JsonResponse({'status': 'success'})
 
+
 @csrf_exempt
 @login_required
 def toggle_shipped(request):

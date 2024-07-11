@@ -5,10 +5,27 @@
 {% block content %}
     <h1 class="mb-4">Предзаказы</h1>
     <a href="{% url 'preorder_create' %}" class="btn btn-primary mt-4 mb-4">Создать новый предзаказ</a>
+    <div class="mb-4">
+        <button class="btn btn-outline-primary btn-sm filter-button active" data-filter="all">Все</button>
+        <button class="btn btn-outline-warning btn-sm filter-button" data-filter="not-shipped">Не отправленные</button>
+        <button class="btn btn-outline-danger btn-sm filter-button" data-filter="not-receipted">Не пробитые</button>
+    </div>
     <div class="row" id="preorders-container">
         {% for preorder in preorders %}
-            <div class="col-md-4 mb-4" data-id="{{ preorder.id }}">
+            <div class="col-md-4 mb-4" data-id="{{ preorder.id }}" data-shipped="{{ preorder.shipped_to_customer }}" data-receipt="{{ preorder.receipt_issued }}">
                 <div class="card">
+                    <div class="badge-container mb-2 mt-2 ml-2">
+                        {% if not preorder.shipped_to_customer and not preorder.receipt_issued %}
+                            <span class="badge" style="background-color: #ee5f5b;">Не пробит</span>
+                            <span class="badge" style="background-color: #f89406;">Не отправлен</span>
+                        {% elif not preorder.shipped_to_customer %}
+                            <span class="badge" style="background-color: #f89406;">Не отправлен</span>
+                        {% elif not preorder.receipt_issued %}
+                            <span class="badge" style="background-color: #ee5f5b;">Не пробит</span>
+                        {% else %}
+                            <span class="badge" style="background-color: green;">Отправлен и пробит</span>
+                        {% endif %}
+                    </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <h5 class="card-title">{{ preorder.full_name }}</h5>
@@ -16,18 +33,7 @@
                                 <i class="fas fa-edit"></i>
                             </a>
                         </div>
-                        <div class="mb-2">
-                            {% if not preorder.shipped_to_customer and not preorder.receipt_issued %}
-                                <span class="badge" style="background-color: #ee5f5b;">Не пробит</span>
-                                <span class="badge" style="background-color: #f89406;">Не отправлен</span>
-                            {% elif not preorder.shipped_to_customer %}
-                                <span class="badge" style="background-color: #f89406;">Не отправлен</span>
-                            {% elif not preorder.receipt_issued %}
-                                <span class="badge" style="background-color: #ee5f5b;">Не пробит</span>
-                            {% else %}
-                                <span class="badge" style="background-color: green;">Отправлен и пробит</span>
-                            {% endif %}
-                        </div>
+
                         <p class="card-text">{{ preorder.text }}</p>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item"><strong>Дроп:</strong> {{ preorder.drop }}</li>
@@ -58,5 +64,6 @@
 {% block scripts %}
     {% load static %}
     <script src="{% static 'seller_cabinet/js/preorders/preorder.js' %}"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet"> <!-- Подключение FontAwesome через CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <link href="{% static 'seller_cabinet/css/styles.css' %}" rel="stylesheet">
 {% endblock %}
