@@ -3,6 +3,8 @@ from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import PreOrder
 from datetime import datetime
+from django.db.models import Q
+
 
 class PreorderConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -29,9 +31,13 @@ class PreorderConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         filter_type = data.get('filter')
+        search_text = data.get('search_text')
 
         if filter_type:
             preorders = await self.filter_preorders(filter_type)
+            await self.send_preorders(preorders)
+        elif search_text is not None:
+            preorders = await self.search_preorders(search_text)
             await self.send_preorders(preorders)
 
     async def filter_preorders(self, filter_type):
@@ -43,6 +49,15 @@ class PreorderConsumer(AsyncWebsocketConsumer):
             return await sync_to_async(list)(PreOrder.objects.filter(receipt_issued=False))
         else:
             return await sync_to_async(list)(PreOrder.objects.all())
+
+    async def search_preorders(self, search_text):
+        return await sync_to_async(list)(
+            PreOrder.objects.filter(
+                Q(ttn__icontains=search_text) |
+                Q(full_name__icontains=search_text) |
+                Q(text__icontains=search_text)
+            )
+        )
 
     async def send_preorders(self, preorders=None):
         if preorders is None:

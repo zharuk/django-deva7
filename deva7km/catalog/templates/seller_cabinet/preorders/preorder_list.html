@@ -5,7 +5,15 @@
 {% block content %}
     <div class="toast-container"></div>
     <h1 class="mb-4">Предзаказы</h1>
-    <a href="{% url 'preorder_create' %}" class="btn btn-primary mt-4 mb-4">Создать новый предзаказ</a>
+    <a href="{% url 'preorder_create' %}" class="btn btn-primary mt-4 mb-2">Создать новый предзаказ</a>
+    <div class="mb-4">
+        <div class="input-group input-group-sm">
+            <input type="text" id="search-input" class="form-control" placeholder="Поиск">
+            <button class="btn btn-outline-secondary" type="button" id="clear-search">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
     <div class="mb-4">
         <button class="btn btn-outline-primary btn-sm filter-button active" data-filter="all">Все</button>
         <button class="btn btn-outline-warning btn-sm filter-button" data-filter="not-shipped">Не отправленные</button>
@@ -34,7 +42,7 @@
                                 <i class="fas fa-edit"></i>
                             </a>
                         </div>
-                        <p class="card-text">{{ preorder.text }}</p>
+                        <p class="card-text" style="white-space: pre-wrap;">{{ preorder.text }}</p> <!-- Изменение здесь -->
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item"><strong>ТТН:</strong> <span class="badge bg-light ttn-badge">{{ preorder.ttn }}</span></li>
                             <li class="list-group-item"><strong>Статус:</strong> {{ preorder.status }}</li>

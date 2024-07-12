@@ -498,19 +498,37 @@ def preorder_list(request):
 
 @login_required
 def preorder_create(request):
-    if request.method == 'POST':
-        form = PreOrderForm(request.POST)
-        if form.is_valid():
-            preorder = form.save()
-            notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_saved')
-            return redirect('preorder_list')
-    else:
-        form = PreOrderForm()
-    return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
+    return handle_preorder_form(request)
 
 
 @login_required
 def preorder_form(request, pk=None):
+    return handle_preorder_form(request, pk)
+
+
+@login_required
+def preorder_delete(request, pk):
+    preorder = get_object_or_404(PreOrder, pk=pk)
+    if request.method == 'POST':
+        preorder.delete()
+        notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_deleted')
+        return redirect('preorder_list')
+    return render(request, 'seller_cabinet/preorders/preorder_confirm_delete.html', {'preorder': preorder})
+
+
+@csrf_exempt
+@login_required
+def toggle_receipt(request):
+    return toggle_preorder_status(request, 'receipt_issued')
+
+
+@csrf_exempt
+@login_required
+def toggle_shipped(request):
+    return toggle_preorder_status(request, 'shipped_to_customer')
+
+
+def handle_preorder_form(request, pk=None):
     if pk:
         preorder = get_object_or_404(PreOrder, pk=pk)
     else:
@@ -529,42 +547,14 @@ def preorder_form(request, pk=None):
     return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
 
 
-@login_required
-def preorder_delete(request, pk):
-    preorder = get_object_or_404(PreOrder, pk=pk)
-    if request.method == 'POST':
-        preorder.delete()
-        notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_deleted')
-        return redirect('preorder_list')
-    return render(request, 'seller_cabinet/preorders/preorder_confirm_delete.html', {'preorder': preorder})
-
-
-@csrf_exempt
-@login_required
-def toggle_receipt(request):
+def toggle_preorder_status(request, field):
     if request.method == 'POST':
         data = json.loads(request.body)
         preorder_id = data.get('id')
         status = data.get('status')
 
         preorder = get_object_or_404(PreOrder, id=preorder_id)
-        preorder.receipt_issued = status
-        preorder.save()
-
-        notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_updated')
-        return JsonResponse({'status': 'success'})
-
-
-@csrf_exempt
-@login_required
-def toggle_shipped(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        preorder_id = data.get('id')
-        status = data.get('status')
-
-        preorder = get_object_or_404(PreOrder, id=preorder_id)
-        preorder.shipped_to_customer = status
+        setattr(preorder, field, status)
         preorder.save()
 
         notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_updated')
