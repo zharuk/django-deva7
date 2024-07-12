@@ -1,6 +1,7 @@
 import logging
 import time
 
+import pytz
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.db.models.signals import m2m_changed, post_save, pre_save, pre_delete, post_delete
@@ -216,6 +217,11 @@ def preorder_deleted(sender, instance, **kwargs):
 
 def notify_preorder_change(sender, instance, event_type, **kwargs):
     channel_layer = get_channel_layer()
+    tz = pytz.timezone('Europe/Moscow')  # Укажите нужный часовой пояс
+
+    created_at_local = instance.created_at.astimezone(tz).strftime('%d.%m.%Y %H:%M:%S')
+    updated_at_local = instance.updated_at.astimezone(tz).strftime('%d.%m.%Y %H:%M:%S')
+
     async_to_sync(channel_layer.group_send)(
         'preorder_updates',
         {
@@ -226,8 +232,8 @@ def notify_preorder_change(sender, instance, event_type, **kwargs):
                 'full_name': instance.full_name,
                 'text': instance.text,
                 'drop': instance.drop,
-                'created_at': instance.created_at.strftime('%d.%m.%Y %H:%M:%S'),
-                'updated_at': instance.updated_at.strftime('%d.%m.%Y %H:%M:%S'),
+                'created_at': created_at_local,
+                'updated_at': updated_at_local,
                 'receipt_issued': instance.receipt_issued,
                 'shipped_to_customer': instance.shipped_to_customer,
                 'status': instance.status,

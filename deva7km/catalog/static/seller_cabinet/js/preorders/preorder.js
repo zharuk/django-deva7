@@ -5,12 +5,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const clearSearchButton = document.getElementById("clear-search");
     let activeFilter = 'all';
 
-    // Функция для форматирования даты и времени
-    function formatDateTime(dateTimeStr) {
-        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        return new Date(dateTimeStr).toLocaleString('ru-RU', options).replace(',', '');
-    }
-
     // Обработчики кнопок фильтрации
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -67,8 +61,8 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <label class="form-check-label">Чек</label>
                             </div>
                         </li>
-                        <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> ${formatDateTime(preorder.created_at)}</small></li>
-                        <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> ${formatDateTime(preorder.updated_at)}</small></li>
+                        <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> ${preorder.created_at}</small></li>
+                        <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> ${preorder.updated_at}</small></li>
                         <li class="list-group-item text-muted"><small><strong>Изменено пользователем:</strong> ${preorder.last_modified_by}</small></li>
                     </ul>
                 </div>
@@ -133,8 +127,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     <input class="form-check-input receipt-switch ${preorder.receipt_issued ? 'bg-success' : 'bg-danger'}" type="checkbox" data-id="${preorder.id}" ${preorder.receipt_issued ? 'checked' : ''}>
                     <label class="form-check-label">Чек</label>
                 </div>`;
-            existingCard.querySelector('.list-group-item:nth-child(5)').innerHTML = `<small><strong>Дата создания:</strong> ${formatDateTime(preorder.created_at)}</small>`;
-            existingCard.querySelector('.list-group-item:nth-child(6)').innerHTML = `<small><strong>Дата изменения:</strong> ${formatDateTime(preorder.updated_at)}</small>`;
+            existingCard.querySelector('.list-group-item:nth-child(5)').innerHTML = `<small><strong>Дата создания:</strong> ${preorder.created_at}</small>`;
+            existingCard.querySelector('.list-group-item:nth-child(6)').innerHTML = `<small><strong>Дата изменения:</strong> ${preorder.updated_at}</small>`;
             existingCard.querySelector('.list-group-item:nth-child(7)').innerHTML = `<small><strong>Изменено пользователем:</strong> ${preorder.last_modified_by}</small>`;
             existingCard.querySelector('.badge-container').innerHTML = getBadgesHTML(preorder);
             existingCard.dataset.shipped = preorder.shipped_to_customer;

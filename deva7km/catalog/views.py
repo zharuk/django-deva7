@@ -495,13 +495,16 @@ def preorder_list(request):
     preorders = PreOrder.objects.all().order_by('-created_at')
     return render(request, 'seller_cabinet/preorders/preorder_list.html', {'preorders': preorders})
 
+
 @login_required
 def preorder_create(request):
     return handle_preorder_form(request)
 
+
 @login_required
 def preorder_form(request, pk=None):
     return handle_preorder_form(request, pk)
+
 
 @login_required
 def preorder_delete(request, pk):
@@ -512,15 +515,18 @@ def preorder_delete(request, pk):
         return redirect('preorder_list')
     return render(request, 'seller_cabinet/preorders/preorder_confirm_delete.html', {'preorder': preorder})
 
+
 @csrf_exempt
 @login_required
 def toggle_receipt(request):
     return toggle_preorder_status(request, 'receipt_issued')
 
+
 @csrf_exempt
 @login_required
 def toggle_shipped(request):
     return toggle_preorder_status(request, 'shipped_to_customer')
+
 
 @login_required
 def handle_preorder_form(request, pk=None):
@@ -541,6 +547,7 @@ def handle_preorder_form(request, pk=None):
         form = PreOrderForm(instance=preorder)
 
     return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
+
 
 def toggle_preorder_status(request, field):
     if request.method == 'POST':
