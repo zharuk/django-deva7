@@ -5,7 +5,6 @@ from .models import PreOrder
 from datetime import datetime
 from django.db.models import Q
 
-
 class PreorderConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.channel_layer.group_add(
@@ -42,13 +41,13 @@ class PreorderConsumer(AsyncWebsocketConsumer):
 
     async def filter_preorders(self, filter_type):
         if filter_type == 'all':
-            return await sync_to_async(list)(PreOrder.objects.all())
+            return await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
         elif filter_type == 'not-shipped':
-            return await sync_to_async(list)(PreOrder.objects.filter(shipped_to_customer=False))
+            return await sync_to_async(list)(PreOrder.objects.filter(shipped_to_customer=False).order_by('-created_at'))
         elif filter_type == 'not-receipted':
-            return await sync_to_async(list)(PreOrder.objects.filter(receipt_issued=False))
+            return await sync_to_async(list)(PreOrder.objects.filter(receipt_issued=False).order_by('-created_at'))
         else:
-            return await sync_to_async(list)(PreOrder.objects.all())
+            return await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
 
     async def search_preorders(self, search_text):
         return await sync_to_async(list)(
@@ -56,12 +55,12 @@ class PreorderConsumer(AsyncWebsocketConsumer):
                 Q(ttn__icontains=search_text) |
                 Q(full_name__icontains=search_text) |
                 Q(text__icontains=search_text)
-            )
+            ).order_by('-created_at')
         )
 
     async def send_preorders(self, preorders=None):
         if preorders is None:
-            preorders = await sync_to_async(list)(PreOrder.objects.all())
+            preorders = await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
 
         preorders_data = [{
             'id': preorder.id,
