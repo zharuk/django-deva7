@@ -5,6 +5,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const clearSearchButton = document.getElementById("clear-search");
     let activeFilter = 'all';
 
+    // Функция для форматирования даты и времени
+    function formatDateTime(dateTimeStr) {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        return new Date(dateTimeStr).toLocaleString('ru-RU', options).replace(',', '');
+    }
+
     // Обработчики кнопок фильтрации
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -33,6 +39,7 @@ document.addEventListener("DOMContentLoaded", function() {
         card.dataset.id = preorder.id;
         card.dataset.shipped = preorder.shipped_to_customer;
         card.dataset.receipt = preorder.receipt_issued;
+        card.dataset.createdAt = preorder.created_at;
         card.innerHTML = `
             <div class="card">
                 <div class="badge-container mb-2 mt-2 ml-2">
@@ -60,8 +67,8 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <label class="form-check-label">Чек</label>
                             </div>
                         </li>
-                        <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> ${preorder.created_at}</small></li>
-                        <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> ${preorder.updated_at}</small></li>
+                        <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> ${formatDateTime(preorder.created_at)}</small></li>
+                        <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> ${formatDateTime(preorder.updated_at)}</small></li>
                     </ul>
                 </div>
             </div>
@@ -85,11 +92,22 @@ document.addEventListener("DOMContentLoaded", function() {
         return badges;
     }
 
-    // Добавление предзаказа в контейнер
+    // Добавление предзаказа в контейнер с сортировкой
     function addPreorderToContainer(preorder) {
         const card = createPreorderCard(preorder);
         if (preordersContainer) {
-            preordersContainer.prepend(card);
+            const existingCards = preordersContainer.querySelectorAll('.col-md-4');
+            let added = false;
+            existingCards.forEach(existingCard => {
+                if (new Date(preorder.created_at) > new Date(existingCard.dataset.createdAt)) {
+                    preordersContainer.insertBefore(card, existingCard);
+                    added = true;
+                    return;
+                }
+            });
+            if (!added) {
+                preordersContainer.appendChild(card);
+            }
             bindSwitchEvents(card);
             bindCopyEvent(card);
         }
@@ -101,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (existingCard) {
             existingCard.querySelector('.card-title').textContent = preorder.full_name;
             existingCard.querySelector('.card-text').textContent = preorder.text;
-            existingCard.querySelector('.card-text').style.whiteSpace = "pre-wrap";  // Добавляем стиль здесь
+            existingCard.querySelector('.card-text').style.whiteSpace = "pre-wrap";
             existingCard.querySelector('.list-group-item:nth-child(1)').innerHTML = `<strong>ТТН:</strong> <span class="badge bg-light ttn-badge">${preorder.ttn}</span>`;
             existingCard.querySelector('.list-group-item:nth-child(2)').innerHTML = `<strong>Статус:</strong> ${preorder.status}`;
             existingCard.querySelector('.list-group-item:nth-child(3)').innerHTML = `<strong>Дроп:</strong> ${preorder.drop ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>'}`;
@@ -114,8 +132,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     <input class="form-check-input receipt-switch ${preorder.receipt_issued ? 'bg-success' : 'bg-danger'}" type="checkbox" data-id="${preorder.id}" ${preorder.receipt_issued ? 'checked' : ''}>
                     <label class="form-check-label">Чек</label>
                 </div>`;
-            existingCard.querySelector('.list-group-item:nth-child(5)').innerHTML = `<small><strong>Дата создания:</strong> ${preorder.created_at}</small>`;
-            existingCard.querySelector('.list-group-item:nth-child(6)').innerHTML = `<small><strong>Дата изменения:</strong> ${preorder.updated_at}</small>`;
+            existingCard.querySelector('.list-group-item:nth-child(5)').innerHTML = `<small><strong>Дата создания:</strong> ${formatDateTime(preorder.created_at)}</small>`;
+            existingCard.querySelector('.list-group-item:nth-child(6)').innerHTML = `<small><strong>Дата изменения:</strong> ${formatDateTime(preorder.updated_at)}</small>`;
             existingCard.querySelector('.badge-container').innerHTML = getBadgesHTML(preorder);
             existingCard.dataset.shipped = preorder.shipped_to_customer;
             existingCard.dataset.receipt = preorder.receipt_issued;
@@ -264,9 +282,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const data = JSON.parse(event.data);
 
         if (data.event && data.preorder) {
-            if (data.event === 'preorder_saved') {
-                updatePreorderInContainer(data.preorder);
-            } else if (data.event === 'preorder_updated') {
+            if (data.event === 'preorder_saved' || data.event === 'preorder_updated') {
                 updatePreorderInContainer(data.preorder);
             } else if (data.event === 'preorder_deleted') {
                 removePreorderFromContainer(data.preorder.id);
@@ -274,7 +290,7 @@ document.addEventListener("DOMContentLoaded", function() {
         } else if (data.event && data.event === 'preorder_list') {
             preordersContainer.innerHTML = ''; // Очищаем контейнер перед добавлением новых предзаказов
             data.preorders.forEach(preorder => {
-                updatePreorderInContainer(preorder);
+                addPreorderToContainer(preorder);
             });
         }
     };
