@@ -200,19 +200,21 @@ def format_ttn_before_save(sender, instance, **kwargs):
 
 @receiver(post_save, sender=PreOrder)
 def preorder_saved(sender, instance, created, **kwargs):
+    request = kwargs.get('request')
+    if request and request.user.is_authenticated:
+        instance.last_modified_by = request.user
+        instance.save(update_fields=['last_modified_by'])
+
     event_type = 'preorder_saved' if created else 'preorder_updated'
-    print(f"Signal post_save triggered for PreOrder: {instance.id}, event_type: {event_type}")
     notify_preorder_change(sender=PreOrder, instance=instance, event_type=event_type)
 
 
 @receiver(post_delete, sender=PreOrder)
 def preorder_deleted(sender, instance, **kwargs):
-    print(f"Signal post_delete triggered for PreOrder: {instance.id}")
     notify_preorder_change(sender=PreOrder, instance=instance, event_type='preorder_deleted')
 
 
 def notify_preorder_change(sender, instance, event_type, **kwargs):
-    print(f"notify_preorder_change called with event_type: {event_type}, instance: {instance}")
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         'preorder_updates',
@@ -224,12 +226,13 @@ def notify_preorder_change(sender, instance, event_type, **kwargs):
                 'full_name': instance.full_name,
                 'text': instance.text,
                 'drop': instance.drop,
-                'created_at': instance.created_at.isoformat(),
-                'updated_at': instance.updated_at.isoformat(),
+                'created_at': instance.created_at.strftime('%d.%m.%Y %H:%M:%S'),
+                'updated_at': instance.updated_at.strftime('%d.%m.%Y %H:%M:%S'),
                 'receipt_issued': instance.receipt_issued,
                 'shipped_to_customer': instance.shipped_to_customer,
                 'status': instance.status,
                 'ttn': instance.ttn,
+                'last_modified_by': instance.last_modified_by.username if instance.last_modified_by else 'N/A'
             }
         }
     )

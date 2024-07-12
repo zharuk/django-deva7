@@ -2,7 +2,6 @@ import json
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import PreOrder
-from datetime import datetime
 from django.db.models import Q
 
 class PreorderConsumer(AsyncWebsocketConsumer):
@@ -62,20 +61,28 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         if preorders is None:
             preorders = await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
 
-        preorders_data = [{
-            'id': preorder.id,
-            'full_name': preorder.full_name,
-            'text': preorder.text,
-            'drop': preorder.drop,
-            'created_at': preorder.created_at.strftime('%d.%m.%Y %H:%M:%S'),
-            'updated_at': preorder.updated_at.strftime('%d.%m.%Y %H:%M:%S'),
-            'receipt_issued': preorder.receipt_issued,
-            'shipped_to_customer': preorder.shipped_to_customer,
-            'status': preorder.status,
-            'ttn': preorder.ttn
-        } for preorder in preorders]
+        preorders_data = await sync_to_async(self.build_preorders_data)(preorders)
 
         await self.send(text_data=json.dumps({
             'event': 'preorder_list',
             'preorders': preorders_data
         }))
+
+    def build_preorders_data(self, preorders):
+        preorders_data = []
+        for preorder in preorders:
+            last_modified_by_username = preorder.last_modified_by.username if preorder.last_modified_by else 'N/A'
+            preorders_data.append({
+                'id': preorder.id,
+                'full_name': preorder.full_name,
+                'text': preorder.text,
+                'drop': preorder.drop,
+                'created_at': preorder.created_at.strftime('%d.%m.%Y %H:%M:%S'),
+                'updated_at': preorder.updated_at.strftime('%d.%m.%Y %H:%M:%S'),
+                'receipt_issued': preorder.receipt_issued,
+                'shipped_to_customer': preorder.shipped_to_customer,
+                'status': preorder.status,
+                'ttn': preorder.ttn,
+                'last_modified_by': last_modified_by_username
+            })
+        return preorders_data

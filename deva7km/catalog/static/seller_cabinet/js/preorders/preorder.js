@@ -69,6 +69,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         </li>
                         <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> ${formatDateTime(preorder.created_at)}</small></li>
                         <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> ${formatDateTime(preorder.updated_at)}</small></li>
+                        <li class="list-group-item text-muted"><small><strong>Изменено пользователем:</strong> ${preorder.last_modified_by}</small></li>
                     </ul>
                 </div>
             </div>
@@ -134,6 +135,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 </div>`;
             existingCard.querySelector('.list-group-item:nth-child(5)').innerHTML = `<small><strong>Дата создания:</strong> ${formatDateTime(preorder.created_at)}</small>`;
             existingCard.querySelector('.list-group-item:nth-child(6)').innerHTML = `<small><strong>Дата изменения:</strong> ${formatDateTime(preorder.updated_at)}</small>`;
+            existingCard.querySelector('.list-group-item:nth-child(7)').innerHTML = `<small><strong>Изменено пользователем:</strong> ${preorder.last_modified_by}</small>`;
             existingCard.querySelector('.badge-container').innerHTML = getBadgesHTML(preorder);
             existingCard.dataset.shipped = preorder.shipped_to_customer;
             existingCard.dataset.receipt = preorder.receipt_issued;

@@ -5,19 +5,19 @@
 {% block content %}
     <div class="toast-container"></div>
     <h1 class="mb-4">Предзаказы</h1>
-    <a href="{% url 'preorder_create' %}" class="btn btn-primary mt-4 mb-2">Создать новый предзаказ</a>
+    <a href="{% url 'preorder_create' %}" class="btn btn-primary mt-4 mb-4">Создать новый предзаказ</a>
     <div class="mb-4">
-        <div class="input-group input-group-sm">
+        <button class="btn btn-outline-primary btn-sm filter-button active" data-filter="all">Все</button>
+        <button class="btn btn-outline-warning btn-sm filter-button" data-filter="not-shipped">Не отправленные</button>
+        <button class="btn btn-outline-danger btn-sm filter-button" data-filter="not-receipted">Не пробитые</button>
+    </div>
+    <div class="mb-4">
+        <div class="input-group">
             <input type="text" id="search-input" class="form-control" placeholder="Поиск">
             <button class="btn btn-outline-secondary" type="button" id="clear-search">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-    </div>
-    <div class="mb-4">
-        <button class="btn btn-outline-primary btn-sm filter-button active" data-filter="all">Все</button>
-        <button class="btn btn-outline-warning btn-sm filter-button" data-filter="not-shipped">Не отправленные</button>
-        <button class="btn btn-outline-danger btn-sm filter-button" data-filter="not-receipted">Не пробитые</button>
     </div>
     <div class="row" id="preorders-container">
         {% for preorder in preorders %}
@@ -42,7 +42,7 @@
                                 <i class="fas fa-edit"></i>
                             </a>
                         </div>
-                        <p class="card-text" style="white-space: pre-wrap;">{{ preorder.text }}</p> <!-- Изменение здесь -->
+                        <p class="card-text" style="white-space: pre-wrap;">{{ preorder.text }}</p>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item"><strong>ТТН:</strong> <span class="badge bg-light ttn-badge">{{ preorder.ttn }}</span></li>
                             <li class="list-group-item"><strong>Статус:</strong> {{ preorder.status }}</li>
@@ -59,6 +59,7 @@
                             </li>
                             <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> {{ preorder.created_at|date:"d.m.Y H:i:s" }}</small></li>
                             <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> {{ preorder.updated_at|date:"d.m.Y H:i:s" }}</small></li>
+                            <li class="list-group-item text-muted"><small><strong>Изменено пользователем:</strong> {% if preorder.last_modified_by %}{{ preorder.last_modified_by.username }}{% else %}N/A{% endif %}</small></li>
                         </ul>
                     </div>
                 </div>

@@ -861,6 +861,8 @@ class PreOrder(models.Model):
     created_at = models.DateTimeField("Дата создания", auto_now_add=True)
     # Дата изменения
     updated_at = models.DateTimeField("Дата изменения", auto_now=True)
+    # Кем модифицирован
+    last_modified_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     # Пробит ли чек (по умолчанию False)
     receipt_issued = models.BooleanField("Чек", default=False)
     # Поле для ТТН (цифровое поле на 30 символов)
@@ -869,6 +871,11 @@ class PreOrder(models.Model):
     shipped_to_customer = models.BooleanField("Отправлен", default=False)
     # Статус посылки
     status = models.CharField("Статус посылки", max_length=255, blank=True)
+
+    def save(self, *args, **kwargs):
+        if 'request' in kwargs:
+            self.last_modified_by = kwargs.pop('request').user
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Предзаказ"

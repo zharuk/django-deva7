@@ -495,39 +495,34 @@ def preorder_list(request):
     preorders = PreOrder.objects.all().order_by('-created_at')
     return render(request, 'seller_cabinet/preorders/preorder_list.html', {'preorders': preorders})
 
-
 @login_required
 def preorder_create(request):
     return handle_preorder_form(request)
-
 
 @login_required
 def preorder_form(request, pk=None):
     return handle_preorder_form(request, pk)
 
-
 @login_required
 def preorder_delete(request, pk):
     preorder = get_object_or_404(PreOrder, pk=pk)
     if request.method == 'POST':
-        preorder.delete()
         notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_deleted')
+        preorder.delete()
         return redirect('preorder_list')
     return render(request, 'seller_cabinet/preorders/preorder_confirm_delete.html', {'preorder': preorder})
-
 
 @csrf_exempt
 @login_required
 def toggle_receipt(request):
     return toggle_preorder_status(request, 'receipt_issued')
 
-
 @csrf_exempt
 @login_required
 def toggle_shipped(request):
     return toggle_preorder_status(request, 'shipped_to_customer')
 
-
+@login_required
 def handle_preorder_form(request, pk=None):
     if pk:
         preorder = get_object_or_404(PreOrder, pk=pk)
@@ -537,7 +532,8 @@ def handle_preorder_form(request, pk=None):
     if request.method == 'POST':
         form = PreOrderForm(request.POST, instance=preorder)
         if form.is_valid():
-            preorder = form.save()
+            preorder = form.save(commit=False)
+            preorder.save(request=request)  # Передаем request в метод save
             event_type = 'preorder_updated' if pk else 'preorder_saved'
             notify_preorder_change(sender=PreOrder, instance=preorder, event_type=event_type)
             return redirect('preorder_list')
@@ -545,7 +541,6 @@ def handle_preorder_form(request, pk=None):
         form = PreOrderForm(instance=preorder)
 
     return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
-
 
 def toggle_preorder_status(request, field):
     if request.method == 'POST':
@@ -555,7 +550,7 @@ def toggle_preorder_status(request, field):
 
         preorder = get_object_or_404(PreOrder, id=preorder_id)
         setattr(preorder, field, status)
-        preorder.save()
+        preorder.save(request=request)  # Передаем request в метод save
 
         notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_updated')
         return JsonResponse({'status': 'success'})
