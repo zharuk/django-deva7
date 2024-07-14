@@ -201,8 +201,6 @@ def format_ttn_before_save(sender, instance, **kwargs):
 
 @receiver(post_save, sender=PreOrder)
 def preorder_saved(sender, instance, created, **kwargs):
-    print('сохранение из signals.py')
-    print(instance.updated_at)
     request = kwargs.get('request')
     if request and request.user.is_authenticated:
         instance.last_modified_by = request.user
@@ -234,6 +232,7 @@ def notify_preorder_change(sender, instance, event_type, **kwargs):
                 'updated_at': instance.updated_at.isoformat(),
                 'receipt_issued': instance.receipt_issued,
                 'shipped_to_customer': instance.shipped_to_customer,
+                'payment_received': instance.payment_received,
                 'status': instance.status,
                 'ttn': instance.ttn,
                 'last_modified_by': instance.last_modified_by.username if instance.last_modified_by else 'N/A'

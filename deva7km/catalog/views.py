@@ -529,6 +529,26 @@ def toggle_shipped(request):
 
 
 @login_required
+@csrf_exempt
+def toggle_payment(request):
+    return toggle_preorder_status(request, 'payment_received')
+
+
+def toggle_preorder_status(request, field):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        preorder_id = data.get('id')
+        status = data.get('status')
+
+        preorder = get_object_or_404(PreOrder, id=preorder_id)
+        setattr(preorder, field, status)
+        preorder.save(request=request)  # Передаем request в метод save
+
+        notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_updated')
+        return JsonResponse({'status': 'success'})
+
+
+@login_required
 def handle_preorder_form(request, pk=None):
     if pk:
         preorder = get_object_or_404(PreOrder, pk=pk)
@@ -547,17 +567,3 @@ def handle_preorder_form(request, pk=None):
         form = PreOrderForm(instance=preorder)
 
     return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
-
-
-def toggle_preorder_status(request, field):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        preorder_id = data.get('id')
-        status = data.get('status')
-
-        preorder = get_object_or_404(PreOrder, id=preorder_id)
-        setattr(preorder, field, status)
-        preorder.save(request=request)  # Передаем request в метод save
-
-        notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_updated')
-        return JsonResponse({'status': 'success'})

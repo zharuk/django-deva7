@@ -40,6 +40,7 @@ urlpatterns = [
     path('preorder/<int:pk>/delete/', views.preorder_delete, name='preorder_delete'),
     path('preorder/toggle_receipt/', views.toggle_receipt, name='toggle_receipt'),
     path('preorder/toggle_shipped/', views.toggle_shipped, name='toggle_shipped'),
+    path('preorder/toggle_payment/', views.toggle_payment, name='toggle_payment'),
 
 ]
 

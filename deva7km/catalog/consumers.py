@@ -47,6 +47,8 @@ class PreorderConsumer(AsyncWebsocketConsumer):
             return await sync_to_async(list)(PreOrder.objects.filter(shipped_to_customer=False).order_by('-created_at'))
         elif filter_type == 'not-receipted':
             return await sync_to_async(list)(PreOrder.objects.filter(receipt_issued=False).order_by('-created_at'))
+        elif filter_type == 'not-paid':
+            return await sync_to_async(list)(PreOrder.objects.filter(payment_received=False).order_by('-created_at'))
         else:
             return await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
 
@@ -83,6 +85,7 @@ class PreorderConsumer(AsyncWebsocketConsumer):
                 'updated_at': preorder.updated_at.isoformat(),
                 'receipt_issued': preorder.receipt_issued,
                 'shipped_to_customer': preorder.shipped_to_customer,
+                'payment_received': preorder.payment_received,  # Добавляем новое поле
                 'status': preorder.status,
                 'ttn': preorder.ttn,
                 'last_modified_by': last_modified_by_username

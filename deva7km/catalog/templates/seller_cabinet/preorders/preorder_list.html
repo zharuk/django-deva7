@@ -10,6 +10,7 @@
         <button class="btn btn-outline-primary btn-sm filter-button active" data-filter="all">Все</button>
         <button class="btn btn-outline-warning btn-sm filter-button" data-filter="not-shipped">Не отправленные</button>
         <button class="btn btn-outline-danger btn-sm filter-button" data-filter="not-receipted">Не пробитые</button>
+        <button class="btn btn-outline-secondary btn-sm filter-button" data-filter="not-paid">Не оплачен</button>
     </div>
     <div class="mb-4">
         <div class="input-group">
@@ -21,18 +22,21 @@
     </div>
     <div class="row" id="preorders-container">
         {% for preorder in preorders %}
-            <div class="col-md-4 mb-4" data-id="{{ preorder.id }}" data-shipped="{{ preorder.shipped_to_customer }}" data-receipt="{{ preorder.receipt_issued }}" data-created-at="{{ preorder.created_at }}">
+            <div class="col-md-4 mb-4" data-id="{{ preorder.id }}" data-shipped="{{ preorder.shipped_to_customer }}" data-receipt="{{ preorder.receipt_issued }}" data-payment="{{ preorder.payment_received }}" data-created-at="{{ preorder.created_at }}">
                 <div class="card">
                     <div class="badge-container mb-2 mt-2 ml-2">
-                        {% if not preorder.shipped_to_customer and not preorder.receipt_issued %}
-                            <span class="badge mb-1" style="background-color: #ee5f5b;">Не пробит</span>
-                            <span class="badge" style="background-color: #f89406;">Не отправлен</span>
+                        {% if not preorder.shipped_to_customer and not preorder.receipt_issued and not preorder.payment_received %}
+                            <span class="badge mb-1" style="background-color: #f89406;">Не отправлен</span>
+                            <span class="badge" style="background-color: #ee5f5b;">Не пробит</span>
+                            <span class="badge" style="background-color: #6c757d;">Не оплачен</span>
                         {% elif not preorder.shipped_to_customer %}
                             <span class="badge" style="background-color: #f89406;">Не отправлен</span>
                         {% elif not preorder.receipt_issued %}
                             <span class="badge" style="background-color: #ee5f5b;">Не пробит</span>
+                        {% elif not preorder.payment_received %}
+                            <span class="badge" style="background-color: #6c757d;">Не оплачен</span>
                         {% else %}
-                            <span class="badge" style="background-color: green;">Отправлен и пробит</span>
+                            <span class="badge" style="background-color: green;">Готов</span>
                         {% endif %}
                     </div>
                     <div class="card-body">
@@ -47,14 +51,24 @@
                             <li class="list-group-item"><strong>ТТН:</strong> <span class="badge bg-light ttn-badge">{{ preorder.ttn }}</span></li>
                             <li class="list-group-item"><strong>Статус:</strong> {{ preorder.status }}</li>
                             <li class="list-group-item"><strong>Дроп:</strong> {% if preorder.drop %}<i class="fas fa-check-circle text-success"></i>{% else %}<i class="fas fa-times-circle text-danger"></i>{% endif %}</li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input shipped-switch {% if preorder.shipped_to_customer %}bg-success{% else %}bg-warning{% endif %}" type="checkbox" data-id="{{ preorder.id }}" {% if preorder.shipped_to_customer %}checked{% endif %}>
-                                    <label class="form-check-label">Отправлен</label>
+                            <li class="list-group-item switch-group">
+                                <div class="switch-container">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input shipped-switch {% if preorder.shipped_to_customer %}bg-success{% else %}bg-warning{% endif %}" type="checkbox" data-id="{{ preorder.id }}" {% if preorder.shipped_to_customer %}checked{% endif %}>
+                                        <label class="form-check-label">Отправлен</label>
+                                    </div>
                                 </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input receipt-switch {% if preorder.receipt_issued %}bg-success{% else %}bg-danger{% endif %}" type="checkbox" data-id="{{ preorder.id }}" {% if preorder.receipt_issued %}checked{% endif %}>
-                                    <label class="form-check-label">Чек</label>
+                                <div class="switch-container">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input receipt-switch {% if preorder.receipt_issued %}bg-success{% else %}bg-danger{% endif %}" type="checkbox" data-id="{{ preorder.id }}" {% if preorder.receipt_issued %}checked{% endif %}>
+                                        <label class="form-check-label">Чек</label>
+                                    </div>
+                                </div>
+                                <div class="switch-container">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input payment-switch {% if preorder.payment_received %}bg-success{% else %}bg-secondary{% endif %}" type="checkbox" data-id="{{ preorder.id }}" {% if preorder.payment_received %}checked{% endif %}>
+                                        <label class="form-check-label">Оплата</label>
+                                    </div>
                                 </div>
                             </li>
                             <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> {{ preorder.created_at }}</small></li>

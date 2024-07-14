@@ -1,51 +1,64 @@
+/* Контейнер для бейджей */
 .badge-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-    margin-left: 5px;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-left: 5px !important;
 }
 
+/* Бейдж для ТТН */
 .ttn-badge {
-    cursor: pointer;
-    font-size: 1.25em;
-    transition: background-color 0.3s, color 0.3s;
+    cursor: pointer !important;
+    font-size: 1.25em !important;
+    transition: background-color 0.3s, color 0.3s !important;
 }
 
+/* Состояние копированного бейджа */
 .ttn-badge.badge-copied {
     background-color: black !important;
     color: #fff !important;
 }
 
+/* Контейнер для уведомлений */
 .toast-container {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    z-index: 1050;
+    position: fixed !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 1050 !important;
 }
 
+/* Уведомление */
 .toast {
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
+    opacity: 0 !important;
+    transition: opacity 0.3s ease-in-out !important;
 }
 
+/* Показ уведомления */
 .toast.show {
-    opacity: 1;
+    opacity: 1 !important;
 }
 
+/* Элемент списка */
 .list-group-item {
-    border: none;
-    padding: 0.5rem 1rem;
+    border: none !important;
+    padding: 0.5rem 1rem !important;
 }
 
-.form-check-label {
-    margin-left: 10px;
+/* Контейнер для переключателей */
+.list-group-item.switch-group {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 10px; /* Добавляем нижний отступ */
 }
 
+/* Текст-muted */
 .text-muted {
     color: #6c757d !important;
 }
 
+/* Фоновые цвета */
 .bg-success {
     background-color: #28a745 !important;
 }
@@ -58,6 +71,32 @@
     background-color: #ffc107 !important;
 }
 
+/* Заголовок карточки */
 .card-title {
-    margin-bottom: 10px;
+    margin-bottom: 10px !important;
+}
+
+/* Цвета переключателей */
+.receipt-switch.bg-success {
+    background-color: #28a745 !important;
+}
+
+.receipt-switch.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.shipped-switch.bg-success {
+    background-color: #28a745 !important;
+}
+
+.shipped-switch.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.payment-switch.bg-success {
+    background-color: #28a745 !important;
+}
+
+.payment-switch.bg-secondary {
+    background-color: #6c757d !important;
 }

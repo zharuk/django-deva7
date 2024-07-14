@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const clearSearchButton = document.getElementById("clear-search");
     let activeFilter = 'all';
 
-    // Обработчики кнопок фильтрации
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             activeFilter = this.getAttribute('data-filter');
@@ -15,63 +14,70 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Обработчик поиска
     searchInput.addEventListener('input', function() {
         searchPreorders(this.value);
     });
 
-    // Обработчик очистки поиска
     clearSearchButton.addEventListener('click', function() {
         searchInput.value = '';
         searchPreorders('');
     });
 
-    // Создание карточки предзаказа
     function createPreorderCard(preorder) {
-        const card = document.createElement("div");
-        card.className = "col-md-4 mb-4";
-        card.dataset.id = preorder.id;
-        card.dataset.shipped = preorder.shipped_to_customer;
-        card.dataset.receipt = preorder.receipt_issued;
-        card.dataset.createdAt = preorder.created_at;
-        card.innerHTML = `
-            <div class="card">
-                <div class="badge-container mb-2 mt-2 ml-2">
-                    ${getBadgesHTML(preorder)}
+    const card = document.createElement("div");
+    card.className = "col-md-4 mb-4";
+    card.dataset.id = preorder.id;
+    card.dataset.shipped = preorder.shipped_to_customer;
+    card.dataset.receipt = preorder.receipt_issued;
+    card.dataset.payment = preorder.payment_received;
+    card.dataset.createdAt = preorder.created_at;
+    card.innerHTML = `
+        <div class="card">
+            <div class="badge-container mb-2 mt-2 ml-2">
+                ${getBadgesHTML(preorder)}
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="card-title">${preorder.full_name}</h5>
+                    <a href="/preorder/${preorder.id}/edit/" class="text-muted">
+                        <i class="fas fa-edit"></i>
+                    </a>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title">${preorder.full_name}</h5>
-                        <a href="/preorder/${preorder.id}/edit/" class="text-muted">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                    </div>
-                    <p class="card-text" style="white-space: pre-wrap;">${preorder.text}</p>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>ТТН:</strong> <span class="badge bg-light ttn-badge">${preorder.ttn}</span></li>
-                        <li class="list-group-item"><strong>Статус:</strong> ${preorder.status}</li>
-                        <li class="list-group-item"><strong>Дроп:</strong> ${preorder.drop ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>'}</li>
-                        <li class="list-group-item d-flex justify-content-between">
+                <p class="card-text" style="white-space: pre-wrap;">${preorder.text}</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>ТТН:</strong> <span class="badge bg-light ttn-badge">${preorder.ttn}</span></li>
+                    <li class="list-group-item"><strong>Статус:</strong> ${preorder.status}</li>
+                    <li class="list-group-item"><strong>Дроп:</strong> ${preorder.drop ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>'}</li>
+                    <li class="list-group-item switch-group">
+                        <div class="switch-container">
                             <div class="form-check form-switch">
                                 <input class="form-check-input shipped-switch ${preorder.shipped_to_customer ? 'bg-success' : 'bg-warning'}" type="checkbox" data-id="${preorder.id}" ${preorder.shipped_to_customer ? 'checked' : ''}>
                                 <label class="form-check-label">Отправлен</label>
                             </div>
+                        </div>
+                        <div class="switch-container">
                             <div class="form-check form-switch">
                                 <input class="form-check-input receipt-switch ${preorder.receipt_issued ? 'bg-success' : 'bg-danger'}" type="checkbox" data-id="${preorder.id}" ${preorder.receipt_issued ? 'checked' : ''}>
                                 <label class="form-check-label">Чек</label>
                             </div>
-                        </li>
-                        <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> ${formatDate(preorder.created_at)}</small></li>
-                        <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> ${formatDate(preorder.updated_at)}</small></li>
-                        <li class="list-group-item text-muted"><small><strong>Изменено пользователем:</strong> ${preorder.last_modified_by}</small></li>
-                    </ul>
-                </div>
+                        </div>
+                        <div class="switch-container">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input payment-switch ${preorder.payment_received ? 'bg-success' : 'bg-secondary'}" type="checkbox" data-id="${preorder.id}" ${preorder.payment_received ? 'checked' : ''}>
+                                <label class="form-check-label">Оплата</label>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> ${formatDate(preorder.created_at)}</small></li>
+                    <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> ${formatDate(preorder.updated_at)}</small></li>
+                    <li class="list-group-item text-muted"><small><strong>Изменено пользователем:</strong> ${preorder.last_modified_by}</small></li>
+                </ul>
             </div>
-        `;
-        return card;
-    }
+        </div>
+    `;
+    return card;
+}
 
-    // Функция форматирования даты
     function formatDate(isoString) {
         const date = new Date(isoString);
         return date.toLocaleDateString('ru-RU', {
@@ -84,23 +90,35 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Создание бейджей
     function getBadgesHTML(preorder) {
         let badges = '';
-        if (!preorder.shipped_to_customer && !preorder.receipt_issued) {
-            badges += '<span class="badge mb-1" style="background-color: #ee5f5b;">Не пробит</span>';
-            badges += '<span class="badge" style="background-color: #f89406;">Не отправлен</span>';
-        } else if (!preorder.shipped_to_customer) {
-            badges += '<span class="badge" style="background-color: #f89406;">Не отправлен</span>';
-        } else if (!preorder.receipt_issued) {
+
+        const shipped = preorder.shipped_to_customer;
+        const receipt = preorder.receipt_issued;
+        const payment = preorder.payment_received;
+
+        if (!shipped && !receipt && !payment) {
+            badges += '<span class="badge mb-1" style="background-color: #f89406;">Не отправлен</span>';
             badges += '<span class="badge" style="background-color: #ee5f5b;">Не пробит</span>';
+            badges += '<span class="badge" style="background-color: #6c757d;">Не оплачен</span>';
         } else {
-            badges += '<span class="badge" style="background-color: green;">Отправлен и пробит</span>';
+            if (!shipped) {
+                badges += '<span class="badge" style="background-color: #f89406;">Не отправлен</span>';
+            }
+            if (!receipt) {
+                badges += '<span class="badge" style="background-color: #ee5f5b;">Не пробит</span>';
+            }
+            if (!payment) {
+                badges += '<span class="badge" style="background-color: #6c757d;">Не оплачен</span>';
+            }
+            if (shipped && receipt && payment) {
+                badges += '<span class="badge" style="background-color: green;">Готов</span>';
+            }
         }
+
         return badges;
     }
 
-    // Добавление предзаказа в контейнер с сортировкой
     function addPreorderToContainer(preorder) {
         const card = createPreorderCard(preorder);
         preordersContainer.appendChild(card);
@@ -109,14 +127,12 @@ document.addEventListener("DOMContentLoaded", function() {
         bindCopyEvent(card);
     }
 
-    // Сортировка предзаказов
     function sortPreorders() {
         const preorders = Array.from(preordersContainer.children);
         preorders.sort((a, b) => new Date(b.dataset.createdAt) - new Date(a.dataset.createdAt));
         preorders.forEach(preorder => preordersContainer.appendChild(preorder));
     }
 
-    // Обновление предзаказа в контейнере
     function updatePreorderInContainer(preorder) {
         const existingCard = document.querySelector(`.col-md-4[data-id='${preorder.id}']`);
         if (existingCard) {
@@ -127,19 +143,31 @@ document.addEventListener("DOMContentLoaded", function() {
             existingCard.querySelector('.list-group-item:nth-child(2)').innerHTML = `<strong>Статус:</strong> ${preorder.status}`;
             existingCard.querySelector('.list-group-item:nth-child(3)').innerHTML = `<strong>Дроп:</strong> ${preorder.drop ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>'}`;
             existingCard.querySelector('.list-group-item:nth-child(4)').innerHTML = `
-                <div class="form-check form-switch">
-                    <input class="form-check-input shipped-switch ${preorder.shipped_to_customer ? 'bg-success' : 'bg-warning'}" type="checkbox" data-id="${preorder.id}" ${preorder.shipped_to_customer ? 'checked' : ''}>
-                    <label class="form-check-label">Отправлен</label>
+                <div class="switch-container">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input shipped-switch ${preorder.shipped_to_customer ? 'bg-success' : 'bg-warning'}" type="checkbox" data-id="${preorder.id}" ${preorder.shipped_to_customer ? 'checked' : ''}>
+                        <label class="form-check-label">Отправлен</label>
+                    </div>
+                </div>
+                <div class="switch-container">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input receipt-switch ${preorder.receipt_issued ? 'bg-success' : 'bg-danger'}" type="checkbox" data-id="${preorder.id}" ${preorder.receipt_issued ? 'checked' : ''}>
+                        <label class="form-check-label">Чек</label>
+                    </div>
                 </div>
                 <div class="form-check form-switch">
-                    <input class="form-check-input receipt-switch ${preorder.receipt_issued ? 'bg-success' : 'bg-danger'}" type="checkbox" data-id="${preorder.id}" ${preorder.receipt_issued ? 'checked' : ''}>
-                    <label class="form-check-label">Чек</label>
+                    <div class="switch-container">
+                        <input class="form-check-input payment-switch ${preorder.payment_received ? 'bg-success' : 'bg-secondary'}" type="checkbox" data-id="${preorder.id}" ${preorder.payment_received ? 'checked' : ''}>
+                        <label class="form-check-label">Оплата</label>
+                    </div>
                 </div>`;
+            existingCard.querySelector('.badge-container').innerHTML = getBadgesHTML(preorder);
             existingCard.querySelector('.list-group-item:nth-child(5)').innerHTML = `<small><strong>Дата создания:</strong> ${formatDate(preorder.created_at)}</small>`;
             existingCard.querySelector('.list-group-item:nth-child(6)').innerHTML = `<small><strong>Дата изменения:</strong> ${formatDate(preorder.updated_at)}</small>`;
             existingCard.querySelector('.list-group-item:nth-child(7)').innerHTML = `<small><strong>Изменено пользователем:</strong> ${preorder.last_modified_by}</small>`;
             existingCard.dataset.shipped = preorder.shipped_to_customer;
             existingCard.dataset.receipt = preorder.receipt_issued;
+            existingCard.dataset.payment = preorder.payment_received;
             existingCard.dataset.createdAt = preorder.created_at;
             sortPreorders();
             bindSwitchEvents(existingCard);
@@ -149,7 +177,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Удаление предзаказа из контейнера
     function removePreorderFromContainer(id) {
         const card = document.querySelector(`.col-md-4[data-id='${id}']`);
         if (card) {
@@ -157,8 +184,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Обновление статуса переключателей
-    function updateSwitchStatus(url, id, status) {
+    function updateSwitchStatus(url, id, status, switchElement, originalStatus) {
         fetch(url, {
             method: 'POST',
             headers: {
@@ -170,13 +196,15 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
             sortPreorders();
+            filterPreorders();  // Вызов функции фильтрации после обновления статуса
         })
         .catch((error) => {
             console.error('Error:', error);
+            switchElement.checked = originalStatus;
+            updateSwitchClass(switchElement, originalStatus, switchElement.classList.contains('receipt-switch') ? 'receipt' : switchElement.classList.contains('shipped-switch') ? 'shipped' : 'payment');
         });
     }
 
-    // Получение CSRF токена
     function getCsrfToken() {
         const name = 'csrftoken';
         let cookieValue = null;
@@ -193,13 +221,13 @@ document.addEventListener("DOMContentLoaded", function() {
         return cookieValue;
     }
 
-    // Привязка событий переключателей
     function bindSwitchEvents(container) {
         container.querySelectorAll('.receipt-switch').forEach(item => {
             item.addEventListener('change', event => {
                 const id = event.target.dataset.id;
                 const status = event.target.checked;
-                updateSwitchStatus('/preorder/toggle_receipt/', id, status);
+                const originalStatus = !status; // сохраняем оригинальный статус
+                updateSwitchStatus('/preorder/toggle_receipt/', id, status, event.target, originalStatus);
                 updateSwitchClass(event.target, status, 'receipt');
                 updateBadges(container, id, status, 'receipt');
                 sortPreorders();
@@ -210,15 +238,27 @@ document.addEventListener("DOMContentLoaded", function() {
             item.addEventListener('change', event => {
                 const id = event.target.dataset.id;
                 const status = event.target.checked;
-                updateSwitchStatus('/preorder/toggle_shipped/', id, status);
+                const originalStatus = !status; // сохраняем оригинальный статус
+                updateSwitchStatus('/preorder/toggle_shipped/', id, status, event.target, originalStatus);
                 updateSwitchClass(event.target, status, 'shipped');
                 updateBadges(container, id, status, 'shipped');
                 sortPreorders();
             });
         });
+
+        container.querySelectorAll('.payment-switch').forEach(item => {
+            item.addEventListener('change', event => {
+                const id = event.target.dataset.id;
+                const status = event.target.checked;
+                const originalStatus = !status; // сохраняем оригинальный статус
+                updateSwitchStatus('/preorder/toggle_payment/', id, status, event.target, originalStatus);
+                updateSwitchClass(event.target, status, 'payment');
+                updateBadges(container, id, status, 'payment');
+                sortPreorders();
+            });
+        });
     }
 
-    // Обновление классов переключателей
     function updateSwitchClass(switchElement, status, type) {
         if (type === 'receipt') {
             if (status) {
@@ -236,25 +276,34 @@ document.addEventListener("DOMContentLoaded", function() {
                 switchElement.classList.remove('bg-success');
                 switchElement.classList.add('bg-warning');
             }
+        } else if (type === 'payment') {
+            if (status) {
+                switchElement.classList.remove('bg-secondary');
+                switchElement.classList.add('bg-success');
+            } else {
+                switchElement.classList.remove('bg-success');
+                switchElement.classList.add('bg-secondary');
+            }
         }
     }
 
-    // Обновление бейджей
     function updateBadges(container, id, status, type) {
         const preorder = {
             id: id,
             shipped_to_customer: type === 'shipped' ? status : container.querySelector(`.shipped-switch[data-id='${id}']`).checked,
-            receipt_issued: type === 'receipt' ? status : container.querySelector(`.receipt-switch[data-id='${id}']`).checked
+            receipt_issued: type === 'receipt' ? status : container.querySelector(`.receipt-switch[data-id='${id}']`).checked,
+            payment_received: type === 'payment' ? status : container.querySelector(`.payment-switch[data-id='${id}']`).checked
         };
-        container.querySelector('.badge-container').innerHTML = getBadgesHTML(preorder);
+
+        container.querySelector(`.col-md-4[data-id='${id}'] .badge-container`).innerHTML = getBadgesHTML(preorder);
     }
 
-    // Фильтрация предзаказов
     function filterPreorders() {
         const preorders = document.querySelectorAll('.col-md-4');
         preorders.forEach(preorder => {
             const shipped = preorder.dataset.shipped === 'true';
             const receipt = preorder.dataset.receipt === 'true';
+            const payment = preorder.dataset.payment === 'true';
 
             if (activeFilter === 'all') {
                 preorder.style.display = 'block';
@@ -262,19 +311,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 preorder.style.display = 'block';
             } else if (activeFilter === 'not-receipted' && !receipt) {
                 preorder.style.display = 'block';
+            } else if (activeFilter === 'not-paid' && !payment) {
+                preorder.style.display = 'block';
             } else {
                 preorder.style.display = 'none';
             }
         });
     }
 
-    // Поиск предзаказов
     function searchPreorders(searchText) {
         const wsMessage = JSON.stringify({ search_text: searchText });
         socket.send(wsMessage);
     }
 
-    // Подключение к WebSocket
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
     const socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
 
@@ -309,7 +358,6 @@ document.addEventListener("DOMContentLoaded", function() {
     sortPreorders();
 });
 
-// Привязка события копирования для ТТН бейджей
 function bindCopyEvent(container) {
     container.querySelectorAll('.ttn-badge').forEach(badge => {
         badge.addEventListener('click', event => {
