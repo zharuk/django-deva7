@@ -21,7 +21,7 @@
     </div>
     <div class="row" id="preorders-container">
         {% for preorder in preorders %}
-            <div class="col-md-4 mb-4" data-id="{{ preorder.id }}" data-shipped="{{ preorder.shipped_to_customer }}" data-receipt="{{ preorder.receipt_issued }}">
+            <div class="col-md-4 mb-4" data-id="{{ preorder.id }}" data-shipped="{{ preorder.shipped_to_customer }}" data-receipt="{{ preorder.receipt_issued }}" data-created-at="{{ preorder.created_at }}">
                 <div class="card">
                     <div class="badge-container mb-2 mt-2 ml-2">
                         {% if not preorder.shipped_to_customer and not preorder.receipt_issued %}
@@ -57,8 +57,8 @@
                                     <label class="form-check-label">Чек</label>
                                 </div>
                             </li>
-                            <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> {{ preorder.created_at|date:"j F Y г. в H:i" }}</small></li>
-                            <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> {{ preorder.updated_at|date:"j F Y г. в H:i" }}</small></li>
+                            <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> {{ preorder.created_at }}</small></li>
+                            <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> {{ preorder.updated_at }}</small></li>
                             <li class="list-group-item text-muted"><small><strong>Изменено пользователем:</strong> {% if preorder.last_modified_by %}{{ preorder.last_modified_by.username }}{% else %}N/A{% endif %}</small></li>
                         </ul>
                     </div>
@@ -66,7 +66,6 @@
             </div>
         {% endfor %}
     </div>
-    <div class="toast-container position-fixed top-0 end-0 p-3"></div>
 {% endblock %}
 
 {% block scripts %}

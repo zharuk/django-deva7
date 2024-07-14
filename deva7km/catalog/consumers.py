@@ -79,7 +79,7 @@ class PreorderConsumer(AsyncWebsocketConsumer):
                 'full_name': preorder.full_name,
                 'text': preorder.text,
                 'drop': preorder.drop,
-                'created_at': preorder.updated_at.isoformat(),
+                'created_at': preorder.created_at.isoformat(),  # Используем created_at
                 'updated_at': preorder.updated_at.isoformat(),
                 'receipt_issued': preorder.receipt_issued,
                 'shipped_to_customer': preorder.shipped_to_customer,

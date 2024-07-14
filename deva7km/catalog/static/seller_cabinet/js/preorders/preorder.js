@@ -26,13 +26,6 @@ document.addEventListener("DOMContentLoaded", function() {
         searchPreorders('');
     });
 
-    // Форматирование даты
-    function formatDate(dateString) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-        const date = new Date(dateString);
-        return date.toLocaleDateString('ru-RU', options);
-    }
-
     // Создание карточки предзаказа
     function createPreorderCard(preorder) {
         const card = document.createElement("div");
@@ -76,6 +69,19 @@ document.addEventListener("DOMContentLoaded", function() {
             </div>
         `;
         return card;
+    }
+
+    // Функция форматирования даты
+    function formatDate(isoString) {
+        const date = new Date(isoString);
+        return date.toLocaleDateString('ru-RU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric'
+        });
     }
 
     // Создание бейджей
@@ -132,28 +138,28 @@ document.addEventListener("DOMContentLoaded", function() {
             existingCard.querySelector('.list-group-item:nth-child(5)').innerHTML = `<small><strong>Дата создания:</strong> ${formatDate(preorder.created_at)}</small>`;
             existingCard.querySelector('.list-group-item:nth-child(6)').innerHTML = `<small><strong>Дата изменения:</strong> ${formatDate(preorder.updated_at)}</small>`;
             existingCard.querySelector('.list-group-item:nth-child(7)').innerHTML = `<small><strong>Изменено пользователем:</strong> ${preorder.last_modified_by}</small>`;
-            existingCard.querySelector('.badge-container').innerHTML = getBadgesHTML(preorder);
             existingCard.dataset.shipped = preorder.shipped_to_customer;
             existingCard.dataset.receipt = preorder.receipt_issued;
+            existingCard.dataset.createdAt = preorder.created_at;
+            sortPreorders();
             bindSwitchEvents(existingCard);
             bindCopyEvent(existingCard);
-            sortPreorders();
         } else {
             addPreorderToContainer(preorder);
         }
     }
 
     // Удаление предзаказа из контейнера
-    function removePreorderFromContainer(preorderId) {
-        const preorderCard = document.querySelector(`.col-md-4[data-id='${preorderId}']`);
-        if (preorderCard) {
-            preorderCard.remove();
+    function removePreorderFromContainer(id) {
+        const card = document.querySelector(`.col-md-4[data-id='${id}']`);
+        if (card) {
+            card.remove();
         }
     }
 
     // Обновление статуса переключателей
-    function updateSwitchStatus(endpoint, id, status) {
-        fetch(endpoint, {
+    function updateSwitchStatus(url, id, status) {
+        fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
