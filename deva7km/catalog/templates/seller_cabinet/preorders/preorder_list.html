@@ -57,8 +57,8 @@
                                     <label class="form-check-label">Чек</label>
                                 </div>
                             </li>
-                            <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> {{ preorder.created_at|date:"d.m.Y H:i:s" }}</small></li>
-                            <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> {{ preorder.updated_at|date:"d.m.Y H:i:s" }}</small></li>
+                            <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> {{ preorder.created_at|date:"j F Y г. в H:i" }}</small></li>
+                            <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> {{ preorder.updated_at|date:"j F Y г. в H:i" }}</small></li>
                             <li class="list-group-item text-muted"><small><strong>Изменено пользователем:</strong> {% if preorder.last_modified_by %}{{ preorder.last_modified_by.username }}{% else %}N/A{% endif %}</small></li>
                         </ul>
                     </div>
@@ -66,16 +66,7 @@
             </div>
         {% endfor %}
     </div>
-    <!-- Toast для копирования -->
-    <div class="toast-container position-fixed top-0 end-0 p-3">
-        <div id="copyToast" class="toast align-items-center text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    Скопировано в буфер обмена
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="toast-container position-fixed top-0 end-0 p-3"></div>
 {% endblock %}
 
 {% block scripts %}

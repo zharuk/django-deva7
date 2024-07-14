@@ -72,18 +72,15 @@ class PreorderConsumer(AsyncWebsocketConsumer):
 
     def build_preorders_data(self, preorders):
         preorders_data = []
-        tz = pytz.timezone('Europe/Moscow')  # Укажите нужный часовой пояс
         for preorder in preorders:
             last_modified_by_username = preorder.last_modified_by.username if preorder.last_modified_by else 'N/A'
-            created_at_local = preorder.created_at.astimezone(tz).strftime('%d.%m.%Y %H:%M:%S')
-            updated_at_local = preorder.updated_at.astimezone(tz).strftime('%d.%m.%Y %H:%M:%S')
             preorders_data.append({
                 'id': preorder.id,
                 'full_name': preorder.full_name,
                 'text': preorder.text,
                 'drop': preorder.drop,
-                'created_at': created_at_local,
-                'updated_at': updated_at_local,
+                'created_at': preorder.updated_at.isoformat(),
+                'updated_at': preorder.updated_at.isoformat(),
                 'receipt_issued': preorder.receipt_issued,
                 'shipped_to_customer': preorder.shipped_to_customer,
                 'status': preorder.status,

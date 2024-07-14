@@ -26,6 +26,13 @@ document.addEventListener("DOMContentLoaded", function() {
         searchPreorders('');
     });
 
+    // Форматирование даты
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU', options);
+    }
+
     // Создание карточки предзаказа
     function createPreorderCard(preorder) {
         const card = document.createElement("div");
@@ -61,8 +68,8 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <label class="form-check-label">Чек</label>
                             </div>
                         </li>
-                        <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> ${preorder.created_at}</small></li>
-                        <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> ${preorder.updated_at}</small></li>
+                        <li class="list-group-item text-muted"><small><strong>Дата создания:</strong> ${formatDate(preorder.created_at)}</small></li>
+                        <li class="list-group-item text-muted"><small><strong>Дата изменения:</strong> ${formatDate(preorder.updated_at)}</small></li>
                         <li class="list-group-item text-muted"><small><strong>Изменено пользователем:</strong> ${preorder.last_modified_by}</small></li>
                     </ul>
                 </div>
@@ -90,22 +97,17 @@ document.addEventListener("DOMContentLoaded", function() {
     // Добавление предзаказа в контейнер с сортировкой
     function addPreorderToContainer(preorder) {
         const card = createPreorderCard(preorder);
-        if (preordersContainer) {
-            const existingCards = preordersContainer.querySelectorAll('.col-md-4');
-            let added = false;
-            existingCards.forEach(existingCard => {
-                if (new Date(preorder.created_at) > new Date(existingCard.dataset.createdAt)) {
-                    preordersContainer.insertBefore(card, existingCard);
-                    added = true;
-                    return;
-                }
-            });
-            if (!added) {
-                preordersContainer.appendChild(card);
-            }
-            bindSwitchEvents(card);
-            bindCopyEvent(card);
-        }
+        preordersContainer.appendChild(card);
+        sortPreorders();
+        bindSwitchEvents(card);
+        bindCopyEvent(card);
+    }
+
+    // Сортировка предзаказов
+    function sortPreorders() {
+        const preorders = Array.from(preordersContainer.children);
+        preorders.sort((a, b) => new Date(b.dataset.createdAt) - new Date(a.dataset.createdAt));
+        preorders.forEach(preorder => preordersContainer.appendChild(preorder));
     }
 
     // Обновление предзаказа в контейнере
@@ -127,15 +129,15 @@ document.addEventListener("DOMContentLoaded", function() {
                     <input class="form-check-input receipt-switch ${preorder.receipt_issued ? 'bg-success' : 'bg-danger'}" type="checkbox" data-id="${preorder.id}" ${preorder.receipt_issued ? 'checked' : ''}>
                     <label class="form-check-label">Чек</label>
                 </div>`;
-            existingCard.querySelector('.list-group-item:nth-child(5)').innerHTML = `<small><strong>Дата создания:</strong> ${preorder.created_at}</small>`;
-            existingCard.querySelector('.list-group-item:nth-child(6)').innerHTML = `<small><strong>Дата изменения:</strong> ${preorder.updated_at}</small>`;
+            existingCard.querySelector('.list-group-item:nth-child(5)').innerHTML = `<small><strong>Дата создания:</strong> ${formatDate(preorder.created_at)}</small>`;
+            existingCard.querySelector('.list-group-item:nth-child(6)').innerHTML = `<small><strong>Дата изменения:</strong> ${formatDate(preorder.updated_at)}</small>`;
             existingCard.querySelector('.list-group-item:nth-child(7)').innerHTML = `<small><strong>Изменено пользователем:</strong> ${preorder.last_modified_by}</small>`;
             existingCard.querySelector('.badge-container').innerHTML = getBadgesHTML(preorder);
             existingCard.dataset.shipped = preorder.shipped_to_customer;
             existingCard.dataset.receipt = preorder.receipt_issued;
             bindSwitchEvents(existingCard);
             bindCopyEvent(existingCard);
-            filterPreorders();
+            sortPreorders();
         } else {
             addPreorderToContainer(preorder);
         }
@@ -161,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(response => response.json())
         .then(data => {
-            filterPreorders();
+            sortPreorders();
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -194,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 updateSwitchStatus('/preorder/toggle_receipt/', id, status);
                 updateSwitchClass(event.target, status, 'receipt');
                 updateBadges(container, id, status, 'receipt');
-                filterPreorders();
+                sortPreorders();
             });
         });
 
@@ -205,7 +207,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 updateSwitchStatus('/preorder/toggle_shipped/', id, status);
                 updateSwitchClass(event.target, status, 'shipped');
                 updateBadges(container, id, status, 'shipped');
-                filterPreorders();
+                sortPreorders();
             });
         });
     }
@@ -298,6 +300,7 @@ document.addEventListener("DOMContentLoaded", function() {
     bindSwitchEvents(document);
     bindCopyEvent(document);
     filterPreorders();
+    sortPreorders();
 });
 
 // Привязка события копирования для ТТН бейджей
