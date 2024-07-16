@@ -6,49 +6,46 @@ document.addEventListener("DOMContentLoaded", function() {
     let activeFilter = 'all';
     let isWebSocketConnected = false;
 
+    // Обработка кликов по кнопкам фильтров
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             activeFilter = this.getAttribute('data-filter');
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             if (isWebSocketConnected) {
-                filterPreorders();
+                sendWebSocketMessage({ filter: activeFilter });
             }
         });
     });
 
+    // Обработка ввода текста в поле поиска
     searchInput.addEventListener('input', function() {
         if (isWebSocketConnected) {
-            searchPreorders(this.value);
+            sendWebSocketMessage({ search_text: this.value });
         }
     });
 
+    // Обработка нажатия кнопки очистки поля поиска
     clearSearchButton.addEventListener('click', function() {
         searchInput.value = '';
         if (isWebSocketConnected) {
-            searchPreorders('');
+            sendWebSocketMessage({ search_text: '' });
         }
     });
 
-    function filterPreorders() {
-        const wsMessage = JSON.stringify({ filter: activeFilter });
+    // Функция отправки сообщения через WebSocket
+    function sendWebSocketMessage(message) {
+        const wsMessage = JSON.stringify(message);
         socket.send(wsMessage);
-        console.log(`Sent filter request: ${activeFilter}`);
     }
 
-    function searchPreorders(searchText) {
-        const wsMessage = JSON.stringify({ search_text: searchText });
-        socket.send(wsMessage);
-        console.log(`Sent search request: ${searchText}`);
-    }
-
+    // Установка WebSocket соединения
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
     const socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
 
     socket.onopen = function() {
-        console.log("WebSocket connection established");
         isWebSocketConnected = true;
-        filterPreorders();
+        sendWebSocketMessage({ filter: activeFilter });
     };
 
     socket.onmessage = function(event) {
@@ -59,8 +56,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 preordersContainer.innerHTML = data.html;
                 bindSwitchEvents(preordersContainer);
                 bindCopyEvent(preordersContainer);
-                sortPreorders();
-                console.log("Received and rendered preorder list");
             } else if (data.event === 'preorder_saved' || data.event === 'preorder_updated') {
                 const existingCard = preordersContainer.querySelector(`.col-md-4[data-id="${data.preorder_id}"]`);
                 if (existingCard) {
@@ -70,36 +65,26 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
                 bindSwitchEvents(preordersContainer);
                 bindCopyEvent(preordersContainer);
-                sortPreorders();
-                console.log(`Received and updated preorder: ${data.preorder_id}`);
             } else if (data.event === 'preorder_deleted') {
                 const cardToRemove = preordersContainer.querySelector(`.col-md-4[data-id="${data.preorder_id}"]`);
                 if (cardToRemove) {
                     cardToRemove.remove();
-                    console.log(`Removed preorder: ${data.preorder_id}`);
                 }
             }
         }
     };
 
     socket.onclose = function() {
-        console.log("WebSocket connection closed");
         isWebSocketConnected = false;
     };
 
-    function sortPreorders() {
-        const preorders = Array.from(preordersContainer.children);
-        preorders.sort((a, b) => new Date(b.dataset.createdAt) - new Date(a.dataset.createdAt));
-        preorders.forEach(preorder => preordersContainer.appendChild(preorder));
-    }
-
+    // Привязка событий к переключателям
     function bindSwitchEvents(container) {
         container.querySelectorAll('.receipt-switch').forEach(item => {
             item.addEventListener('change', event => {
                 const id = event.target.dataset.id;
                 const status = event.target.checked;
-                console.log(`Toggled receipt switch for preorder ${id}, status: ${status}`);
-                updateSwitchStatus('/preorder/toggle_receipt/', id, status, event.target);
+                sendWebSocketMessage({ type: 'toggle_receipt', id: id, status: status });
             });
         });
 
@@ -107,8 +92,7 @@ document.addEventListener("DOMContentLoaded", function() {
             item.addEventListener('change', event => {
                 const id = event.target.dataset.id;
                 const status = event.target.checked;
-                console.log(`Toggled shipped switch for preorder ${id}, status: ${status}`);
-                updateSwitchStatus('/preorder/toggle_shipped/', id, status, event.target);
+                sendWebSocketMessage({ type: 'toggle_shipped', id: id, status: status });
             });
         });
 
@@ -116,47 +100,12 @@ document.addEventListener("DOMContentLoaded", function() {
             item.addEventListener('change', event => {
                 const id = event.target.dataset.id;
                 const status = event.target.checked;
-                console.log(`Toggled payment switch for preorder ${id}, status: ${status}`);
-                updateSwitchStatus('/preorder/toggle_payment/', id, status, event.target);
+                sendWebSocketMessage({ type: 'toggle_payment', id: id, status: status });
             });
         });
     }
 
-    function updateSwitchStatus(url, id, status, switchElement) {
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCsrfToken()
-            },
-            body: JSON.stringify({ 'id': id, 'status': status })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(`Updated switch status for ${id}: ${status}`);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            switchElement.checked = !status;
-        });
-    }
-
-    function getCsrfToken() {
-        const name = 'csrftoken';
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; cookies.length > i; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
+    // Привязка события копирования данных к клику на элементе
     function bindCopyEvent(container) {
         container.querySelectorAll('.ttn-badge').forEach(badge => {
             badge.addEventListener('click', event => {
@@ -186,7 +135,4 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
     }
-
-    bindSwitchEvents(document);
-    bindCopyEvent(document);
 });

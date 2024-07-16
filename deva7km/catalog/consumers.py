@@ -44,6 +44,9 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         filter_type = data.get('filter')
         search_text = data.get('search_text')
+        switch_type = data.get('type')
+        id = data.get('id')
+        status = data.get('status')
 
         if filter_type:
             self.active_filter = filter_type
@@ -52,6 +55,8 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         elif search_text is not None:
             preorders = await self.search_preorders(search_text)
             await self.send_preorders(preorders)
+        elif switch_type and id is not None and status is not None:
+            await self.update_switch_status(switch_type, id, status)
 
     async def filter_preorders(self, filter_type):
         if filter_type == 'all':
@@ -79,6 +84,22 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         )
         return preorders
 
+    async def update_switch_status(self, switch_type, id, status):
+        preorder = await sync_to_async(PreOrder.objects.get)(id=id)
+
+        if switch_type == 'toggle_receipt':
+            preorder.receipt_issued = status
+        elif switch_type == 'toggle_shipped':
+            preorder.shipped_to_customer = status
+        elif switch_type == 'toggle_payment':
+            preorder.payment_received = status
+
+        await sync_to_async(preorder.save)()
+        await self.notify_preorders_update({
+            'event': 'preorder_updated',
+            'preorder': self.build_preorder_data(preorder)
+        })
+
     async def send_preorders(self, preorders=None):
         if preorders is None:
             preorders = await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
@@ -94,28 +115,30 @@ class PreorderConsumer(AsyncWebsocketConsumer):
     def build_preorders_data(self, preorders):
         preorders_data = []
         for preorder in preorders:
-            last_modified_by = preorder.last_modified_by.username if preorder.last_modified_by else 'N/A'
-
-            with translation.override('ru'):
-                created_at_local = timezone.localtime(preorder.created_at)
-                updated_at_local = timezone.localtime(preorder.updated_at)
-
-            preorder_data = {
-                'id': preorder.id,
-                'full_name': preorder.full_name,
-                'text': preorder.text,
-                'drop': preorder.drop,
-                'created_at': created_at_local,
-                'updated_at': updated_at_local,
-                'receipt_issued': preorder.receipt_issued,
-                'shipped_to_customer': preorder.shipped_to_customer,
-                'payment_received': preorder.payment_received,
-                'status': preorder.status,
-                'ttn': preorder.ttn,
-                'last_modified_by': last_modified_by,
-            }
-            preorders_data.append(preorder_data)
+            preorders_data.append(self.build_preorder_data(preorder))
         return preorders_data
+
+    def build_preorder_data(self, preorder):
+        last_modified_by = preorder.last_modified_by.username if preorder.last_modified_by else 'N/A'
+
+        with translation.override('ru'):
+            created_at_local = timezone.localtime(preorder.created_at)
+            updated_at_local = timezone.localtime(preorder.updated_at)
+
+        return {
+            'id': preorder.id,
+            'full_name': preorder.full_name,
+            'text': preorder.text,
+            'drop': preorder.drop,
+            'created_at': created_at_local,
+            'updated_at': updated_at_local,
+            'receipt_issued': preorder.receipt_issued,
+            'shipped_to_customer': preorder.shipped_to_customer,
+            'payment_received': preorder.payment_received,
+            'status': preorder.status,
+            'ttn': preorder.ttn,
+            'last_modified_by': last_modified_by,
+        }
 
     async def matches_active_filter(self, preorder):
         if self.active_filter == 'all':
