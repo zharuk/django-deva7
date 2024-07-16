@@ -6,22 +6,15 @@ from django.template.loader import render_to_string
 from django.utils import translation, timezone
 from .models import PreOrder
 
-
 class PreorderConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        await self.channel_layer.group_add(
-            'preorder_updates',
-            self.channel_name
-        )
+        await self.channel_layer.group_add('preorder_updates', self.channel_name)
         await self.accept()
         self.active_filter = 'all'
         await self.send_preorders()
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            'preorder_updates',
-            self.channel_name
-        )
+        await self.channel_layer.group_discard('preorder_updates', self.channel_name)
 
     async def notify_preorders_update(self, event):
         preorder = event['preorder']

@@ -28,7 +28,8 @@ from .models import PreOrder
 from asgiref.sync import sync_to_async, async_to_sync
 import asyncio
 
-from .signals import notify_preorder_change
+from .services import handle_preorder_form, toggle_preorder_status
+from .utils import notify_preorder_change
 
 
 def home(request):
@@ -498,12 +499,18 @@ def preorder_list(request):
 
 @login_required
 def preorder_create(request):
-    return handle_preorder_form(request)
+    form = handle_preorder_form(request)
+    if isinstance(form, PreOrderForm):
+        return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
+    return form
 
 
 @login_required
 def preorder_form(request, pk=None):
-    return handle_preorder_form(request, pk)
+    form = handle_preorder_form(request, pk)
+    if isinstance(form, PreOrderForm):
+        return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
+    return form
 
 
 @login_required
@@ -528,42 +535,7 @@ def toggle_shipped(request):
     return toggle_preorder_status(request, 'shipped_to_customer')
 
 
-@login_required
 @csrf_exempt
+@login_required
 def toggle_payment(request):
     return toggle_preorder_status(request, 'payment_received')
-
-
-def toggle_preorder_status(request, field):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        preorder_id = data.get('id')
-        status = data.get('status')
-
-        preorder = get_object_or_404(PreOrder, id=preorder_id)
-        setattr(preorder, field, status)
-        preorder.save(request=request)  # Передаем request в метод save
-
-        notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_updated')
-        return JsonResponse({'status': 'success'})
-
-
-@login_required
-def handle_preorder_form(request, pk=None):
-    if pk:
-        preorder = get_object_or_404(PreOrder, pk=pk)
-    else:
-        preorder = None
-
-    if request.method == 'POST':
-        form = PreOrderForm(request.POST, instance=preorder)
-        if form.is_valid():
-            preorder = form.save(commit=False)
-            preorder.save(request=request)  # Передаем request в метод save
-            event_type = 'preorder_updated' if pk else 'preorder_saved'
-            notify_preorder_change(sender=PreOrder, instance=preorder, event_type=event_type)
-            return redirect('preorder_list')
-    else:
-        form = PreOrderForm(instance=preorder)
-
-    return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
