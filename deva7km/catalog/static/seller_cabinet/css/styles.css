@@ -1,24 +1,4 @@
-/* Контейнер для бейджей */
-.badge-container {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 10px !important;
-    margin-left: 5px !important;
-}
 
-/* Бейдж для ТТН */
-.ttn-badge {
-    cursor: pointer !important;
-    font-size: 1.25em !important;
-    transition: background-color 0.3s, color 0.3s !important;
-}
-
-/* Состояние копированного бейджа */
-.ttn-badge.badge-copied {
-    background-color: black !important;
-    color: #fff !important;
-}
 
 /* Контейнер для уведомлений */
 .toast-container {

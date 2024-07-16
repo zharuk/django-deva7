@@ -6,6 +6,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.db.models.signals import m2m_changed, post_save, pre_save, pre_delete, post_delete
 from django.dispatch import receiver
+from django.utils import timezone, formats
 from django.utils.text import slugify
 from transliterate import translit
 from itertools import product
@@ -218,24 +219,32 @@ def preorder_deleted(sender, instance, **kwargs):
 def notify_preorder_change(sender, instance, event_type, **kwargs):
     channel_layer = get_channel_layer()
 
+    created_at_local = timezone.localtime(instance.created_at)
+    updated_at_local = timezone.localtime(instance.updated_at)
+    created_at_formatted = formats.date_format(created_at_local, 'DATETIME_FORMAT')
+    updated_at_formatted = formats.date_format(updated_at_local, 'DATETIME_FORMAT')
+    last_modified_by = instance.last_modified_by.username if instance.last_modified_by else 'N/A'
+
+    data = {
+        'id': instance.id,
+        'full_name': instance.full_name,
+        'text': instance.text,
+        'drop': instance.drop,
+        'created_at': created_at_formatted,
+        'updated_at': updated_at_formatted,
+        'receipt_issued': instance.receipt_issued,
+        'shipped_to_customer': instance.shipped_to_customer,
+        'payment_received': instance.payment_received,
+        'status': instance.status,
+        'ttn': instance.ttn,
+        'last_modified_by': last_modified_by
+    }
+
     async_to_sync(channel_layer.group_send)(
         'preorder_updates',
         {
             'type': 'notify_preorders_update',
             'event': event_type,
-            'preorder': {
-                'id': instance.id,
-                'full_name': instance.full_name,
-                'text': instance.text,
-                'drop': instance.drop,
-                'created_at': instance.created_at.isoformat(),
-                'updated_at': instance.updated_at.isoformat(),
-                'receipt_issued': instance.receipt_issued,
-                'shipped_to_customer': instance.shipped_to_customer,
-                'payment_received': instance.payment_received,
-                'status': instance.status,
-                'ttn': instance.ttn,
-                'last_modified_by': instance.last_modified_by.username if instance.last_modified_by else 'N/A'
-            }
+            'preorder': data,
         }
     )
