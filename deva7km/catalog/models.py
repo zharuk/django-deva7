@@ -875,8 +875,9 @@ class PreOrder(models.Model):
     payment_received = models.BooleanField("Оплата", default=False)
 
     def save(self, *args, **kwargs):
-        if 'request' in kwargs:
-            self.last_modified_by = kwargs.pop('request').user
+        request = kwargs.pop('request', None)
+        if request and request.user.is_authenticated:
+            self.last_modified_by = request.user
         super().save(*args, **kwargs)
 
     class Meta:

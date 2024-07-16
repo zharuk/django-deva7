@@ -1,82 +1,64 @@
-
-
-/* Контейнер для уведомлений */
-.toast-container {
-    position: fixed !important;
-    top: 10px !important;
-    right: 10px !important;
-    z-index: 1050 !important;
+.badge-container {
+    margin-left: 5px; /* Добавляем отступ слева у контейнера бейджей */
 }
 
-/* Уведомление */
-.toast {
-    opacity: 0 !important;
-    transition: opacity 0.3s ease-in-out !important;
+.badge-not-shipped {
+    background-color: #f89406;
+    margin-left: 5px; /* Добавляем отступ слева */
 }
 
-/* Показ уведомления */
-.toast.show {
-    opacity: 1 !important;
+.badge-not-receipt {
+    background-color: #ee5f5b;
+    margin-left: 5px; /* Добавляем отступ слева */
 }
 
-/* Элемент списка */
-.list-group-item {
-    border: none !important;
-    padding: 0.5rem 1rem !important;
+.badge-not-paid {
+    background-color: #6c757d;
+    margin-left: 5px; /* Добавляем отступ слева */
 }
 
-/* Контейнер для переключателей */
-.list-group-item.switch-group {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    margin-bottom: 10px; /* Добавляем нижний отступ */
+.badge-ready {
+    background-color: green;
+    margin-left: 5px; /* Добавляем отступ слева */
 }
 
-/* Текст-muted */
-.text-muted {
-    color: #6c757d !important;
+.ttn-badge {
+    background-color: lightgray; /* Замените на нужный цвет, если требуется */
+    margin-left: 5px; /* Добавляем отступ слева */
+    font-size: 1.25rem; /* Увеличиваем размер шрифта */
 }
 
-/* Фоновые цвета */
-.bg-success {
+.switch-container .bg-success {
     background-color: #28a745 !important;
 }
 
-.bg-danger {
-    background-color: #dc3545 !important;
-}
-
-.bg-warning {
+.switch-container .bg-warning {
     background-color: #ffc107 !important;
 }
 
-/* Заголовок карточки */
-.card-title {
-    margin-bottom: 10px !important;
-}
-
-/* Цвета переключателей */
-.receipt-switch.bg-success {
-    background-color: #28a745 !important;
-}
-
-.receipt-switch.bg-danger {
+.switch-container .bg-danger {
     background-color: #dc3545 !important;
 }
 
-.shipped-switch.bg-success {
-    background-color: #28a745 !important;
-}
-
-.shipped-switch.bg-warning {
-    background-color: #ffc107 !important;
-}
-
-.payment-switch.bg-success {
-    background-color: #28a745 !important;
-}
-
-.payment-switch.bg-secondary {
+.switch-container .bg-secondary {
     background-color: #6c757d !important;
+}
+
+.list-group-item {
+    border: none; /* Убираем границу между элементами списка */
+    margin-bottom: 10px; /* Добавляем отступ снизу между элементами списка */
+}
+
+.filter-button {
+    margin-bottom: 5px; /* Добавляем отступ снизу между кнопками фильтров */
+}
+
+.toast-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1055; /* Устанавливаем высокий z-index для отображения поверх других элементов */
+    width: auto; /* Устанавливаем ширину авто для уменьшения ширины */
+    max-width: 500px; /* Устанавливаем максимальную ширину */
 }

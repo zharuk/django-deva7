@@ -17,8 +17,16 @@ class PreOrderForm(forms.ModelForm):
             'ttn',
             'shipped_to_customer',
             'status',
-            'payment_received'  # Добавляем новое поле
+            'payment_received'
         ]
+
+    def save(self, commit=True, request=None):
+        obj = super().save(commit=False)
+        if request and request.user.is_authenticated:
+            obj.last_modified_by = request.user
+        if commit:
+            obj.save()
+        return obj
 
 
 class ProductSearchForm(forms.Form):

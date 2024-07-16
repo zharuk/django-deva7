@@ -41,3 +41,4 @@ def notify_preorder_change(sender, instance, event_type, **kwargs):
             'preorder': data,
         }
     )
+    print(f"Sent {event_type} event for preorder {instance.id}")

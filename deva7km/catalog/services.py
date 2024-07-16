@@ -17,7 +17,10 @@ def handle_preorder_form(request, pk=None):
     if request.method == 'POST':
         form = PreOrderForm(request.POST, instance=preorder)
         if form.is_valid():
-            preorder = form.save()
+            preorder = form.save(commit=False)
+            if request.user.is_authenticated:
+                preorder.last_modified_by = request.user
+            preorder.save()
             notify_preorder_change(sender=PreOrder, instance=preorder,
                                    event_type='preorder_saved' if pk is None else 'preorder_updated')
             return redirect('preorder_list')

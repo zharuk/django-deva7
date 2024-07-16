@@ -236,8 +236,7 @@ class PreOrderAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         print('сохранение из admin.py')
-        print(obj.updated_at)
-        obj.last_modified_by = request.user
+        obj.save(request=request)
         super().save_model(request, obj, form, change)
 
 

@@ -36,36 +36,45 @@ document.addEventListener("DOMContentLoaded", function() {
     // Функция отправки сообщения через WebSocket
     function sendWebSocketMessage(message) {
         const wsMessage = JSON.stringify(message);
+        console.log("Sending WebSocket message:", wsMessage);
         socket.send(wsMessage);
     }
 
     // Установка WebSocket соединения
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
+    let socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
 
     socket.onopen = function() {
         isWebSocketConnected = true;
+        console.log("WebSocket connection opened");
         sendWebSocketMessage({ filter: activeFilter });
     };
 
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
+        console.log("Received WebSocket message:", data);
 
         if (data.event) {
+            console.log("Received HTML:", data.html);
             if (data.event === 'preorder_list') {
+                console.log("Updating preorder list");
                 preordersContainer.innerHTML = data.html;
                 bindSwitchEvents(preordersContainer);
                 bindCopyEvent(preordersContainer);
+                console.log("Updated DOM:", preordersContainer.innerHTML);
             } else if (data.event === 'preorder_saved' || data.event === 'preorder_updated') {
+                console.log(`Preorder ${data.event}:`, data.preorder_id);
                 const existingCard = preordersContainer.querySelector(`.col-md-4[data-id="${data.preorder_id}"]`);
                 if (existingCard) {
                     existingCard.outerHTML = data.html;
                 } else {
-                    preordersContainer.innerHTML += data.html;
+                    preordersContainer.insertAdjacentHTML('afterbegin', data.html);
                 }
                 bindSwitchEvents(preordersContainer);
                 bindCopyEvent(preordersContainer);
+                console.log("Updated DOM:", preordersContainer.innerHTML);
             } else if (data.event === 'preorder_deleted') {
+                console.log(`Preorder deleted:`, data.preorder_id);
                 const cardToRemove = preordersContainer.querySelector(`.col-md-4[data-id="${data.preorder_id}"]`);
                 if (cardToRemove) {
                     cardToRemove.remove();
@@ -76,6 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     socket.onclose = function() {
         isWebSocketConnected = false;
+        console.log("WebSocket connection closed");
     };
 
     // Привязка событий к переключателям
@@ -84,6 +94,7 @@ document.addEventListener("DOMContentLoaded", function() {
             item.addEventListener('change', event => {
                 const id = event.target.dataset.id;
                 const status = event.target.checked;
+                console.log(`Toggle receipt for preorder ${id}: ${status}`);
                 sendWebSocketMessage({ type: 'toggle_receipt', id: id, status: status });
             });
         });
@@ -92,6 +103,7 @@ document.addEventListener("DOMContentLoaded", function() {
             item.addEventListener('change', event => {
                 const id = event.target.dataset.id;
                 const status = event.target.checked;
+                console.log(`Toggle shipped for preorder ${id}: ${status}`);
                 sendWebSocketMessage({ type: 'toggle_shipped', id: id, status: status });
             });
         });
@@ -100,6 +112,7 @@ document.addEventListener("DOMContentLoaded", function() {
             item.addEventListener('change', event => {
                 const id = event.target.dataset.id;
                 const status = event.target.checked;
+                console.log(`Toggle payment for preorder ${id}: ${status}`);
                 sendWebSocketMessage({ type: 'toggle_payment', id: id, status: status });
             });
         });
@@ -111,23 +124,22 @@ document.addEventListener("DOMContentLoaded", function() {
             badge.addEventListener('click', event => {
                 const ttn = event.target.textContent.trim();
                 navigator.clipboard.writeText(ttn).then(() => {
+                    console.log(`TTN copied: ${ttn}`);
                     badge.classList.add('badge-copied');
                     setTimeout(() => {
                         badge.classList.remove('badge-copied');
                     }, 2000);
 
                     const toast = document.createElement('div');
-                    toast.className = 'toast align-items-center text-white bg-dark border-0';
-                    toast.innerHTML =
-                        `<div class="d-flex">
-                            <div class="toast-body">
-                                Скопировано
-                            </div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>`;
-                    document.querySelector('.toast-container').appendChild(toast);
-                    const bsToast = new bootstrap.Toast(toast);
-                    bsToast.show();
+                    toast.className = 'alert alert-dismissible alert-light';
+                    toast.innerHTML = `
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <strong>Скопировано!</strong> TTN: ${ttn}
+                    `;
+                    const toastContainer = document.querySelector('.toast-container');
+                    toastContainer.appendChild(toast);
+
+                    // Удаляем алерт через 2 секунды
                     setTimeout(() => {
                         toast.remove();
                     }, 2000);
