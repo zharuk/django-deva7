@@ -40,7 +40,7 @@ async def update_tracking_status():
     # Получаем все TTN из базы данных, которые были обновлены не менее 30 минут назад
     thirty_minutes_ago = now - timezone.timedelta(minutes=30)
     all_ttns = await sync_to_async(list)(
-        PreOrder.objects.filter(updated_at__lt=thirty_minutes_ago).values_list('ttn', flat=True)
+        PreOrder.objects.values_list('ttn', flat=True)
     )
     logger.info(f"Retrieved TTNs from database: {all_ttns}")
 
@@ -53,7 +53,7 @@ async def update_tracking_status():
         return
 
     # Разбиваем список TTN на порции по 100 элементов
-    chunk_size = 100
+    chunk_size = 25
     chunks = [cleaned_ttns[i:i + chunk_size] for i in range(0, len(cleaned_ttns), chunk_size)]
 
     for chunk in chunks:

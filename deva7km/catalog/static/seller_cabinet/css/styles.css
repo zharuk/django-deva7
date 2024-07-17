@@ -34,6 +34,19 @@
     color: red;
 }
 
+.progress {
+    position: fixed;
+    top: 20%; /* Перемещаем прогресс-бар к верху страницы */
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.progress-bar {
+    background-color: #28a745;  /* Зеленый цвет для прогресс-бара */
+    transition: width 0.4s ease; /* Добавляем плавный переход */
+}
+
 .switch-container .bg-success {
     background-color: #28a745 !important;
 }
