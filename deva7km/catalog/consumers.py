@@ -2,9 +2,9 @@ import json
 import logging
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.db.models import Q
 from django.template.loader import render_to_string
-from django.utils import translation, timezone
+from django.utils import timezone, translation
+from django.db.models import Q
 from .models import PreOrder
 from .novaposhta import update_tracking_status
 
@@ -22,19 +22,21 @@ class PreorderConsumer(AsyncWebsocketConsumer):
     async def notify_preorders_update(self, event):
         preorder = event['preorder']
         matches_filter = await self.matches_active_filter(preorder)
+        counts = await self.get_preorder_counts()
 
         if matches_filter:
-            preorder_html = await sync_to_async(render_to_string)('seller_cabinet/preorders/preorder_card.html',
-                                                                  {'preorders': [preorder]})
+            preorder_html = await sync_to_async(render_to_string)('seller_cabinet/preorders/preorder_card.html', {'preorders': [preorder]})
             await self.send(text_data=json.dumps({
                 'event': event['event'],
                 'html': preorder_html,
-                'preorder_id': preorder['id']
+                'preorder_id': preorder['id'],
+                'counts': counts
             }))
         else:
             await self.send(text_data=json.dumps({
                 'event': 'preorder_deleted',
-                'preorder_id': preorder['id']
+                'preorder_id': preorder['id'],
+                'counts': counts
             }))
 
     async def receive(self, text_data):
@@ -110,13 +112,24 @@ class PreorderConsumer(AsyncWebsocketConsumer):
             preorders = await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
 
         preorders_data = await sync_to_async(self.build_preorders_data)(preorders)
+        counts = await self.get_preorder_counts()
         html = await sync_to_async(render_to_string)('seller_cabinet/preorders/preorder_card.html',
                                                      {'preorders': preorders_data})
 
         await self.send(text_data=json.dumps({
             'event': 'preorder_list',
-            'html': html
+            'html': html,
+            'counts': counts
         }))
+
+    async def get_preorder_counts(self):
+        counts = {
+            'all': await sync_to_async(PreOrder.objects.count)(),
+            'not_shipped': await sync_to_async(PreOrder.objects.filter(shipped_to_customer=False).count)(),
+            'not_receipted': await sync_to_async(PreOrder.objects.filter(receipt_issued=False).count)(),
+            'not_paid': await sync_to_async(PreOrder.objects.filter(payment_received=False).count)(),
+        }
+        return counts
 
     def build_preorders_data(self, preorders):
         preorders_data = []

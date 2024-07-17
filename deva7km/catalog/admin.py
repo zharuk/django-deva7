@@ -235,7 +235,6 @@ class PreOrderAdmin(admin.ModelAdmin):
     list_per_page = 10
 
     def save_model(self, request, obj, form, change):
-        print('сохранение из admin.py')
         obj.save(request=request)
         super().save_model(request, obj, form, change)
 

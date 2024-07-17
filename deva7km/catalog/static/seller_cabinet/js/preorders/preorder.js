@@ -9,6 +9,16 @@ document.addEventListener("DOMContentLoaded", function() {
     let isWebSocketConnected = false;
     let socket;
 
+    // Функция обновления счетчиков вкладок
+    function updateFilterCounts(counts) {
+        if (counts) {
+            document.querySelector('[data-filter="all"] .count').textContent = `(${counts.all})`;
+            document.querySelector('[data-filter="not-shipped"] .count').textContent = `(${counts.not_shipped})`;
+            document.querySelector('[data-filter="not-receipted"] .count').textContent = `(${counts.not_receipted})`;
+            document.querySelector('[data-filter="not-paid"] .count').textContent = `(${counts.not_paid})`;
+        }
+    }
+
     // Обработка кликов по кнопкам фильтров
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -53,7 +63,6 @@ document.addEventListener("DOMContentLoaded", function() {
     // Функция отправки сообщения через WebSocket
     function sendWebSocketMessage(message) {
         const wsMessage = JSON.stringify(message);
-        console.log("Sending WebSocket message:", wsMessage);
         socket.send(wsMessage);
     }
 
@@ -61,19 +70,20 @@ document.addEventListener("DOMContentLoaded", function() {
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
     socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
 
+    // Обработка открытия соединения WebSocket
     socket.onopen = function() {
         isWebSocketConnected = true;
-        console.log("WebSocket connection opened");
         sendWebSocketMessage({ filter: activeFilter });
     };
 
+    // Обработка входящих сообщений WebSocket
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        console.log("Received WebSocket message:", data);
 
         if (data.event) {
             if (data.event === 'preorder_list') {
                 preordersContainer.innerHTML = data.html;
+                updateFilterCounts(data.counts);
                 bindSwitchEvents(preordersContainer);
                 bindCopyEvent(preordersContainer);
             } else if (data.event === 'preorder_saved' || data.event === 'preorder_updated') {
@@ -83,6 +93,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else {
                     preordersContainer.insertAdjacentHTML('afterbegin', data.html);
                 }
+                updateFilterCounts(data.counts);
                 bindSwitchEvents(preordersContainer);
                 bindCopyEvent(preordersContainer);
             } else if (data.event === 'preorder_deleted') {
@@ -90,6 +101,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (cardToRemove) {
                     cardToRemove.remove();
                 }
+                updateFilterCounts(data.counts);
             } else if (data.event === 'update_complete') {
                 const toast = document.createElement('div');
                 toast.className = 'alert alert-dismissible alert-light';
@@ -105,9 +117,9 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     };
 
+    // Обработка закрытия соединения WebSocket
     socket.onclose = function() {
         isWebSocketConnected = false;
-        console.log("WebSocket connection closed");
     };
 
     // Привязка событий к переключателям
