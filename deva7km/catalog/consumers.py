@@ -1,14 +1,13 @@
 import json
 import logging
-import requests
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.conf import settings
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import translation, timezone
 from .models import PreOrder
-from .novaposhta import get_tracking_status, update_tracking_status
+from .novaposhta import update_tracking_status
+
 
 class PreorderConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -59,6 +58,10 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         elif ttns:
             logging.info(f"Обновление статусов для TTNs: {ttns}")
             await update_tracking_status()
+            await self.send(text_data=json.dumps({
+                'event': 'update_complete',
+                'message': 'Все TTN были успешно обновлены.'
+            }))
 
     async def filter_preorders(self, filter_type):
         if filter_type == 'all':

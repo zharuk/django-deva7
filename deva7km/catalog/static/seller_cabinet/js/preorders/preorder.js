@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById("search-input");
     const clearSearchButton = document.getElementById("clear-search");
     const refreshStatusButton = document.getElementById("refresh-status-btn");
+    const toastContainer = document.querySelector('.toast-container');
     let activeFilter = 'all';
     let isWebSocketConnected = false;
     let socket;
@@ -36,36 +37,18 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // Обработка нажатия кнопки обновления статусов
-    refreshStatusButton.addEventListener('click', async function() {
-        const ttns = Array.from(document.querySelectorAll('[data-ttn]'))
-            .map(el => el.getAttribute('data-ttn'))
-            .filter(ttn => ttn);
+    refreshStatusButton.addEventListener('click', function() {
         if (isWebSocketConnected) {
-            const chunkSize = 100;
-            const totalChunks = Math.ceil(ttns.length / chunkSize);
-            const chunks = [];
-            for (let i = 0; i < ttns.length; i += chunkSize) {
-                chunks.push(ttns.slice(i, i + chunkSize));
-            }
-
-            for (let i = 0; i < chunks.length; i++) {
-                sendWebSocketMessage({ ttns: chunks[i] });
-                await new Promise(resolve => setTimeout(resolve, 1000));  // Задержка 1 секунда
-            }
-
-            const toast = document.createElement('div');
-            toast.className = 'alert alert-dismissible alert-light';
-            toast.innerHTML = `
-                <strong>Обновление завершено!</strong> Все TTN были успешно обновлены.
-            `;
-            const toastContainer = document.querySelector('.toast-container');
-            toastContainer.appendChild(toast);
-
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
+            sendWebSocketMessage({ ttns: getTtns() });
         }
     });
+
+    // Получение списка TTN из элементов на странице
+    function getTtns() {
+        return Array.from(document.querySelectorAll('[data-ttn]'))
+            .map(el => el.getAttribute('data-ttn'))
+            .filter(ttn => ttn);
+    }
 
     // Функция отправки сообщения через WebSocket
     function sendWebSocketMessage(message) {
@@ -107,6 +90,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (cardToRemove) {
                     cardToRemove.remove();
                 }
+            } else if (data.event === 'update_complete') {
+                const toast = document.createElement('div');
+                toast.className = 'alert alert-dismissible alert-light';
+                toast.innerHTML = `
+                    <strong>Обновление завершено!</strong> ${data.message}
+                `;
+                toastContainer.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
             }
         }
     };
@@ -160,7 +154,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     toast.innerHTML = `
                         <strong>Скопировано!</strong> TTN: ${ttn}
                     `;
-                    const toastContainer = document.querySelector('.toast-container');
                     toastContainer.appendChild(toast);
 
                     setTimeout(() => {
