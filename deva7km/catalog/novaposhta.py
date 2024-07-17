@@ -1,3 +1,5 @@
+import asyncio
+
 import requests
 import logging
 from django.conf import settings
@@ -35,9 +37,10 @@ async def update_tracking_status():
     ).delete)()
     logger.info("Old preorders or received ones deleted.")
 
-    # Получаем все TTN из базы данных
+    # Получаем все TTN из базы данных, которые были обновлены не менее 30 минут назад
+    thirty_minutes_ago = now - timezone.timedelta(minutes=30)
     all_ttns = await sync_to_async(list)(
-        PreOrder.objects.values_list('ttn', flat=True)
+        PreOrder.objects.filter(updated_at__lt=thirty_minutes_ago).values_list('ttn', flat=True)
     )
     logger.info(f"Retrieved TTNs from database: {all_ttns}")
 
@@ -74,9 +77,11 @@ async def update_tracking_status():
                 continue
 
             try:
-                preorders = await sync_to_async(list)(PreOrder.objects.filter(ttn=original_ttn_number))
+                preorders = await sync_to_async(list)(
+                    PreOrder.objects.filter(ttn=original_ttn_number, updated_at__lt=thirty_minutes_ago)
+                )
                 if not preorders:
-                    logger.warning(f"PreOrder with TTN {original_ttn_number} does not exist.")
+                    logger.warning(f"PreOrder with TTN {original_ttn_number} does not exist or was recently updated.")
                     continue
             except Exception as e:
                 logger.error(f"Error retrieving PreOrder with TTN {original_ttn_number}: {e}")
@@ -89,3 +94,6 @@ async def update_tracking_status():
 
                 await sync_to_async(preorder.save)()
                 logger.info(f"PreOrder with TTN {original_ttn_number} updated successfully.")
+
+        # Добавляем задержку 1 секунду между обработкой чанков
+        await asyncio.sleep(1)
