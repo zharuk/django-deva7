@@ -1,10 +1,14 @@
 import json
+import logging
+import requests
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
+from django.conf import settings
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import translation, timezone
 from .models import PreOrder
+from .novaposhta import get_tracking_status, update_tracking_status
 
 class PreorderConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -21,7 +25,8 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         matches_filter = await self.matches_active_filter(preorder)
 
         if matches_filter:
-            preorder_html = await sync_to_async(render_to_string)('seller_cabinet/preorders/preorder_card.html', {'preorders': [preorder]})
+            preorder_html = await sync_to_async(render_to_string)('seller_cabinet/preorders/preorder_card.html',
+                                                                  {'preorders': [preorder]})
             await self.send(text_data=json.dumps({
                 'event': event['event'],
                 'html': preorder_html,
@@ -40,6 +45,7 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         switch_type = data.get('type')
         id = data.get('id')
         status = data.get('status')
+        ttns = data.get('ttns')
 
         if filter_type:
             self.active_filter = filter_type
@@ -50,6 +56,9 @@ class PreorderConsumer(AsyncWebsocketConsumer):
             await self.send_preorders(preorders)
         elif switch_type and id is not None and status is not None:
             await self.update_switch_status(switch_type, id, status)
+        elif ttns:
+            logging.info(f"Обновление статусов для TTNs: {ttns}")
+            await update_tracking_status()
 
     async def filter_preorders(self, filter_type):
         if filter_type == 'all':
@@ -98,7 +107,8 @@ class PreorderConsumer(AsyncWebsocketConsumer):
             preorders = await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
 
         preorders_data = await sync_to_async(self.build_preorders_data)(preorders)
-        html = await sync_to_async(render_to_string)('seller_cabinet/preorders/preorder_card.html', {'preorders': preorders_data})
+        html = await sync_to_async(render_to_string)('seller_cabinet/preorders/preorder_card.html',
+                                                     {'preorders': preorders_data})
 
         await self.send(text_data=json.dumps({
             'event': 'preorder_list',

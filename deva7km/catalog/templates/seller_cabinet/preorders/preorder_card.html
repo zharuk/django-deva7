@@ -1,5 +1,5 @@
 {% for preorder in preorders %}
-    <div class="col-md-4 mb-4" data-id="{{ preorder.id }}" data-shipped="{{ preorder.shipped_to_customer }}" data-receipt="{{ preorder.receipt_issued }}" data-payment="{{ preorder.payment_received }}" data-created-at="{{ preorder.created_at }}">
+    <div class="col-md-4 mb-4" data-id="{{ preorder.id }}" data-ttn="{{ preorder.ttn|default_if_none:'' }}" data-shipped="{{ preorder.shipped_to_customer }}" data-receipt="{{ preorder.receipt_issued }}" data-payment="{{ preorder.payment_received }}" data-created-at="{{ preorder.created_at }}">
         <div class="card">
             <div class="badge-container mb-2 mt-2 ml-2">
                 {% if not preorder.shipped_to_customer %}

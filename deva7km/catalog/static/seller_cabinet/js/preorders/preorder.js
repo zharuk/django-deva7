@@ -3,8 +3,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const filterButtons = document.querySelectorAll('.filter-button');
     const searchInput = document.getElementById("search-input");
     const clearSearchButton = document.getElementById("clear-search");
+    const refreshStatusButton = document.getElementById("refresh-status-btn");
     let activeFilter = 'all';
     let isWebSocketConnected = false;
+    let socket;
 
     // Обработка кликов по кнопкам фильтров
     filterButtons.forEach(button => {
@@ -33,6 +35,16 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    // Обработка нажатия кнопки обновления статусов
+    refreshStatusButton.addEventListener('click', function() {
+        const ttns = Array.from(document.querySelectorAll('[data-ttn]'))
+            .map(el => el.getAttribute('data-ttn'))
+            .filter(ttn => ttn);
+        if (isWebSocketConnected) {
+            sendWebSocketMessage({ ttns: ttns });
+        }
+    });
+
     // Функция отправки сообщения через WebSocket
     function sendWebSocketMessage(message) {
         const wsMessage = JSON.stringify(message);
@@ -42,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Установка WebSocket соединения
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-    let socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
+    socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
 
     socket.onopen = function() {
         isWebSocketConnected = true;
@@ -55,15 +67,11 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log("Received WebSocket message:", data);
 
         if (data.event) {
-            console.log("Received HTML:", data.html);
             if (data.event === 'preorder_list') {
-                console.log("Updating preorder list");
                 preordersContainer.innerHTML = data.html;
                 bindSwitchEvents(preordersContainer);
                 bindCopyEvent(preordersContainer);
-                console.log("Updated DOM:", preordersContainer.innerHTML);
             } else if (data.event === 'preorder_saved' || data.event === 'preorder_updated') {
-                console.log(`Preorder ${data.event}:`, data.preorder_id);
                 const existingCard = preordersContainer.querySelector(`.col-md-4[data-id="${data.preorder_id}"]`);
                 if (existingCard) {
                     existingCard.outerHTML = data.html;
@@ -72,9 +80,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
                 bindSwitchEvents(preordersContainer);
                 bindCopyEvent(preordersContainer);
-                console.log("Updated DOM:", preordersContainer.innerHTML);
             } else if (data.event === 'preorder_deleted') {
-                console.log(`Preorder deleted:`, data.preorder_id);
                 const cardToRemove = preordersContainer.querySelector(`.col-md-4[data-id="${data.preorder_id}"]`);
                 if (cardToRemove) {
                     cardToRemove.remove();
@@ -94,7 +100,6 @@ document.addEventListener("DOMContentLoaded", function() {
             item.addEventListener('change', event => {
                 const id = event.target.dataset.id;
                 const status = event.target.checked;
-                console.log(`Toggle receipt for preorder ${id}: ${status}`);
                 sendWebSocketMessage({ type: 'toggle_receipt', id: id, status: status });
             });
         });
@@ -103,7 +108,6 @@ document.addEventListener("DOMContentLoaded", function() {
             item.addEventListener('change', event => {
                 const id = event.target.dataset.id;
                 const status = event.target.checked;
-                console.log(`Toggle shipped for preorder ${id}: ${status}`);
                 sendWebSocketMessage({ type: 'toggle_shipped', id: id, status: status });
             });
         });
@@ -112,7 +116,6 @@ document.addEventListener("DOMContentLoaded", function() {
             item.addEventListener('change', event => {
                 const id = event.target.dataset.id;
                 const status = event.target.checked;
-                console.log(`Toggle payment for preorder ${id}: ${status}`);
                 sendWebSocketMessage({ type: 'toggle_payment', id: id, status: status });
             });
         });
@@ -121,10 +124,10 @@ document.addEventListener("DOMContentLoaded", function() {
     // Привязка события копирования данных к клику на элементе
     function bindCopyEvent(container) {
         container.querySelectorAll('.ttn-badge').forEach(badge => {
+            badge.style.cursor = "pointer";  // Добавляем стиль курсора pointer
             badge.addEventListener('click', event => {
                 const ttn = event.target.textContent.trim();
                 navigator.clipboard.writeText(ttn).then(() => {
-                    console.log(`TTN copied: ${ttn}`);
                     badge.classList.add('badge-copied');
                     setTimeout(() => {
                         badge.classList.remove('badge-copied');
@@ -133,13 +136,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     const toast = document.createElement('div');
                     toast.className = 'alert alert-dismissible alert-light';
                     toast.innerHTML = `
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         <strong>Скопировано!</strong> TTN: ${ttn}
                     `;
                     const toastContainer = document.querySelector('.toast-container');
                     toastContainer.appendChild(toast);
 
-                    // Удаляем алерт через 2 секунды
                     setTimeout(() => {
                         toast.remove();
                     }, 2000);

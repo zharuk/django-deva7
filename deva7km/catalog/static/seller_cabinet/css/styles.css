@@ -26,6 +26,12 @@
     background-color: lightgray; /* Замените на нужный цвет, если требуется */
     margin-left: 5px; /* Добавляем отступ слева */
     font-size: 1.25rem; /* Увеличиваем размер шрифта */
+    cursor: pointer;
+}
+
+.ttn-badge.badge-copied {
+    background-color: #d4edda;
+    color: red;
 }
 
 .switch-container .bg-success {
