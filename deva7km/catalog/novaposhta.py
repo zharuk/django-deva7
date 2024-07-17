@@ -40,7 +40,7 @@ async def update_tracking_status():
     # Получаем все TTN из базы данных, которые были обновлены не менее 30 минут назад
     thirty_minutes_ago = now - timezone.timedelta(minutes=30)
     all_ttns = await sync_to_async(list)(
-        PreOrder.objects.values_list('ttn', flat=True)
+        PreOrder.objects.filter(updated_at__lt=thirty_minutes_ago).values_list('ttn', flat=True)
     )
     logger.info(f"Retrieved TTNs from database: {all_ttns}")
 

@@ -4,8 +4,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById("search-input");
     const clearSearchButton = document.getElementById("clear-search");
     const refreshStatusButton = document.getElementById("refresh-status-btn");
-    const progressBarContainer = document.querySelector('.progress');
-    const progressBar = document.querySelector('.progress-bar');
     let activeFilter = 'all';
     let isWebSocketConnected = false;
     let socket;
@@ -43,10 +41,6 @@ document.addEventListener("DOMContentLoaded", function() {
             .map(el => el.getAttribute('data-ttn'))
             .filter(ttn => ttn);
         if (isWebSocketConnected) {
-            progressBarContainer.style.display = 'block';
-            progressBar.style.width = '0%';
-            progressBar.setAttribute('aria-valuenow', 0);
-            let processedChunks = 0;
             const chunkSize = 100;
             const totalChunks = Math.ceil(ttns.length / chunkSize);
             const chunks = [];
@@ -57,12 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
             for (let i = 0; i < chunks.length; i++) {
                 sendWebSocketMessage({ ttns: chunks[i] });
                 await new Promise(resolve => setTimeout(resolve, 1000));  // Задержка 1 секунда
-                processedChunks++;
-                const progress = Math.floor((processedChunks / totalChunks) * 100);
-                progressBar.style.width = `${progress}%`;
-                progressBar.setAttribute('aria-valuenow', progress);
             }
-            progressBarContainer.style.display = 'none';
 
             const toast = document.createElement('div');
             toast.className = 'alert alert-dismissible alert-light';
