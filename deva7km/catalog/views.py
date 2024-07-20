@@ -498,19 +498,21 @@ def preorder_list(request):
 
 
 @login_required
-def preorder_create(request):
-    form = handle_preorder_form(request)
-    if isinstance(form, PreOrderForm):
-        return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
-    return form
+def preorder_create_or_edit(request, pk=None):
+    if pk:
+        preorder = get_object_or_404(PreOrder, pk=pk)
+    else:
+        preorder = None
 
+    if request.method == "POST":
+        form = PreOrderForm(request.POST, instance=preorder)
+        if form.is_valid():
+            form.save()
+            return redirect('preorder_list')
+    else:
+        form = PreOrderForm(instance=preorder)
 
-@login_required
-def preorder_form(request, pk=None):
-    form = handle_preorder_form(request, pk)
-    if isinstance(form, PreOrderForm):
-        return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
-    return form
+    return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
 
 
 @login_required

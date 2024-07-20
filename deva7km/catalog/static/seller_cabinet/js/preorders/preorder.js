@@ -9,6 +9,11 @@ document.addEventListener("DOMContentLoaded", function() {
     let isWebSocketConnected = false;
     let socket;
 
+    if (!preordersContainer || !searchInput || !clearSearchButton || !refreshStatusButton || !toastContainer) {
+        console.error("One or more elements not found in the DOM.");
+        return;
+    }
+
     // Функция обновления счетчиков вкладок
     function updateFilterCounts(counts) {
         if (counts) {
