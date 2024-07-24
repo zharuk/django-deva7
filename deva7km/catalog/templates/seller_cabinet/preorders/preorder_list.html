@@ -26,6 +26,7 @@
     <div class="row" id="preorders-container">
         {% include 'seller_cabinet/preorders/preorder_card.html' with preorders=preorders %}
     </div>
+    <input type="hidden" id="user-id" value="{{ user_id }}">
 {% endblock %}
 
 {% block scripts %}

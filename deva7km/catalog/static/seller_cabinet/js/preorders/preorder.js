@@ -5,11 +5,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const clearSearchButton = document.getElementById("clear-search");
     const refreshStatusButton = document.getElementById("refresh-status-btn");
     const toastContainer = document.querySelector('.toast-container');
+    const userId = document.getElementById("user-id").value;
     let activeFilter = 'all';
     let isWebSocketConnected = false;
     let socket;
 
-    if (!preordersContainer || !searchInput || !clearSearchButton || !refreshStatusButton || !toastContainer) {
+    if (!preordersContainer || !searchInput || !clearSearchButton || !refreshStatusButton || !toastContainer || !userId) {
         console.error("One or more elements not found in the DOM.");
         return;
     }
@@ -67,6 +68,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Функция отправки сообщения через WebSocket
     function sendWebSocketMessage(message) {
+        message.user_id = userId;  // Добавляем идентификатор пользователя в сообщение
         const wsMessage = JSON.stringify(message);
         socket.send(wsMessage);
     }

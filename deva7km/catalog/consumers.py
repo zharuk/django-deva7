@@ -2,6 +2,7 @@ import json
 import logging
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
+from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.db.models import Q
@@ -47,6 +48,7 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         id = data.get('id')
         status = data.get('status')
         ttns = data.get('ttns')
+        user_id = data.get('user_id')  # Получаем user_id из данных
 
         if filter_type:
             self.active_filter = filter_type
@@ -56,7 +58,7 @@ class PreorderConsumer(AsyncWebsocketConsumer):
             preorders = await self.search_preorders(search_text)
             await self.send_preorders(preorders)
         elif switch_type and id is not None and status is not None:
-            await self.update_switch_status(switch_type, id, status)
+            await self.update_switch_status(switch_type, id, status, user_id)  # Передаем user_id
         elif ttns:
             logging.info(f"Обновление статусов для TTNs: {ttns}")
             await update_tracking_status()
@@ -91,8 +93,9 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         )
         return preorders
 
-    async def update_switch_status(self, switch_type, id, status):
+    async def update_switch_status(self, switch_type, id, status, user_id):
         preorder = await sync_to_async(PreOrder.objects.get)(id=id)
+        user = await sync_to_async(User.objects.get)(id=user_id)
 
         if switch_type == 'toggle_receipt':
             preorder.receipt_issued = status
@@ -101,6 +104,7 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         elif switch_type == 'toggle_payment':
             preorder.payment_received = status
 
+        preorder.last_modified_by = user
         await sync_to_async(preorder.save)()
         await self.notify_preorders_update({
             'event': 'preorder_updated',

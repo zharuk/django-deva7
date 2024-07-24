@@ -494,8 +494,10 @@ def seller_cabinet_sales(request):
 @login_required
 def preorder_list(request):
     preorders = PreOrder.objects.all().order_by('-created_at')
-    return render(request, 'seller_cabinet/preorders/preorder_list.html', {'preorders': preorders})
-
+    return render(request, 'seller_cabinet/preorders/preorder_list.html', {
+        'preorders': preorders,
+        'user_id': request.user.id
+    })
 
 @login_required
 def preorder_create_or_edit(request, pk=None):
