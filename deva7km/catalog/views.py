@@ -499,6 +499,7 @@ def preorder_list(request):
         'user_id': request.user.id
     })
 
+
 @login_required
 def preorder_create_or_edit(request, pk=None):
     if pk:
@@ -509,7 +510,9 @@ def preorder_create_or_edit(request, pk=None):
     if request.method == "POST":
         form = PreOrderForm(request.POST, instance=preorder)
         if form.is_valid():
-            form.save()
+            preorder = form.save(commit=False)
+            preorder.last_modified_by = request.user
+            preorder.save()
             return redirect('preorder_list')
     else:
         form = PreOrderForm(instance=preorder)
