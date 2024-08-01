@@ -1,31 +1,33 @@
+/* Ваши текущие стили */
+
 .badge-container {
-    margin-left: 5px; /* Добавляем отступ слева у контейнера бейджей */
+    margin-left: 5px;
 }
 
 .badge-not-shipped {
     background-color: #f89406;
-    margin-left: 5px; /* Добавляем отступ слева */
+    margin-left: 5px;
 }
 
 .badge-not-receipt {
     background-color: #ee5f5b;
-    margin-left: 5px; /* Добавляем отступ слева */
+    margin-left: 5px;
 }
 
 .badge-not-paid {
     background-color: #6c757d;
-    margin-left: 5px; /* Добавляем отступ слева */
+    margin-left: 5px;
 }
 
 .badge-ready {
     background-color: green;
-    margin-left: 5px; /* Добавляем отступ слева */
+    margin-left: 5px;
 }
 
 .ttn-badge {
-    background-color: lightgray; /* Замените на нужный цвет, если требуется */
-    margin-left: 5px; /* Добавляем отступ слева */
-    font-size: 1.25rem; /* Увеличиваем размер шрифта */
+    background-color: lightgray;
+    margin-left: 5px;
+    font-size: 1.25rem;
     cursor: pointer;
 }
 
@@ -51,20 +53,58 @@
 }
 
 .list-group-item {
-    border: none; /* Убираем границу между элементами списка */
-    margin-bottom: 10px; /* Добавляем отступ снизу между элементами списка */
+    border: none;
+    margin-bottom: 10px;
 }
 
 .filter-button {
-    margin-bottom: 5px; /* Добавляем отступ снизу между кнопками фильтров */
+    margin-bottom: 5px;
 }
 
 .toast-container {
     position: fixed;
-    top: 50%;
+    top: 20%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 1055; /* Устанавливаем высокий z-index для отображения поверх других элементов */
-    width: auto; /* Устанавливаем ширину авто для уменьшения ширины */
-    max-width: 500px; /* Устанавливаем максимальную ширину */
+    z-index: 1055;
+    width: auto;
+    max-width: 500px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    text-align: center;
+    display: none;
+}
+
+.toast-container.bg-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.toast-container.bg-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.toast-container.bg-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Новые стили для уменьшения текста на мобильных устройствах */
+@media (max-width: 767.98px) {
+    .table th, .table td {
+        font-size: 0.875rem; /* Уменьшение размера шрифта */
+    }
+    .selected-item-sku, .selected-item-quantity, .selected-item-price, .selected-item-remove-button {
+        font-size: 0.75rem; /* Еще большее уменьшение для специфических элементов */
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem; /* Уменьшение размеров кнопок */
+    }
+    #total-amount {
+        font-size: 1rem; /* Уменьшение размера шрифта для общей суммы */
+    }
 }

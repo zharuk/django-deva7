@@ -110,16 +110,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
                 updateFilterCounts(data.counts);
             } else if (data.event === 'update_complete') {
-                const toast = document.createElement('div');
-                toast.className = 'alert alert-dismissible alert-light';
-                toast.innerHTML = `
-                    <strong>Обновление завершено!</strong> ${data.message}
-                `;
-                toastContainer.appendChild(toast);
-
-                setTimeout(() => {
-                    toast.remove();
-                }, 3000);
+                showNotification('success', 'Обновление завершено', data.message);
             }
         }
     };
@@ -168,18 +159,20 @@ document.addEventListener("DOMContentLoaded", function() {
                         badge.classList.remove('badge-copied');
                     }, 2000);
 
-                    const toast = document.createElement('div');
-                    toast.className = 'alert alert-dismissible alert-light';
-                    toast.innerHTML = `
-                        <strong>Скопировано!</strong> TTN: ${ttn}
-                    `;
-                    toastContainer.appendChild(toast);
-
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 2000);
+                    showNotification('success', 'Скопировано!', `TTN: ${ttn}`);
                 });
             });
         });
+    }
+
+    function showNotification(type, title, message) {
+        const toastContainer = document.getElementById('notificationToast');
+        toastContainer.className = 'toast-container bg-' + type;
+        document.getElementById('notificationMessage').textContent = message;
+        toastContainer.style.display = 'block';
+
+        setTimeout(() => {
+            toastContainer.style.display = 'none';
+        }, 2000);
     }
 });

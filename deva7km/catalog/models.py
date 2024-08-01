@@ -377,6 +377,13 @@ class SaleItem(models.Model):
 
     thumbnail_image_modification.short_description = 'Миниатюра изображения'
 
+    # Метод для получения URL миниатюры изображения модификации товара
+    def thumbnail_image_url(self):
+        images = Image.objects.filter(modification=self.product_modification)
+        if images:
+            return images[0].thumbnail.url
+        return ''
+
     # подсчет суммы единиц модификаций
     def total_price(self):
         product = self.product_modification.product

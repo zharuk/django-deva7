@@ -492,6 +492,41 @@ def seller_cabinet_sales(request):
 
 
 @login_required
+def sales_list(request):
+    today = timezone.now().date()
+    # Добавьте сортировку по 'created_at' в обратном порядке
+    sales = Sale.objects.filter(created_at__date=today).order_by('-created_at')
+    sales_data = []
+    for sale in sales:
+        items_data = []
+        for item in sale.items.all():
+            items_data.append({
+                'custom_sku': item.product_modification.custom_sku,
+                'quantity': item.quantity,
+                'total_price': item.total_price(),
+                'thumbnail': item.thumbnail_image_url()  # Использование метода для получения URL изображения
+            })
+        sales_data.append({
+            'id': sale.id,
+            'created_at': sale.created_at.isoformat(),
+            'user': sale.user.username if sale.user else 'Неизвестно',  # Обработка имени пользователя
+            'items': items_data,
+            'total_amount': sale.calculate_total_amount()
+        })
+    return JsonResponse({'sales': sales_data})
+
+
+@login_required
+def search_products(request):
+    if request.method == 'GET':
+        query = request.GET.get('query', '')
+        results = ProductModification.objects.filter(custom_sku__icontains=query)
+        products = [{'name': f"{r.product.title}-{r.custom_sku}", 'stock': r.stock, 'price': r.product.price,
+                     'sku': r.custom_sku, 'thumbnail': r.thumbnail_image_modification_url()} for r in results]
+        return JsonResponse({'results': products}, safe=False)
+
+
+@login_required
 def preorder_list(request):
     preorders = PreOrder.objects.all().order_by('-created_at')
     return render(request, 'seller_cabinet/preorders/preorder_list.html', {

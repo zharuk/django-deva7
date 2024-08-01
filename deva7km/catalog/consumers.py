@@ -1,12 +1,13 @@
 import json
 import logging
 from asgiref.sync import sync_to_async
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.db.models import Q
-from .models import PreOrder
+from .models import PreOrder, ProductModification, Sale, SaleItem, TelegramUser
 from .novaposhta import update_tracking_status
 
 
@@ -26,7 +27,8 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         counts = await self.get_preorder_counts()
 
         if matches_filter:
-            preorder_html = await sync_to_async(render_to_string)('seller_cabinet/preorders/preorder_card.html', {'preorders': [preorder]})
+            preorder_html = await sync_to_async(render_to_string)('seller_cabinet/preorders/preorder_card.html',
+                                                                  {'preorders': [preorder]})
             await self.send(text_data=json.dumps({
                 'event': event['event'],
                 'html': preorder_html,
@@ -173,3 +175,117 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         if self.active_filter == 'not-paid' and preorder['payment_received']:
             return False
         return True
+
+
+class SalesConsumer(WebsocketConsumer):
+    def connect(self):
+        self.accept()
+
+    def disconnect(self, close_code):
+        pass
+
+    def receive(self, text_data):
+        data = json.loads(text_data)
+        print("Полученные данные: ", data)  # Отладочная информация
+        data_type = data.get('type')
+        if data_type == 'search':
+            self.search_items(data.get('query', ''))
+        elif data_type == 'add_item':
+            self.add_item_to_sale(data.get('custom_sku', ''), data.get('quantity', 1))
+        elif data_type == 'create_sale':
+            self.create_sale(data.get('user_id'), data.get('telegram_user_id'), data.get('source'), data.get('payment_method'), data.get('comment', ''), data.get('items'))
+        elif data_type == 'update_total':
+            self.update_total(data.get('total', 0))
+        elif data_type == 'item_added':
+            self.item_added(data.get('custom_sku', ''))
+
+    def search_items(self, query):
+        results = ProductModification.objects.filter(custom_sku__icontains=query)
+        products = [{'name': f"{r.product.title}-{r.custom_sku}", 'stock': r.stock, 'price': r.product.price, 'custom_sku': r.custom_sku} for r in results]
+        self.send(text_data=json.dumps({
+            'type': 'search_results',
+            'results': products
+        }))
+
+    def add_item_to_sale(self, custom_sku, quantity):
+        try:
+            product_modification = ProductModification.objects.get(custom_sku=custom_sku)
+            if product_modification.stock < quantity:
+                self.send(text_data=json.dumps({
+                    'type': 'item_not_available',
+                    'custom_sku': custom_sku
+                }))
+            else:
+                sale_item = SaleItem.objects.create(
+                    sale=self.get_current_sale(),
+                    product_modification=product_modification,
+                    quantity=quantity
+                )
+                product_modification.stock -= quantity
+                product_modification.save()
+                self.send(text_data=json.dumps({
+                    'type': 'item_added',
+                    'custom_sku': custom_sku,
+                    'quantity': quantity,
+                    'price': sale_item.total_price()
+                }))
+        except ObjectDoesNotExist:
+            self.send(text_data=json.dumps({
+                'type': 'item_not_available',
+                'custom_sku': custom_sku
+            }))
+
+    def create_sale(self, user_id, telegram_user_id, source, payment_method, comment, items):
+        sale = Sale.objects.create(
+            user_id=user_id,
+            telegram_user_id=telegram_user_id,
+            source=source,
+            payment_method=payment_method,
+            comment=comment
+        )
+
+        for item in items:
+            product_modification = ProductModification.objects.get(custom_sku=item['custom_sku'])
+            SaleItem.objects.create(
+                sale=sale,
+                product_modification=product_modification,
+                quantity=item['quantity']
+            )
+
+        sale.total_amount = sum(item['quantity'] * item['price'] for item in items)
+        sale.save()
+
+        # Отправка подтверждения продажи
+        self.send(text_data=json.dumps({
+            'type': 'sell_confirmation',
+            'status': 'success',
+            'sale_id': sale.id
+        }))
+
+    def get_current_sale(self):
+        return Sale.objects.get_or_create(status='pending')[0]
+
+    def update_total(self, total):
+        self.send(text_data=json.dumps({
+            'type': 'update_total',
+            'total': total
+        }))
+
+    def item_added(self, custom_sku):
+        try:
+            product_modification = ProductModification.objects.get(custom_sku=custom_sku)
+            if product_modification.stock < 1:
+                self.send(text_data=json.dumps({
+                    'type': 'item_not_available',
+                    'custom_sku': custom_sku
+                }))
+            else:
+                self.send(text_data=json.dumps({
+                    'type': 'item_added',
+                    'custom_sku': custom_sku
+                }))
+        except ObjectDoesNotExist:
+            self.send(text_data=json.dumps({
+                'type': 'sell_error',
+                'message': f'ProductModification with custom_sku {custom_sku} does not exist.'
+            }))

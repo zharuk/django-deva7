@@ -1,2 +1,91 @@
 {% extends 'seller_cabinet/base.html' %}
-ПРОДАЖИ
+
+{% load static %}
+
+{% block title %}Продажи{% endblock %}
+
+{% block content %}
+<div class="toast-container" id="notificationToast">
+    <div id="notificationMessage"></div>
+</div>
+<div class="row">
+    <div class="input-group mb-3">
+        <input type="text" id="search-input" class="form-control" placeholder="Поиск товаров" aria-label="Поиск товаров" aria-describedby="button-addon2">
+        <button class="btn btn-outline-secondary" type="button" id="clear-search"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="dropdown">
+        <div id="search-results" class="dropdown-menu w-100" aria-labelledby="search-input"></div>
+    </div>
+    <div class="col-md-12">
+        <h3>Выбранные товары</h3>
+        <table class="table table-sm table-responsive">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Имя</th>
+                    <th>Кол-во</th>
+                    <th>Сумма</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="selected-items"></tbody>
+        </table>
+        <div class="text-end">
+            <h4>Итого: <span id="total-amount">0</span> грн</h4>
+            <button class="btn btn-primary btn-sm" id="sell-button">Продать</button>
+            <button class="btn btn-danger btn-sm" id="clear-cart-button">Очистить</button>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <h3>Список продаж за сегодня</h3>
+        <div id="sales-list"></div>
+    </div>
+</div>
+
+<!-- Шаблон для строки результата поиска -->
+<template id="search-result-template">
+    <div class="dropdown-item d-flex justify-content-between align-items-center">
+        <img class="search-item-thumbnail" width="30" alt="Миниатюра">
+        <span class="badge bg-dark search-item-sku"></span>
+        <span class="badge search-item-stock"></span>
+        <span class="search-item-price"></span>
+        <button class="btn btn-primary btn-sm search-item-add-button">+</button>
+    </div>
+</template>
+
+<!-- Шаблон для строки выбранного товара -->
+<template id="selected-item-template">
+    <tr>
+        <td><img class="selected-item-thumbnail" width="30" alt="Миниатюра"></td>
+        <td class="selected-item-sku"></td>
+        <td class="selected-item-quantity">1</td>
+        <td class="selected-item-price"></td>
+        <td><button class="btn btn-danger btn-sm selected-item-remove-button">-</button></td>
+    </tr>
+</template>
+
+<!-- Шаблон для строки продажи -->
+<template id="sale-item-template">
+    <div class="sale-item">
+        <h5>Продажа №<span class="sale-id"></span> в <span class="sale-time"></span> <span class="sale-user"></span></h5>
+        <div class="sale-products"></div>
+        <h6>Итого: <span class="sale-total-amount"></span> грн</h6>
+        <hr>
+    </div>
+</template>
+
+<!-- Шаблон для строки товара в продаже -->
+<template id="sale-product-template">
+    <div class="sale-product d-flex align-items-center">
+        <img class="sale-product-thumbnail" width="30" alt="Миниатюра">
+        <span class="sale-product-sku"></span>
+        <span class="sale-product-quantity"></span>
+        <span class="sale-product-price"></span>
+    </div>
+</template>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'seller_cabinet/js/sales/sales.js' %}"></script>
+{% endblock %}
