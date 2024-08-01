@@ -31,7 +31,7 @@ class ReturnItemInline(admin.TabularInline):
 class ReturnAdmin(admin.ModelAdmin):
     inlines = [ReturnItemInline]
     list_display = (
-        'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'source')
+        'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'comment', 'source')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
     list_per_page = 25
 

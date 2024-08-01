@@ -409,7 +409,7 @@ class Return(models.Model):
     SOURCE_CHOICES = (
         ('site', 'Сайт'),
         ('telegram', 'telegram'))
-    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник продажи')
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник возврата')
 
     def calculate_total_amount(self):
         total_amount = 0

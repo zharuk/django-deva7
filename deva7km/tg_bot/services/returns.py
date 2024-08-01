@@ -7,6 +7,7 @@ from tg_bot.services.sells import get_product_modification
 async def create_return(user_data, telegram_user):
     modification_sku = user_data.get('choosingModification', '')
     quantity = int(user_data.get('enteringQuantity', ''))
+    comment = user_data.get('enteringComment', '')
 
     product_modification = await get_product_modification(modification_sku)
 
@@ -15,6 +16,7 @@ async def create_return(user_data, telegram_user):
         return_instance = Return(
             telegram_user=telegram_user,
             source='telegram',
+            comment=comment  # добавление комментария
         )
 
         # Создание объекта ReturnItem
@@ -32,4 +34,5 @@ async def create_return(user_data, telegram_user):
         return return_instance
     else:
         return None
+
 

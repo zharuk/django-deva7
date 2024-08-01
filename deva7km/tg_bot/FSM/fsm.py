@@ -14,6 +14,8 @@ class ReturnStates(StatesGroup):
     choosingSKU = State()
     choosingModification = State()
     enteringQuantity = State()
+    askingForComment = State()  # Добавляем новое состояние
+    enteringComment = State()
     finish = State()
 
 
