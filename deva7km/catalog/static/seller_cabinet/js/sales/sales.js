@@ -15,31 +15,41 @@ document.addEventListener('DOMContentLoaded', function() {
     let socket;
 
     function connectWebSocket() {
-        socket = new WebSocket('ws://' + window.location.host + '/ws/sales/');
+        socket = new WebSocket('wss://' + window.location.host + '/ws/sales/');
 
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log("Получены данные от сервера:", data);
-            if (data.type === 'search_results') {
-                displaySearchResults(data.results);
-            } else if (data.type === 'update_total') {
-                updateTotalAmount(data.total);
-            } else if (data.type === 'sell_confirmation') {
-                showNotification('success', 'Продажа завершена', 'Продажа успешно завершена!');
-                handleSellConfirmation(data.status);
-                loadSalesList(); // Обновляем список продаж после завершения продажи
-            } else if (data.type === 'sell_error') {
-                showNotification('danger', 'Ошибка', data.message);
-            } else if (data.type === 'item_added') {
-                showNotification('success', 'Товар добавлен', `${data.custom_sku} добавлен в корзину`);
-            } else if (data.type === 'item_not_available') {
-                showNotification('danger', 'Ошибка', `Товар ${data.custom_sku} отсутствует на складе`);
-            } else if (data.type === 'sales_list') {
-                displaySalesList(data.sales);
+            switch (data.type) {
+                case 'search_results':
+                    displaySearchResults(data.results);
+                    break;
+                case 'update_total':
+                    updateTotalAmount(data.total);
+                    break;
+                case 'sell_confirmation':
+                    showNotification('success', 'Продажа завершена', 'Продажа успешно завершена!');
+                    handleSellConfirmation(data.status);
+                    loadSalesList(); // Обновляем список продаж после завершения продажи
+                    break;
+                case 'sell_error':
+                    showNotification('danger', 'Ошибка', data.message);
+                    break;
+                case 'item_added':
+                    showNotification('success', 'Товар добавлен', `${data.custom_sku} добавлен в корзину`);
+                    break;
+                case 'item_not_available':
+                    showNotification('danger', 'Ошибка', `Товар ${data.custom_sku} отсутствует на складе`);
+                    break;
+                case 'sales_list':
+                    displaySalesList(data.sales);
+                    break;
+                default:
+                    console.warn('Неизвестный тип данных:', data.type);
             }
         };
 
-        socket.onclose = function(e) {
+        socket.onclose = function() {
             console.error('WebSocket закрыт неожиданно, повторное подключение...');
             setTimeout(connectWebSocket, 1000);
         };
@@ -234,26 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 console.log("Список продаж загружен:", data);
-                salesList.innerHTML = '';
-                data.sales.forEach(sale => {
-                    const saleElement = document.importNode(saleItemTemplate, true);
-                    saleElement.querySelector('.sale-id').textContent = sale.id;
-                    saleElement.querySelector('.sale-time').textContent = new Date(sale.created_at).toLocaleTimeString();
-                    saleElement.querySelector('.sale-user').textContent = sale.user || 'Неизвестно';
-                    const saleProductsContainer = saleElement.querySelector('.sale-products');
-
-                    sale.items.forEach(item => {
-                        const productElement = document.importNode(saleProductTemplate, true);
-                        productElement.querySelector('.sale-product-thumbnail').src = item.thumbnail || '';
-                        productElement.querySelector('.sale-product-sku').textContent = item.custom_sku;
-                        productElement.querySelector('.sale-product-quantity').textContent = `${item.quantity} шт.`;
-                        productElement.querySelector('.sale-product-price').textContent = `${item.total_price} грн`;
-                        saleProductsContainer.appendChild(productElement);
-                    });
-
-                    saleElement.querySelector('.sale-total-amount').textContent = `${sale.total_amount} грн`;
-                    salesList.appendChild(saleElement);
-                });
+                displaySalesList(data.sales);
             })
             .catch(error => console.error('Error loading sales list:', error));
     }
