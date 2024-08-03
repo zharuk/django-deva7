@@ -9,6 +9,28 @@
     <div id="notificationMessage"></div>
 </div>
 <div class="row">
+    <div class="col-md-12">
+        <h3>Выбранные товары</h3>
+        <div class="cart-container mb-3">
+            <table class="table table-sm table-responsive">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Имя</th>
+                        <th>Кол-во</th>
+                        <th>Сумма</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="selected-items"></tbody>
+            </table>
+            <div class="text-end">
+                <h4>Итого: <span id="total-amount">0</span> грн</h4>
+                <button class="btn btn-primary btn-sm" id="sell-button">Продать</button>
+                <button class="btn btn-danger btn-sm" id="clear-cart-button">Очистить</button>
+            </div>
+        </div>
+    </div>
     <div class="input-group mb-3">
         <input type="text" id="search-input" class="form-control" placeholder="Поиск товаров" aria-label="Поиск товаров" aria-describedby="button-addon2">
         <button class="btn btn-outline-secondary" type="button" id="clear-search"><i class="fas fa-times"></i></button>
@@ -17,39 +39,30 @@
         <div id="search-results" class="dropdown-menu w-100" aria-labelledby="search-input"></div>
     </div>
     <div class="col-md-12">
-        <h3>Выбранные товары</h3>
-        <table class="table table-sm table-responsive">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Имя</th>
-                    <th>Кол-во</th>
-                    <th>Сумма</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="selected-items"></tbody>
-        </table>
-        <div class="text-end">
-            <h4>Итого: <span id="total-amount">0</span> грн</h4>
-            <button class="btn btn-primary btn-sm" id="sell-button">Продать</button>
-            <button class="btn btn-danger btn-sm" id="clear-cart-button">Очистить</button>
-        </div>
-    </div>
-    <div class="col-md-12">
         <h3>Список продаж за сегодня</h3>
         <div id="sales-list"></div>
+        <div class="text-end mt-3">
+            <strong>Продано: <span id="daily-total-items">0</span> на сумму <span id="daily-total-amount">0</span> грн</strong>
+        </div>
     </div>
 </div>
 
 <!-- Шаблон для строки результата поиска -->
 <template id="search-result-template">
-    <div class="dropdown-item d-flex justify-content-between align-items-center">
-        <img class="search-item-thumbnail" width="30" alt="Миниатюра">
-        <span class="badge bg-dark search-item-sku"></span>
-        <span class="badge search-item-stock"></span>
-        <span class="search-item-price"></span>
-        <button class="btn btn-primary btn-sm search-item-add-button">+</button>
+    <div class="dropdown-item search-result-row">
+        <div class="d-flex align-items-center flex-grow-1">
+            <img class="search-item-thumbnail me-2" width="30" alt="Миниатюра">
+            <div class="item-info">
+                <span class="badge bg-light search-item-sku me-2"></span>
+                <span class="item-details"></span>
+            </div>
+        </div>
+        <div class="d-flex align-items-center search-result-buttons">
+            <button type="button" class="btn btn-warning btn-sm decrement-button">-</button>
+            <span class="quantity-display">1</span>
+            <button type="button" class="btn btn-success btn-sm increment-button">+</button>
+            <button class="btn btn-secondary btn-sm search-item-add-button">Добавить</button>
+        </div>
     </div>
 </template>
 
@@ -58,7 +71,13 @@
     <tr>
         <td><img class="selected-item-thumbnail" width="30" alt="Миниатюра"></td>
         <td class="selected-item-sku"></td>
-        <td class="selected-item-quantity">1</td>
+        <td>
+            <div class="input-group input-group-sm quantity-group">
+                <button type="button" class="btn btn-warning btn-sm decrement-button">-</button>
+                <span class="quantity-display">1</span>
+                <button type="button" class="btn btn-success btn-sm increment-button">+</button>
+            </div>
+        </td>
         <td class="selected-item-price"></td>
         <td><button class="btn btn-danger btn-sm selected-item-remove-button">-</button></td>
     </tr>
@@ -68,21 +87,58 @@
 <template id="sale-item-template">
     <div class="sale-item">
         <h5>Продажа №<span class="sale-id"></span> в <span class="sale-time"></span> <span class="sale-user"></span></h5>
-        <div class="sale-products"></div>
-        <h6>Итого: <span class="sale-total-amount"></span> грн</h6>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Товары</th>
+                    <th>Кол-во</th>
+                    <th>Цена</th>
+                </tr>
+            </thead>
+            <tbody class="sale-products"></tbody>
+        </table>
+        <div class="text-end"><strong>Итого: <span class="sale-total-amount"></span> грн</strong></div>
         <hr>
     </div>
 </template>
 
 <!-- Шаблон для строки товара в продаже -->
 <template id="sale-product-template">
-    <div class="sale-product d-flex align-items-center">
-        <img class="sale-product-thumbnail" width="30" alt="Миниатюра">
-        <span class="sale-product-sku"></span>
-        <span class="sale-product-quantity"></span>
-        <span class="sale-product-price"></span>
+    <tr class="sale-product">
+        <td><img class="sale-product-thumbnail" width="30" alt="Миниатюра"> <span class="sale-product-sku"></span></td>
+        <td class="sale-product-quantity"></td>
+        <td class="sale-product-price"></td>
+    </tr>
+</template>
+
+<!-- Шаблон для уведомления -->
+<template id="notification-template">
+    <div class="toast align-items-center text-bg-[[type]] border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <strong>[[title]]</strong>: [[message]]
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
     </div>
 </template>
+
+<!-- Шаблон для модального окна о разрыве соединения -->
+<div class="modal fade" id="connectionLostModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Соединение потеряно</h5>
+      </div>
+      <div class="modal-body">
+        Соединение с сервером было потеряно. Пожалуйста, обновите страницу, чтобы восстановить соединение.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="location.reload()">Обновить страницу</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 

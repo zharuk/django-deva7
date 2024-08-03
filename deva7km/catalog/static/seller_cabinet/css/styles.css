@@ -1,5 +1,3 @@
-/* Ваши текущие стили */
-
 .badge-container {
     margin-left: 5px;
 }
@@ -61,38 +59,6 @@
     margin-bottom: 5px;
 }
 
-.toast-container {
-    position: fixed;
-    top: 20%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1055;
-    width: auto;
-    max-width: 500px;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 0.25rem;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-    padding: 1rem;
-    text-align: center;
-    display: none;
-}
-
-.toast-container.bg-success {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-.toast-container.bg-warning {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.toast-container.bg-danger {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
 /* Новые стили для уменьшения текста на мобильных устройствах */
 @media (max-width: 767.98px) {
     .table th, .table td {
@@ -107,4 +73,101 @@
     #total-amount {
         font-size: 1rem; /* Уменьшение размера шрифта для общей суммы */
     }
+    .dropdown-menu {
+        width: 100% !important; /* Установка ширины выпадающего меню */
+        left: 0 !important; /* Привязка к левой стороне экрана */
+    }
+}
+
+.input-group-sm {
+    display: flex;
+    align-items: center;
+}
+
+.input-group-sm .decrement-button, .input-group-sm .increment-button {
+    margin: 0 2px;
+    padding: 0.15rem 0.3rem; /* Уменьшение размеров кнопок */
+    font-size: 0.75rem; /* Уменьшение размера шрифта кнопок */
+}
+
+.quantity-display {
+    display: inline-block;
+    width: 1.5rem; /* Уменьшение ширины поля */
+    text-align: center;
+    font-size: 0.75rem; /* Уменьшение размера шрифта */
+}
+
+.input-group-sm .search-item-add-button, .input-group-sm .selected-item-remove-button {
+    margin-top: 5px;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Дополнительные стили для компактности */
+.dropdown-item {
+    padding: 0.5rem;
+}
+
+.dropdown-item .d-flex .me-2 {
+    margin-right: 0.25rem; /* Уменьшение отступов между элементами */
+}
+
+.dropdown-item .btn-sm {
+    font-size: 0.75rem;
+}
+
+.quantity-group {
+    display: flex;
+    align-items: center;
+}
+
+.search-result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%; /* Установка ширины на 100% */
+}
+
+.search-result-row .quantity-group {
+    margin-left: auto;
+}
+
+.text-muted {
+    font-size: 0.75rem; /* Уменьшение размера шрифта */
+}
+
+.search-result-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Ориентация вправо */
+}
+
+.search-result-buttons .quantity-display {
+    margin: 0 0.25rem;
+}
+
+.item-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.item-info span {
+    font-size: 0.875rem;
+}
+
+/* Стили для корзины */
+.cart-container {
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.cart-container h3 {
+    margin-top: 0;
+}
+
+.toast-container {
+    position: fixed;
+    top: 20; /* Расположение сверху */
+    right: 20; /* Расположение справа */
+    z-index: 1050; /* Поверх остальных элементов */
 }
