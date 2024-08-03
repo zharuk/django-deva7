@@ -6,30 +6,48 @@
 <div class="toast-container" id="notificationToast">
     <div id="notificationMessage"></div>
 </div>
-    <div class="toast-container"></div>
-    <h1 class="mb-4">Предзаказы</h1>
-    <div class="d-flex mb-4">
-        <a href="{% url 'preorder_create' %}" class="btn btn-primary mt-4 mb-4 me-2">Создать новый предзаказ</a>
-        <button id="refresh-status-btn" class="btn btn-secondary mt-4 mb-4">Обновить статусы</button>
+<div class="toast-container"></div>
+<h1 class="mb-4">Предзаказы</h1>
+<div class="d-flex mb-4">
+    <a href="{% url 'preorder_create' %}" class="btn btn-primary mt-4 mb-4 me-2">Создать новый предзаказ</a>
+    <button id="refresh-status-btn" class="btn btn-secondary mt-4 mb-4">Обновить статусы</button>
+</div>
+<div class="mb-4 filter-buttons">
+    <button class="btn btn-outline-primary btn-sm filter-button active" data-filter="all">Все <span class="count">(0)</span></button>
+    <button class="btn btn-outline-warning btn-sm filter-button" data-filter="not-shipped">Не отправленные <span class="count">(0)</span></button>
+    <button class="btn btn-outline-danger btn-sm filter-button" data-filter="not-receipted">Не пробитые <span class="count">(0)</span></button>
+    <button class="btn btn-outline-secondary btn-sm filter-button" data-filter="not-paid">Не оплачен <span class="count">(0)</span></button>
+</div>
+<div class="mb-4">
+    <div class="input-group">
+        <input type="text" id="search-input" class="form-control" placeholder="Поиск">
+        <button class="btn btn-outline-secondary" type="button" id="clear-search">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
-    <div class="mb-4 filter-buttons">
-        <button class="btn btn-outline-primary btn-sm filter-button active" data-filter="all">Все <span class="count">(0)</span></button>
-        <button class="btn btn-outline-warning btn-sm filter-button" data-filter="not-shipped">Не отправленные <span class="count">(0)</span></button>
-        <button class="btn btn-outline-danger btn-sm filter-button" data-filter="not-receipted">Не пробитые <span class="count">(0)</span></button>
-        <button class="btn btn-outline-secondary btn-sm filter-button" data-filter="not-paid">Не оплачен <span class="count">(0)</span></button>
+</div>
+<div class="row" id="preorders-container">
+    {% include 'seller_cabinet/preorders/preorder_card.html' with preorders=preorders %}
+</div>
+<input type="hidden" id="user-id" value="{{ user_id }}">
+
+<!-- Шаблон для модального окна о разрыве соединения -->
+<div class="modal fade" id="connectionLostModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Соединение потеряно</h5>
+      </div>
+      <div class="modal-body">
+        Соединение с сервером было потеряно. Пожалуйста, обновите страницу, чтобы восстановить соединение.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="location.reload()">Обновить страницу</button>
+      </div>
     </div>
-    <div class="mb-4">
-        <div class="input-group">
-            <input type="text" id="search-input" class="form-control" placeholder="Поиск">
-            <button class="btn btn-outline-secondary" type="button" id="clear-search">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    </div>
-    <div class="row" id="preorders-container">
-        {% include 'seller_cabinet/preorders/preorder_card.html' with preorders=preorders %}
-    </div>
-    <input type="hidden" id="user-id" value="{{ user_id }}">
+  </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}

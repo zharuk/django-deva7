@@ -4,18 +4,16 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById("search-input");
     const clearSearchButton = document.getElementById("clear-search");
     const refreshStatusButton = document.getElementById("refresh-status-btn");
-    const toastContainer = document.querySelector('.toast-container');
     const userId = document.getElementById("user-id").value;
     let activeFilter = 'all';
     let isWebSocketConnected = false;
     let socket;
 
-    if (!preordersContainer || !searchInput || !clearSearchButton || !refreshStatusButton || !toastContainer || !userId) {
+    if (!preordersContainer || !searchInput || !clearSearchButton || !refreshStatusButton || !userId) {
         console.error("One or more elements not found in the DOM.");
         return;
     }
 
-    // Функция обновления счетчиков вкладок
     function updateFilterCounts(counts) {
         if (counts) {
             document.querySelector('[data-filter="all"] .count').textContent = `(${counts.all})`;
@@ -25,7 +23,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Обработка кликов по кнопкам фильтров
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             activeFilter = this.getAttribute('data-filter');
@@ -37,14 +34,12 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Обработка ввода текста в поле поиска
     searchInput.addEventListener('input', function() {
         if (isWebSocketConnected) {
             sendWebSocketMessage({ search_text: this.value });
         }
     });
 
-    // Обработка нажатия кнопки очистки поля поиска
     clearSearchButton.addEventListener('click', function() {
         searchInput.value = '';
         if (isWebSocketConnected) {
@@ -52,38 +47,32 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Обработка нажатия кнопки обновления статусов
     refreshStatusButton.addEventListener('click', function() {
         if (isWebSocketConnected) {
             sendWebSocketMessage({ ttns: getTtns() });
         }
     });
 
-    // Получение списка TTN из элементов на странице
     function getTtns() {
         return Array.from(document.querySelectorAll('[data-ttn]'))
             .map(el => el.getAttribute('data-ttn'))
             .filter(ttn => ttn);
     }
 
-    // Функция отправки сообщения через WebSocket
     function sendWebSocketMessage(message) {
-        message.user_id = userId;  // Добавляем идентификатор пользователя в сообщение
+        message.user_id = userId;
         const wsMessage = JSON.stringify(message);
         socket.send(wsMessage);
     }
 
-    // Установка WebSocket соединения
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
     socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
 
-    // Обработка открытия соединения WebSocket
     socket.onopen = function() {
         isWebSocketConnected = true;
         sendWebSocketMessage({ filter: activeFilter });
     };
 
-    // Обработка входящих сообщений WebSocket
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
 
@@ -115,12 +104,11 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     };
 
-    // Обработка закрытия соединения WebSocket
     socket.onclose = function() {
         isWebSocketConnected = false;
+        showConnectionLostModal();
     };
 
-    // Привязка событий к переключателям
     function bindSwitchEvents(container) {
         container.querySelectorAll('.receipt-switch').forEach(item => {
             item.addEventListener('change', event => {
@@ -147,10 +135,9 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Привязка события копирования данных к клику на элементе
     function bindCopyEvent(container) {
         container.querySelectorAll('.ttn-badge').forEach(badge => {
-            badge.style.cursor = "pointer";  // Добавляем стиль курсора pointer
+            badge.style.cursor = "pointer";
             badge.addEventListener('click', event => {
                 const ttn = event.target.textContent.trim();
                 navigator.clipboard.writeText(ttn).then(() => {
@@ -167,12 +154,37 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function showNotification(type, title, message) {
         const toastContainer = document.getElementById('notificationToast');
-        toastContainer.className = 'toast-container bg-' + type;
-        document.getElementById('notificationMessage').textContent = message;
-        toastContainer.style.display = 'block';
+        const toastMessage = document.createElement('div');
+        toastMessage.className = `toast align-items-center text-bg-${type} border-0`;
+        toastMessage.setAttribute('role', 'alert');
+        toastMessage.setAttribute('aria-live', 'assertive');
+        toastMessage.setAttribute('aria-atomic', 'true');
+
+        toastMessage.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>${title}</strong>: ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+
+        toastContainer.appendChild(toastMessage);
+
+        const toast = new bootstrap.Toast(toastMessage);
+        toast.show();
 
         setTimeout(() => {
-            toastContainer.style.display = 'none';
+            toast.hide();
+            toastMessage.remove();
         }, 2000);
+    }
+
+    function showConnectionLostModal() {
+        const connectionLostModal = new bootstrap.Modal(document.getElementById('connectionLostModal'), {
+            backdrop: 'static',
+            keyboard: false
+        });
+        connectionLostModal.show();
     }
 });

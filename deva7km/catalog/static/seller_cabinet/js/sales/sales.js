@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            console.log("Получены данные от сервера:", data);
             if (data.type === 'search_results') {
                 displaySearchResults(data.results);
             } else if (data.type === 'update_total') {
@@ -38,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         socket.onclose = function(e) {
-            console.error('WebSocket закрыт неожиданно, повторное подключение...');
             showConnectionLostModal();
             setTimeout(connectWebSocket, 1000);
         };
@@ -53,8 +51,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function sendSocketMessage(message) {
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(message));
-        } else {
-            console.error('WebSocket is not open:', socket.readyState);
         }
     }
 
@@ -63,11 +59,8 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`/seller_cabinet/sales/search-products/?query=${query}`)
             .then(response => response.json())
             .then(data => {
-                console.log("Результаты поиска получены:", data);
                 if (data.results) {
                     displaySearchResults(data.results);
-                } else {
-                    console.error('No results found');
                 }
             })
             .catch(error => console.error('Error:', error));
@@ -104,7 +97,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 'comment': '',
                 'items': items
             };
-            console.log("Отправка данных о продаже на сервер: ", saleData);
             sendSocketMessage(saleData);
         }
     });
@@ -115,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const row = document.importNode(searchResultTemplate, true);
             row.querySelector('.search-item-thumbnail').src = item.thumbnail || '';
             row.querySelector('.search-item-sku').textContent = item.sku;
-            row.querySelector('.item-details').textContent = `остаток - ${item.stock} шт, цена - ${item.price} грн`;
+            row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${item.price} грн`;
             const addButton = row.querySelector('.search-item-add-button');
             const quantityDisplay = row.querySelector('.quantity-display');
             const incrementButton = row.querySelector('.increment-button');
@@ -142,35 +134,29 @@ document.addEventListener('DOMContentLoaded', function() {
         salesList.innerHTML = '';
         let totalItems = 0;
         let totalAmount = 0;
+
         sales.forEach(sale => {
-            const saleElement = document.createElement('div');
-            saleElement.innerHTML = `
-                <div><strong>Продажа №${sale.id} в ${new Date(sale.created_at).toLocaleTimeString()} ${sale.user || 'Неизвестно'}</strong></div>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Товары</th>
-                            <th>Кол-во</th>
-                            <th>Цена</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${sale.items.map(item => `
-                            <tr>
-                                <td><img src="${item.thumbnail}" width="20" alt="Миниатюра"> ${item.custom_sku}</td>
-                                <td>${item.quantity} шт.</td>
-                                <td>${item.total_price} грн</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                <div class="text-end"><strong>Итого: ${sale.total_amount} грн</strong></div>
-                <hr>
-            `;
-            salesList.appendChild(saleElement);
+            const saleTemplate = document.getElementById('sale-item-template').content.cloneNode(true);
+            saleTemplate.querySelector('.sale-id').textContent = sale.id;
+            saleTemplate.querySelector('.sale-time').textContent = new Date(sale.created_at).toLocaleTimeString();
+            saleTemplate.querySelector('.sale-user').textContent = sale.user || 'Неизвестно';
+            saleTemplate.querySelector('.sale-total-amount').textContent = sale.total_amount;
+
+            const saleProductsContainer = saleTemplate.querySelector('.sale-products');
+            sale.items.forEach(item => {
+                const productTemplate = document.getElementById('sale-product-template').content.cloneNode(true);
+                productTemplate.querySelector('.sale-product-thumbnail').src = item.thumbnail;
+                productTemplate.querySelector('.sale-product-sku').textContent = item.custom_sku;
+                productTemplate.querySelector('.sale-product-quantity').textContent = `${item.quantity} шт.`;
+                productTemplate.querySelector('.sale-product-price').textContent = `${item.total_price} грн`;
+                saleProductsContainer.appendChild(productTemplate);
+            });
+
+            salesList.appendChild(saleTemplate);
             totalItems += sale.items.reduce((sum, item) => sum + item.quantity, 0);
             totalAmount += sale.total_amount;
         });
+
         document.getElementById('daily-total-items').textContent = totalItems;
         document.getElementById('daily-total-amount').textContent = totalAmount;
     }
@@ -251,7 +237,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 price: parseFloat(row.querySelector('.selected-item-price').textContent)
             });
         });
-        console.log("Собранные товары для продажи: ", items);
         return items;
     }
 
@@ -307,7 +292,6 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('/seller_cabinet/sales/list/')
             .then(response => response.json())
             .then(data => {
-                console.log("Список продаж загружен:", data);
                 displaySalesList(data.sales);
             })
             .catch(error => console.error('Error loading sales list:', error));
