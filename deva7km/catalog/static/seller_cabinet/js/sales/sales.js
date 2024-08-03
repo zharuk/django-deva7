@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let socket;
 
     function connectWebSocket() {
-        socket = new WebSocket('ws://' + window.location.host + '/ws/sales/');
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        socket = new WebSocket(`${protocol}//${window.location.host}/ws/sales/`);
 
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
@@ -114,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const row = document.importNode(searchResultTemplate, true);
             row.querySelector('.search-item-thumbnail').src = item.thumbnail || '';
             row.querySelector('.search-item-sku').textContent = item.sku;
-            row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${item.price} грн`;
+            row.querySelector('.item-details').textContent = `остаток - ${item.stock} шт, цена - ${item.price} грн`;
             const addButton = row.querySelector('.search-item-add-button');
             const quantityDisplay = row.querySelector('.quantity-display');
             const incrementButton = row.querySelector('.increment-button');
