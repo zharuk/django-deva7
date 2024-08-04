@@ -62,7 +62,6 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         elif switch_type and id is not None and status is not None:
             await self.update_switch_status(switch_type, id, status, user_id)  # Передаем user_id
         elif ttns:
-            logging.info(f"Обновление статусов для TTNs: {ttns}")
             await update_tracking_status()
             await self.send(text_data=json.dumps({
                 'event': 'update_complete',
@@ -186,7 +185,6 @@ class SalesConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         data = json.loads(text_data)
-        print("Полученные данные: ", data)  # Отладочная информация
         data_type = data.get('type')
         if data_type == 'search':
             self.search_items(data.get('query', ''))
@@ -255,7 +253,6 @@ class SalesConsumer(WebsocketConsumer):
         sale.total_amount = sum(item['quantity'] * item['price'] for item in items)
         sale.save()
 
-        # Отправка подтверждения продажи
         self.send(text_data=json.dumps({
             'type': 'sell_confirmation',
             'status': 'success',

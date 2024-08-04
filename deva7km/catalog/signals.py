@@ -1,12 +1,5 @@
-import logging
-import time
-
-import pytz
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
 from django.db.models.signals import m2m_changed, post_save, pre_save, pre_delete, post_delete
 from django.dispatch import receiver
-from django.utils import timezone, formats
 from django.utils.text import slugify
 from transliterate import translit
 from itertools import product
@@ -33,21 +26,11 @@ def update_stock_write_off(sender, instance, **kwargs):
     product_modification.save()
 
 
-# Общий обработчик для обновления остатков товара при продаже
-@receiver([post_save, post_delete], sender=SaleItem)
-def update_or_restore_stock(sender, instance, **kwargs):
+# метод для продажи, вычитающий остаток
+@receiver(post_save, sender=SaleItem)
+def update_sale_add_to_stock(sender, instance, **kwargs):
     product_modification = instance.product_modification
-
-    if kwargs.get('created', False):
-        # Если товар добавлен в корзину, уменьшаем количество на складе
-        product_modification.stock -= instance.quantity
-    elif kwargs.get('signal') == post_delete:
-        # Если товар удален из корзины, увеличиваем количество на складе
-        product_modification.stock += instance.quantity
-    else:
-        # Если это обновление объекта, ничего не делаем
-        return
-
+    product_modification.stock -= instance.quantity
     product_modification.save()
 
 
@@ -67,14 +50,13 @@ def update_stock_inventory(sender, instance, **kwargs):
     product_modification.save()
 
 
-# #метод для возврата остатка при удалении продажи
-# @receiver(pre_delete, sender=Sale)
-# def return_stock_on_delete(sender, instance, **kwargs):
-#     print(2)
-#     for item in instance.items.all():
-#         product_modification = item.product_modification
-#         product_modification.stock += item.quantity
-#         product_modification.save()
+# метод для возврата остатка при удалении продажи
+@receiver(pre_delete, sender=Sale)
+def return_stock_on_delete(sender, instance, **kwargs):
+    for item in instance.items.all():
+        product_modification = item.product_modification
+        product_modification.stock += item.quantity
+        product_modification.save()
 
 
 #  метод для возврата остатка при удалении возврата
