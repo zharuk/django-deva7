@@ -238,8 +238,8 @@ class SalesConsumer(WebsocketConsumer):
             user_id=user_id,
             telegram_user_id=telegram_user_id,
             source=source,
-            payment_method=payment_method,
-            comment=comment
+            payment_method=payment_method,  # Получаем тип продажи
+            comment=comment  # Получаем комментарий
         )
 
         for item in items:

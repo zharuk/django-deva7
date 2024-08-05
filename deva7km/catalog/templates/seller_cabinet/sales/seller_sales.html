@@ -10,8 +10,10 @@
 </div>
 <div class="row">
     <div class="col-md-12">
+        <h1>Продажа товаров</h1>
         <h3>Выбранные товары</h3>
-        <div class="cart-container mb-3">
+        <!-- Скрываем весь блок выбранных товаров по умолчанию -->
+        <div id="cart-container" class="cart-container mb-3" style="display: none;">
             <table class="table table-sm table-responsive">
                 <thead>
                     <tr>
@@ -24,10 +26,25 @@
                 </thead>
                 <tbody id="selected-items"></tbody>
             </table>
-            <div class="text-end">
+            <!-- Контейнер для типа продажи и комментария -->
+            <div id="sale-details">
+                <div class="form-group">
+                    <label for="sale-type">Тип продажи</label>
+                    <select class="form-control" id="sale-type">
+                        <option value="cash">Наличная оплата</option>
+                        <option value="non_cash">Безналичная оплата</option>
+                    </select>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="sale-comment">Комментарий</label>
+                    <textarea class="form-control" id="sale-comment" rows="3"></textarea>
+                </div>
+            </div>
+            <!-- Изменяем порядок кнопок -->
+            <div class="text-end mt-3">
                 <h4>Итого: <span id="total-amount">0</span> грн</h4>
-                <button class="btn btn-primary btn-sm" id="sell-button">Продать</button>
                 <button class="btn btn-danger btn-sm" id="clear-cart-button">Очистить</button>
+                <button class="btn btn-primary btn-sm" id="sell-button">Продать</button>
             </div>
         </div>
     </div>
@@ -117,8 +134,8 @@
         <div class="d-flex">
             <div class="toast-body">
                 <strong>[[title]]</strong>: [[message]]
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
 </template>

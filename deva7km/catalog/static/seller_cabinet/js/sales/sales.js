@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearCartButton = document.getElementById('clear-cart-button');
     const searchResultTemplate = document.getElementById('search-result-template').content;
     const selectedItemTemplate = document.getElementById('selected-item-template').content;
+    const saleType = document.getElementById('sale-type'); // Поле типа продажи
+    const saleComment = document.getElementById('sale-comment'); // Поле комментария
+    const cartContainer = document.getElementById('cart-container'); // Контейнер корзины
 
     let socket;
 
@@ -74,6 +77,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     clearCartButton.addEventListener('click', function() {
         selectedItems.innerHTML = '';
+        cartContainer.style.display = 'none'; // Скрываем блок при очистке корзины
+        resetSaleFields(); // Сбрасываем поля
         updateTotal();
     });
 
@@ -93,8 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 'user_id': 1,
                 'telegram_user_id': null,
                 'source': 'site',
-                'payment_method': 'cash',
-                'comment': '',
+                'payment_method': saleType.value, // Получаем выбранный тип продажи
+                'comment': saleComment.value, // Получаем комментарий
                 'items': items
             };
             sendSocketMessage(saleData);
@@ -202,18 +207,28 @@ document.addEventListener('DOMContentLoaded', function() {
             removeButton.addEventListener('click', () => removeItem(removeButton));
 
             selectedItems.appendChild(row);
+            cartContainer.style.display = 'block'; // Показываем блок при добавлении первого товара
             updateTotal();
 
             sendSocketMessage({
                 'type': 'item_added',
                 'custom_sku': sku
             });
+
+            // Проверяем, есть ли текст в поле поиска и оставляем выпадающий список видимым
+            if (searchInput.value.trim() !== '') {
+                searchResults.classList.add('show');
+            }
         }
     };
 
     window.removeItem = function(button) {
         button.closest('tr').remove();
         updateTotal();
+        if (selectedItems.children.length === 0) {
+            cartContainer.style.display = 'none'; // Скрываем блок, если корзина пуста
+            resetSaleFields(); // Сбрасываем поля
+        }
     };
 
     function updateTotal() {
@@ -221,7 +236,11 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedItems.querySelectorAll('tr').forEach(row => {
             total += parseFloat(row.querySelector('.selected-item-price').textContent) * parseInt(row.querySelector('.quantity-display').textContent);
         });
-        totalAmount.textContent = total;
+        if (totalAmount) {
+            totalAmount.textContent = total;
+        } else {
+            console.error("Element with id 'total-amount' not found.");
+        }
         sendSocketMessage({
             'type': 'update_total',
             'total': total
@@ -241,7 +260,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateTotalAmount(total) {
-        totalAmount.textContent = total;
+        if (totalAmount) {
+            totalAmount.textContent = total;
+        } else {
+            console.error("Element with id 'total-amount' not found.");
+        }
     }
 
     function showNotification(type, title, message) {
@@ -283,9 +306,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleSellConfirmation(status) {
         if (status === 'success') {
             selectedItems.innerHTML = '';
+            cartContainer.style.display = 'none'; // Скрываем блок после проведения продажи
+            resetSaleFields(); // Сбрасываем поля
             updateTotal();
             loadSalesList();
         }
+    }
+
+    function resetSaleFields() {
+        saleType.value = 'cash'; // Сбрасываем тип продажи на наличный
+        saleComment.value = ''; // Очищаем комментарий
     }
 
     function loadSalesList() {
