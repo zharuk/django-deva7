@@ -58,15 +58,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     searchInput.addEventListener('input', function() {
-        const query = searchInput.value;
-        fetch(`/seller_cabinet/sales/search-products/?query=${query}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.results) {
+        const query = searchInput.value.trim();
+        if (query.length >= 3) {
+            fetch(`/seller_cabinet/sales/search-products/?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
                     displaySearchResults(data.results);
-                }
-            })
-            .catch(error => console.error('Error:', error));
+                })
+                .catch(error => console.error('Error:', error));
+        } else {
+            searchResults.innerHTML = '';
+            searchResults.classList.remove('show');
+        }
     });
 
     clearSearchButton.addEventListener('click', function() {
@@ -108,29 +111,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function displaySearchResults(results) {
         searchResults.innerHTML = '';
-        results.forEach(item => {
-            const row = document.importNode(searchResultTemplate, true);
-            row.querySelector('.search-item-thumbnail').src = item.thumbnail || '';
-            row.querySelector('.search-item-sku').textContent = item.sku;
-            row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${item.price} грн`;
-            const addButton = row.querySelector('.search-item-add-button');
-            const quantityDisplay = row.querySelector('.quantity-display');
-            const incrementButton = row.querySelector('.increment-button');
-            const decrementButton = row.querySelector('.decrement-button');
+        if (results.length > 0) {
+            results.forEach(item => {
+                const row = document.importNode(searchResultTemplate, true);
+                row.querySelector('.search-item-thumbnail').src = item.thumbnail || '';
+                row.querySelector('.search-item-sku').textContent = item.sku;
+                row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${item.price} грн`;
+                const addButton = row.querySelector('.search-item-add-button');
+                const quantityDisplay = row.querySelector('.quantity-display');
+                const incrementButton = row.querySelector('.increment-button');
+                const decrementButton = row.querySelector('.decrement-button');
 
-            incrementButton.addEventListener('click', () => {
-                quantityDisplay.textContent = parseInt(quantityDisplay.textContent) + 1;
+                incrementButton.addEventListener('click', () => {
+                    quantityDisplay.textContent = parseInt(quantityDisplay.textContent) + 1;
+                });
+
+                decrementButton.addEventListener('click', () => {
+                    if (parseInt(quantityDisplay.textContent) > 1) {
+                        quantityDisplay.textContent = parseInt(quantityDisplay.textContent) - 1;
+                    }
+                });
+
+                addButton.addEventListener('click', () => checkAvailabilityAndAddItem(item.sku, item.price, item.stock, item.thumbnail, parseInt(quantityDisplay.textContent)));
+                searchResults.appendChild(row);
             });
-
-            decrementButton.addEventListener('click', () => {
-                if (parseInt(quantityDisplay.textContent) > 1) {
-                    quantityDisplay.textContent = parseInt(quantityDisplay.textContent) - 1;
-                }
-            });
-
-            addButton.addEventListener('click', () => checkAvailabilityAndAddItem(item.sku, item.price, item.stock, item.thumbnail, parseInt(quantityDisplay.textContent)));
-            searchResults.appendChild(row);
-        });
+        } else {
+            const noResultsMessage = document.createElement('div');
+            noResultsMessage.textContent = 'Нет соответствия';
+            noResultsMessage.classList.add('no-results-message');
+            searchResults.appendChild(noResultsMessage);
+        }
         searchResults.classList.add('show');
     }
 

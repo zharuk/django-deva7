@@ -132,6 +132,10 @@
     margin-left: auto;
 }
 
+.no-results-message {
+    margin-left: 5px;
+}
+
 .text-muted {
     font-size: 0.75rem; /* Уменьшение размера шрифта */
 }
