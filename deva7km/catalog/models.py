@@ -485,6 +485,15 @@ class ReturnItem(models.Model):
 
     thumbnail_image_modification.short_description = 'Миниатюра изображения'
 
+    # Метод для получения URL миниатюры изображения модификации товара
+    def thumbnail_image_url(self):
+        images = Image.objects.filter(modification=self.product_modification)
+        if images:
+            thumbnail = images[0].thumbnail
+            if hasattr(thumbnail, 'url'):
+                return str(thumbnail.url)  # Возвращаем строку URL
+        return ''
+
     def __str__(self):
         return f'Элемент возврата #{self.id}'
 
@@ -869,7 +878,8 @@ class PreOrder(models.Model):
     # Дата изменения
     updated_at = models.DateTimeField("Дата изменения", auto_now=True)
     # Кем модифицирован
-    last_modified_by = models.ForeignKey(User, verbose_name="Изменено пользователем", null=True, blank=True, on_delete=models.SET_NULL)
+    last_modified_by = models.ForeignKey(User, verbose_name="Изменено пользователем", null=True, blank=True,
+                                         on_delete=models.SET_NULL)
     # Пробит ли чек (по умолчанию False)
     receipt_issued = models.BooleanField("Чек", default=False)
     # Поле для ТТН (цифровое поле на 30 символов)

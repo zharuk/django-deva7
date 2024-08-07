@@ -10,13 +10,15 @@ from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
+from django.utils.html import format_html
 from django.utils.translation import get_language
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
 from catalog.email_utils import send_new_order_notification_email
 from catalog.forms import PreOrderForm
-from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem, Sale, SaleItem
+from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem, Sale, SaleItem, \
+    Return
 from django.shortcuts import render, get_object_or_404, redirect, get_list_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from catalog.generate_xlsx import generate_product_xlsx
@@ -524,6 +526,41 @@ def search_products(request):
         products = [{'name': f"{r.product.title}-{r.custom_sku}", 'stock': r.stock, 'price': r.product.price,
                      'sku': r.custom_sku, 'thumbnail': r.thumbnail_image_modification_url()} for r in results]
         return JsonResponse({'results': products}, safe=False)
+
+
+# Новые представления для работы с возвратами
+
+@login_required
+def seller_cabinet_returns(request):
+    return render(request, 'seller_cabinet/returns/seller_returns.html')
+
+
+@login_required
+def return_list(request):
+    today = timezone.now().date()
+    returns = Return.objects.filter(created_at__date=today).order_by('-created_at')
+    returns_data = []
+    for return_obj in returns:
+        items_data = []
+        for item in return_obj.items.all():
+            thumbnail_url = item.thumbnail_image_url()
+            print(f'Processing item: {item.id}, Thumbnail URL: {thumbnail_url}')
+            items_data.append({
+                'custom_sku': item.product_modification.custom_sku,
+                'quantity': item.quantity,
+                'total_price': item.total_price(),
+                'thumbnail': thumbnail_url  # Убедитесь, что здесь возвращается строка с URL
+            })
+        returns_data.append({
+            'id': return_obj.id,
+            'created_at': return_obj.created_at.isoformat(),
+            'user': return_obj.user.username if return_obj.user else 'Неизвестно',
+            'items': items_data,
+            'total_amount': return_obj.calculate_total_amount()
+        })
+    return JsonResponse({'returns': returns_data})
+
+
 
 
 @login_required

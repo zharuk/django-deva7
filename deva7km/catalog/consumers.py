@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.db.models import Q
-from .models import PreOrder, ProductModification, Sale, SaleItem, TelegramUser
+from .models import PreOrder, ProductModification, Sale, SaleItem, TelegramUser, Return, ReturnItem
 from .novaposhta import update_tracking_status
 
 
@@ -286,3 +286,86 @@ class SalesConsumer(WebsocketConsumer):
                 'type': 'sell_error',
                 'message': f'ProductModification with custom_sku {custom_sku} does not exist.'
             }))
+
+
+class ReturnConsumer(WebsocketConsumer):
+    def connect(self):
+        self.accept()
+
+    def disconnect(self, close_code):
+        pass
+
+    def receive(self, text_data):
+        data = json.loads(text_data)
+        if data['type'] == 'create_return':
+            self.create_return(data)
+
+    def create_return(self, data):
+        items = data['items']
+
+        try:
+            user = User.objects.get(id=data['user_id'])
+        except User.DoesNotExist:
+            self.send(text_data=json.dumps({
+                'type': 'return_error',
+                'message': 'User not found'
+            }))
+            return
+
+        try:
+            return_obj = Return(
+                user=user,
+                telegram_user_id=data.get('telegram_user_id'),
+                source=data['source'],
+                comment=data['comment']
+            )
+            return_obj.save()  # Сохраняем объект перед созданием элементов возврата
+
+            for item in items:
+                product_modification = ProductModification.objects.get(custom_sku=item['custom_sku'])
+                ReturnItem.objects.create(
+                    return_sale=return_obj,
+                    product_modification=product_modification,
+                    quantity=item['quantity']
+                )
+
+            self.send(text_data=json.dumps({
+                'type': 'return_confirmation',
+                'status': 'success'
+            }))
+
+            self.send_return_list()
+        except ProductModification.DoesNotExist:
+            self.send(text_data=json.dumps({
+                'type': 'return_error',
+                'message': f'Product modification with SKU {item["custom_sku"]} not found'
+            }))
+        except Exception as e:
+            self.send(text_data=json.dumps({
+                'type': 'return_error',
+                'message': str(e)
+            }))
+
+    def send_return_list(self):
+        returns = Return.objects.all()
+        self.send(text_data=json.dumps({
+            'type': 'returns_list',
+            'returns': [self.return_to_dict(return_obj) for return_obj in returns]
+        }))
+
+    def return_to_dict(self, return_obj):
+        return {
+            'id': return_obj.id,
+            'created_at': return_obj.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'user': return_obj.user.username if return_obj.user else 'Неизвестно',
+            'total_amount': return_obj.calculate_total_amount(),
+            'items': [
+                {
+                    'custom_sku': item.product_modification.custom_sku,
+                    'quantity': item.quantity,
+                    'total_price': item.total_price(),
+                    'thumbnail': item.thumbnail_image_url()  # Используем метод для получения строки URL
+                }
+                for item in return_obj.items.all()
+            ]
+        }

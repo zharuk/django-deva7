@@ -1,0 +1,154 @@
+{% extends 'seller_cabinet/base.html' %}
+
+{% load static %}
+
+{% block title %}Возвраты{% endblock %}
+
+{% block content %}
+<div class="toast-container position-fixed top-0 end-0 p-3" id="notificationToast">
+    <div id="notificationMessage"></div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h1>Возвраты товаров</h1>
+        <h3>Выбранные товары для возврата</h3>
+        <div id="cart-container" class="cart-container mb-3" style="display: none;">
+            <table class="table table-sm table-responsive">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Имя</th>
+                        <th>Кол-во</th>
+                        <th>Сумма</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="selected-items"></tbody>
+            </table>
+            <div id="return-details">
+                <div class="form-group mt-3">
+                    <label for="return-comment">Комментарий</label>
+                    <textarea class="form-control" id="return-comment" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="text-end mt-3">
+                <h4>Итого: <span id="total-amount">0</span> грн</h4>
+                <button class="btn btn-danger btn-sm" id="clear-cart-button">Очистить</button>
+                <button class="btn btn-primary btn-sm" id="return-button">Возврат</button>
+            </div>
+        </div>
+    </div>
+    <div class="input-group mb-3">
+        <input type="text" id="search-input" class="form-control" placeholder="Поиск товаров" aria-label="Поиск товаров" aria-describedby="button-addon2">
+        <button class="btn btn-outline-secondary" type="button" id="clear-search"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="dropdown">
+        <div id="search-results" class="dropdown-menu w-100" aria-labelledby="search-input"></div>
+    </div>
+    <div class="col-md-12">
+        <h3>Список возвратов за сегодня</h3>
+        <div id="returns-list"></div>
+        <div class="text-end mt-3">
+            <strong>Возвращено: <span id="daily-total-items">0</span> шт. на сумму <span id="daily-total-amount">0</span> грн</strong>
+        </div>
+    </div>
+</div>
+
+<!-- Шаблон для строки результата поиска -->
+<template id="search-result-template">
+    <div class="dropdown-item search-result-row">
+        <div class="d-flex align-items-center flex-grow-1">
+            <img class="search-item-thumbnail me-2" width="30" alt="Миниатюра">
+            <div class="item-info">
+                <span class="badge bg-light search-item-sku me-2"></span>
+                <span class="item-details"></span>
+            </div>
+        </div>
+        <div class="d-flex align-items-center search-result-buttons">
+            <button type="button" class="btn btn-warning btn-sm decrement-button">-</button>
+            <span class="quantity-display">1</span>
+            <button type="button" class="btn btn-success btn-sm increment-button">+</button>
+            <button class="btn btn-secondary btn-sm search-item-add-button">Добавить</button>
+        </div>
+    </div>
+</template>
+
+<!-- Шаблон для строки выбранного товара -->
+<template id="selected-item-template">
+    <tr>
+        <td><img class="selected-item-thumbnail" width="30" alt="Миниатюра"></td>
+        <td class="selected-item-sku"></td>
+        <td>
+            <div class="input-group input-group-sm quantity-group">
+                <button type="button" class="btn btn-warning btn-sm decrement-button">-</button>
+                <span class="quantity-display">1</span>
+                <button type="button" class="btn btn-success btn-sm increment-button">+</button>
+            </div>
+        </td>
+        <td class="selected-item-price"></td>
+        <td><button class="btn btn-danger btn-sm selected-item-remove-button">-</button></td>
+    </tr>
+</template>
+
+<!-- Шаблон для строки возврата -->
+<template id="return-item-template">
+    <div class="return-item">
+        <h5>Возврат №<span class="return-id"></span> в <span class="return-time"></span> <span class="return-user"></span></h5>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Товары</th>
+                    <th>Кол-во</th>
+                    <th>Цена</th>
+                </tr>
+            </thead>
+            <tbody class="return-products"></tbody>
+        </table>
+        <div class="text-end"><strong>Итого: <span class="return-total-amount"></span> грн</strong></div>
+        <hr>
+    </div>
+</template>
+
+<!-- Шаблон для строки товара в возврате -->
+<template id="return-product-template">
+    <tr class="return-product">
+        <td><img class="return-product-thumbnail" width="30" src="{{ item.thumbnail }}" alt="Миниатюра"> <span class="return-product-sku">{{ item.custom_sku }}</span></td>
+        <td class="return-product-quantity"></td>
+        <td class="return-product-price"></td>
+    </tr>
+</template>
+
+<!-- Шаблон для уведомления -->
+<template id="notification-template">
+    <div class="toast align-items-center text-bg-[[type]] border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <strong>[[title]]</strong>: [[message]]
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Шаблон для модального окна о разрыве соединения -->
+<div class="modal fade" id="connectionLostModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Соединение потеряно</h5>
+      </div>
+      <div class="modal-body">
+        Соединение с сервером было потеряно. Пожалуйста, обновите страницу, чтобы восстановить соединение.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="location.reload()">Обновить страницу</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'seller_cabinet/js/returns/returns.js' %}"></script>
+{% endblock %}

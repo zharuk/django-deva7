@@ -31,7 +31,8 @@ class ReturnItemInline(admin.TabularInline):
 class ReturnAdmin(admin.ModelAdmin):
     inlines = [ReturnItemInline]
     list_display = (
-        'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'comment', 'source')
+        'get_returned_items', 'id', 'created_at', 'calculate_total_quantity', 'calculate_total_amount', 'comment',
+        'source')
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
     list_per_page = 25
 
@@ -40,6 +41,10 @@ class ReturnAdmin(admin.ModelAdmin):
         if obj and hasattr(obj, 'status') and obj.status == 'completed':
             return False
         return super().has_change_permission(request, obj)
+
+
+class ReturnItemAdmin(admin.ModelAdmin):
+    list_display = ('return_sale', 'product_modification', 'quantity', 'thumbnail_image_modification')
 
 
 class SaleItemInline(admin.TabularInline):
@@ -227,8 +232,8 @@ class OrderAdmin(admin.ModelAdmin):
 class PreOrderAdmin(admin.ModelAdmin):
     change_list_template = "admin/catalog/preorder/change_list.html"
     list_display = (
-    'id', 'full_name', 'text', 'drop', 'receipt_issued', 'ttn', 'shipped_to_customer', 'status', 'created_at',
-    'updated_at',)
+        'id', 'full_name', 'text', 'drop', 'receipt_issued', 'ttn', 'shipped_to_customer', 'status', 'created_at',
+        'updated_at',)
     list_display_links = ('id', 'full_name')
     list_filter = ('shipped_to_customer', 'receipt_issued', 'drop',)
     search_fields = ('full_name', 'text', 'ttn')
@@ -239,6 +244,7 @@ class PreOrderAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+admin.site.register(ReturnItem, ReturnItemAdmin)
 admin.site.register(PreOrder, PreOrderAdmin)
 admin.site.register(BlogPost, BlogPostAdmin)
 admin.site.register(WriteOff, WriteOffAdmin)
