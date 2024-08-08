@@ -177,26 +177,21 @@
 }
 
 .navbar-nav .nav-link.sales {
-    background-color: #21610B; /* Темный серо-зеленый для "Продажи" */
-    color: white;
+    background-color: #90EE90; /* Светло-зеленый для "Продажи" */
 }
 
 .navbar-nav .nav-link.returns {
-    background-color: #610B0B; /* Темный красный для "Возвраты" */
-    color: white;
+    background-color: #FF7F7F; /* Светло-красный для "Возвраты" */
 }
 
 .navbar-nav .nav-link.inventory {
-    background-color: #B8860B; /* Темный золотой для "Оприходование" */
-    color: white;
+    background-color: #F4FA58; /* Светло-желтый для "Оприходование" */
 }
 
 .navbar-nav .nav-link.write-off {
-    background-color: #0B0B61; /* Темный синий для "Списание" */
-    color: white;
+    background-color: #ADD8E6; /* Светло-синий для "Списание" */
 }
 
 .navbar-nav .nav-link.preorder {
-    background-color: #2F2F2F; /* Темный серый для "Предзаказы" */
-    color: white;
+    background-color: #D3D3D3; /* Светло-серый для "Предзаказы" */
 }
