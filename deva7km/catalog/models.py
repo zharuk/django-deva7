@@ -4,8 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html, mark_safe
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFit
 from unidecode import unidecode
@@ -49,95 +48,68 @@ class Product(models.Model):
     )
 
     def get_actual_wholesale_price(self):
-        if self.sale_price > 0:
-            return self.sale_price
-        return self.price
+        return self.sale_price if self.sale_price > 0 else self.price
 
     def get_absolute_url(self):
         relative_url = reverse('product_detail', args=[self.category.slug, self.slug])
         return BASE_URL + relative_url
 
-    # Метод для отображения большого изображения товара
     def large_image_url(self):
-        images = Image.objects.filter(modification__product=self)
-        if images:
-            return BASE_URL + images[0].large_image.url
-        return None
+        return self.get_first_image_url('large_image')
 
-    # Метод для получения всех больших изображений товара
     def get_all_large_images(self):
-        # Получаем все изображения товара
-        images = Image.objects.filter(modification__product=self)
-        # Формируем список ссылок на большие изображения
-        image_links = [BASE_URL + image.large_image.url for image in images]
-        # Возвращаем список ссылок на большие изображения
-        return image_links
+        return self.get_all_image_urls('large_image')
 
-    # Метод для получения URL коллажа изображения товара
     def collage_image_url(self):
-        if self.collage_image:
-            return BASE_URL + self.collage_image.url
-        return None
+        return BASE_URL + self.collage_image.url if self.collage_image else None
 
-    # Метод миниатюры коллажа товара
     def get_collage_thumbnail(self):
-        if self.collage_image:
-            return format_html('<img src="{}" />', self.collage_thumbnail.url)
-        return 'Нет миниатюры'
+        return format_html('<img src="{}" />', self.collage_thumbnail.url) if self.collage_image else 'Нет миниатюры'
 
     get_collage_thumbnail.short_description = 'Миниатюра коллажа'
 
-    # Переопределение метода save для автоматической транслитерации артикула
     def save(self, *args, **kwargs):
-        # Если артикул не пустой и содержит кириллические символы
         if self.sku and any(char.isalpha() for char in self.sku):
-            # Транслитерация и присвоение латинского варианта артикула
             self.sku = unidecode(self.sku)
         super().save(*args, **kwargs)
 
-    # Метод для получения общего остатка товара
     def get_total_stock(self):
-        total_stock = 0
-        for modification in self.modifications.all():
-            total_stock += modification.stock
-
-        # Установка is_active в False, если общие остатки равны 0
+        total_stock = sum(modification.stock for modification in self.modifications.all())
         self.is_active = total_stock > 0
-
-        # Сохранение изменений
         self.save()
-
         return total_stock
 
     get_total_stock.short_description = 'Общие остатки'
 
-    # Метод для получения цветов товара в виде строки
     def get_colors(self):
         return ", ".join([color.name for color in self.colors.all()])
 
     get_colors.short_description = 'Цвета товара'
 
-    # Метод для получения размеров товара в виде строки
     def get_sizes(self):
         return ", ".join([size.name for size in self.sizes.all()])
 
     get_sizes.short_description = 'Размеры товара'
 
-    # Метод для отображения миниатюры изображения товара
     def thumbnail_image(self):
-        images = Image.objects.filter(modification__product=self)
-        if images:
-            return format_html('<img src="{}"/>', images[0].thumbnail.url)
-        return format_html('<p>No Image</p>')
+        return self.get_first_image_tag('thumbnail')
 
-    thumbnail_image.short_description = 'Миниатюра изображения'
-
-    # Метод для отображения миниатюры изображения товара (только URL)
     def thumbnail_image_url(self):
+        return self.get_first_image_url('thumbnail')
+
+    def get_first_image_url(self, image_type):
         images = Image.objects.filter(modification__product=self)
         if images:
-            return images[0].thumbnail.url
+            return BASE_URL + getattr(images[0], image_type).url
         return None
+
+    def get_first_image_tag(self, image_type):
+        url = self.get_first_image_url(image_type)
+        return format_html('<img src="{}"/>', url) if url else format_html('<p>No Image</p>')
+
+    def get_all_image_urls(self, image_type):
+        images = Image.objects.filter(modification__product=self)
+        return [BASE_URL + getattr(image, image_type).url for image in images]
 
     def __str__(self):
         return self.title
@@ -155,42 +127,40 @@ class ProductModification(models.Model):
     stock = models.PositiveIntegerField(default=0, verbose_name='Остаток')
     custom_sku = models.CharField(max_length=50, verbose_name='Артикул комплектации', blank=True)
 
-    # Метод для отображения миниатюры изображения модификации товара
     def thumbnail_image_modification(self):
-        images = Image.objects.filter(modification=self)
-        if images:
-            return format_html('<img src="{}"/>', images[0].thumbnail.url)
-        return format_html('<p>No Image</p>')
+        return self.get_first_image_tag('thumbnail')
 
     thumbnail_image_modification.short_description = 'Миниатюра изображения'
 
-    # Метод для получения ссылки на миниатюру изображения модификации товара
-    def thumbnail_image_modification_url(self):
+    def thumbnail_image_url(self):
+        return self.get_first_image_url('thumbnail')
+
+    def get_first_image_url(self, image_type):
         images = Image.objects.filter(modification=self)
         if images:
-            return BASE_URL + images[0].thumbnail.url
+            return BASE_URL + getattr(images[0], image_type).url
         return None
 
-    # Метод для получения списка всех фотографий большого размера модификации товара
+    def get_first_image_tag(self, image_type):
+        url = self.get_first_image_url(image_type)
+        return format_html('<img src="{}"/>', url) if url else format_html('<p>No Image</p>')
+
     def get_all_large_images(self):
-        images = Image.objects.filter(modification=self)
-        return [BASE_URL + image.large_image.url for image in images] if images else []
+        return self.get_all_image_urls('large_image')
 
-    # Метод для получения ссылки первого изображение большого размера модификации товара
     def get_first_large_image_modification_url(self):
-        images = Image.objects.filter(modification=self)
-        if images:
-            return BASE_URL + images[0].large_image.url
-        return None
+        return self.get_first_image_url('large_image')
 
-    #  Метод для получения ссылок на все изображения модификации товара (кроме первого)
     def get_all_large_images_except_first(self):
-        # Метод для получения URL всех изображений модификации, кроме первого
         images = Image.objects.filter(modification=self)
         if images.exists():
-            # Пропускаем первое изображение и получаем URL остальных
             return ', '.join([BASE_URL + image.large_image.url for image in images[1:]])
         return ''
+
+    def total_price(self, quantity):
+        product = self.product
+        price = product.sale_price if product.sale_price > 0 else product.price
+        return quantity * price
 
     def __str__(self):
         return f"{self.custom_sku}"
@@ -225,11 +195,9 @@ class Image(models.Model):
         verbose_name='Порядок'
     )
 
-    # Метод для отображения миниатюры изображения
     def thumbnail_image(self):
         return format_html('<img src="{}"/>', self.thumbnail.url)
 
-    thumbnail_image.allow_tags = True
     thumbnail_image.short_description = 'Миниатюра изображения'
 
     class Meta:
@@ -251,7 +219,6 @@ class Category(models.Model):
     rz_id = models.IntegerField(default=0, verbose_name='ID категории на Rozetka')
 
     def get_absolute_url(self):
-        # Убедитесь, что имя маршрута ('category_detail') соответствует вашему urls.py
         return reverse('category_detail', kwargs={'category_slug': self.slug})
 
     def __str__(self):
@@ -312,36 +279,21 @@ class Sale(models.Model):
                                       verbose_name='Способ оплаты')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
 
-    @property
-    def items(self):
-        return SaleItem.objects.filter(sale=self)
-
     def calculate_total_amount(self):
-        total_amount = 0
-        for item in self.items.all():
-            product = item.product_modification.product
-            if product.sale_price > 0:
-                total_amount += item.quantity * product.sale_price
-            else:
-                total_amount += item.quantity * product.price
-        return total_amount
+        return sum(item.total_price() for item in self.items.all())
 
     calculate_total_amount.short_description = 'Общая сумма'
 
     def calculate_total_quantity(self):
-        total_quantity = 0
-        for item in self.items.all():
-            total_quantity += item.quantity
-        return total_quantity
+        return sum(item.quantity for item in self.items.all())
 
     calculate_total_quantity.short_description = 'Всего товаров'
 
     def get_sold_items(self):
-        sold_items = []
-        for item in self.items.all():
-            sold_items.append(
-                f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)<br>")
-        return mark_safe("\n".join(sold_items))
+        return mark_safe("<br>".join(
+            f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)"
+            for item in self.items.all()
+        ))
 
     get_sold_items.short_description = 'Проданные товары'
 
@@ -362,38 +314,18 @@ class SaleItem(models.Model):
 
     def clean(self):
         super().clean()
+        if self.quantity > self.product_modification.stock:
+            raise ValidationError(f"Недостаточно товара {self.product_modification} на остатке")
 
-        # Проверяем наличие достаточного количества товара на остатке
-        product_modification = self.product_modification
-        if self.quantity > product_modification.stock:
-            raise ValidationError(f"Недостаточно товара {product_modification} на остатке")
-
-    # Метод для отображения миниатюры изображения модификации товара
     def thumbnail_image_modification(self):
-        images = Image.objects.filter(modification=self.product_modification)
-        if images:
-            return format_html('<img src="{}"/>', images[0].thumbnail.url)
-        return format_html('<p>No Image</p>')
+        return self.product_modification.thumbnail_image_modification()
 
-    thumbnail_image_modification.short_description = 'Миниатюра изображения'
-
-    # Метод для получения URL миниатюры изображения модификации товара
     def thumbnail_image_url(self):
-        images = Image.objects.filter(modification=self.product_modification)
-        if images:
-            return images[0].thumbnail.url
-        return ''
+        return self.product_modification.thumbnail_image_url()
 
-    # подсчет суммы единиц модификаций
     def total_price(self):
-        product = self.product_modification.product
-        if product.sale_price > 0:
-            return self.quantity * product.sale_price
-        return self.quantity * product.price
+        return self.product_modification.total_price(self.quantity)
 
-    total_price.short_description = 'Сумма'
-
-    # метод получения остатка товара
     def get_stock(self):
         return self.product_modification.stock
 
@@ -407,6 +339,7 @@ class SaleItem(models.Model):
         verbose_name_plural = 'Элементы продажи'
 
 
+# Модель возврата (Return)
 class Return(models.Model):
     created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата возврата')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Пользователь')
@@ -419,37 +352,25 @@ class Return(models.Model):
     source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник возврата')
 
     def calculate_total_amount(self):
-        total_amount = 0
-        for item in self.items.all():
-            product = item.product_modification.product
-            if product.sale_price > 0:
-                total_amount += item.quantity * product.sale_price
-            else:
-                total_amount += item.quantity * product.price
-        return total_amount
+        return sum(item.total_price() for item in self.items.all())
 
     calculate_total_amount.short_description = 'Общая сумма'
 
     def calculate_total_quantity(self):
-        total_quantity = 0
-        for item in self.items.all():
-            total_quantity += item.quantity
-        return total_quantity
+        return sum(item.quantity for item in self.items.all())
 
     calculate_total_quantity.short_description = 'Общее количество возвращенного товара'
 
     def get_returned_items(self):
-        returned_items = []
-        for item in self.items.all():
-            returned_items.append(
-                f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)<br>")
-        return mark_safe("\n".join(returned_items))
+        return mark_safe("<br>".join(
+            f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)"
+            for item in self.items.all()
+        ))
 
     get_returned_items.short_description = 'Возвращенные товары'
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            # Если объект Return ещё не сохранен (не имеет primary key), создадим его
             super(Return, self).save(*args, **kwargs)
         self.total_amount = self.calculate_total_amount()
         super(Return, self).save(*args, **kwargs)
@@ -462,6 +383,7 @@ class Return(models.Model):
         verbose_name_plural = 'Возвраты'
 
 
+# Модель элемента возврата (ReturnItem)
 class ReturnItem(models.Model):
     return_sale = models.ForeignKey(Return, on_delete=models.CASCADE, related_name='items', verbose_name='Возврат')
     product_modification = models.ForeignKey(ProductModification, on_delete=models.CASCADE,
@@ -469,30 +391,13 @@ class ReturnItem(models.Model):
     quantity = models.PositiveIntegerField(default=1, verbose_name='Количество возвращаемого')
 
     def total_price(self):
-        product = self.product_modification.product
-        if product.sale_price > 0:
-            return self.quantity * product.sale_price
-        return self.quantity * product.price
+        return self.product_modification.total_price(self.quantity)
 
-    total_price.short_description = 'Сумма возврата'
-
-    # Метод для отображения миниатюры изображения модификации товара
     def thumbnail_image_modification(self):
-        images = Image.objects.filter(modification=self.product_modification)
-        if images:
-            return format_html('<img src="{}"/>', images[0].thumbnail.url)
-        return format_html('<p>No Image</p>')
+        return self.product_modification.thumbnail_image_modification()
 
-    thumbnail_image_modification.short_description = 'Миниатюра изображения'
-
-    # Метод для получения URL миниатюры изображения модификации товара
     def thumbnail_image_url(self):
-        images = Image.objects.filter(modification=self.product_modification)
-        if images:
-            thumbnail = images[0].thumbnail
-            if hasattr(thumbnail, 'url'):
-                return str(thumbnail.url)  # Возвращаем строку URL
-        return ''
+        return self.product_modification.thumbnail_image_url()
 
     def __str__(self):
         return f'Элемент возврата #{self.id}'
@@ -502,7 +407,7 @@ class ReturnItem(models.Model):
         verbose_name_plural = 'Элементы возврата'
 
 
-# модель пользователя Telegram
+# Модель пользователя Telegram
 class TelegramUser(models.Model):
     user_id = models.BigIntegerField(unique=True, verbose_name='Идентификатор пользователя')
     user_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Имя пользователя')
@@ -511,7 +416,6 @@ class TelegramUser(models.Model):
     is_bot = models.BooleanField(default=False, verbose_name='Бот')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
 
-    # Добавляем поле для выбора роли
     ROLE_CHOICES = [
         ('admin', 'Админ'),
         ('seller', 'Продавец'),
@@ -535,9 +439,9 @@ class Inventory(models.Model):
                                       verbose_name='Пользователь Telegram')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
     STATUS_CHOICES = (
-        ('pending', 'В ожидании'),  # Статус "В ожидании"
-        ('completed', 'Завершено'),  # Статус "Завершено"
-        ('canceled', 'Отменено'))  # Статус "Отменено"
+        ('pending', 'В ожидании'),
+        ('completed', 'Завершено'),
+        ('canceled', 'Отменено'))
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='completed', verbose_name='Статус')
     SOURCE_CHOICES = (
         ('site', 'Сайт'),
@@ -546,38 +450,25 @@ class Inventory(models.Model):
                               verbose_name='Источник оприходования')
 
     def calculate_total_amount(self):
-        total_amount = 0
-        for item in self.items.all():
-            product = item.product_modification.product
-            if product.sale_price > 0:
-                total_amount += item.quantity * product.sale_price
-            else:
-                total_amount += item.quantity * product.price
-        return total_amount
+        return sum(item.total_price() for item in self.items.all())
 
     calculate_total_amount.short_description = 'Общая сумма'
 
     def calculate_total_quantity(self):
-        total_quantity = 0
-        for item in self.items.all():
-            total_quantity += item.quantity
-        return total_quantity
+        return sum(item.quantity for item in self.items.all())
 
     calculate_total_quantity.short_description = 'Общее количество принятого товара'
 
-    # получение принятых товаров
     def get_inventory_items(self):
-        inventory_items = []
-        for item in self.items.all():
-            inventory_items.append(
-                f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)<br>")
-        return mark_safe("\n".join(inventory_items))
+        return mark_safe("<br>".join(
+            f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)"
+            for item in self.items.all()
+        ))
 
     get_inventory_items.short_description = 'Оприходованные товары'
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            # Если объект Sale ещё не сохранен (не имеет primary key), создадим его
             super(Inventory, self).save(*args, **kwargs)
         self.total_amount = self.calculate_total_amount()
         super(Inventory, self).save(*args, **kwargs)
@@ -601,25 +492,15 @@ class InventoryItem(models.Model):
     def clean(self):
         super().clean()
 
-    # Метод для отображения миниатюры изображения модификации товара
     def thumbnail_image_modification(self):
-        images = Image.objects.filter(modification=self.product_modification)
-        if images:
-            return format_html('<img src="{}"/>', images[0].thumbnail.url)
-        return format_html('<p>No Image</p>')
+        return self.product_modification.thumbnail_image_modification()
 
-    thumbnail_image_modification.short_description = 'Миниатюра изображения'
+    def thumbnail_image_url(self):
+        return self.product_modification.thumbnail_image_url()
 
-    # метод получения общей цены принятых товаров
     def total_price(self):
-        product = self.product_modification.product
-        if product.sale_price > 0:
-            return self.quantity * product.sale_price
-        return self.quantity * product.price
+        return self.product_modification.total_price(self.quantity)
 
-    total_price.short_description = 'Сумма'
-
-    # метод получения остатка товара
     def get_stock(self):
         return self.product_modification.stock
 
@@ -633,6 +514,7 @@ class InventoryItem(models.Model):
         verbose_name_plural = 'Элементы оприходования'
 
 
+# Модель списания товара (WriteOff)
 class WriteOff(models.Model):
     created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата списания')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Пользователь')
@@ -640,9 +522,9 @@ class WriteOff(models.Model):
                                       verbose_name='Пользователь Telegram')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
     STATUS_CHOICES = (
-        ('pending', 'В ожидании'),  # Статус "В ожидании"
-        ('completed', 'Завершено'),  # Статус "Завершено"
-        ('canceled', 'Отменено'))  # Статус "Отменено"
+        ('pending', 'В ожидании'),
+        ('completed', 'Завершено'),
+        ('canceled', 'Отменено'))
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='completed', verbose_name='Статус')
     SOURCE_CHOICES = (
         ('site', 'Сайт'),
@@ -650,31 +532,20 @@ class WriteOff(models.Model):
     source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='site', verbose_name='Источник списания')
 
     def calculate_total_amount(self):
-        total_amount = 0
-        for item in self.items.all():
-            product = item.product_modification.product
-            if product.sale_price > 0:
-                total_amount += item.quantity * product.sale_price
-            else:
-                total_amount += item.quantity * product.price
-        return total_amount
+        return sum(item.total_price() for item in self.items.all())
 
     calculate_total_amount.short_description = 'Общая сумма'
 
     def calculate_total_quantity(self):
-        total_quantity = 0
-        for item in self.items.all():
-            total_quantity += item.quantity
-        return total_quantity
+        return sum(item.quantity for item in self.items.all())
 
     calculate_total_quantity.short_description = 'Общее количество списанного товара'
 
     def get_write_off_items(self):
-        write_off_items = []
-        for item in self.items.all():
-            write_off_items.append(
-                f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)<br>")
-        return mark_safe("\n".join(write_off_items))
+        return mark_safe("<br>".join(
+            f"{item.product_modification.product.title}-{item.product_modification.custom_sku} ({item.quantity} шт.)"
+            for item in self.items.all()
+        ))
 
     get_write_off_items.short_description = 'Списанные товары'
 
@@ -692,6 +563,7 @@ class WriteOff(models.Model):
         verbose_name_plural = 'Списания товара'
 
 
+# Модель элемента списания (WriteOffItem)
 class WriteOffItem(models.Model):
     write_off = models.ForeignKey(WriteOff, on_delete=models.CASCADE, related_name='items',
                                   verbose_name='Списание товара')
@@ -701,27 +573,17 @@ class WriteOffItem(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Проверяем наличие достаточного количества товара на остатке
-        product_modification = self.product_modification
-        if self.quantity > product_modification.stock:
-            raise ValidationError(f"Недостаточно товара {product_modification} на остатке")
+        if self.quantity > self.product_modification.stock:
+            raise ValidationError(f"Недостаточно товара {self.product_modification} на остатке")
 
     def thumbnail_image_modification(self):
-        images = Image.objects.filter(modification=self.product_modification)
-        if images:
-            return format_html('<img src="{}"/>', images[0].thumbnail.url)
-        return format_html('<p>No Image</p>')
+        return self.product_modification.thumbnail_image_modification()
 
-    thumbnail_image_modification.short_description = 'Миниатюра изображения'
+    def thumbnail_image_url(self):
+        return self.product_modification.thumbnail_image_url()
 
     def total_price(self):
-        product = self.product_modification.product
-        if product.sale_price > 0:
-            return self.quantity * product.sale_price
-        return self.quantity * product.price
-
-    total_price.short_description = 'Сумма'
+        return self.product_modification.total_price(self.quantity)
 
     def get_stock(self):
         return self.product_modification.stock
@@ -736,6 +598,7 @@ class WriteOffItem(models.Model):
         verbose_name_plural = 'Элементы списания товара'
 
 
+# Модель блога (BlogPost)
 class BlogPost(models.Model):
     title = models.CharField(max_length=200, verbose_name='Заголовок')
     content = RichTextField(verbose_name='Содержание')
@@ -753,6 +616,7 @@ class BlogPost(models.Model):
         verbose_name_plural = 'Посты'
 
 
+# Модель заказа (Order)
 class Order(models.Model):
     name = models.CharField(max_length=100, verbose_name='Имя')
     surname = models.CharField(max_length=100, verbose_name='Фамилия')
@@ -773,32 +637,15 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES.items(), default='completed', verbose_name='Статус')
 
     def calculate_total_amount(self):
-        total_amount = 0
-        for item in self.items.all():
-            product = item.product_modification.product
-            if product.sale_price > 0:
-                total_amount += item.quantity * product.sale_price
-            else:
-                total_amount += item.quantity * product.price
-        return total_amount
+        return sum(item.total_price() for item in self.items.all())
 
     calculate_total_amount.short_description = 'Общая сумма'
 
     def calculate_total_retail_amount(self):
-        total_amount = 0
-        for item in self.items.all():
-            product = item.product_modification.product
-            if product.sale_price > 0:
-                total_amount += item.quantity * product.retail_sale_price
-            else:
-                total_amount += item.quantity * product.retail_price
-        return total_amount
+        return sum(item.retail_total_price()[0] for item in self.items.all())
 
     def calculate_total_quantity(self):
-        total_quantity = 0
-        for item in self.items.all():
-            total_quantity += item.quantity
-        return total_quantity
+        return sum(item.quantity for item in self.items.all())
 
     calculate_total_quantity.short_description = 'Всего товаров'
 
@@ -810,6 +657,7 @@ class Order(models.Model):
         verbose_name_plural = 'Заказы'
 
 
+# Модель элемента заказа (OrderItem)
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items', verbose_name='Заказ')
     product_modification = models.ForeignKey(ProductModification, on_delete=models.CASCADE,
@@ -818,40 +666,22 @@ class OrderItem(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Проверяем наличие достаточного количества товара на остатке
-        product_modification = self.product_modification
-        if self.quantity > product_modification.stock:
-            raise ValidationError(f"Недостаточно товара {product_modification} на остатке")
+        if self.quantity > self.product_modification.stock:
+            raise ValidationError(f"Недостаточно товара {self.product_modification} на остатке")
 
     def thumbnail_image_modification(self):
-        images = Image.objects.filter(modification=self.product_modification)
-        if images:
-            return format_html('<img src="{}"/>', images[0].thumbnail.url)
-        return format_html('<p>No Image</p>')
+        return self.product_modification.thumbnail_image_modification()
 
-    thumbnail_image_modification.short_description = 'Миниатюра изображения'
+    def thumbnail_image_url(self):
+        return self.product_modification.thumbnail_image_url()
 
     def total_price(self):
-        product = self.product_modification.product
-        if product.sale_price > 0:
-            return self.quantity * product.sale_price
-        return self.quantity * product.price
-
-    total_price.short_description = 'Сумма'
+        return self.product_modification.total_price(self.quantity)
 
     def retail_total_price(self):
         product = self.product_modification.product
-        if product.retail_sale_price > 0:
-            discounted_total = self.quantity * product.retail_sale_price
-            regular_total = self.quantity * product.retail_price
-        else:
-            discounted_total = 0
-            regular_total = self.quantity * product.retail_price
-
-        return discounted_total, regular_total
-
-    retail_total_price.short_description = 'Сумма по розничной цене'
+        return (self.quantity * product.retail_sale_price if product.retail_sale_price > 0 else 0,
+                self.quantity * product.retail_price)
 
     def get_stock(self):
         return self.product_modification.stock
@@ -866,29 +696,19 @@ class OrderItem(models.Model):
         verbose_name_plural = 'Элементы заказа'
 
 
+# Модель предзаказа (PreOrder)
 class PreOrder(models.Model):
-    # Поле для имени и фамилии
     full_name = models.CharField("Имя и Фамилия", max_length=255, blank=True)
-    # Текстовое поле с информацией, поддерживающее теги переноса строки
     text = models.TextField("Инфо", blank=True)
-    # Поле для дропшипинга (по умолчанию False)
     drop = models.BooleanField("Дроп", default=False)
-    # Дата создания
     created_at = models.DateTimeField("Дата создания", auto_now_add=True)
-    # Дата изменения
     updated_at = models.DateTimeField("Дата изменения", auto_now=True)
-    # Кем модифицирован
     last_modified_by = models.ForeignKey(User, verbose_name="Изменено пользователем", null=True, blank=True,
                                          on_delete=models.SET_NULL)
-    # Пробит ли чек (по умолчанию False)
     receipt_issued = models.BooleanField("Чек", default=False)
-    # Поле для ТТН (цифровое поле на 30 символов)
     ttn = models.CharField("ТТН", max_length=30, blank=True)
-    # Отправлено ли покупателю (по умолчанию False)
     shipped_to_customer = models.BooleanField("Отправлен", default=False)
-    # Статус посылки
     status = models.CharField("Статус посылки", max_length=255, blank=True)
-    # Получена ли оплата
     payment_received = models.BooleanField("Оплата", default=False)
 
     def save(self, *args, **kwargs):

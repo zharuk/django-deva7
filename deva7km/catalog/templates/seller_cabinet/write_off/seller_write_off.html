@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}Продажи{% endblock %}
+{% block title %}Списание{% endblock %}
 
 {% block content %}
 <div class="toast-container position-fixed top-0 end-0 p-3" id="notificationToast">
@@ -10,9 +10,8 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <h1>Продажа товаров</h1>
-        <h3>Выбранные товары</h3>
-        <!-- Скрываем весь блок выбранных товаров по умолчанию -->
+        <h1>Списание товаров</h1>
+        <h3>Выбранные товары для списания</h3>
         <div id="cart-container" class="cart-container mb-3" style="display: none;">
             <table class="table table-sm table-responsive">
                 <thead>
@@ -26,25 +25,16 @@
                 </thead>
                 <tbody id="selected-items"></tbody>
             </table>
-            <!-- Контейнер для типа продажи и комментария -->
-            <div id="sale-details">
-                <div class="form-group">
-                    <label for="sale-type">Тип продажи</label>
-                    <select class="form-control" id="sale-type">
-                        <option value="cash">Наличная оплата</option>
-                        <option value="non_cash">Безналичная оплата</option>
-                    </select>
-                </div>
+            <div id="write-off-details">
                 <div class="form-group mt-3">
-                    <label for="sale-comment">Комментарий</label>
-                    <textarea class="form-control" id="sale-comment" rows="3"></textarea>
+                    <label for="write-off-comment">Комментарий</label>
+                    <textarea class="form-control" id="write-off-comment" rows="3"></textarea>
                 </div>
             </div>
-            <!-- Изменяем порядок кнопок -->
             <div class="text-end mt-3">
                 <h4>Итого: <span id="total-amount">0</span> грн</h4>
                 <button class="btn btn-danger btn-sm" id="clear-cart-button">Очистить</button>
-                <button class="btn btn-primary btn-sm" id="sell-button">Продать</button>
+                <button class="btn btn-primary btn-sm" id="write-off-button">Списать</button>
             </div>
         </div>
     </div>
@@ -56,15 +46,15 @@
         <div id="search-results" class="dropdown-menu w-100" aria-labelledby="search-input"></div>
     </div>
     <div class="col-md-12">
-        <h3>Список продаж за сегодня</h3>
-        <div id="sales-list"></div>
+        <h3>Список списаний за сегодня</h3>
+        <div id="write-offs-list"></div>
         <div class="text-end mt-3">
-            <strong>Продано: <span id="daily-total-items">0</span>шт. на сумму <span id="daily-total-amount">0</span> грн</strong>
+            <strong>Списано: <span id="daily-total-items">0</span> шт. на сумму <span id="daily-total-amount">0</span> грн</strong>
         </div>
     </div>
 </div>
 
-<!-- Шаблон для строки результата поиска -->
+<!-- Шаблоны -->
 <template id="search-result-template">
     <div class="dropdown-item search-result-row">
         <div class="d-flex align-items-center flex-grow-1">
@@ -83,7 +73,6 @@
     </div>
 </template>
 
-<!-- Шаблон для строки выбранного товара -->
 <template id="selected-item-template">
     <tr>
         <td><img class="selected-item-thumbnail" width="30" alt="Миниатюра"></td>
@@ -100,12 +89,9 @@
     </tr>
 </template>
 
-<!-- Шаблон для строки продажи -->
-<template id="sale-item-template">
-    <div class="sale-item">
-        <h5>Продажа №<span class="sale-id"></span> в <span class="sale-time"></span> <span class="sale-user"></span></h5>
-        <div>Тип продажи: <span class="sale-type"></span></div> <!-- Поле для типа продажи -->
-        <div class="sale-comment-container">Комментарий: <span class="sale-comment"></span></div> <!-- Поле для комментария -->
+<template id="write-off-item-template">
+    <div class="write-off-item">
+        <h5>Списание №<span class="write-off-id"></span> в <span class="write-off-time"></span> <span class="write-off-user"></span></h5>
         <table class="table table-sm">
             <thead>
                 <tr>
@@ -114,23 +100,21 @@
                     <th>Цена</th>
                 </tr>
             </thead>
-            <tbody class="sale-products"></tbody>
+            <tbody class="write-off-products"></tbody>
         </table>
-        <div class="text-end"><strong>Итого: <span class="sale-total-amount"></span> грн</strong></div>
+        <div class="text-end"><strong>Итого: <span class="write-off-total-amount"></span> грн</strong></div>
         <hr>
     </div>
 </template>
 
-<!-- Шаблон для строки товара в продаже -->
-<template id="sale-product-template">
-    <tr class="sale-product">
-        <td><img class="sale-product-thumbnail" width="30" alt="Миниатюра"> <span class="sale-product-sku"></span></td>
-        <td class="sale-product-quantity"></td>
-        <td class="sale-product-price"></td>
+<template id="write-off-product-template">
+    <tr class="write-off-product">
+        <td><img class="write-off-product-thumbnail" width="30" src="{{ item.thumbnail }}" alt="Миниатюра"> <span class="write-off-product-sku">{{ item.custom_sku }}</span></td>
+        <td class="write-off-product-quantity"></td>
+        <td class="write-off-product-price"></td>
     </tr>
 </template>
 
-<!-- Шаблон для уведомления -->
 <template id="notification-template">
     <div class="toast align-items-center text-bg-[[type]] border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
@@ -142,7 +126,6 @@
     </div>
 </template>
 
-<!-- Шаблон для модального окна о разрыве соединения -->
 <div class="modal fade" id="connectionLostModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -162,5 +145,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'seller_cabinet/js/sales/sales.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/write_off/write_off.js' %}"></script>
 {% endblock %}

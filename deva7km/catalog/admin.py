@@ -3,7 +3,6 @@ from ckeditor.widgets import CKEditorWidget
 from django.contrib import admin
 from django.db import models
 from django.urls import path
-from django.utils.html import format_html
 from modeltranslation.admin import TranslationAdmin
 
 from deva7km import settings
@@ -36,7 +35,6 @@ class ReturnAdmin(admin.ModelAdmin):
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
     list_per_page = 25
 
-    # Метод для запрета на редактирование, если возврат завершен
     def has_change_permission(self, request, obj=None):
         if obj and hasattr(obj, 'status') and obj.status == 'completed':
             return False
@@ -61,7 +59,6 @@ class SaleAdmin(admin.ModelAdmin):
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
     list_per_page = 25
 
-    # # Метод для запрета на редактирование, если продажа завершена
     # def has_change_permission(self, request, obj=None):
     #     if obj and obj.status == 'completed':
     #         return False
@@ -95,7 +92,6 @@ class ProductModificationAdmin(SortableAdminMixin, admin.ModelAdmin):
 class ProductModificationInline(admin.TabularInline):
     model = ProductModification
     extra = 0
-    list_display = ('product', 'custom_sku', 'color', 'size', 'stock',)
     readonly_fields = ('thumbnail_image_modification',)
 
 
@@ -140,7 +136,6 @@ class InventoryAdmin(admin.ModelAdmin):
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
     list_per_page = 25
 
-    # Метод для запрета на редактирование, если оприходование завершено
     def has_change_permission(self, request, obj=None):
         if obj and obj.status == 'completed':
             return False
@@ -159,7 +154,6 @@ class WriteOffAdmin(admin.ModelAdmin):
     readonly_fields = ('calculate_total_quantity', 'calculate_total_amount')
     list_per_page = 25
 
-    # Метод для запрета на редактирование, если списание завершено
     def has_change_permission(self, request, obj=None):
         if obj and obj.status == 'completed':
             return False
@@ -176,17 +170,17 @@ class BlogPostAdmin(TranslationAdmin):
 
 
 @admin.register(Color)
-class ColorAdmin(TranslationAdmin):  # Используем TranslationAdmin
+class ColorAdmin(TranslationAdmin):
     list_display = ('name',)
 
 
 @admin.register(Size)
-class SizeAdmin(TranslationAdmin):  # Используем TranslationAdmin
+class SizeAdmin(TranslationAdmin):
     list_display = ('name',)
 
 
 @admin.register(Category)
-class CategoryAdmin(TranslationAdmin):  # Используем TranslationAdmin
+class CategoryAdmin(TranslationAdmin):
     list_display = ('name', 'description')
 
 

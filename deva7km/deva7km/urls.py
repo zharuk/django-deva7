@@ -1,4 +1,3 @@
-# deva7km/urls.py
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -6,7 +5,7 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include, re_path
 from django.views.generic import TemplateView, RedirectView
 
-from catalog import views, consumers
+from catalog import views
 from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView
 from catalog.views import home, contacts_page, category_detail, product_detail, sales, telegram_page, \
     privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page, product_search, \
@@ -34,9 +33,13 @@ urlpatterns = [
     path('seller_cabinet/', views.seller_cabinet_main, name='seller_cabinet_main'),
     path('seller_cabinet/sales/', views.seller_cabinet_sales, name='seller_cabinet_sales'),
     path('seller_cabinet/sales/list/', views.sales_list, name='sales_list'),
-    path('seller_cabinet/sales/search-products/', views.search_products, name='search_products'),
     path('seller_cabinet/returns/', views.seller_cabinet_returns, name='seller_cabinet_returns'),
     path('seller_cabinet/returns/list/', views.return_list, name='return_list'),
+    path('seller_cabinet/inventory/', views.seller_cabinet_inventory, name='seller_cabinet_inventory'),
+    path('seller_cabinet/inventory/list/', views.inventory_list, name='inventory_list'),
+    path('seller_cabinet/write-offs/', views.seller_cabinet_write_off, name='seller_cabinet_write_off'),
+    path('seller_cabinet/write-offs/list/', views.write_off_list, name='write_off_list'),
+    path('seller_cabinet/search-products/', views.search_products, name='search_products'),
     path('seller_cabinet/preorder/add/', views.preorder_create_or_edit, name='preorder_create'),
     path('seller_cabinet/preorder/<int:pk>/edit/', views.preorder_create_or_edit, name='preorder_edit'),
     path('seller_cabinet/preorder/<int:pk>/delete/', views.preorder_delete, name='preorder_delete'),

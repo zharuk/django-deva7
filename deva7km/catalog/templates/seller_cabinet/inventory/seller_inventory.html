@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}Продажи{% endblock %}
+{% block title %}Оприходование{% endblock %}
 
 {% block content %}
 <div class="toast-container position-fixed top-0 end-0 p-3" id="notificationToast">
@@ -10,9 +10,8 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <h1>Продажа товаров</h1>
-        <h3>Выбранные товары</h3>
-        <!-- Скрываем весь блок выбранных товаров по умолчанию -->
+        <h1>Оприходование товаров</h1>
+        <h3>Выбранные товары для оприходования</h3>
         <div id="cart-container" class="cart-container mb-3" style="display: none;">
             <table class="table table-sm table-responsive">
                 <thead>
@@ -26,25 +25,16 @@
                 </thead>
                 <tbody id="selected-items"></tbody>
             </table>
-            <!-- Контейнер для типа продажи и комментария -->
-            <div id="sale-details">
-                <div class="form-group">
-                    <label for="sale-type">Тип продажи</label>
-                    <select class="form-control" id="sale-type">
-                        <option value="cash">Наличная оплата</option>
-                        <option value="non_cash">Безналичная оплата</option>
-                    </select>
-                </div>
+            <div id="inventory-details">
                 <div class="form-group mt-3">
-                    <label for="sale-comment">Комментарий</label>
-                    <textarea class="form-control" id="sale-comment" rows="3"></textarea>
+                    <label for="inventory-comment">Комментарий</label>
+                    <textarea class="form-control" id="inventory-comment" rows="3"></textarea>
                 </div>
             </div>
-            <!-- Изменяем порядок кнопок -->
             <div class="text-end mt-3">
                 <h4>Итого: <span id="total-amount">0</span> грн</h4>
                 <button class="btn btn-danger btn-sm" id="clear-cart-button">Очистить</button>
-                <button class="btn btn-primary btn-sm" id="sell-button">Продать</button>
+                <button class="btn btn-primary btn-sm" id="inventory-button">Оприходовать</button>
             </div>
         </div>
     </div>
@@ -56,10 +46,10 @@
         <div id="search-results" class="dropdown-menu w-100" aria-labelledby="search-input"></div>
     </div>
     <div class="col-md-12">
-        <h3>Список продаж за сегодня</h3>
-        <div id="sales-list"></div>
+        <h3>Список оприходований за сегодня</h3>
+        <div id="inventories-list"></div>
         <div class="text-end mt-3">
-            <strong>Продано: <span id="daily-total-items">0</span>шт. на сумму <span id="daily-total-amount">0</span> грн</strong>
+            <strong>Оприходовано: <span id="daily-total-items">0</span> шт. на сумму <span id="daily-total-amount">0</span> грн</strong>
         </div>
     </div>
 </div>
@@ -100,12 +90,10 @@
     </tr>
 </template>
 
-<!-- Шаблон для строки продажи -->
-<template id="sale-item-template">
-    <div class="sale-item">
-        <h5>Продажа №<span class="sale-id"></span> в <span class="sale-time"></span> <span class="sale-user"></span></h5>
-        <div>Тип продажи: <span class="sale-type"></span></div> <!-- Поле для типа продажи -->
-        <div class="sale-comment-container">Комментарий: <span class="sale-comment"></span></div> <!-- Поле для комментария -->
+<!-- Шаблон для строки оприходования -->
+<template id="inventory-item-template">
+    <div class="inventory-item">
+        <h5>Оприходование №<span class="inventory-id"></span> в <span class="inventory-time"></span> <span class="inventory-user"></span></h5>
         <table class="table table-sm">
             <thead>
                 <tr>
@@ -114,19 +102,19 @@
                     <th>Цена</th>
                 </tr>
             </thead>
-            <tbody class="sale-products"></tbody>
+            <tbody class="inventory-products"></tbody>
         </table>
-        <div class="text-end"><strong>Итого: <span class="sale-total-amount"></span> грн</strong></div>
+        <div class="text-end"><strong>Итого: <span class="inventory-total-amount"></span> грн</strong></div>
         <hr>
     </div>
 </template>
 
-<!-- Шаблон для строки товара в продаже -->
-<template id="sale-product-template">
-    <tr class="sale-product">
-        <td><img class="sale-product-thumbnail" width="30" alt="Миниатюра"> <span class="sale-product-sku"></span></td>
-        <td class="sale-product-quantity"></td>
-        <td class="sale-product-price"></td>
+<!-- Шаблон для строки товара в оприходовании -->
+<template id="inventory-product-template">
+    <tr class="inventory-product">
+        <td><img class="inventory-product-thumbnail" width="30" src="{{ item.thumbnail }}" alt="Миниатюра"> <span class="inventory-product-sku">{{ item.custom_sku }}</span></td>
+        <td class="inventory-product-quantity"></td>
+        <td class="inventory-product-price"></td>
     </tr>
 </template>
 
@@ -162,5 +150,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'seller_cabinet/js/sales/sales.js' %}"></script>
+<script src="{% static 'seller_cabinet/js/inventory/inventory.js' %}"></script>
 {% endblock %}

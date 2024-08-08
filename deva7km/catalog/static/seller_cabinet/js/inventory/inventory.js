@@ -3,20 +3,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchResults = document.getElementById('search-results');
     const selectedItems = document.getElementById('selected-items');
     const totalAmount = document.getElementById('total-amount');
-    const sellButton = document.getElementById('sell-button');
+    const inventoryButton = document.getElementById('inventory-button');
     const clearSearchButton = document.getElementById('clear-search');
     const clearCartButton = document.getElementById('clear-cart-button');
     const searchResultTemplate = document.getElementById('search-result-template').content;
     const selectedItemTemplate = document.getElementById('selected-item-template').content;
-    const saleType = document.getElementById('sale-type'); // Поле типа продажи
-    const saleComment = document.getElementById('sale-comment'); // Поле комментария
-    const cartContainer = document.getElementById('cart-container'); // Контейнер корзины
+    const inventoryComment = document.getElementById('inventory-comment');
+    const cartContainer = document.getElementById('cart-container');
 
     let socket;
 
     function connectWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        socket = new WebSocket(`${protocol}//${window.location.host}/ws/sales/`);
+        socket = new WebSocket(`${protocol}//${window.location.host}/ws/inventory/`);
 
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
@@ -24,18 +23,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 displaySearchResults(data.results);
             } else if (data.type === 'update_total') {
                 updateTotalAmount(data.total);
-            } else if (data.type === 'sell_confirmation') {
-                showNotification('success', 'Продажа завершена', 'Продажа успешно завершена!');
-                handleSellConfirmation(data.status);
-                loadSalesList();
-            } else if (data.type === 'sell_error') {
+            } else if (data.type === 'inventory_confirmation') {
+                showNotification('success', 'Оприходование завершено', 'Оприходование успешно завершено!');
+                handleInventoryConfirmation(data.status);
+                loadInventoryList();
+            } else if (data.type === 'inventory_error') {
                 showNotification('danger', 'Ошибка', data.message);
             } else if (data.type === 'item_added') {
-                showNotification('success', 'Товар добавлен', `${data.custom_sku} добавлен в корзину`);
-            } else if (data.type === 'item_not_available') {
-                showNotification('danger', 'Ошибка', `Товар ${data.custom_sku} отсутствует на складе`);
-            } else if (data.type === 'sales_list') {
-                displaySalesList(data.sales);
+                showNotification('success', 'Товар добавлен', `${data.custom_sku} добавлен в корзину для оприходования`);
+            } else if (data.type === 'inventories_list') {
+                displayInventoryList(data.inventories);
             }
         };
 
@@ -80,8 +77,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     clearCartButton.addEventListener('click', function() {
         selectedItems.innerHTML = '';
-        cartContainer.style.display = 'none'; // Скрываем блок при очистке корзины
-        resetSaleFields(); // Сбрасываем поля
+        cartContainer.style.display = 'none';
+        resetInventoryFields();
         updateTotal();
     });
 
@@ -91,21 +88,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    sellButton.addEventListener('click', function() {
+    inventoryButton.addEventListener('click', function() {
         const items = getSelectedItems();
         if (items.length === 0) {
             showNotification('warning', 'Ошибка', 'Корзина пуста');
         } else {
-            const saleData = {
-                'type': 'create_sale',
+            const inventoryData = {
+                'type': 'create_inventory',
                 'user_id': 1,
                 'telegram_user_id': null,
                 'source': 'site',
-                'payment_method': saleType.value, // Получаем выбранный тип продажи
-                'comment': saleComment.value, // Получаем комментарий
+                'comment': inventoryComment.value,
                 'items': items
             };
-            sendSocketMessage(saleData);
+            sendSocketMessage(inventoryData);
         }
     });
 
@@ -132,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
 
-                addButton.addEventListener('click', () => checkAvailabilityAndAddItem(item.sku, item.price, item.stock, item.thumbnail, parseInt(quantityDisplay.textContent)));
+                addButton.addEventListener('click', () => addItem(item.sku, item.price, item.thumbnail, parseInt(quantityDisplay.textContent)));
                 searchResults.appendChild(row);
             });
         } else {
@@ -144,60 +140,50 @@ document.addEventListener('DOMContentLoaded', function() {
         searchResults.classList.add('show');
     }
 
-    function displaySalesList(sales) {
-        const salesList = document.getElementById('sales-list');
-        salesList.innerHTML = '';
+    function displayInventoryList(inventories) {
+        const inventoriesList = document.getElementById('inventories-list');
+        inventoriesList.innerHTML = '';
         let totalItems = 0;
         let totalAmount = 0;
 
-        sales.forEach(sale => {
-            const saleTemplate = document.getElementById('sale-item-template').content.cloneNode(true);
-            saleTemplate.querySelector('.sale-id').textContent = sale.id;
-            saleTemplate.querySelector('.sale-time').textContent = new Date(sale.created_at).toLocaleTimeString();
-            saleTemplate.querySelector('.sale-user').textContent = sale.user || 'Неизвестно';
-            saleTemplate.querySelector('.sale-total-amount').textContent = sale.total_amount;
-            saleTemplate.querySelector('.sale-type').textContent = sale.payment_method;  // Отображаем тип продажи
+        inventories.forEach(inventory_obj => {
+            const inventoryTemplate = document.getElementById('inventory-item-template').content.cloneNode(true);
+            inventoryTemplate.querySelector('.inventory-id').textContent = inventory_obj.id;
+            inventoryTemplate.querySelector('.inventory-time').textContent = new Date(inventory_obj.created_at).toLocaleTimeString();
+            inventoryTemplate.querySelector('.inventory-user').textContent = inventory_obj.user || 'Неизвестно';
+            inventoryTemplate.querySelector('.inventory-total-amount').textContent = inventory_obj.total_amount;
 
-            if (sale.comment) {
-                saleTemplate.querySelector('.sale-comment').textContent = sale.comment;  // Отображаем комментарий
-            } else {
-                saleTemplate.querySelector('.sale-comment-container').style.display = 'none';  // Скрываем контейнер комментария
-            }
-
-            const saleProductsContainer = saleTemplate.querySelector('.sale-products');
-            sale.items.forEach(item => {
-                const productTemplate = document.getElementById('sale-product-template').content.cloneNode(true);
-                productTemplate.querySelector('.sale-product-thumbnail').src = item.thumbnail;
-                productTemplate.querySelector('.sale-product-sku').textContent = item.custom_sku;
-                productTemplate.querySelector('.sale-product-quantity').textContent = `${item.quantity} шт.`;
-                productTemplate.querySelector('.sale-product-price').textContent = `${item.total_price} грн`;
-                saleProductsContainer.appendChild(productTemplate);
+            const inventoryProductsContainer = inventoryTemplate.querySelector('.inventory-products');
+            inventory_obj.items.forEach(item => {
+                const productTemplate = document.getElementById('inventory-product-template').content.cloneNode(true);
+                const thumbnailElement = productTemplate.querySelector('.inventory-product-thumbnail');
+                if (item.thumbnail) {
+                    thumbnailElement.src = item.thumbnail;
+                } else {
+                    thumbnailElement.alt = 'Нет изображения';
+                }
+                productTemplate.querySelector('.inventory-product-sku').textContent = item.custom_sku;
+                productTemplate.querySelector('.inventory-product-quantity').textContent = `${item.quantity} шт.`;
+                productTemplate.querySelector('.inventory-product-price').textContent = `${item.total_price} грн`;
+                inventoryProductsContainer.appendChild(productTemplate);
             });
 
-            salesList.appendChild(saleTemplate);
-            totalItems += sale.items.reduce((sum, item) => sum + item.quantity, 0);
-            totalAmount += sale.total_amount;
+            inventoriesList.appendChild(inventoryTemplate);
+            totalItems += inventory_obj.items.reduce((sum, item) => sum + item.quantity, 0);
+            totalAmount += inventory_obj.total_amount;
         });
 
         document.getElementById('daily-total-items').textContent = totalItems;
         document.getElementById('daily-total-amount').textContent = totalAmount;
     }
 
-    window.checkAvailabilityAndAddItem = function(sku, price, stock, thumbnail, quantity) {
+    window.addItem = function(sku, price, thumbnail, quantity) {
         const existingItem = [...selectedItems.querySelectorAll('tr')].find(row => row.querySelector('.selected-item-sku').textContent === sku);
-        const currentStock = stock - parseInt(quantity);
 
-        if (currentStock < 0) {
-            showNotification('danger', 'Ошибка', `Недостаточно товара ${sku} на складе`);
-        } else if (existingItem) {
+        if (existingItem) {
             const existingQuantity = existingItem.querySelector('.quantity-display');
-            const newQuantity = parseInt(existingQuantity.textContent) + quantity;
-            if (newQuantity <= stock) {
-                existingQuantity.textContent = newQuantity;
-                updateTotal();
-            } else {
-                showNotification('danger', 'Ошибка', `Недостаточно товара ${sku} на складе`);
-            }
+            existingQuantity.textContent = parseInt(existingQuantity.textContent) + quantity;
+            updateTotal();
         } else {
             const row = document.importNode(selectedItemTemplate, true);
             row.querySelector('.selected-item-thumbnail').src = thumbnail || '';
@@ -224,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
             removeButton.addEventListener('click', () => removeItem(removeButton));
 
             selectedItems.appendChild(row);
-            cartContainer.style.display = 'block'; // Показываем блок при добавлении первого товара
+            cartContainer.style.display = 'block';
             updateTotal();
 
             sendSocketMessage({
@@ -232,7 +218,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 'custom_sku': sku
             });
 
-            // Проверяем, есть ли текст в поле поиска и оставляем выпадающий список видимым
             if (searchInput.value.trim() !== '') {
                 searchResults.classList.add('show');
             }
@@ -243,8 +228,8 @@ document.addEventListener('DOMContentLoaded', function() {
         button.closest('tr').remove();
         updateTotal();
         if (selectedItems.children.length === 0) {
-            cartContainer.style.display = 'none'; // Скрываем блок, если корзина пуста
-            resetSaleFields(); // Сбрасываем поля
+            cartContainer.style.display = 'none';
+            resetInventoryFields();
         }
     };
 
@@ -320,29 +305,28 @@ document.addEventListener('DOMContentLoaded', function() {
         connectionLostModal.show();
     }
 
-    function handleSellConfirmation(status) {
+    function handleInventoryConfirmation(status) {
         if (status === 'success') {
             selectedItems.innerHTML = '';
-            cartContainer.style.display = 'none'; // Скрываем блок после проведения продажи
-            resetSaleFields(); // Сбрасываем поля
+            cartContainer.style.display = 'none';
+            resetInventoryFields();
             updateTotal();
-            loadSalesList();
+            loadInventoryList();
         }
     }
 
-    function resetSaleFields() {
-        saleType.value = 'cash'; // Сбрасываем тип продажи на наличный
-        saleComment.value = ''; // Очищаем комментарий
+    function resetInventoryFields() {
+        inventoryComment.value = '';
     }
 
-    function loadSalesList() {
-        fetch('/seller_cabinet/sales/list/')
+    function loadInventoryList() {
+        fetch('/seller_cabinet/inventory/list/')
             .then(response => response.json())
             .then(data => {
-                displaySalesList(data.sales);
+                displayInventoryList(data.inventories);
             })
-            .catch(error => console.error('Error loading sales list:', error));
+            .catch(error => console.error('Error loading inventory list:', error));
     }
 
-    loadSalesList();
+    loadInventoryList();
 });

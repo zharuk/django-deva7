@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('input', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
-            fetch(`/seller_cabinet/sales/search-products/?query=${query}`)
+            fetch(`/seller_cabinet/search-products/?query=${query}`)
                 .then(response => response.json())
                 .then(data => {
                     displaySearchResults(data.results);
@@ -153,16 +153,20 @@ document.addEventListener('DOMContentLoaded', function() {
             returnTemplate.querySelector('.return-user').textContent = return_obj.user || 'Неизвестно';
             returnTemplate.querySelector('.return-total-amount').textContent = return_obj.total_amount;
 
+            if (return_obj.comment) {
+                returnTemplate.querySelector('.return-comment').textContent = return_obj.comment;  // Отображаем комментарий
+            } else {
+                returnTemplate.querySelector('.return-comment-container').style.display = 'none';  // Скрываем контейнер комментария
+            }
+
             const returnProductsContainer = returnTemplate.querySelector('.return-products');
             return_obj.items.forEach(item => {
                 const productTemplate = document.getElementById('return-product-template').content.cloneNode(true);
                 const thumbnailElement = productTemplate.querySelector('.return-product-thumbnail');
                 if (item.thumbnail) {
                     thumbnailElement.src = item.thumbnail;
-                    console.log(`Setting thumbnail src: ${item.thumbnail}`);  // Дополнительная отладка
                 } else {
                     thumbnailElement.alt = 'Нет изображения';
-                    console.log('Setting thumbnail alt: Нет изображения');  // Дополнительная отладка
                 }
                 productTemplate.querySelector('.return-product-sku').textContent = item.custom_sku;
                 productTemplate.querySelector('.return-product-quantity').textContent = `${item.quantity} шт.`;

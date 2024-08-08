@@ -175,3 +175,28 @@
     right: 20; /* Расположение справа */
     z-index: 1050; /* Поверх остальных элементов */
 }
+
+.navbar-nav .nav-link.sales {
+    background-color: #21610B; /* Темный серо-зеленый для "Продажи" */
+    color: white;
+}
+
+.navbar-nav .nav-link.returns {
+    background-color: #610B0B; /* Темный красный для "Возвраты" */
+    color: white;
+}
+
+.navbar-nav .nav-link.inventory {
+    background-color: #B8860B; /* Темный золотой для "Оприходование" */
+    color: white;
+}
+
+.navbar-nav .nav-link.write-off {
+    background-color: #0B0B61; /* Темный синий для "Списание" */
+    color: white;
+}
+
+.navbar-nav .nav-link.preorder {
+    background-color: #2F2F2F; /* Темный серый для "Предзаказы" */
+    color: white;
+}

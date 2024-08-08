@@ -1,5 +1,7 @@
 import json
 import logging
+from datetime import datetime
+
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from django.contrib.auth.models import User
@@ -7,7 +9,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.db.models import Q
-from .models import PreOrder, ProductModification, Sale, SaleItem, TelegramUser, Return, ReturnItem
+from .models import PreOrder, ProductModification, Sale, SaleItem, TelegramUser, Return, ReturnItem, Inventory, \
+    InventoryItem, WriteOff, WriteOffItem
 from .novaposhta import update_tracking_status
 
 
@@ -191,7 +194,8 @@ class SalesConsumer(WebsocketConsumer):
         elif data_type == 'add_item':
             self.add_item_to_sale(data.get('custom_sku', ''), data.get('quantity', 1))
         elif data_type == 'create_sale':
-            self.create_sale(data.get('user_id'), data.get('telegram_user_id'), data.get('source'), data.get('payment_method'), data.get('comment', ''), data.get('items'))
+            self.create_sale(data.get('user_id'), data.get('telegram_user_id'), data.get('source'),
+                             data.get('payment_method'), data.get('comment', ''), data.get('items'))
         elif data_type == 'update_total':
             self.update_total(data.get('total', 0))
         elif data_type == 'item_added':
@@ -199,7 +203,8 @@ class SalesConsumer(WebsocketConsumer):
 
     def search_items(self, query):
         results = ProductModification.objects.filter(custom_sku__icontains=query)
-        products = [{'name': f"{r.product.title}-{r.custom_sku}", 'stock': r.stock, 'price': r.product.price, 'custom_sku': r.custom_sku} for r in results]
+        products = [{'name': f"{r.product.title}-{r.custom_sku}", 'stock': r.stock, 'price': r.product.price,
+                     'custom_sku': r.custom_sku, 'thumbnail': r.thumbnail_image_url()} for r in results]
         self.send(text_data=json.dumps({
             'type': 'search_results',
             'results': products
@@ -238,8 +243,8 @@ class SalesConsumer(WebsocketConsumer):
             user_id=user_id,
             telegram_user_id=telegram_user_id,
             source=source,
-            payment_method=payment_method,  # Получаем тип продажи
-            comment=comment  # Получаем комментарий
+            payment_method=payment_method,
+            comment=comment
         )
 
         for item in items:
@@ -319,7 +324,7 @@ class ReturnConsumer(WebsocketConsumer):
                 source=data['source'],
                 comment=data['comment']
             )
-            return_obj.save()  # Сохраняем объект перед созданием элементов возврата
+            return_obj.save()
 
             for item in items:
                 product_modification = ProductModification.objects.get(custom_sku=item['custom_sku'])
@@ -347,7 +352,8 @@ class ReturnConsumer(WebsocketConsumer):
             }))
 
     def send_return_list(self):
-        returns = Return.objects.all()
+        today = datetime.now().date()
+        returns = Return.objects.filter(created_at__date=today)
         self.send(text_data=json.dumps({
             'type': 'returns_list',
             'returns': [self.return_to_dict(return_obj) for return_obj in returns]
@@ -364,8 +370,174 @@ class ReturnConsumer(WebsocketConsumer):
                     'custom_sku': item.product_modification.custom_sku,
                     'quantity': item.quantity,
                     'total_price': item.total_price(),
-                    'thumbnail': item.thumbnail_image_url()  # Используем метод для получения строки URL
+                    'thumbnail': item.product_modification.thumbnail_image_url()
                 }
                 for item in return_obj.items.all()
+            ]
+        }
+
+
+class InventoryConsumer(WebsocketConsumer):
+    def connect(self):
+        self.accept()
+
+    def disconnect(self, close_code):
+        pass
+
+    def receive(self, text_data):
+        data = json.loads(text_data)
+        if data['type'] == 'create_inventory':
+            self.create_inventory(data)
+
+    def create_inventory(self, data):
+        items = data['items']
+
+        try:
+            user = User.objects.get(id=data['user_id'])
+        except User.DoesNotExist:
+            self.send(text_data=json.dumps({
+                'type': 'inventory_error',
+                'message': 'User not found'
+            }))
+            return
+
+        try:
+            inventory_obj = Inventory(
+                user=user,
+                comment=data['comment']
+            )
+            inventory_obj.save()
+
+            for item in items:
+                product_modification = ProductModification.objects.get(custom_sku=item['custom_sku'])
+                InventoryItem.objects.create(
+                    inventory=inventory_obj,
+                    product_modification=product_modification,
+                    quantity=item['quantity']
+                )
+
+            self.send(text_data=json.dumps({
+                'type': 'inventory_confirmation',
+                'status': 'success'
+            }))
+
+            self.send_inventory_list()
+        except ProductModification.DoesNotExist:
+            self.send(text_data=json.dumps({
+                'type': 'inventory_error',
+                'message': f'Product modification with SKU {item["custom_sku"]} not found'
+            }))
+        except Exception as e:
+            self.send(text_data=json.dumps({
+                'type': 'inventory_error',
+                'message': str(e)
+            }))
+
+    def send_inventory_list(self):
+        today = datetime.now().date()
+        inventories = Inventory.objects.filter(created_at__date=today)
+        self.send(text_data=json.dumps({
+            'type': 'inventories_list',
+            'inventories': [self.inventory_to_dict(inventory_obj) for inventory_obj in inventories]
+        }))
+
+    def inventory_to_dict(self, inventory_obj):
+        return {
+            'id': inventory_obj.id,
+            'created_at': inventory_obj.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'user': inventory_obj.user.username if inventory_obj.user else 'Неизвестно',
+            'total_amount': inventory_obj.calculate_total_amount(),
+            'items': [
+                {
+                    'custom_sku': item.product_modification.custom_sku,
+                    'quantity': item.quantity,
+                    'total_price': item.total_price(),
+                    'thumbnail': item.product_modification.thumbnail_image_url()
+                }
+                for item in inventory_obj.items.all()
+            ]
+        }
+
+
+class WriteOffConsumer(WebsocketConsumer):
+    def connect(self):
+        self.accept()
+
+    def disconnect(self, close_code):
+        pass
+
+    def receive(self, text_data):
+        data = json.loads(text_data)
+        if data['type'] == 'create_write_off':
+            self.create_write_off(data)
+
+    def create_write_off(self, data):
+        items = data['items']
+
+        try:
+            user = User.objects.get(id=data['user_id'])
+        except User.DoesNotExist:
+            self.send(text_data=json.dumps({
+                'type': 'write_off_error',
+                'message': 'User not found'
+            }))
+            return
+
+        try:
+            write_off = WriteOff(
+                user=user,
+                telegram_user_id=data.get('telegram_user_id'),
+                source=data['source'],
+                comment=data['comment']
+            )
+            write_off.save()
+
+            for item in items:
+                product_modification = ProductModification.objects.get(custom_sku=item['custom_sku'])
+                WriteOffItem.objects.create(
+                    write_off=write_off,
+                    product_modification=product_modification,
+                    quantity=item['quantity']
+                )
+
+            self.send(text_data=json.dumps({
+                'type': 'write_off_confirmation',
+                'status': 'success'
+            }))
+
+            self.send_write_off_list()
+        except ProductModification.DoesNotExist:
+            self.send(text_data=json.dumps({
+                'type': 'write_off_error',
+                'message': f'Product modification with SKU {item["custom_sku"]} not found'
+            }))
+        except Exception as e:
+            self.send(text_data=json.dumps({
+                'type': 'write_off_error',
+                'message': str(e)
+            }))
+
+    def send_write_off_list(self):
+        today = datetime.now().date()
+        write_offs = WriteOff.objects.filter(created_at__date=today)
+        self.send(text_data=json.dumps({
+            'type': 'write_offs_list',
+            'write_offs': [self.write_off_to_dict(write_off) for write_off in write_offs]
+        }))
+
+    def write_off_to_dict(self, write_off):
+        return {
+            'id': write_off.id,
+            'created_at': write_off.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'user': write_off.user.username if write_off.user else 'Неизвестно',
+            'total_amount': write_off.calculate_total_amount(),
+            'items': [
+                {
+                    'custom_sku': item.product_modification.custom_sku,
+                    'quantity': item.quantity,
+                    'total_price': item.total_price(),
+                    'thumbnail': item.product_modification.thumbnail_image_url()
+                }
+                for item in write_off.items.all()
             ]
         }

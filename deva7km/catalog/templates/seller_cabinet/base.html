@@ -23,13 +23,19 @@
                         <a class="nav-link" href="{% url 'seller_cabinet_main' %}">Главная</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'seller_cabinet_sales' %}">Продажи</a>
+                        <a class="nav-link sales" href="{% url 'seller_cabinet_sales' %}">Продажи</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'seller_cabinet_returns' %}">Возвраты</a>
+                        <a class="nav-link returns" href="{% url 'seller_cabinet_returns' %}">Возвраты</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'preorder_list' %}">Предзаказы</a>
+                        <a class="nav-link inventory" href="{% url 'seller_cabinet_inventory' %}">Оприходование</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link write-off" href="{% url 'seller_cabinet_write_off' %}">Списание</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link preorder" href="{% url 'preorder_list' %}">Предзаказы</a>
                     </li>
                     <!-- другие ссылки -->
                 </ul>
