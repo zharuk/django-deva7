@@ -398,7 +398,7 @@ def seller_cabinet_sales(request):
 
 
 @login_required
-def search_products(request):
+def search_products_for_seller_cabinet(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
         results = ProductModification.objects.filter(custom_sku__icontains=query)
