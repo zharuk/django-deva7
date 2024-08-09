@@ -195,3 +195,28 @@
 .navbar-nav .nav-link.preorder {
     background-color: #D3D3D3; /* Светло-серый для "Предзаказы" */
 }
+
+.d-flex .btn.sales {
+    background-color: #90EE90 !important;
+    color: black !important;
+}
+
+.d-flex .btn.returns {
+    background-color: #FF7F7F !important;
+    color: black !important;
+}
+
+.d-flex .btn.inventory {
+    background-color: #F4FA58 !important;
+    color: black !important;
+}
+
+.d-flex .btn.write-off {
+    background-color: #ADD8E6 !important;
+    color: black !important;
+}
+
+.d-flex .btn.preorder {
+    background-color: #D3D3D3 !important;
+    color: black !important;
+}
