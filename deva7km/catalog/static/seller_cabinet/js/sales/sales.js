@@ -173,40 +173,45 @@ document.addEventListener('DOMContentLoaded', function() {
     function displaySalesList(sales) {
         const salesList = document.getElementById('sales-list');
         salesList.innerHTML = '';
-        let totalItems = 0;
-        let totalAmount = 0;
 
-        sales.forEach(sale => {
-            const saleTemplate = document.getElementById('sale-item-template').content.cloneNode(true);
-            saleTemplate.querySelector('.sale-id').textContent = sale.id;
-            saleTemplate.querySelector('.sale-time').textContent = new Date(sale.created_at).toLocaleTimeString();
-            saleTemplate.querySelector('.sale-user').textContent = sale.user || 'Неизвестно';
-            saleTemplate.querySelector('.sale-total-amount').textContent = sale.total_amount;
-            saleTemplate.querySelector('.sale-type').textContent = sale.payment_method;
+        if (sales.length === 0) {
+            salesList.innerHTML = '<p>Продажи отсутствуют.</p>';
+        } else {
+            let totalItems = 0;
+            let totalAmount = 0;
 
-            if (sale.comment) {
-                saleTemplate.querySelector('.sale-comment').textContent = sale.comment;
-            } else {
-                saleTemplate.querySelector('.sale-comment-container').style.display = 'none';
-            }
+            sales.forEach(sale => {
+                const saleTemplate = document.getElementById('sale-item-template').content.cloneNode(true);
+                saleTemplate.querySelector('.sale-id').textContent = sale.id;
+                saleTemplate.querySelector('.sale-time').textContent = new Date(sale.created_at).toLocaleTimeString();
+                saleTemplate.querySelector('.sale-user').textContent = sale.user || 'Неизвестно';
+                saleTemplate.querySelector('.sale-total-amount').textContent = sale.total_amount;
+                saleTemplate.querySelector('.sale-type').textContent = sale.payment_method;
 
-            const saleProductsContainer = saleTemplate.querySelector('.sale-products');
-            sale.items.forEach(item => {
-                const productTemplate = document.getElementById('sale-product-template').content.cloneNode(true);
-                productTemplate.querySelector('.sale-product-thumbnail').src = item.thumbnail;
-                productTemplate.querySelector('.sale-product-sku').textContent = item.custom_sku;
-                productTemplate.querySelector('.sale-product-quantity').textContent = `${item.quantity} шт.`;
-                productTemplate.querySelector('.sale-product-price').textContent = `${item.total_price} грн`;
-                saleProductsContainer.appendChild(productTemplate);
+                if (sale.comment) {
+                    saleTemplate.querySelector('.sale-comment').textContent = sale.comment;
+                } else {
+                    saleTemplate.querySelector('.sale-comment-container').style.display = 'none';
+                }
+
+                const saleProductsContainer = saleTemplate.querySelector('.sale-products');
+                sale.items.forEach(item => {
+                    const productTemplate = document.getElementById('sale-product-template').content.cloneNode(true);
+                    productTemplate.querySelector('.sale-product-thumbnail').src = item.thumbnail;
+                    productTemplate.querySelector('.sale-product-sku').textContent = item.custom_sku;
+                    productTemplate.querySelector('.sale-product-quantity').textContent = `${item.quantity} шт.`;
+                    productTemplate.querySelector('.sale-product-price').textContent = `${item.total_price} грн`;
+                    saleProductsContainer.appendChild(productTemplate);
+                });
+
+                salesList.appendChild(saleTemplate);
+                totalItems += sale.items.reduce((sum, item) => sum + item.quantity, 0);
+                totalAmount += sale.total_amount;
             });
 
-            salesList.appendChild(saleTemplate);
-            totalItems += sale.items.reduce((sum, item) => sum + item.quantity, 0);
-            totalAmount += sale.total_amount;
-        });
-
-        document.getElementById('daily-total-items').textContent = totalItems;
-        document.getElementById('daily-total-amount').textContent = totalAmount;
+            document.getElementById('daily-total-items').textContent = totalItems;
+            document.getElementById('daily-total-amount').textContent = totalAmount;
+        }
     }
 
     window.checkAvailabilityAndAddItem = function(sku, price, stock, thumbnail, quantity) {
