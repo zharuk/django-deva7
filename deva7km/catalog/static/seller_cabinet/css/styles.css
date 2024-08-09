@@ -223,9 +223,20 @@
 
 @media (max-width: 991.98px) {
     .navbar-collapse .order-lg-2 {
-        order: -1; /* Перемещает блок с информацией о пользователе вверх */
+        order: -1;
+        flex-direction: column;
+        justify-content: space-between;
     }
-    .navbar-collapse .order-lg-2 {
-        justify-content: flex-end; /* Выравнивает блок по правому краю */
+
+    .navbar-collapse .order-lg-2 .d-flex {
+        justify-content: flex-end;
+        width: 100%;
+    }
+
+    .navbar-collapse .order-lg-2 .navbar-text {
+        margin-bottom: 0.5rem;
+        width: 100%;
+        text-align: left;
     }
 }
+
