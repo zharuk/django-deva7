@@ -18,7 +18,18 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <div class="d-flex flex-grow-1 order-lg-2 justify-content-between align-items-center">
+                    {% if user.is_authenticated %}
+                        <span class="navbar-text">Привет, {{ user.first_name }}!</span>
+                        <div class="d-flex">
+                            <a href="{% url 'profile' %}" class="btn btn-info btn-sm me-2">Профиль</a>
+                            <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Выйти</a>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-sm ms-auto">Войти</a>
+                    {% endif %}
+                </div>
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 order-lg-1">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'seller_cabinet_main' %}">Главная</a>
                     </li>

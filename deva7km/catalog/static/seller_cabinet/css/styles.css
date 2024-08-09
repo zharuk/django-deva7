@@ -220,3 +220,12 @@
     background-color: #D3D3D3 !important;
     color: black !important;
 }
+
+@media (max-width: 991.98px) {
+    .navbar-collapse .order-lg-2 {
+        order: -1; /* Перемещает блок с информацией о пользователе вверх */
+    }
+    .navbar-collapse .order-lg-2 {
+        justify-content: flex-end; /* Выравнивает блок по правому краю */
+    }
+}
