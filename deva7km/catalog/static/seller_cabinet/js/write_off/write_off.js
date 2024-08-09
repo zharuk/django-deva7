@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация переменных и шаблонов
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
     const selectedItems = document.getElementById('selected-items');
@@ -10,58 +11,85 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedItemTemplate = document.getElementById('selected-item-template').content;
     const writeOffComment = document.getElementById('write-off-comment');
     const cartContainer = document.getElementById('cart-container');
+    const writeOffsList = document.getElementById('write-offs-list');
 
     let socket;
 
+    // Функция подключения WebSocket
     function connectWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         socket = new WebSocket(`${protocol}//${window.location.host}/ws/write_off/`);
 
+        // Обработчик открытия соединения WebSocket
+        socket.onopen = function() {
+            // Запрашиваем список списаний при успешном открытии соединения
+            requestWriteOffList();
+        };
+
+        // Обработчик сообщений WebSocket
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            if (data.type === 'search_results') {
-                displaySearchResults(data.results);
-            } else if (data.type === 'update_total') {
-                updateTotalAmount(data.total);
-            } else if (data.type === 'write_off_confirmation') {
-                showNotification('success', 'Списание завершено', 'Списание успешно завершено!');
-                handleWriteOffConfirmation(data.status);
-                loadWriteOffList();
-            } else if (data.type === 'write_off_error') {
-                showNotification('danger', 'Ошибка', data.message);
-            } else if (data.type === 'item_added') {
-                showNotification('success', 'Товар добавлен', `${data.custom_sku} добавлен в корзину для списания`);
-            } else if (data.type === 'write_offs_list') {
-                displayWriteOffList(data.write_offs);
+            switch (data.type) {
+                case 'search_results':
+                    displaySearchResults(data.results);
+                    break;
+                case 'update_total':
+                    updateTotalAmount(data.total);
+                    break;
+                case 'write_off_confirmation':
+                    showNotification('success', 'Списание завершено', 'Списание успешно завершено!');
+                    handleWriteOffConfirmation(data.status);
+                    break;
+                case 'write_off_error':
+                    showNotification('danger', 'Ошибка', data.message);
+                    break;
+                case 'item_added':
+                    showNotification('success', 'Товар добавлен', `${data.custom_sku} добавлен в корзину для списания`);
+                    break;
+                case 'write_offs_list':
+                    displayWriteOffList(data.write_offs);
+                    break;
             }
         };
 
-        socket.onclose = function(e) {
+        // Обработчик закрытия WebSocket
+        socket.onclose = function() {
             showConnectionLostModal();
             setTimeout(connectWebSocket, 1000);
         };
 
+        // Обработчик ошибок WebSocket
         socket.onerror = function(e) {
             console.error('Ошибка WebSocket:', e);
         };
     }
 
+    // Подключение WebSocket
     connectWebSocket();
 
+    // Функция отправки сообщения через WebSocket
     function sendSocketMessage(message) {
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(message));
+        } else {
+            socket.addEventListener('open', () => {
+                socket.send(JSON.stringify(message));
+            });
         }
     }
 
+    // Запрос списка списаний при загрузке страницы
+    function requestWriteOffList() {
+        sendSocketMessage({ 'type': 'get_write_off_list' });
+    }
+
+    // Обработчик поиска товаров
     searchInput.addEventListener('input', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
             fetch(`/seller_cabinet/search-products/?query=${query}`)
                 .then(response => response.json())
-                .then(data => {
-                    displaySearchResults(data.results);
-                })
+                .then(data => displaySearchResults(data.results))
                 .catch(error => console.error('Error:', error));
         } else {
             searchResults.innerHTML = '';
@@ -69,12 +97,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Очистка поля поиска
     clearSearchButton.addEventListener('click', function() {
         searchInput.value = '';
         searchResults.innerHTML = '';
         searchResults.classList.remove('show');
     });
 
+    // Очистка корзины
     clearCartButton.addEventListener('click', function() {
         selectedItems.innerHTML = '';
         cartContainer.style.display = 'none';
@@ -82,12 +112,14 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTotal();
     });
 
+    // Закрытие списка результатов поиска при клике вне его
     document.addEventListener('click', function(e) {
         if (!searchResults.contains(e.target) && !searchInput.contains(e.target)) {
             searchResults.classList.remove('show');
         }
     });
 
+    // Обработчик кнопки списания
     writeOffButton.addEventListener('click', function() {
         const items = getSelectedItems();
         if (items.length === 0) {
@@ -105,6 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Функция отображения результатов поиска
     function displaySearchResults(results) {
         searchResults.innerHTML = '';
         if (results.length > 0) {
@@ -113,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.querySelector('.search-item-thumbnail').src = item.thumbnail || '';
                 row.querySelector('.search-item-sku').textContent = item.sku;
                 row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${item.price} грн`;
+
                 const addButton = row.querySelector('.search-item-add-button');
                 const quantityDisplay = row.querySelector('.quantity-display');
                 const incrementButton = row.querySelector('.increment-button');
@@ -140,43 +174,48 @@ document.addEventListener('DOMContentLoaded', function() {
         searchResults.classList.add('show');
     }
 
+    // Функция отображения списка списаний
     function displayWriteOffList(writeOffs) {
-        const writeOffsList = document.getElementById('write-offs-list');
         writeOffsList.innerHTML = '';
-        let totalItems = 0;
-        let totalAmount = 0;
+        if (writeOffs.length === 0) {
+            writeOffsList.innerHTML = '<p>Списания отсутствуют.</p>';
+        } else {
+            let totalItems = 0;
+            let totalAmount = 0;
 
-        writeOffs.forEach(writeOff => {
-            const writeOffTemplate = document.getElementById('write-off-item-template').content.cloneNode(true);
-            writeOffTemplate.querySelector('.write-off-id').textContent = writeOff.id;
-            writeOffTemplate.querySelector('.write-off-time').textContent = new Date(writeOff.created_at).toLocaleTimeString();
-            writeOffTemplate.querySelector('.write-off-user').textContent = writeOff.user || 'Неизвестно';
-            writeOffTemplate.querySelector('.write-off-total-amount').textContent = writeOff.total_amount;
+            writeOffs.forEach(writeOff => {
+                const writeOffTemplate = document.getElementById('write-off-item-template').content.cloneNode(true);
+                writeOffTemplate.querySelector('.write-off-id').textContent = writeOff.id;
+                writeOffTemplate.querySelector('.write-off-time').textContent = new Date(writeOff.created_at).toLocaleTimeString();
+                writeOffTemplate.querySelector('.write-off-user').textContent = writeOff.user || 'Неизвестно';
+                writeOffTemplate.querySelector('.write-off-total-amount').textContent = writeOff.total_amount;
 
-            const writeOffProductsContainer = writeOffTemplate.querySelector('.write-off-products');
-            writeOff.items.forEach(item => {
-                const productTemplate = document.getElementById('write-off-product-template').content.cloneNode(true);
-                const thumbnailElement = productTemplate.querySelector('.write-off-product-thumbnail');
-                if (item.thumbnail) {
-                    thumbnailElement.src = item.thumbnail;
-                } else {
-                    thumbnailElement.alt = 'Нет изображения';
-                }
-                productTemplate.querySelector('.write-off-product-sku').textContent = item.custom_sku;
-                productTemplate.querySelector('.write-off-product-quantity').textContent = `${item.quantity} шт.`;
-                productTemplate.querySelector('.write-off-product-price').textContent = `${item.total_price} грн`;
-                writeOffProductsContainer.appendChild(productTemplate);
+                const writeOffProductsContainer = writeOffTemplate.querySelector('.write-off-products');
+                writeOff.items.forEach(item => {
+                    const productTemplate = document.getElementById('write-off-product-template').content.cloneNode(true);
+                    const thumbnailElement = productTemplate.querySelector('.write-off-product-thumbnail');
+                    if (item.thumbnail) {
+                        thumbnailElement.src = item.thumbnail;
+                    } else {
+                        thumbnailElement.alt = 'Нет изображения';
+                    }
+                    productTemplate.querySelector('.write-off-product-sku').textContent = item.custom_sku;
+                    productTemplate.querySelector('.write-off-product-quantity').textContent = `${item.quantity} шт.`;
+                    productTemplate.querySelector('.write-off-product-price').textContent = `${item.total_price} грн`;
+                    writeOffProductsContainer.appendChild(productTemplate);
+                });
+
+                writeOffsList.appendChild(writeOffTemplate);
+                totalItems += writeOff.items.reduce((sum, item) => sum + item.quantity, 0);
+                totalAmount += writeOff.total_amount;
             });
 
-            writeOffsList.appendChild(writeOffTemplate);
-            totalItems += writeOff.items.reduce((sum, item) => sum + item.quantity, 0);
-            totalAmount += writeOff.total_amount;
-        });
-
-        document.getElementById('daily-total-items').textContent = totalItems;
-        document.getElementById('daily-total-amount').textContent = totalAmount;
+            document.getElementById('daily-total-items').textContent = totalItems;
+            document.getElementById('daily-total-amount').textContent = totalAmount;
+        }
     }
 
+    // Функция добавления товара в корзину
     window.addItem = function(sku, price, thumbnail, quantity) {
         const existingItem = [...selectedItems.querySelectorAll('tr')].find(row => row.querySelector('.selected-item-sku').textContent === sku);
 
@@ -190,6 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
             row.querySelector('.selected-item-sku').textContent = sku;
             row.querySelector('.quantity-display').textContent = quantity;
             row.querySelector('.selected-item-price').textContent = price;
+
             const removeButton = row.querySelector('.selected-item-remove-button');
             const incrementButton = row.querySelector('.increment-button');
             const decrementButton = row.querySelector('.decrement-button');
@@ -224,6 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Функция удаления товара из корзины
     window.removeItem = function(button) {
         button.closest('tr').remove();
         updateTotal();
@@ -233,6 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Функция обновления общей суммы
     function updateTotal() {
         let total = 0;
         selectedItems.querySelectorAll('tr').forEach(row => {
@@ -249,6 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Получение выбранных товаров
     function getSelectedItems() {
         const items = [];
         selectedItems.querySelectorAll('tr').forEach(row => {
@@ -261,6 +304,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return items;
     }
 
+    // Обновление общей суммы на стороне клиента
     function updateTotalAmount(total) {
         if (totalAmount) {
             totalAmount.textContent = total;
@@ -269,6 +313,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Добавляем обработчик фокуса на поле поиска
+    searchInput.addEventListener('focus', function() {
+        const query = searchInput.value.trim();
+        if (query.length >= 3) {
+            fetchSearchResults(query);
+        }
+    });
+
+    function fetchSearchResults(query) {
+        fetch(`/seller_cabinet/search-products/?query=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                displaySearchResults(data.results);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Показ уведомления
     function showNotification(type, title, message) {
         const toastContainer = document.getElementById('notificationToast');
         const toastMessage = document.createElement('div');
@@ -297,6 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
     }
 
+    // Показ модального окна при потере соединения
     function showConnectionLostModal() {
         const connectionLostModal = new bootstrap.Modal(document.getElementById('connectionLostModal'), {
             backdrop: 'static',
@@ -305,28 +368,19 @@ document.addEventListener('DOMContentLoaded', function() {
         connectionLostModal.show();
     }
 
+    // Обработка подтверждения списания
     function handleWriteOffConfirmation(status) {
         if (status === 'success') {
             selectedItems.innerHTML = '';
             cartContainer.style.display = 'none';
             resetWriteOffFields();
             updateTotal();
-            loadWriteOffList();
+            requestWriteOffList();
         }
     }
 
+    // Сброс полей после списания
     function resetWriteOffFields() {
         writeOffComment.value = '';
     }
-
-    function loadWriteOffList() {
-        fetch('/seller_cabinet/write-offs/list/')
-            .then(response => response.json())
-            .then(data => {
-                displayWriteOffList(data.write_offs);
-            })
-            .catch(error => console.error('Error loading write-off list:', error));
-    }
-
-    loadWriteOffList();
 });

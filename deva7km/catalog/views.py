@@ -398,32 +398,6 @@ def seller_cabinet_sales(request):
 
 
 @login_required
-def sales_list(request):
-    today = timezone.now().date()
-    sales = Sale.objects.filter(created_at__date=today).order_by('-created_at')
-    sales_data = []
-    for sale in sales:
-        items_data = []
-        for item in sale.items.all():
-            items_data.append({
-                'custom_sku': item.product_modification.custom_sku,
-                'quantity': item.quantity,
-                'total_price': item.total_price(),
-                'thumbnail': item.product_modification.thumbnail_image_url()
-            })
-        sales_data.append({
-            'id': sale.id,
-            'created_at': sale.created_at.isoformat(),
-            'user': sale.user.username if sale.user else 'Неизвестно',
-            'items': items_data,
-            'total_amount': sale.calculate_total_amount(),
-            'payment_method': sale.get_payment_method_display(),
-            'comment': sale.comment  # Добавляем поле comment
-        })
-    return JsonResponse({'sales': sales_data})
-
-
-@login_required
 def search_products(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
@@ -439,89 +413,13 @@ def seller_cabinet_returns(request):
 
 
 @login_required
-def return_list(request):
-    today = timezone.now().date()
-    returns = Return.objects.filter(created_at__date=today).order_by('-created_at')
-    returns_data = []
-    for return_obj in returns:
-        items_data = []
-        for item in return_obj.items.all():
-            thumbnail_url = item.product_modification.thumbnail_image_url()
-            items_data.append({
-                'custom_sku': item.product_modification.custom_sku,
-                'quantity': item.quantity,
-                'total_price': item.total_price(),
-                'thumbnail': thumbnail_url
-            })
-        returns_data.append({
-            'id': return_obj.id,
-            'created_at': return_obj.created_at.isoformat(),
-            'user': return_obj.user.username if return_obj.user else 'Неизвестно',
-            'items': items_data,
-            'total_amount': return_obj.calculate_total_amount(),
-            'comment': return_obj.comment  # Добавляем поле comment
-        })
-    return JsonResponse({'returns': returns_data})
-
-
-@login_required
 def seller_cabinet_inventory(request):
     return render(request, 'seller_cabinet/inventory/seller_inventory.html')
 
 
 @login_required
-def inventory_list(request):
-    today = timezone.now().date()
-    inventories = Inventory.objects.filter(created_at__date=today).order_by('-created_at')
-    inventories_data = []
-    for inventory_obj in inventories:
-        items_data = []
-        for item in inventory_obj.items.all():
-            thumbnail_url = item.product_modification.thumbnail_image_url()
-            items_data.append({
-                'custom_sku': item.product_modification.custom_sku,
-                'quantity': item.quantity,
-                'total_price': item.total_price(),
-                'thumbnail': thumbnail_url
-            })
-        inventories_data.append({
-            'id': inventory_obj.id,
-            'created_at': inventory_obj.created_at.isoformat(),
-            'user': inventory_obj.user.username if inventory_obj.user else 'Неизвестно',
-            'items': items_data,
-            'total_amount': inventory_obj.calculate_total_amount()
-        })
-    return JsonResponse({'inventories': inventories_data})
-
-
-@login_required
 def seller_cabinet_write_off(request):
     return render(request, 'seller_cabinet/write_off/seller_write_off.html')
-
-
-@login_required
-def write_off_list(request):
-    today = timezone.now().date()
-    write_offs = WriteOff.objects.filter(created_at__date=today)
-    write_off_data = [
-        {
-            'id': write_off.id,
-            'created_at': write_off.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            'user': write_off.user.username if write_off.user else 'Неизвестно',
-            'total_amount': write_off.calculate_total_amount(),
-            'items': [
-                {
-                    'custom_sku': item.product_modification.custom_sku,
-                    'quantity': item.quantity,
-                    'total_price': item.total_price(),
-                    'thumbnail': item.product_modification.thumbnail_image_url()
-                }
-                for item in write_off.items.all()
-            ]
-        }
-        for write_off in write_offs
-    ]
-    return JsonResponse({'write_offs': write_off_data})
 
 
 @login_required

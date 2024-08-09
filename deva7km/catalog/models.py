@@ -279,6 +279,10 @@ class Sale(models.Model):
                                       verbose_name='Способ оплаты')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
 
+    def save(self, *args, **kwargs):
+        # Просто сохраняем запись, без дополнительной логики
+        super(Sale, self).save(*args, **kwargs)
+
     def calculate_total_amount(self):
         return sum(item.total_price() for item in self.items.all())
 
@@ -370,9 +374,7 @@ class Return(models.Model):
     get_returned_items.short_description = 'Возвращенные товары'
 
     def save(self, *args, **kwargs):
-        if not self.pk:
-            super(Return, self).save(*args, **kwargs)
-        self.total_amount = self.calculate_total_amount()
+        # Просто сохраняем запись, без дополнительной логики
         super(Return, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -468,9 +470,7 @@ class Inventory(models.Model):
     get_inventory_items.short_description = 'Оприходованные товары'
 
     def save(self, *args, **kwargs):
-        if not self.pk:
-            super(Inventory, self).save(*args, **kwargs)
-        self.total_amount = self.calculate_total_amount()
+        # Просто сохраняем запись, без дополнительной логики
         super(Inventory, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -550,9 +550,7 @@ class WriteOff(models.Model):
     get_write_off_items.short_description = 'Списанные товары'
 
     def save(self, *args, **kwargs):
-        if not self.pk:
-            super(WriteOff, self).save(*args, **kwargs)
-        self.total_amount = self.calculate_total_amount()
+        # Просто сохраняем запись, без дополнительной логики
         super(WriteOff, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -561,7 +559,6 @@ class WriteOff(models.Model):
     class Meta:
         verbose_name = 'Списание товара'
         verbose_name_plural = 'Списания товара'
-
 
 # Модель элемента списания (WriteOffItem)
 class WriteOffItem(models.Model):

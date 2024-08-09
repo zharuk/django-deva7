@@ -10,71 +10,103 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedItemTemplate = document.getElementById('selected-item-template').content;
     const returnComment = document.getElementById('return-comment');
     const cartContainer = document.getElementById('cart-container');
+    const returnsList = document.getElementById('returns-list');
 
     let socket;
 
+    // Функция подключения WebSocket
     function connectWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         socket = new WebSocket(`${protocol}//${window.location.host}/ws/returns/`);
 
+        // Обработчик открытия соединения WebSocket
+        socket.onopen = function() {
+            // Запрашиваем список возвратов при успешном открытии соединения
+            requestReturnsList();
+        };
+
+        // Обработчик сообщений WebSocket
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            if (data.type === 'search_results') {
-                displaySearchResults(data.results);
-            } else if (data.type === 'update_total') {
-                updateTotalAmount(data.total);
-            } else if (data.type === 'return_confirmation') {
-                showNotification('success', 'Возврат завершен', 'Возврат успешно завершен!');
-                handleReturnConfirmation(data.status);
-                loadReturnsList();
-            } else if (data.type === 'return_error') {
-                showNotification('danger', 'Ошибка', data.message);
-            } else if (data.type === 'item_added') {
-                showNotification('success', 'Товар добавлен', `${data.custom_sku} добавлен в корзину для возврата`);
-            } else if (data.type === 'returns_list') {
-                displayReturnsList(data.returns);
+            switch (data.type) {
+                case 'search_results':
+                    displaySearchResults(data.results);
+                    break;
+                case 'update_total':
+                    updateTotalAmount(data.total);
+                    break;
+                case 'return_confirmation':
+                    showNotification('success', 'Возврат завершен', 'Возврат успешно завершен!');
+                    handleReturnConfirmation(data.status);
+                    break;
+                case 'return_error':
+                    showNotification('danger', 'Ошибка', data.message);
+                    break;
+                case 'item_added':
+                    showNotification('success', 'Товар добавлен', `${data.custom_sku} добавлен в корзину для возврата`);
+                    break;
+                case 'returns_list':
+                    displayReturnsList(data.returns);
+                    break;
+                default:
+                    console.warn('Неизвестный тип сообщения:', data.type);
             }
         };
 
-        socket.onclose = function(e) {
+        // Обработчик закрытия WebSocket
+        socket.onclose = function() {
+            showNotification('warning', 'Соединение закрыто', 'Соединение WebSocket закрыто');
             showConnectionLostModal();
             setTimeout(connectWebSocket, 1000);
         };
 
+        // Обработчик ошибок WebSocket
         socket.onerror = function(e) {
-            console.error('Ошибка WebSocket:', e);
+            showNotification('danger', 'Ошибка WebSocket', 'Произошла ошибка WebSocket. Подробности в консоли.');
         };
     }
 
+    // Подключение WebSocket
     connectWebSocket();
 
+    // Функция отправки сообщения через WebSocket
     function sendSocketMessage(message) {
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(message));
+        } else {
+            socket.addEventListener('open', () => {
+                socket.send(JSON.stringify(message));
+            });
         }
     }
 
+    // Запрос списка возвратов при загрузке страницы
+    function requestReturnsList() {
+        sendSocketMessage({ 'type': 'get_returns_list' });
+    }
+
+    // Обработчик поиска товаров
     searchInput.addEventListener('input', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
             fetch(`/seller_cabinet/search-products/?query=${query}`)
                 .then(response => response.json())
-                .then(data => {
-                    displaySearchResults(data.results);
-                })
-                .catch(error => console.error('Error:', error));
+                .then(data => displaySearchResults(data.results))
+                .catch(error => console.error('Ошибка при поиске товаров:', error));
         } else {
             searchResults.innerHTML = '';
             searchResults.classList.remove('show');
         }
     });
 
+    // Очистка поля поиска
     clearSearchButton.addEventListener('click', function() {
         searchInput.value = '';
         searchResults.innerHTML = '';
         searchResults.classList.remove('show');
     });
 
+    // Очистка корзины
     clearCartButton.addEventListener('click', function() {
         selectedItems.innerHTML = '';
         cartContainer.style.display = 'none';
@@ -82,12 +114,14 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTotal();
     });
 
+    // Закрытие списка результатов поиска при клике вне его
     document.addEventListener('click', function(e) {
         if (!searchResults.contains(e.target) && !searchInput.contains(e.target)) {
             searchResults.classList.remove('show');
         }
     });
 
+    // Обработчик кнопки возврата
     returnButton.addEventListener('click', function() {
         const items = getSelectedItems();
         if (items.length === 0) {
@@ -105,6 +139,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Добавляем обработчик фокуса на поле поиска
+    searchInput.addEventListener('focus', function() {
+        const query = searchInput.value.trim();
+        if (query.length >= 3) {
+            fetchSearchResults(query);
+        }
+    });
+
+    function fetchSearchResults(query) {
+        fetch(`/seller_cabinet/search-products/?query=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                displaySearchResults(data.results);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Функция отображения результатов поиска
     function displaySearchResults(results) {
         searchResults.innerHTML = '';
         if (results.length > 0) {
@@ -113,6 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.querySelector('.search-item-thumbnail').src = item.thumbnail || '';
                 row.querySelector('.search-item-sku').textContent = item.sku;
                 row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${item.price} грн`;
+
                 const addButton = row.querySelector('.search-item-add-button');
                 const quantityDisplay = row.querySelector('.quantity-display');
                 const incrementButton = row.querySelector('.increment-button');
@@ -140,49 +193,58 @@ document.addEventListener('DOMContentLoaded', function() {
         searchResults.classList.add('show');
     }
 
+    // Функция отображения списка возвратов
     function displayReturnsList(returns) {
-        const returnsList = document.getElementById('returns-list');
         returnsList.innerHTML = '';
-        let totalItems = 0;
-        let totalAmount = 0;
+        if (returns.length === 0) {
+            returnsList.innerHTML = '<p>Возвраты отсутствуют.</p>';
+        } else {
+            let totalItems = 0;
+            let totalAmount = 0;
 
-        returns.forEach(return_obj => {
-            const returnTemplate = document.getElementById('return-item-template').content.cloneNode(true);
-            returnTemplate.querySelector('.return-id').textContent = return_obj.id;
-            returnTemplate.querySelector('.return-time').textContent = new Date(return_obj.created_at).toLocaleTimeString();
-            returnTemplate.querySelector('.return-user').textContent = return_obj.user || 'Неизвестно';
-            returnTemplate.querySelector('.return-total-amount').textContent = return_obj.total_amount;
+            returns.forEach(return_obj => {
+                const returnTemplate = document.getElementById('return-item-template').content.cloneNode(true);
+                returnTemplate.querySelector('.return-id').textContent = return_obj.id;
+                returnTemplate.querySelector('.return-time').textContent = new Date(return_obj.created_at).toLocaleTimeString();
+                returnTemplate.querySelector('.return-user').textContent = return_obj.user || 'Неизвестно';
+                returnTemplate.querySelector('.return-total-amount').textContent = return_obj.total_amount;
 
-            if (return_obj.comment) {
-                returnTemplate.querySelector('.return-comment').textContent = return_obj.comment;  // Отображаем комментарий
-            } else {
-                returnTemplate.querySelector('.return-comment-container').style.display = 'none';  // Скрываем контейнер комментария
-            }
-
-            const returnProductsContainer = returnTemplate.querySelector('.return-products');
-            return_obj.items.forEach(item => {
-                const productTemplate = document.getElementById('return-product-template').content.cloneNode(true);
-                const thumbnailElement = productTemplate.querySelector('.return-product-thumbnail');
-                if (item.thumbnail) {
-                    thumbnailElement.src = item.thumbnail;
+                // Отображаем комментарий, если он есть
+                const commentContainer = returnTemplate.querySelector('.return-comment-container');
+                const commentElement = commentContainer.querySelector('.return-comment');
+                if (return_obj.comment) {
+                    commentElement.textContent = return_obj.comment;
+                    commentContainer.style.display = 'block';
                 } else {
-                    thumbnailElement.alt = 'Нет изображения';
+                    commentContainer.style.display = 'none';
                 }
-                productTemplate.querySelector('.return-product-sku').textContent = item.custom_sku;
-                productTemplate.querySelector('.return-product-quantity').textContent = `${item.quantity} шт.`;
-                productTemplate.querySelector('.return-product-price').textContent = `${item.total_price} грн`;
-                returnProductsContainer.appendChild(productTemplate);
+
+                const returnProductsContainer = returnTemplate.querySelector('.return-products');
+                return_obj.items.forEach(item => {
+                    const productTemplate = document.getElementById('return-product-template').content.cloneNode(true);
+                    const thumbnailElement = productTemplate.querySelector('.return-product-thumbnail');
+                    if (item.thumbnail) {
+                        thumbnailElement.src = item.thumbnail;
+                    } else {
+                        thumbnailElement.alt = 'Нет изображения';
+                    }
+                    productTemplate.querySelector('.return-product-sku').textContent = item.custom_sku;
+                    productTemplate.querySelector('.return-product-quantity').textContent = `${item.quantity} шт.`;
+                    productTemplate.querySelector('.return-product-price').textContent = `${item.total_price} грн`;
+                    returnProductsContainer.appendChild(productTemplate);
+                });
+
+                returnsList.appendChild(returnTemplate);
+                totalItems += return_obj.items.reduce((sum, item) => sum + item.quantity, 0);
+                totalAmount += return_obj.total_amount;
             });
 
-            returnsList.appendChild(returnTemplate);
-            totalItems += return_obj.items.reduce((sum, item) => sum + item.quantity, 0);
-            totalAmount += return_obj.total_amount;
-        });
-
-        document.getElementById('daily-total-items').textContent = totalItems;
-        document.getElementById('daily-total-amount').textContent = totalAmount;
+            document.getElementById('daily-total-items').textContent = totalItems;
+            document.getElementById('daily-total-amount').textContent = totalAmount;
+        }
     }
 
+    // Функция добавления товара в корзину
     window.addItem = function(sku, price, thumbnail, quantity) {
         const existingItem = [...selectedItems.querySelectorAll('tr')].find(row => row.querySelector('.selected-item-sku').textContent === sku);
 
@@ -196,6 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
             row.querySelector('.selected-item-sku').textContent = sku;
             row.querySelector('.quantity-display').textContent = quantity;
             row.querySelector('.selected-item-price').textContent = price;
+
             const removeButton = row.querySelector('.selected-item-remove-button');
             const incrementButton = row.querySelector('.increment-button');
             const decrementButton = row.querySelector('.decrement-button');
@@ -230,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Функция удаления товара из корзины
     window.removeItem = function(button) {
         button.closest('tr').remove();
         updateTotal();
@@ -239,6 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Функция обновления общей суммы
     function updateTotal() {
         let total = 0;
         selectedItems.querySelectorAll('tr').forEach(row => {
@@ -246,8 +311,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         if (totalAmount) {
             totalAmount.textContent = total;
-        } else {
-            console.error("Element with id 'total-amount' not found.");
         }
         sendSocketMessage({
             'type': 'update_total',
@@ -255,6 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Получение выбранных товаров
     function getSelectedItems() {
         const items = [];
         selectedItems.querySelectorAll('tr').forEach(row => {
@@ -267,14 +331,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return items;
     }
 
+    // Обновление общей суммы на стороне клиента
     function updateTotalAmount(total) {
         if (totalAmount) {
             totalAmount.textContent = total;
-        } else {
-            console.error("Element with id 'total-amount' not found.");
         }
     }
 
+    // Показ уведомления
     function showNotification(type, title, message) {
         const toastContainer = document.getElementById('notificationToast');
         const toastMessage = document.createElement('div');
@@ -303,6 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
     }
 
+    // Показ модального окна при потере соединения
     function showConnectionLostModal() {
         const connectionLostModal = new bootstrap.Modal(document.getElementById('connectionLostModal'), {
             backdrop: 'static',
@@ -311,28 +376,22 @@ document.addEventListener('DOMContentLoaded', function() {
         connectionLostModal.show();
     }
 
+    // Обработка подтверждения возврата
     function handleReturnConfirmation(status) {
         if (status === 'success') {
             selectedItems.innerHTML = '';
             cartContainer.style.display = 'none';
             resetReturnFields();
             updateTotal();
-            loadReturnsList();
+            requestReturnsList();
         }
     }
 
+    // Сброс полей после возврата
     function resetReturnFields() {
         returnComment.value = '';
     }
 
-    function loadReturnsList() {
-        fetch('/seller_cabinet/returns/list/')
-            .then(response => response.json())
-            .then(data => {
-                displayReturnsList(data.returns);
-            })
-            .catch(error => console.error('Error loading returns list:', error));
-    }
-
-    loadReturnsList();
+    // Инициируем запрос списка возвратов при загрузке страницы
+    requestReturnsList();
 });

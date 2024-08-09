@@ -8,15 +8,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearCartButton = document.getElementById('clear-cart-button');
     const searchResultTemplate = document.getElementById('search-result-template').content;
     const selectedItemTemplate = document.getElementById('selected-item-template').content;
-    const saleType = document.getElementById('sale-type'); // Поле типа продажи
-    const saleComment = document.getElementById('sale-comment'); // Поле комментария
-    const cartContainer = document.getElementById('cart-container'); // Контейнер корзины
+    const saleType = document.getElementById('sale-type');
+    const saleComment = document.getElementById('sale-comment');
+    const cartContainer = document.getElementById('cart-container');
 
     let socket;
 
     function connectWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         socket = new WebSocket(`${protocol}//${window.location.host}/ws/sales/`);
+
+        socket.onopen = function() {
+            // Запрашиваем список продаж после успешного подключения WebSocket
+            requestSalesList();
+        };
 
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
@@ -27,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (data.type === 'sell_confirmation') {
                 showNotification('success', 'Продажа завершена', 'Продажа успешно завершена!');
                 handleSellConfirmation(data.status);
-                loadSalesList();
+                requestSalesList();
             } else if (data.type === 'sell_error') {
                 showNotification('danger', 'Ошибка', data.message);
             } else if (data.type === 'item_added') {
@@ -57,6 +62,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function requestSalesList() {
+        sendSocketMessage({ 'type': 'get_sales_list' });
+    }
+
+    // Добавляем обработчик фокуса на поле поиска
+    searchInput.addEventListener('focus', function() {
+        const query = searchInput.value.trim();
+        if (query.length >= 3) {
+            fetchSearchResults(query);
+        }
+    });
+
+    function fetchSearchResults(query) {
+        fetch(`/seller_cabinet/search-products/?query=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                displaySearchResults(data.results);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
     searchInput.addEventListener('input', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
@@ -80,8 +106,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     clearCartButton.addEventListener('click', function() {
         selectedItems.innerHTML = '';
-        cartContainer.style.display = 'none'; // Скрываем блок при очистке корзины
-        resetSaleFields(); // Сбрасываем поля
+        cartContainer.style.display = 'none';
+        resetSaleFields();
         updateTotal();
     });
 
@@ -101,8 +127,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 'user_id': 1,
                 'telegram_user_id': null,
                 'source': 'site',
-                'payment_method': saleType.value, // Получаем выбранный тип продажи
-                'comment': saleComment.value, // Получаем комментарий
+                'payment_method': saleType.value,
+                'comment': saleComment.value,
                 'items': items
             };
             sendSocketMessage(saleData);
@@ -156,12 +182,12 @@ document.addEventListener('DOMContentLoaded', function() {
             saleTemplate.querySelector('.sale-time').textContent = new Date(sale.created_at).toLocaleTimeString();
             saleTemplate.querySelector('.sale-user').textContent = sale.user || 'Неизвестно';
             saleTemplate.querySelector('.sale-total-amount').textContent = sale.total_amount;
-            saleTemplate.querySelector('.sale-type').textContent = sale.payment_method;  // Отображаем тип продажи
+            saleTemplate.querySelector('.sale-type').textContent = sale.payment_method;
 
             if (sale.comment) {
-                saleTemplate.querySelector('.sale-comment').textContent = sale.comment;  // Отображаем комментарий
+                saleTemplate.querySelector('.sale-comment').textContent = sale.comment;
             } else {
-                saleTemplate.querySelector('.sale-comment-container').style.display = 'none';  // Скрываем контейнер комментария
+                saleTemplate.querySelector('.sale-comment-container').style.display = 'none';
             }
 
             const saleProductsContainer = saleTemplate.querySelector('.sale-products');
@@ -224,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
             removeButton.addEventListener('click', () => removeItem(removeButton));
 
             selectedItems.appendChild(row);
-            cartContainer.style.display = 'block'; // Показываем блок при добавлении первого товара
+            cartContainer.style.display = 'block';
             updateTotal();
 
             sendSocketMessage({
@@ -232,7 +258,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 'custom_sku': sku
             });
 
-            // Проверяем, есть ли текст в поле поиска и оставляем выпадающий список видимым
             if (searchInput.value.trim() !== '') {
                 searchResults.classList.add('show');
             }
@@ -243,8 +268,8 @@ document.addEventListener('DOMContentLoaded', function() {
         button.closest('tr').remove();
         updateTotal();
         if (selectedItems.children.length === 0) {
-            cartContainer.style.display = 'none'; // Скрываем блок, если корзина пуста
-            resetSaleFields(); // Сбрасываем поля
+            cartContainer.style.display = 'none';
+            resetSaleFields();
         }
     };
 
@@ -255,8 +280,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         if (totalAmount) {
             totalAmount.textContent = total;
-        } else {
-            console.error("Element with id 'total-amount' not found.");
         }
         sendSocketMessage({
             'type': 'update_total',
@@ -279,8 +302,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTotalAmount(total) {
         if (totalAmount) {
             totalAmount.textContent = total;
-        } else {
-            console.error("Element with id 'total-amount' not found.");
         }
     }
 
@@ -323,26 +344,17 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleSellConfirmation(status) {
         if (status === 'success') {
             selectedItems.innerHTML = '';
-            cartContainer.style.display = 'none'; // Скрываем блок после проведения продажи
-            resetSaleFields(); // Сбрасываем поля
+            cartContainer.style.display = 'none';
+            resetSaleFields();
             updateTotal();
-            loadSalesList();
+            requestSalesList();
         }
     }
 
     function resetSaleFields() {
-        saleType.value = 'cash'; // Сбрасываем тип продажи на наличный
-        saleComment.value = ''; // Очищаем комментарий
+        saleType.value = 'cash';
+        saleComment.value = '';
     }
 
-    function loadSalesList() {
-        fetch('/seller_cabinet/sales/list/')
-            .then(response => response.json())
-            .then(data => {
-                displaySalesList(data.sales);
-            })
-            .catch(error => console.error('Error loading sales list:', error));
-    }
-
-    loadSalesList();
+    requestSalesList();
 });

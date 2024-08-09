@@ -179,67 +179,82 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         return True
 
 
-class SalesConsumer(WebsocketConsumer):
-    def connect(self):
-        self.accept()
+class SalesConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         pass
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         data = json.loads(text_data)
         data_type = data.get('type')
         if data_type == 'search':
-            self.search_items(data.get('query', ''))
+            await self.search_items(data.get('query', ''))
         elif data_type == 'add_item':
-            self.add_item_to_sale(data.get('custom_sku', ''), data.get('quantity', 1))
+            await self.add_item_to_sale(data.get('custom_sku', ''), data.get('quantity', 1))
         elif data_type == 'create_sale':
-            self.create_sale(data.get('user_id'), data.get('telegram_user_id'), data.get('source'),
-                             data.get('payment_method'), data.get('comment', ''), data.get('items'))
+            await self.create_sale(
+                data.get('user_id'),
+                data.get('telegram_user_id'),
+                data.get('source'),
+                data.get('payment_method'),
+                data.get('comment', ''),
+                data.get('items')
+            )
         elif data_type == 'update_total':
-            self.update_total(data.get('total', 0))
+            await self.update_total(data.get('total', 0))
         elif data_type == 'item_added':
-            self.item_added(data.get('custom_sku', ''))
+            await self.item_added(data.get('custom_sku', ''))
+        elif data_type == 'get_sales_list':
+            await self.send_sales_list()
 
-    def search_items(self, query):
-        results = ProductModification.objects.filter(custom_sku__icontains=query)
-        products = [{'name': f"{r.product.title}-{r.custom_sku}", 'stock': r.stock, 'price': r.product.price,
-                     'custom_sku': r.custom_sku, 'thumbnail': r.thumbnail_image_url()} for r in results]
-        self.send(text_data=json.dumps({
+    async def search_items(self, query):
+        results = await sync_to_async(list)(
+            ProductModification.objects.filter(custom_sku__icontains=query)
+        )
+        products = [{
+            'name': f"{r.product.title}-{r.custom_sku}",
+            'stock': r.stock,
+            'price': r.product.price,
+            'custom_sku': r.custom_sku,
+            'thumbnail': r.thumbnail_image_url()
+        } for r in results]
+        await self.send(text_data=json.dumps({
             'type': 'search_results',
             'results': products
         }))
 
-    def add_item_to_sale(self, custom_sku, quantity):
+    async def add_item_to_sale(self, custom_sku, quantity):
         try:
-            product_modification = ProductModification.objects.get(custom_sku=custom_sku)
+            product_modification = await sync_to_async(ProductModification.objects.get)(custom_sku=custom_sku)
             if product_modification.stock < quantity:
-                self.send(text_data=json.dumps({
+                await self.send(text_data=json.dumps({
                     'type': 'item_not_available',
                     'custom_sku': custom_sku
                 }))
             else:
-                sale_item = SaleItem.objects.create(
-                    sale=self.get_current_sale(),
+                sale_item = await sync_to_async(SaleItem.objects.create)(
+                    sale=await self.get_current_sale(),
                     product_modification=product_modification,
                     quantity=quantity
                 )
                 product_modification.stock -= quantity
-                product_modification.save()
-                self.send(text_data=json.dumps({
+                await sync_to_async(product_modification.save)()
+                await self.send(text_data=json.dumps({
                     'type': 'item_added',
                     'custom_sku': custom_sku,
                     'quantity': quantity,
                     'price': sale_item.total_price()
                 }))
         except ObjectDoesNotExist:
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'item_not_available',
                 'custom_sku': custom_sku
             }))
 
-    def create_sale(self, user_id, telegram_user_id, source, payment_method, comment, items):
-        sale = Sale.objects.create(
+    async def create_sale(self, user_id, telegram_user_id, source, payment_method, comment, items):
+        sale = await sync_to_async(Sale.objects.create)(
             user_id=user_id,
             telegram_user_id=telegram_user_id,
             source=source,
@@ -248,70 +263,106 @@ class SalesConsumer(WebsocketConsumer):
         )
 
         for item in items:
-            product_modification = ProductModification.objects.get(custom_sku=item['custom_sku'])
-            SaleItem.objects.create(
+            product_modification = await sync_to_async(ProductModification.objects.get)(custom_sku=item['custom_sku'])
+            await sync_to_async(SaleItem.objects.create)(
                 sale=sale,
                 product_modification=product_modification,
                 quantity=item['quantity']
             )
 
         sale.total_amount = sum(item['quantity'] * item['price'] for item in items)
-        sale.save()
+        await sync_to_async(sale.save)()
 
-        self.send(text_data=json.dumps({
+        await self.send(text_data=json.dumps({
             'type': 'sell_confirmation',
             'status': 'success',
             'sale_id': sale.id
         }))
 
-    def get_current_sale(self):
-        return Sale.objects.get_or_create(status='pending')[0]
+    async def send_sales_list(self):
+        today = timezone.localtime(timezone.now()).date()  # Используем локальную дату
+        sales = await sync_to_async(list)(
+            Sale.objects.filter(created_at__date=today).order_by('-created_at')  # Сортируем от самых новых
+        )
+        sales_data = []
+        for sale in sales:
+            items_data = []
+            for item in await sync_to_async(list)(sale.items.all()):
+                product_modification = await sync_to_async(lambda: item.product_modification)()
+                custom_sku = await sync_to_async(lambda: product_modification.custom_sku)()
+                total_price = await sync_to_async(item.total_price)()
+                thumbnail = await sync_to_async(lambda: product_modification.thumbnail_image_url())()
+                items_data.append({
+                    'custom_sku': custom_sku,
+                    'quantity': item.quantity,
+                    'total_price': total_price,
+                    'thumbnail': thumbnail
+                })
+            sales_data.append({
+                'id': sale.id,
+                'created_at': timezone.localtime(sale.created_at).strftime('%Y-%m-%d %H:%M:%S'),  # Преобразуем время в локальное
+                'user': await sync_to_async(lambda: sale.user.username if sale.user else 'Неизвестно')(),
+                'items': items_data,
+                'total_amount': await sync_to_async(sale.calculate_total_amount)(),
+                'payment_method': sale.get_payment_method_display(),
+                'comment': sale.comment
+            })
+        await self.send(text_data=json.dumps({
+            'type': 'sales_list',
+            'sales': sales_data
+        }))
 
-    def update_total(self, total):
-        self.send(text_data=json.dumps({
+    async def get_current_sale(self):
+        sale, _ = await sync_to_async(Sale.objects.get_or_create)(status='pending')
+        return sale
+
+    async def update_total(self, total):
+        await self.send(text_data=json.dumps({
             'type': 'update_total',
             'total': total
         }))
 
-    def item_added(self, custom_sku):
+    async def item_added(self, custom_sku):
         try:
-            product_modification = ProductModification.objects.get(custom_sku=custom_sku)
+            product_modification = await sync_to_async(ProductModification.objects.get)(custom_sku=custom_sku)
             if product_modification.stock < 1:
-                self.send(text_data=json.dumps({
+                await self.send(text_data=json.dumps({
                     'type': 'item_not_available',
                     'custom_sku': custom_sku
                 }))
             else:
-                self.send(text_data=json.dumps({
+                await self.send(text_data=json.dumps({
                     'type': 'item_added',
                     'custom_sku': custom_sku
                 }))
         except ObjectDoesNotExist:
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'sell_error',
                 'message': f'ProductModification with custom_sku {custom_sku} does not exist.'
             }))
 
 
-class ReturnConsumer(WebsocketConsumer):
-    def connect(self):
-        self.accept()
+class ReturnConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         pass
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         data = json.loads(text_data)
         if data['type'] == 'create_return':
-            self.create_return(data)
+            await self.create_return(data)
+        elif data['type'] == 'get_returns_list':
+            await self.send_return_list()
 
-    def create_return(self, data):
+    async def create_return(self, data):
         items = data['items']
 
         try:
-            user = User.objects.get(id=data['user_id'])
+            user = await sync_to_async(User.objects.get)(id=data['user_id'])
         except User.DoesNotExist:
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'return_error',
                 'message': 'User not found'
             }))
@@ -320,82 +371,97 @@ class ReturnConsumer(WebsocketConsumer):
         try:
             return_obj = Return(
                 user=user,
-                telegram_user_id=data.get('telegram_user_id'),
-                source=data['source'],
                 comment=data['comment']
             )
-            return_obj.save()
+            await sync_to_async(return_obj.save)()
 
             for item in items:
-                product_modification = ProductModification.objects.get(custom_sku=item['custom_sku'])
-                ReturnItem.objects.create(
-                    return_sale=return_obj,
+                product_modification = await sync_to_async(ProductModification.objects.get)(
+                    custom_sku=item['custom_sku'])
+                return_item = ReturnItem(
+                    return_sale=return_obj,  # Используем правильное поле
                     product_modification=product_modification,
                     quantity=item['quantity']
                 )
+                await sync_to_async(return_item.save)()
 
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'return_confirmation',
                 'status': 'success'
             }))
 
-            self.send_return_list()
+            await self.send_return_list()
         except ProductModification.DoesNotExist:
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'return_error',
                 'message': f'Product modification with SKU {item["custom_sku"]} not found'
             }))
         except Exception as e:
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'return_error',
                 'message': str(e)
             }))
 
-    def send_return_list(self):
-        today = datetime.now().date()
-        returns = Return.objects.filter(created_at__date=today)
-        self.send(text_data=json.dumps({
+    async def send_return_list(self):
+        today = timezone.localtime(timezone.now()).date()
+        returns = await sync_to_async(list)(
+            Return.objects.filter(created_at__date=today).order_by('-created_at')
+        )
+        returns_data = [await self.return_to_dict(return_obj) for return_obj in returns]
+        await self.send(text_data=json.dumps({
             'type': 'returns_list',
-            'returns': [self.return_to_dict(return_obj) for return_obj in returns]
+            'returns': returns_data
         }))
 
-    def return_to_dict(self, return_obj):
+    async def return_to_dict(self, return_obj):
+        user = await sync_to_async(lambda: return_obj.user.username if return_obj.user else 'Неизвестно')()
+        items = await sync_to_async(list)(return_obj.items.all())
+        items_data = []
+
+        for item in items:
+            product_modification = await sync_to_async(lambda: item.product_modification)()
+            custom_sku = await sync_to_async(lambda: product_modification.custom_sku)()
+            quantity = item.quantity
+            total_price = await sync_to_async(item.total_price)()
+            thumbnail = await sync_to_async(product_modification.thumbnail_image_url)()
+            items_data.append({
+                'custom_sku': custom_sku,
+                'quantity': quantity,
+                'total_price': total_price,
+                'thumbnail': thumbnail,
+            })
+
         return {
             'id': return_obj.id,
             'created_at': return_obj.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            'user': return_obj.user.username if return_obj.user else 'Неизвестно',
-            'total_amount': return_obj.calculate_total_amount(),
-            'items': [
-                {
-                    'custom_sku': item.product_modification.custom_sku,
-                    'quantity': item.quantity,
-                    'total_price': item.total_price(),
-                    'thumbnail': item.product_modification.thumbnail_image_url()
-                }
-                for item in return_obj.items.all()
-            ]
+            'user': user,
+            'total_amount': await sync_to_async(return_obj.calculate_total_amount)(),
+            'items': items_data,
+            'comment': return_obj.comment
         }
 
 
-class InventoryConsumer(WebsocketConsumer):
-    def connect(self):
-        self.accept()
+class InventoryConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         pass
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         data = json.loads(text_data)
         if data['type'] == 'create_inventory':
-            self.create_inventory(data)
+            await self.create_inventory(data)
+        elif data['type'] == 'get_inventory_list':
+            await self.send_inventory_list()
 
-    def create_inventory(self, data):
+    async def create_inventory(self, data):
         items = data['items']
 
         try:
-            user = User.objects.get(id=data['user_id'])
+            user = await sync_to_async(User.objects.get)(id=data['user_id'])
         except User.DoesNotExist:
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'inventory_error',
                 'message': 'User not found'
             }))
@@ -406,138 +472,165 @@ class InventoryConsumer(WebsocketConsumer):
                 user=user,
                 comment=data['comment']
             )
-            inventory_obj.save()
+            await sync_to_async(inventory_obj.save)()
 
             for item in items:
-                product_modification = ProductModification.objects.get(custom_sku=item['custom_sku'])
-                InventoryItem.objects.create(
+                product_modification = await sync_to_async(ProductModification.objects.get)(
+                    custom_sku=item['custom_sku'])
+                inventory_item = InventoryItem(
                     inventory=inventory_obj,
                     product_modification=product_modification,
                     quantity=item['quantity']
                 )
+                await sync_to_async(inventory_item.save)()
 
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'inventory_confirmation',
                 'status': 'success'
             }))
 
-            self.send_inventory_list()
+            await self.send_inventory_list()
         except ProductModification.DoesNotExist:
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'inventory_error',
                 'message': f'Product modification with SKU {item["custom_sku"]} not found'
             }))
         except Exception as e:
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'inventory_error',
                 'message': str(e)
             }))
 
-    def send_inventory_list(self):
-        today = datetime.now().date()
-        inventories = Inventory.objects.filter(created_at__date=today)
-        self.send(text_data=json.dumps({
+    async def send_inventory_list(self):
+        today = timezone.localtime(timezone.now()).date()
+        inventories = await sync_to_async(list)(
+            Inventory.objects.filter(created_at__date=today).order_by('-created_at')
+        )
+        inventories_data = [await self.inventory_to_dict(inventory) for inventory in inventories]
+        await self.send(text_data=json.dumps({
             'type': 'inventories_list',
-            'inventories': [self.inventory_to_dict(inventory_obj) for inventory_obj in inventories]
+            'inventories': inventories_data
         }))
 
-    def inventory_to_dict(self, inventory_obj):
+    async def inventory_to_dict(self, inventory_obj):
+        user = await sync_to_async(lambda: inventory_obj.user.username if inventory_obj.user else 'Неизвестно')()
+        items = await sync_to_async(list)(inventory_obj.items.all())
+        items_data = []
+
+        for item in items:
+            product_modification = await sync_to_async(lambda: item.product_modification)()
+            custom_sku = await sync_to_async(lambda: product_modification.custom_sku)()
+            quantity = item.quantity
+            total_price = await sync_to_async(item.total_price)()
+            thumbnail = await sync_to_async(product_modification.thumbnail_image_url)()
+            items_data.append({
+                'custom_sku': custom_sku,
+                'quantity': quantity,
+                'total_price': total_price,
+                'thumbnail': thumbnail,
+            })
+
         return {
             'id': inventory_obj.id,
             'created_at': inventory_obj.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            'user': inventory_obj.user.username if inventory_obj.user else 'Неизвестно',
-            'total_amount': inventory_obj.calculate_total_amount(),
-            'items': [
-                {
-                    'custom_sku': item.product_modification.custom_sku,
-                    'quantity': item.quantity,
-                    'total_price': item.total_price(),
-                    'thumbnail': item.product_modification.thumbnail_image_url()
-                }
-                for item in inventory_obj.items.all()
-            ]
+            'user': user,
+            'total_amount': await sync_to_async(inventory_obj.calculate_total_amount)(),
+            'items': items_data
         }
 
 
-class WriteOffConsumer(WebsocketConsumer):
-    def connect(self):
-        self.accept()
+class WriteOffConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         pass
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         data = json.loads(text_data)
         if data['type'] == 'create_write_off':
-            self.create_write_off(data)
+            await self.create_write_off(data)
+        elif data['type'] == 'get_write_off_list':
+            await self.send_write_off_list()
 
-    def create_write_off(self, data):
+    async def create_write_off(self, data):
         items = data['items']
 
         try:
-            user = User.objects.get(id=data['user_id'])
+            user = await sync_to_async(User.objects.get, thread_sensitive=True)(id=data['user_id'])
         except User.DoesNotExist:
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'write_off_error',
                 'message': 'User not found'
             }))
             return
 
         try:
-            write_off = WriteOff(
+            # Используем sync_to_async с thread_sensitive=True для создания записи
+            write_off = await sync_to_async(WriteOff.objects.create, thread_sensitive=True)(
                 user=user,
                 telegram_user_id=data.get('telegram_user_id'),
                 source=data['source'],
                 comment=data['comment']
             )
-            write_off.save()
 
             for item in items:
-                product_modification = ProductModification.objects.get(custom_sku=item['custom_sku'])
-                WriteOffItem.objects.create(
+                product_modification = await sync_to_async(ProductModification.objects.get, thread_sensitive=True)(
+                    custom_sku=item['custom_sku'])
+                await sync_to_async(WriteOffItem.objects.create, thread_sensitive=True)(
                     write_off=write_off,
                     product_modification=product_modification,
                     quantity=item['quantity']
                 )
 
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'write_off_confirmation',
                 'status': 'success'
             }))
 
-            self.send_write_off_list()
+            await self.send_write_off_list()
         except ProductModification.DoesNotExist:
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'write_off_error',
                 'message': f'Product modification with SKU {item["custom_sku"]} not found'
             }))
         except Exception as e:
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'write_off_error',
                 'message': str(e)
             }))
 
-    def send_write_off_list(self):
-        today = datetime.now().date()
-        write_offs = WriteOff.objects.filter(created_at__date=today)
-        self.send(text_data=json.dumps({
+    async def send_write_off_list(self):
+        today = timezone.localtime(timezone.now()).date()
+        write_offs = await sync_to_async(list)(
+            WriteOff.objects.filter(created_at__date=today).order_by('-created_at')
+        )
+        await self.send(text_data=json.dumps({
             'type': 'write_offs_list',
-            'write_offs': [self.write_off_to_dict(write_off) for write_off in write_offs]
+            'write_offs': [await self.write_off_to_dict(write_off) for write_off in write_offs]
         }))
 
-    def write_off_to_dict(self, write_off):
+    async def write_off_to_dict(self, write_off):
+        user_username = await sync_to_async(lambda: write_off.user.username if write_off.user else 'Неизвестно')()
+        total_amount = await sync_to_async(write_off.calculate_total_amount)()
+        items = await sync_to_async(list)(write_off.items.all())
+
+        # Получение данных о каждом элементе в асинхронном режиме
+        items_data = []
+        for item in items:
+            product_modification = await sync_to_async(lambda: item.product_modification)()
+            thumbnail_url = await sync_to_async(product_modification.thumbnail_image_url)()
+            items_data.append({
+                'custom_sku': product_modification.custom_sku,
+                'quantity': item.quantity,
+                'total_price': await sync_to_async(item.total_price)(),
+                'thumbnail': thumbnail_url
+            })
+
         return {
             'id': write_off.id,
             'created_at': write_off.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            'user': write_off.user.username if write_off.user else 'Неизвестно',
-            'total_amount': write_off.calculate_total_amount(),
-            'items': [
-                {
-                    'custom_sku': item.product_modification.custom_sku,
-                    'quantity': item.quantity,
-                    'total_price': item.total_price(),
-                    'thumbnail': item.product_modification.thumbnail_image_url()
-                }
-                for item in write_off.items.all()
-            ]
+            'user': user_username,
+            'total_amount': total_amount,
+            'items': items_data,
         }
