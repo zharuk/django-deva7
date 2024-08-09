@@ -318,22 +318,6 @@ def product_search(request):
     return render(request, 'product_search.html', {'results': results, 'query': query})
 
 
-class AjaxProductSearch(View):
-    def get(self, request):
-        query = request.GET.get('q', '').strip()
-
-        results = []
-        if query:
-            results = Product.objects.filter(Q(title__icontains=query) | Q(sku__icontains=query)).order_by('title')
-            results = [product for product in results if product.get_total_stock() > 0]
-            results = results[:10]
-
-        data = [{'title': product.title, 'get_absolute_url': product.get_absolute_url(),
-                 'collage_image_url': product.collage_image.url if product.collage_image else '/static/images/default_image.png'}
-                for product in results]
-        return JsonResponse(data, safe=False)
-
-
 class ProfileDetailView(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'registration/profile.html'
@@ -375,16 +359,6 @@ async def update_tracking_status_view(request):
         logger_tracking.error(f"Произошла ошибка при обновлении статусов: {e}")
         await sync_to_async(messages.error)(request, "Произошла ошибка при обновлении статусов.")
     return await sync_to_async(redirect)('admin:catalog_preorder_changelist')
-
-
-def ajax_product_search(request):
-    query = request.GET.get('q', '')
-    if query:
-        products = get_list_or_404(Product, title__icontains=query)
-    else:
-        products = []
-    data = {'products': [product.title for product in products]}
-    return JsonResponse(data)
 
 
 @login_required
