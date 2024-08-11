@@ -1,4 +1,84 @@
-/* Основные стили для уменьшения размеров элементов */
+.badge-container {
+    margin-left: 5px;
+}
+
+.badge-not-shipped {
+    background-color: #f89406;
+    margin-left: 5px;
+}
+
+.badge-not-receipt {
+    background-color: #ee5f5b;
+    margin-left: 5px;
+}
+
+.badge-not-paid {
+    background-color: #6c757d;
+    margin-left: 5px;
+}
+
+.badge-ready {
+    background-color: green;
+    margin-left: 5px;
+}
+
+.ttn-badge {
+    background-color: lightgray;
+    margin-left: 5px;
+    font-size: 1.25rem;
+    cursor: pointer;
+}
+
+.ttn-badge.badge-copied {
+    background-color: #d4edda;
+    color: red;
+}
+
+.switch-container .bg-success {
+    background-color: #28a745 !important;
+}
+
+.switch-container .bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.switch-container .bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.switch-container .bg-secondary {
+    background-color: #6c757d !important;
+}
+
+.list-group-item {
+    border: none;
+    margin-bottom: 10px;
+}
+
+.filter-button {
+    margin-bottom: 5px;
+}
+
+/* Новые стили для уменьшения текста на мобильных устройствах */
+@media (max-width: 767.98px) {
+    .table th, .table td {
+        font-size: 0.875rem; /* Уменьшение размера шрифта */
+    }
+    .selected-item-sku, .selected-item-quantity, .selected-item-price, .selected-item-remove-button {
+        font-size: 0.75rem; /* Еще большее уменьшение для специфических элементов */
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem; /* Уменьшение размеров кнопок */
+    }
+    #total-amount {
+        font-size: 1rem; /* Уменьшение размера шрифта для общей суммы */
+    }
+    .dropdown-menu {
+        width: 100% !important; /* Установка ширины выпадающего меню */
+        left: 0 !important; /* Привязка к левой стороне экрана */
+    }
+}
+
 .input-group-sm {
     display: flex;
     align-items: center;
@@ -12,84 +92,52 @@
 
 .quantity-display {
     display: inline-block;
-    width: 2rem; /* Ширина поля для числа */
+    width: 1.5rem; /* Уменьшение ширины поля */
     text-align: center;
-    font-size: 0.875rem; /* Размер шрифта немного больше для лучшей читаемости */
+    font-size: 0.75rem; /* Уменьшение размера шрифта */
 }
 
-.selected-item-thumbnail, .write-off-product-thumbnail, .inventory-product-thumbnail {
-    width: 30px; /* Размер миниатюры */
-    height: auto; /* Автоматическая высота в зависимости от ширины */
+.input-group-sm .search-item-add-button, .input-group-sm .selected-item-remove-button {
+    margin-top: 5px;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
 }
 
-/* Дополнительные стили для компактного размещения элементов */
+/* Дополнительные стили для компактности */
+.dropdown-item {
+    padding: 0.5rem;
+}
+
+.dropdown-item .d-flex .me-2 {
+    margin-right: 0.25rem; /* Уменьшение отступов между элементами */
+}
+
+.dropdown-item .btn-sm {
+    font-size: 0.75rem;
+}
+
 .quantity-group {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    max-width: 80px; /* Максимальная ширина для группы кнопок и количества */
-}
-
-.table th, .table td {
-    padding: 0.25rem; /* Уменьшение отступов внутри ячеек */
-    vertical-align: middle; /* Выравнивание по вертикали */
-    font-size: 0.875rem; /* Уменьшение размера шрифта */
-}
-
-/* Стили для адаптивности */
-@media (max-width: 767.98px) {
-    .table th, .table td {
-        font-size: 0.75rem; /* Еще большее уменьшение размера шрифта на мобильных */
-    }
-
-    .quantity-group {
-        max-width: 70px; /* Уменьшение ширины группы на мобильных */
-    }
-
-    .input-group-sm .decrement-button, .input-group-sm .increment-button {
-        font-size: 0.65rem; /* Уменьшение размера шрифта на мобильных */
-        padding: 0.1rem 0.3rem; /* Еще меньшее уменьшение отступов */
-    }
-
-    .quantity-display {
-        font-size: 0.75rem; /* Уменьшение размера шрифта на мобильных */
-        width: 1.5rem; /* Уменьшение ширины поля на мобильных */
-    }
-
-    .dropdown-item .d-flex .me-2 {
-        margin-right: 0.2rem; /* Уменьшение отступа справа у иконок */
-    }
-}
-
-/* Общие стили для корзины и элементов */
-.cart-container {
-    border-radius: 5px;
-}
-
-.cart-container h3 {
-    margin-top: 0;
-}
-
-.toast-container {
-    position: fixed;
-    top: 20px; /* Расположение сверху */
-    right: 20px; /* Расположение справа */
-    z-index: 1050; /* Поверх остальных элементов */
-}
-
-.navbar-nav .nav-link {
-    padding: 0.5rem 1rem; /* Уменьшение отступов у ссылок в навигации */
-}
-
-.dropdown-item {
-    padding: 0.5rem;
 }
 
 .search-result-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%; /* Ширина строки на 100% */
+    width: 100%; /* Установка ширины на 100% */
+}
+
+.search-result-row .quantity-group {
+    margin-left: auto;
+}
+
+.no-results-message {
+    margin-left: 5px;
+}
+
+.text-muted {
+    font-size: 0.75rem; /* Уменьшение размера шрифта */
 }
 
 .search-result-buttons {
@@ -111,31 +159,83 @@
     font-size: 0.875rem;
 }
 
-/* Стили для выпадающего меню */
-.dropdown-menu {
-    width: 100%; /* Установить ширину меню на 100% */
-    max-width: 100vw; /* Ограничение максимальной ширины до ширины экрана */
-    box-sizing: border-box; /* Учитывать отступы в общей ширине */
+/* Стили для корзины */
+.cart-container {
+    border-radius: 5px;
+    padding: 15px;
 }
 
-/* Стили для мобильных устройств */
-@media (max-width: 767.98px) {
-    .dropdown-menu {
-        left: 0 !important; /* Привязать меню к левому краю экрана */
-        right: 0 !important; /* Привязать меню к правому краю экрана */
-        margin: 0; /* Убрать любые внешние отступы */
-        border-radius: 0; /* Убрать закругления углов для полного покрытия */
+.cart-container h3 {
+    margin-top: 0;
+}
+
+.toast-container {
+    position: fixed;
+    top: 20; /* Расположение сверху */
+    right: 20; /* Расположение справа */
+    z-index: 1050; /* Поверх остальных элементов */
+}
+
+.navbar-nav .nav-link.sales {
+    background-color: #90EE90; /* Светло-зеленый для "Продажи" */
+}
+
+.navbar-nav .nav-link.returns {
+    background-color: #FF7F7F; /* Светло-красный для "Возвраты" */
+}
+
+.navbar-nav .nav-link.inventory {
+    background-color: #F4FA58; /* Светло-желтый для "Оприходование" */
+}
+
+.navbar-nav .nav-link.write-off {
+    background-color: #ADD8E6; /* Светло-синий для "Списание" */
+}
+
+.navbar-nav .nav-link.preorder {
+    background-color: #D3D3D3; /* Светло-серый для "Предзаказы" */
+}
+
+.d-flex .btn.sales {
+    background-color: #90EE90 !important;
+    color: black !important;
+}
+
+.d-flex .btn.returns {
+    background-color: #FF7F7F !important;
+    color: black !important;
+}
+
+.d-flex .btn.inventory {
+    background-color: #F4FA58 !important;
+    color: black !important;
+}
+
+.d-flex .btn.write-off {
+    background-color: #ADD8E6 !important;
+    color: black !important;
+}
+
+.d-flex .btn.preorder {
+    background-color: #D3D3D3 !important;
+    color: black !important;
+}
+
+@media (max-width: 991.98px) {
+    .navbar-collapse .order-lg-2 {
+        order: -1;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
-    .dropdown-item {
-        padding: 0.5rem 0.75rem; /* Немного уменьшить отступы внутри элементов */
+    .navbar-collapse .order-lg-2 .d-flex {
+        justify-content: flex-end;
+        width: 100%;
     }
 
-    .dropdown-item .d-flex .me-2 {
-        margin-right: 0.2rem; /* Уменьшение отступа между элементами */
-    }
-
-    .search-result-buttons {
-        justify-content: space-between; /* Ориентация на равное размещение */
+    .navbar-collapse .order-lg-2 .navbar-text {
+        margin-bottom: 0.5rem;
+        width: 100%;
+        text-align: left;
     }
 }
