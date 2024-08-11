@@ -85,14 +85,25 @@ document.addEventListener('DOMContentLoaded', function() {
         sendSocketMessage({ 'type': 'get_returns_list' });
     }
 
+    // Обработчик фокуса для поля ввода
+    searchInput.addEventListener('focus', function() {
+        const query = searchInput.value.trim();
+        if (query.length >= 3) {
+            sendSocketMessage({
+                'type': 'search',
+                'query': query
+            });
+        }
+    });
+
     // Обработчик поиска товаров
     searchInput.addEventListener('input', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
-            fetch(`/seller_cabinet/search-products/?query=${query}`)
-                .then(response => response.json())
-                .then(data => displaySearchResults(data.results))
-                .catch(error => console.error('Ошибка при поиске товаров:', error));
+            sendSocketMessage({
+                'type': 'search',
+                'query': query
+            });
         } else {
             searchResults.innerHTML = '';
             searchResults.classList.remove('show');
@@ -138,23 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
             sendSocketMessage(returnData);
         }
     });
-
-    // Добавляем обработчик фокуса на поле поиска
-    searchInput.addEventListener('focus', function() {
-        const query = searchInput.value.trim();
-        if (query.length >= 3) {
-            fetchSearchResults(query);
-        }
-    });
-
-    function fetchSearchResults(query) {
-        fetch(`/seller_cabinet/search-products/?query=${query}`)
-            .then(response => response.json())
-            .then(data => {
-                displaySearchResults(data.results);
-            })
-            .catch(error => console.error('Error:', error));
-    }
 
     // Функция отображения результатов поиска
     function displaySearchResults(results) {

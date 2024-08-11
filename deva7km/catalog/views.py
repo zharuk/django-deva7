@@ -372,16 +372,6 @@ def seller_cabinet_sales(request):
 
 
 @login_required
-def search_products_for_seller_cabinet(request):
-    if request.method == 'GET':
-        query = request.GET.get('query', '')
-        results = ProductModification.objects.filter(custom_sku__icontains=query)
-        products = [{'name': f"{r.product.title}-{r.custom_sku}", 'stock': r.stock, 'price': r.product.price,
-                     'sku': r.custom_sku, 'thumbnail': r.thumbnail_image_url()} for r in results]
-        return JsonResponse({'results': products}, safe=False)
-
-
-@login_required
 def seller_cabinet_returns(request):
     return render(request, 'seller_cabinet/returns/seller_returns.html')
 

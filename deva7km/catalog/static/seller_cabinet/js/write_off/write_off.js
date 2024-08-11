@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация переменных и шаблонов
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
     const selectedItems = document.getElementById('selected-items');
@@ -15,18 +14,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let socket;
 
-    // Функция подключения WebSocket
     function connectWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         socket = new WebSocket(`${protocol}//${window.location.host}/ws/write_off/`);
 
-        // Обработчик открытия соединения WebSocket
         socket.onopen = function() {
-            // Запрашиваем список списаний при успешном открытии соединения
             requestWriteOffList();
         };
 
-        // Обработчик сообщений WebSocket
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             switch (data.type) {
@@ -52,22 +47,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
 
-        // Обработчик закрытия WebSocket
         socket.onclose = function() {
             showConnectionLostModal();
             setTimeout(connectWebSocket, 1000);
         };
 
-        // Обработчик ошибок WebSocket
         socket.onerror = function(e) {
             console.error('Ошибка WebSocket:', e);
         };
     }
 
-    // Подключение WebSocket
     connectWebSocket();
 
-    // Функция отправки сообщения через WebSocket
     function sendSocketMessage(message) {
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(message));
@@ -78,33 +69,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Запрос списка списаний при загрузке страницы
     function requestWriteOffList() {
         sendSocketMessage({ 'type': 'get_write_off_list' });
     }
 
-    // Обработчик поиска товаров
     searchInput.addEventListener('input', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
-            fetch(`/seller_cabinet/search-products/?query=${query}`)
-                .then(response => response.json())
-                .then(data => displaySearchResults(data.results))
-                .catch(error => console.error('Error:', error));
+            sendSocketMessage({
+                'type': 'search',
+                'query': query
+            });
         } else {
             searchResults.innerHTML = '';
             searchResults.classList.remove('show');
         }
     });
 
-    // Очистка поля поиска
     clearSearchButton.addEventListener('click', function() {
         searchInput.value = '';
         searchResults.innerHTML = '';
         searchResults.classList.remove('show');
     });
 
-    // Очистка корзины
     clearCartButton.addEventListener('click', function() {
         selectedItems.innerHTML = '';
         cartContainer.style.display = 'none';
@@ -112,14 +99,12 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTotal();
     });
 
-    // Закрытие списка результатов поиска при клике вне его
     document.addEventListener('click', function(e) {
         if (!searchResults.contains(e.target) && !searchInput.contains(e.target)) {
             searchResults.classList.remove('show');
         }
     });
 
-    // Обработчик кнопки списания
     writeOffButton.addEventListener('click', function() {
         const items = getSelectedItems();
         if (items.length === 0) {
@@ -137,7 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Функция отображения результатов поиска
     function displaySearchResults(results) {
         searchResults.innerHTML = '';
         if (results.length > 0) {
@@ -174,7 +158,6 @@ document.addEventListener('DOMContentLoaded', function() {
         searchResults.classList.add('show');
     }
 
-    // Функция отображения списка списаний
     function displayWriteOffList(writeOffs) {
         writeOffsList.innerHTML = '';
         if (writeOffs.length === 0) {
@@ -215,7 +198,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Функция добавления товара в корзину
     window.addItem = function(sku, price, thumbnail, quantity) {
         const existingItem = [...selectedItems.querySelectorAll('tr')].find(row => row.querySelector('.selected-item-sku').textContent === sku);
 
@@ -264,7 +246,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Функция удаления товара из корзины
     window.removeItem = function(button) {
         button.closest('tr').remove();
         updateTotal();
@@ -274,7 +255,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Функция обновления общей суммы
     function updateTotal() {
         let total = 0;
         selectedItems.querySelectorAll('tr').forEach(row => {
@@ -291,7 +271,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Получение выбранных товаров
     function getSelectedItems() {
         const items = [];
         selectedItems.querySelectorAll('tr').forEach(row => {
@@ -304,7 +283,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return items;
     }
 
-    // Обновление общей суммы на стороне клиента
     function updateTotalAmount(total) {
         if (totalAmount) {
             totalAmount.textContent = total;
@@ -313,24 +291,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Добавляем обработчик фокуса на поле поиска
     searchInput.addEventListener('focus', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
-            fetchSearchResults(query);
+            sendSocketMessage({
+                'type': 'search',
+                'query': query
+            });
         }
     });
 
-    function fetchSearchResults(query) {
-        fetch(`/seller_cabinet/search-products/?query=${query}`)
-            .then(response => response.json())
-            .then(data => {
-                displaySearchResults(data.results);
-            })
-            .catch(error => console.error('Error:', error));
-    }
-
-    // Показ уведомления
     function showNotification(type, title, message) {
         const toastContainer = document.getElementById('notificationToast');
         const toastMessage = document.createElement('div');
@@ -359,7 +329,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
     }
 
-    // Показ модального окна при потере соединения
     function showConnectionLostModal() {
         const connectionLostModal = new bootstrap.Modal(document.getElementById('connectionLostModal'), {
             backdrop: 'static',
@@ -368,7 +337,6 @@ document.addEventListener('DOMContentLoaded', function() {
         connectionLostModal.show();
     }
 
-    // Обработка подтверждения списания
     function handleWriteOffConfirmation(status) {
         if (status === 'success') {
             selectedItems.innerHTML = '';
@@ -379,7 +347,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Сброс полей после списания
     function resetWriteOffFields() {
         writeOffComment.value = '';
     }

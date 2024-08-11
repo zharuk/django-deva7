@@ -213,13 +213,19 @@ class SalesConsumer(AsyncWebsocketConsumer):
         results = await sync_to_async(list)(
             ProductModification.objects.filter(custom_sku__icontains=query)
         )
-        products = [{
-            'name': f"{r.product.title}-{r.custom_sku}",
-            'stock': r.stock,
-            'price': r.product.price,
-            'custom_sku': r.custom_sku,
-            'thumbnail': r.thumbnail_image_url()
-        } for r in results]
+
+        products = []
+        for r in results:
+            product = await sync_to_async(lambda: r.product)()
+            thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
+            products.append({
+                'name': f"{product.title}-{r.custom_sku}",
+                'stock': r.stock,
+                'price': product.price,
+                'custom_sku': r.custom_sku,
+                'thumbnail': thumbnail_url
+            })
+
         await self.send(text_data=json.dumps({
             'type': 'search_results',
             'results': products
@@ -355,6 +361,29 @@ class ReturnConsumer(AsyncWebsocketConsumer):
             await self.create_return(data)
         elif data['type'] == 'get_returns_list':
             await self.send_return_list()
+        elif data['type'] == 'search':
+            await self.search_items(data.get('query', ''))
+
+    async def search_items(self, query):
+        results = await sync_to_async(list)(
+            ProductModification.objects.filter(custom_sku__icontains=query)
+        )
+
+        products = []
+        for r in results:
+            product = await sync_to_async(lambda: r.product)()  # Оборачиваем доступ к product в sync_to_async
+            thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
+            products.append({
+                'sku': r.custom_sku,
+                'stock': r.stock,
+                'price': product.price,  # Используем product после асинхронного доступа
+                'thumbnail': thumbnail_url
+            })
+
+        await self.send(text_data=json.dumps({
+            'type': 'search_results',
+            'results': products
+        }))
 
     async def create_return(self, data):
         items = data['items']
@@ -454,6 +483,28 @@ class InventoryConsumer(AsyncWebsocketConsumer):
             await self.create_inventory(data)
         elif data['type'] == 'get_inventory_list':
             await self.send_inventory_list()
+        elif data['type'] == 'search':
+            await self.search_items(data.get('query', ''))
+
+    async def search_items(self, query):
+        results = await sync_to_async(list)(
+            ProductModification.objects.filter(custom_sku__icontains=query)
+        )
+        products = []
+        for r in results:
+            product = await sync_to_async(lambda: r.product)()
+            thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
+            products.append({
+                'sku': r.custom_sku,
+                'stock': r.stock,
+                'price': product.price,
+                'thumbnail': thumbnail_url
+            })
+
+        await self.send(text_data=json.dumps({
+            'type': 'search_results',
+            'results': products
+        }))
 
     async def create_inventory(self, data):
         items = data['items']
@@ -552,6 +603,28 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
             await self.create_write_off(data)
         elif data['type'] == 'get_write_off_list':
             await self.send_write_off_list()
+        elif data['type'] == 'search':
+            await self.search_items(data.get('query', ''))
+
+    async def search_items(self, query):
+        results = await sync_to_async(list)(
+            ProductModification.objects.filter(custom_sku__icontains=query)
+        )
+        products = []
+        for r in results:
+            product = await sync_to_async(lambda: r.product)()
+            thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
+            products.append({
+                'sku': r.custom_sku,
+                'stock': r.stock,
+                'price': product.price,
+                'thumbnail': thumbnail_url
+            })
+
+        await self.send(text_data=json.dumps({
+            'type': 'search_results',
+            'results': products
+        }))
 
     async def create_write_off(self, data):
         items = data['items']
@@ -566,7 +639,6 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
             return
 
         try:
-            # Используем sync_to_async с thread_sensitive=True для создания записи
             write_off = await sync_to_async(WriteOff.objects.create, thread_sensitive=True)(
                 user=user,
                 telegram_user_id=data.get('telegram_user_id'),
@@ -615,7 +687,6 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
         total_amount = await sync_to_async(write_off.calculate_total_amount)()
         items = await sync_to_async(list)(write_off.items.all())
 
-        # Получение данных о каждом элементе в асинхронном режиме
         items_data = []
         for item in items:
             product_modification = await sync_to_async(lambda: item.product_modification)()

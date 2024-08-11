@@ -66,32 +66,32 @@ document.addEventListener('DOMContentLoaded', function() {
         sendSocketMessage({ 'type': 'get_sales_list' });
     }
 
-    // Добавляем обработчик фокуса на поле поиска
+    // Обработчик фокуса для поля ввода
     searchInput.addEventListener('focus', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
-            fetchSearchResults(query);
+            sendSocketMessage({
+                'type': 'search',
+                'query': query
+            });
         }
     });
 
-    function fetchSearchResults(query) {
-        fetch(`/seller_cabinet/search-products/?query=${query}`)
-            .then(response => response.json())
-            .then(data => {
-                displaySearchResults(data.results);
-            })
-            .catch(error => console.error('Error:', error));
-    }
+    // Обработчик события 'focus' для отображения результатов при возврате курсора в поле ввода
+    searchInput.addEventListener('focus', function() {
+        if (searchResults.innerHTML !== '') {
+            searchResults.classList.add('show');
+        }
+    });
 
+    // Обработчик для поиска через WebSocket
     searchInput.addEventListener('input', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
-            fetch(`/seller_cabinet/search-products/?query=${query}`)
-                .then(response => response.json())
-                .then(data => {
-                    displaySearchResults(data.results);
-                })
-                .catch(error => console.error('Error:', error));
+            sendSocketMessage({
+                'type': 'search',
+                'query': query
+            });
         } else {
             searchResults.innerHTML = '';
             searchResults.classList.remove('show');
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
             results.forEach(item => {
                 const row = document.importNode(searchResultTemplate, true);
                 row.querySelector('.search-item-thumbnail').src = item.thumbnail || '';
-                row.querySelector('.search-item-sku').textContent = item.sku;
+                row.querySelector('.search-item-sku').textContent = item.custom_sku;
                 row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${item.price} грн`;
                 const addButton = row.querySelector('.search-item-add-button');
                 const quantityDisplay = row.querySelector('.quantity-display');
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
 
-                addButton.addEventListener('click', () => checkAvailabilityAndAddItem(item.sku, item.price, item.stock, item.thumbnail, parseInt(quantityDisplay.textContent)));
+                addButton.addEventListener('click', () => checkAvailabilityAndAddItem(item.custom_sku, item.price, item.stock, item.thumbnail, parseInt(quantityDisplay.textContent)));
                 searchResults.appendChild(row);
             });
         } else {
