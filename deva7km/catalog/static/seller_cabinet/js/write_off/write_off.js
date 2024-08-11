@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const row = document.importNode(searchResultTemplate, true);
                 row.querySelector('.search-item-thumbnail').src = item.thumbnail || '';
                 row.querySelector('.search-item-sku').textContent = item.sku;
-                row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${item.price} грн`;
+                row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${formatPrice(item.price)} грн`;
 
                 const addButton = row.querySelector('.search-item-add-button');
                 const quantityDisplay = row.querySelector('.quantity-display');
@@ -137,16 +137,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 const decrementButton = row.querySelector('.decrement-button');
 
                 incrementButton.addEventListener('click', () => {
-                    quantityDisplay.textContent = parseInt(quantityDisplay.textContent) + 1;
-                });
-
-                decrementButton.addEventListener('click', () => {
-                    if (parseInt(quantityDisplay.textContent) > 1) {
-                        quantityDisplay.textContent = parseInt(quantityDisplay.textContent) - 1;
+                    const currentQuantity = parseInt(quantityDisplay.textContent);
+                    if (currentQuantity < item.stock) {
+                        quantityDisplay.textContent = currentQuantity + 1;
+                    } else {
+                        showNotification('danger', 'Ошибка', `Недостаточно товара ${item.sku} на складе.`);
                     }
                 });
 
-                addButton.addEventListener('click', () => addItem(item.sku, item.price, item.thumbnail, parseInt(quantityDisplay.textContent)));
+                decrementButton.addEventListener('click', () => {
+                    const currentQuantity = parseInt(quantityDisplay.textContent);
+                    if (currentQuantity > 1) {
+                        quantityDisplay.textContent = currentQuantity - 1;
+                    }
+                });
+
+                addButton.addEventListener('click', () => addItem(item.sku, item.price, item.thumbnail, parseInt(quantityDisplay.textContent), item.stock));
                 searchResults.appendChild(row);
             });
         } else {
@@ -171,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 writeOffTemplate.querySelector('.write-off-id').textContent = writeOff.id;
                 writeOffTemplate.querySelector('.write-off-time').textContent = new Date(writeOff.created_at).toLocaleTimeString();
                 writeOffTemplate.querySelector('.write-off-user').textContent = writeOff.user || 'Неизвестно';
-                writeOffTemplate.querySelector('.write-off-total-amount').textContent = writeOff.total_amount;
+                writeOffTemplate.querySelector('.write-off-total-amount').textContent = formatPrice(writeOff.total_amount);
 
                 const writeOffProductsContainer = writeOffTemplate.querySelector('.write-off-products');
                 writeOff.items.forEach(item => {
@@ -184,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     productTemplate.querySelector('.write-off-product-sku').textContent = item.custom_sku;
                     productTemplate.querySelector('.write-off-product-quantity').textContent = `${item.quantity} шт.`;
-                    productTemplate.querySelector('.write-off-product-price').textContent = `${item.total_price} грн`;
+                    productTemplate.querySelector('.write-off-product-price').textContent = `${formatPrice(item.total_price)} грн`;
                     writeOffProductsContainer.appendChild(productTemplate);
                 });
 
@@ -194,54 +200,84 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             document.getElementById('daily-total-items').textContent = totalItems;
-            document.getElementById('daily-total-amount').textContent = totalAmount;
+            document.getElementById('daily-total-amount').textContent = formatPrice(totalAmount);
         }
     }
 
-    window.addItem = function(sku, price, thumbnail, quantity) {
+    window.addItem = function(sku, price, thumbnail, quantity, stock) {
         const existingItem = [...selectedItems.querySelectorAll('tr')].find(row => row.querySelector('.selected-item-sku').textContent === sku);
 
         if (existingItem) {
             const existingQuantity = existingItem.querySelector('.quantity-display');
-            existingQuantity.textContent = parseInt(existingQuantity.textContent) + quantity;
-            updateTotal();
-        } else {
-            const row = document.importNode(selectedItemTemplate, true);
-            row.querySelector('.selected-item-thumbnail').src = thumbnail || '';
-            row.querySelector('.selected-item-sku').textContent = sku;
-            row.querySelector('.quantity-display').textContent = quantity;
-            row.querySelector('.selected-item-price').textContent = price;
+            const newQuantity = parseInt(existingQuantity.textContent) + quantity;
 
-            const removeButton = row.querySelector('.selected-item-remove-button');
-            const incrementButton = row.querySelector('.increment-button');
-            const decrementButton = row.querySelector('.decrement-button');
-            const quantityDisplay = row.querySelector('.quantity-display');
+            // Проверяем, не превышает ли новое количество доступный запас
+            if (newQuantity <= stock) {
+                existingQuantity.textContent = newQuantity;
 
-            incrementButton.addEventListener('click', () => {
-                quantityDisplay.textContent = parseInt(quantityDisplay.textContent) + 1;
+                // Пересчитываем сумму для этой позиции
+                const totalPriceElement = existingItem.querySelector('.selected-item-total-price');
+                totalPriceElement.textContent = formatPrice(newQuantity * parseFloat(price));
+
                 updateTotal();
-            });
+            } else {
+                showNotification('danger', 'Ошибка', `Недостаточно товара ${sku} на складе.`);
+            }
+        } else {
+            if (quantity <= stock) {
+                const row = document.importNode(selectedItemTemplate, true).querySelector('tr');
+                if (row) {
+                    row.querySelector('.selected-item-thumbnail').src = thumbnail || '';
+                    row.querySelector('.selected-item-sku').textContent = sku;
+                    row.querySelector('.quantity-display').textContent = quantity;
+                    row.setAttribute('data-stock', stock); // Сохраняем доступный запас в data-атрибут
 
-            decrementButton.addEventListener('click', () => {
-                if (parseInt(quantityDisplay.textContent) > 1) {
-                    quantityDisplay.textContent = parseInt(quantityDisplay.textContent) - 1;
+                    const totalPriceElement = row.querySelector('.selected-item-total-price');
+                    totalPriceElement.textContent = formatPrice(quantity * price);
+
+                    const removeButton = row.querySelector('.selected-item-remove-button');
+                    const incrementButton = row.querySelector('.increment-button');
+                    const decrementButton = row.querySelector('.decrement-button');
+                    const quantityDisplay = row.querySelector('.quantity-display');
+
+                    incrementButton.addEventListener('click', () => {
+                        const currentQuantity = parseInt(quantityDisplay.textContent);
+                        if (currentQuantity < stock) {
+                            quantityDisplay.textContent = currentQuantity + 1;
+                            totalPriceElement.textContent = formatPrice((currentQuantity + 1) * parseFloat(price));
+                            updateTotal();
+                        } else {
+                            showNotification('danger', 'Ошибка', `Недостаточно товара ${sku} на складе.`);
+                        }
+                    });
+
+                    decrementButton.addEventListener('click', () => {
+                        if (parseInt(quantityDisplay.textContent) > 1) {
+                            quantityDisplay.textContent = parseInt(quantityDisplay.textContent) - 1;
+                            totalPriceElement.textContent = formatPrice(parseInt(quantityDisplay.textContent) * parseFloat(price));
+                            updateTotal();
+                        }
+                    });
+
+                    removeButton.addEventListener('click', () => removeItem(removeButton));
+
+                    selectedItems.appendChild(row);
+                    cartContainer.style.display = 'block';
                     updateTotal();
+
+                    sendSocketMessage({
+                        'type': 'item_added',
+                        'custom_sku': sku
+                    });
+
+                    if (searchInput.value.trim() !== '') {
+                        searchResults.classList.add('show');
+                    }
+                } else {
+                    console.error("Ошибка: не удалось создать строку для нового товара.");
                 }
-            });
-
-            removeButton.addEventListener('click', () => removeItem(removeButton));
-
-            selectedItems.appendChild(row);
-            cartContainer.style.display = 'block';
-            updateTotal();
-
-            sendSocketMessage({
-                'type': 'item_added',
-                'custom_sku': sku
-            });
-
-            if (searchInput.value.trim() !== '') {
-                searchResults.classList.add('show');
+            } else {
+                showNotification('danger', 'Ошибка', `Недостаточно товара ${sku} на складе.`);
             }
         }
     };
@@ -258,10 +294,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTotal() {
         let total = 0;
         selectedItems.querySelectorAll('tr').forEach(row => {
-            total += parseFloat(row.querySelector('.selected-item-price').textContent) * parseInt(row.querySelector('.quantity-display').textContent);
+            const totalPrice = parseFloat(row.querySelector('.selected-item-total-price').textContent);
+            total += totalPrice;
         });
         if (totalAmount) {
-            totalAmount.textContent = total;
+            totalAmount.textContent = formatPrice(total);
         } else {
             console.error("Element with id 'total-amount' not found.");
         }
@@ -277,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
             items.push({
                 custom_sku: row.querySelector('.selected-item-sku').textContent,
                 quantity: parseInt(row.querySelector('.quantity-display').textContent),
-                price: parseFloat(row.querySelector('.selected-item-price').textContent)
+                price: parseFloat(row.querySelector('.selected-item-total-price').textContent) // Используем selected-item-total-price
             });
         });
         return items;
@@ -285,10 +322,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateTotalAmount(total) {
         if (totalAmount) {
-            totalAmount.textContent = total;
+            totalAmount.textContent = formatPrice(total);
         } else {
             console.error("Element with id 'total-amount' not found.");
         }
+    }
+
+    function formatPrice(price) {
+        return price % 1 === 0 ? price.toFixed(0) : price.toFixed(2);
     }
 
     searchInput.addEventListener('focus', function() {
@@ -350,4 +391,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetWriteOffFields() {
         writeOffComment.value = '';
     }
+
+    requestWriteOffList();
 });

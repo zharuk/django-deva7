@@ -19,13 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         socket = new WebSocket(`${protocol}//${window.location.host}/ws/returns/`);
 
-        // Обработчик открытия соединения WebSocket
         socket.onopen = function() {
-            // Запрашиваем список возвратов при успешном открытии соединения
             requestReturnsList();
         };
 
-        // Обработчик сообщений WebSocket
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             switch (data.type) {
@@ -53,23 +50,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
 
-        // Обработчик закрытия WebSocket
         socket.onclose = function() {
             showNotification('warning', 'Соединение закрыто', 'Соединение WebSocket закрыто');
             showConnectionLostModal();
             setTimeout(connectWebSocket, 1000);
         };
 
-        // Обработчик ошибок WebSocket
         socket.onerror = function(e) {
             showNotification('danger', 'Ошибка WebSocket', 'Произошла ошибка WebSocket. Подробности в консоли.');
         };
     }
 
-    // Подключение WebSocket
     connectWebSocket();
 
-    // Функция отправки сообщения через WebSocket
     function sendSocketMessage(message) {
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(message));
@@ -80,12 +73,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Запрос списка возвратов при загрузке страницы
     function requestReturnsList() {
         sendSocketMessage({ 'type': 'get_returns_list' });
     }
 
-    // Обработчик фокуса для поля ввода
     searchInput.addEventListener('focus', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
@@ -96,7 +87,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Обработчик поиска товаров
     searchInput.addEventListener('input', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
@@ -110,14 +100,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Очистка поля поиска
     clearSearchButton.addEventListener('click', function() {
         searchInput.value = '';
         searchResults.innerHTML = '';
         searchResults.classList.remove('show');
     });
 
-    // Очистка корзины
     clearCartButton.addEventListener('click', function() {
         selectedItems.innerHTML = '';
         cartContainer.style.display = 'none';
@@ -125,14 +113,12 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTotal();
     });
 
-    // Закрытие списка результатов поиска при клике вне его
     document.addEventListener('click', function(e) {
         if (!searchResults.contains(e.target) && !searchInput.contains(e.target)) {
             searchResults.classList.remove('show');
         }
     });
 
-    // Обработчик кнопки возврата
     returnButton.addEventListener('click', function() {
         const items = getSelectedItems();
         if (items.length === 0) {
@@ -150,7 +136,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Функция отображения результатов поиска
     function displaySearchResults(results) {
         searchResults.innerHTML = '';
         if (results.length > 0) {
@@ -175,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
 
-                addButton.addEventListener('click', () => addItem(item.sku, item.price, item.thumbnail, parseInt(quantityDisplay.textContent)));
+                addButton.addEventListener('click', () => addItem(item.sku, parseFloat(item.price), item.thumbnail, parseInt(quantityDisplay.textContent)));
                 searchResults.appendChild(row);
             });
         } else {
@@ -187,7 +172,6 @@ document.addEventListener('DOMContentLoaded', function() {
         searchResults.classList.add('show');
     }
 
-    // Функция отображения списка возвратов
     function displayReturnsList(returns) {
         returnsList.innerHTML = '';
         if (returns.length === 0) {
@@ -203,7 +187,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 returnTemplate.querySelector('.return-user').textContent = return_obj.user || 'Неизвестно';
                 returnTemplate.querySelector('.return-total-amount').textContent = return_obj.total_amount;
 
-                // Отображаем комментарий, если он есть
                 const commentContainer = returnTemplate.querySelector('.return-comment-container');
                 const commentElement = commentContainer.querySelector('.return-comment');
                 if (return_obj.comment) {
@@ -224,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     productTemplate.querySelector('.return-product-sku').textContent = item.custom_sku;
                     productTemplate.querySelector('.return-product-quantity').textContent = `${item.quantity} шт.`;
-                    productTemplate.querySelector('.return-product-price').textContent = `${item.total_price} грн`;
+                    productTemplate.querySelector('.return-product-price').textContent = `${formatPrice(item.total_price)} грн`;
                     returnProductsContainer.appendChild(productTemplate);
                 });
 
@@ -234,24 +217,35 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             document.getElementById('daily-total-items').textContent = totalItems;
-            document.getElementById('daily-total-amount').textContent = totalAmount;
+            document.getElementById('daily-total-amount').textContent = formatPrice(totalAmount);
         }
     }
 
-    // Функция добавления товара в корзину
+    function formatPrice(price) {
+        const numericPrice = parseFloat(price);
+        return numericPrice % 1 === 0 ? numericPrice.toFixed(0) : numericPrice.toFixed(2);
+    }
+
     window.addItem = function(sku, price, thumbnail, quantity) {
         const existingItem = [...selectedItems.querySelectorAll('tr')].find(row => row.querySelector('.selected-item-sku').textContent === sku);
 
         if (existingItem) {
             const existingQuantity = existingItem.querySelector('.quantity-display');
             existingQuantity.textContent = parseInt(existingQuantity.textContent) + quantity;
+
+            const totalPriceElement = existingItem.querySelector('.selected-item-price');
+            const newTotalPrice = (parseInt(existingQuantity.textContent) * parseFloat(price)).toFixed(2);
+            totalPriceElement.textContent = formatPrice(newTotalPrice);
+
             updateTotal();
         } else {
             const row = document.importNode(selectedItemTemplate, true);
             row.querySelector('.selected-item-thumbnail').src = thumbnail || '';
             row.querySelector('.selected-item-sku').textContent = sku;
             row.querySelector('.quantity-display').textContent = quantity;
-            row.querySelector('.selected-item-price').textContent = price;
+
+            const totalPriceElement = row.querySelector('.selected-item-price');
+            totalPriceElement.textContent = formatPrice(quantity * price);
 
             const removeButton = row.querySelector('.selected-item-remove-button');
             const incrementButton = row.querySelector('.increment-button');
@@ -260,12 +254,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             incrementButton.addEventListener('click', () => {
                 quantityDisplay.textContent = parseInt(quantityDisplay.textContent) + 1;
+                totalPriceElement.textContent = formatPrice(parseInt(quantityDisplay.textContent) * parseFloat(price));
                 updateTotal();
             });
 
             decrementButton.addEventListener('click', () => {
                 if (parseInt(quantityDisplay.textContent) > 1) {
                     quantityDisplay.textContent = parseInt(quantityDisplay.textContent) - 1;
+                    totalPriceElement.textContent = formatPrice(parseInt(quantityDisplay.textContent) * parseFloat(price));
                     updateTotal();
                 }
             });
@@ -287,7 +283,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Функция удаления товара из корзины
     window.removeItem = function(button) {
         button.closest('tr').remove();
         updateTotal();
@@ -297,14 +292,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Функция обновления общей суммы
     function updateTotal() {
         let total = 0;
         selectedItems.querySelectorAll('tr').forEach(row => {
-            total += parseFloat(row.querySelector('.selected-item-price').textContent) * parseInt(row.querySelector('.quantity-display').textContent);
+            const price = parseFloat(row.querySelector('.selected-item-price').textContent);
+            const quantity = parseInt(row.querySelector('.quantity-display').textContent);
+            total += price * quantity;
         });
         if (totalAmount) {
-            totalAmount.textContent = total;
+            totalAmount.textContent = formatPrice(total);
         }
         sendSocketMessage({
             'type': 'update_total',
@@ -312,7 +308,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Получение выбранных товаров
     function getSelectedItems() {
         const items = [];
         selectedItems.querySelectorAll('tr').forEach(row => {
@@ -325,14 +320,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return items;
     }
 
-    // Обновление общей суммы на стороне клиента
     function updateTotalAmount(total) {
         if (totalAmount) {
-            totalAmount.textContent = total;
+            totalAmount.textContent = formatPrice(total);
         }
     }
 
-    // Показ уведомления
     function showNotification(type, title, message) {
         const toastContainer = document.getElementById('notificationToast');
         const toastMessage = document.createElement('div');
@@ -361,7 +354,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
     }
 
-    // Показ модального окна при потере соединения
     function showConnectionLostModal() {
         const connectionLostModal = new bootstrap.Modal(document.getElementById('connectionLostModal'), {
             backdrop: 'static',
@@ -370,7 +362,6 @@ document.addEventListener('DOMContentLoaded', function() {
         connectionLostModal.show();
     }
 
-    // Обработка подтверждения возврата
     function handleReturnConfirmation(status) {
         if (status === 'success') {
             selectedItems.innerHTML = '';
@@ -381,11 +372,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Сброс полей после возврата
     function resetReturnFields() {
         returnComment.value = '';
     }
 
-    // Инициируем запрос списка возвратов при загрузке страницы
     requestReturnsList();
 });

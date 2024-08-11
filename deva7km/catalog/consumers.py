@@ -218,10 +218,11 @@ class SalesConsumer(AsyncWebsocketConsumer):
         for r in results:
             product = await sync_to_async(lambda: r.product)()
             thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
+            actual_price = await sync_to_async(lambda: product.get_actual_wholesale_price())()  # Используем метод get_actual_wholesale_price
             products.append({
                 'name': f"{product.title}-{r.custom_sku}",
                 'stock': r.stock,
-                'price': product.price,
+                'price': actual_price,
                 'custom_sku': r.custom_sku,
                 'thumbnail': thumbnail_url
             })
@@ -237,7 +238,8 @@ class SalesConsumer(AsyncWebsocketConsumer):
             if product_modification.stock < quantity:
                 await self.send(text_data=json.dumps({
                     'type': 'item_not_available',
-                    'custom_sku': custom_sku
+                    'custom_sku': custom_sku,
+                    'available_stock': product_modification.stock  # Отправляем информацию о доступном остатке
                 }))
             else:
                 sale_item = await sync_to_async(SaleItem.objects.create)(
@@ -251,7 +253,8 @@ class SalesConsumer(AsyncWebsocketConsumer):
                     'type': 'item_added',
                     'custom_sku': custom_sku,
                     'quantity': quantity,
-                    'price': sale_item.total_price()
+                    'price': sale_item.total_price(),
+                    'remaining_stock': product_modification.stock  # Отправляем остаток после добавления
                 }))
         except ObjectDoesNotExist:
             await self.send(text_data=json.dumps({
@@ -276,7 +279,16 @@ class SalesConsumer(AsyncWebsocketConsumer):
                 quantity=item['quantity']
             )
 
-        sale.total_amount = sum(item['quantity'] * item['price'] for item in items)
+        # Добавляем проверку на наличие ключа 'price'
+        total_amount = 0
+        for item in items:
+            if 'price' in item:
+                total_amount += item['quantity'] * item['price']
+            else:
+                # Можно добавить логирование или другое действие, если ключ 'price' отсутствует
+                print(f"Warning: 'price' key missing in item: {item}")
+
+        sale.total_amount = total_amount
         await sync_to_async(sale.save)()
 
         await self.send(text_data=json.dumps({
@@ -286,9 +298,9 @@ class SalesConsumer(AsyncWebsocketConsumer):
         }))
 
     async def send_sales_list(self):
-        today = timezone.localtime(timezone.now()).date()  # Используем локальную дату
+        today = timezone.localtime(timezone.now()).date()
         sales = await sync_to_async(list)(
-            Sale.objects.filter(created_at__date=today).order_by('-created_at')  # Сортируем от самых новых
+            Sale.objects.filter(created_at__date=today).order_by('-created_at')
         )
         sales_data = []
         for sale in sales:
@@ -306,7 +318,7 @@ class SalesConsumer(AsyncWebsocketConsumer):
                 })
             sales_data.append({
                 'id': sale.id,
-                'created_at': timezone.localtime(sale.created_at).strftime('%Y-%m-%d %H:%M:%S'),  # Преобразуем время в локальное
+                'created_at': timezone.localtime(sale.created_at).strftime('%Y-%m-%d %H:%M:%S'),
                 'user': await sync_to_async(lambda: sale.user.username if sale.user else 'Неизвестно')(),
                 'items': items_data,
                 'total_amount': await sync_to_async(sale.calculate_total_amount)(),
@@ -373,12 +385,19 @@ class ReturnConsumer(AsyncWebsocketConsumer):
         for r in results:
             product = await sync_to_async(lambda: r.product)()  # Оборачиваем доступ к product в sync_to_async
             thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
+            actual_price = await sync_to_async(
+                product.get_actual_wholesale_price)()  # Используем метод для получения актуальной цены
             products.append({
                 'sku': r.custom_sku,
                 'stock': r.stock,
-                'price': product.price,  # Используем product после асинхронного доступа
+                'price': actual_price,  # Используем актуальную цену
                 'thumbnail': thumbnail_url
             })
+
+        await self.send(text_data=json.dumps({
+            'type': 'search_results',
+            'results': products
+        }))
 
         await self.send(text_data=json.dumps({
             'type': 'search_results',
@@ -493,13 +512,20 @@ class InventoryConsumer(AsyncWebsocketConsumer):
         products = []
         for r in results:
             product = await sync_to_async(lambda: r.product)()
+            actual_price = await sync_to_async(
+                lambda: product.get_actual_wholesale_price())()  # Используем метод для получения цены
             thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
             products.append({
                 'sku': r.custom_sku,
                 'stock': r.stock,
-                'price': product.price,
+                'price': actual_price,  # Используем правильную цену
                 'thumbnail': thumbnail_url
             })
+
+        await self.send(text_data=json.dumps({
+            'type': 'search_results',
+            'results': products
+        }))
 
         await self.send(text_data=json.dumps({
             'type': 'search_results',
@@ -613,11 +639,13 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
         products = []
         for r in results:
             product = await sync_to_async(lambda: r.product)()
+            actual_price = await sync_to_async(
+                lambda: product.get_actual_wholesale_price())()  # Получаем фактическую оптовую цену
             thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
             products.append({
                 'sku': r.custom_sku,
                 'stock': r.stock,
-                'price': product.price,
+                'price': actual_price,  # Используем правильную цену
                 'thumbnail': thumbnail_url
             })
 

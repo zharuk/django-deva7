@@ -76,7 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
         sendSocketMessage({ 'type': 'get_inventory_list' });
     }
 
-    // Обработчик фокуса для поля ввода
     searchInput.addEventListener('focus', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
@@ -143,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const row = document.importNode(searchResultTemplate, true);
                 row.querySelector('.search-item-thumbnail').src = item.thumbnail || '';
                 row.querySelector('.search-item-sku').textContent = item.sku;
-                row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${item.price} грн`;
+                row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${formatPrice(item.price)} грн`;
 
                 const addButton = row.querySelector('.search-item-add-button');
                 const quantityDisplay = row.querySelector('.quantity-display');
@@ -185,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 inventoryTemplate.querySelector('.inventory-id').textContent = inventory_obj.id;
                 inventoryTemplate.querySelector('.inventory-time').textContent = new Date(inventory_obj.created_at).toLocaleTimeString();
                 inventoryTemplate.querySelector('.inventory-user').textContent = inventory_obj.user || 'Неизвестно';
-                inventoryTemplate.querySelector('.inventory-total-amount').textContent = inventory_obj.total_amount;
+                inventoryTemplate.querySelector('.inventory-total-amount').textContent = formatPrice(inventory_obj.total_amount);
 
                 const inventoryProductsContainer = inventoryTemplate.querySelector('.inventory-products');
                 inventory_obj.items.forEach(item => {
@@ -198,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     productTemplate.querySelector('.inventory-product-sku').textContent = item.custom_sku;
                     productTemplate.querySelector('.inventory-product-quantity').textContent = `${item.quantity} шт.`;
-                    productTemplate.querySelector('.inventory-product-price').textContent = `${item.total_price} грн`;
+                    productTemplate.querySelector('.inventory-product-price').textContent = `${formatPrice(item.total_price)} грн`;
                     inventoryProductsContainer.appendChild(productTemplate);
                 });
 
@@ -208,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             document.getElementById('daily-total-items').textContent = totalItems;
-            document.getElementById('daily-total-amount').textContent = totalAmount;
+            document.getElementById('daily-total-amount').textContent = formatPrice(totalAmount);
         }
     }
 
@@ -218,13 +217,21 @@ document.addEventListener('DOMContentLoaded', function() {
         if (existingItem) {
             const existingQuantity = existingItem.querySelector('.quantity-display');
             existingQuantity.textContent = parseInt(existingQuantity.textContent) + quantity;
+
+            // Пересчитываем сумму для этой позиции
+            const totalPriceElement = existingItem.querySelector('.selected-item-price');
+            totalPriceElement.textContent = formatPrice(parseInt(existingQuantity.textContent) * parseFloat(price));
+
             updateTotal();
         } else {
             const row = document.importNode(selectedItemTemplate, true);
             row.querySelector('.selected-item-thumbnail').src = thumbnail || '';
             row.querySelector('.selected-item-sku').textContent = sku;
             row.querySelector('.quantity-display').textContent = quantity;
-            row.querySelector('.selected-item-price').textContent = price;
+
+            // Добавляем цену
+            const totalPriceElement = row.querySelector('.selected-item-price');
+            totalPriceElement.textContent = formatPrice(quantity * price);
 
             const removeButton = row.querySelector('.selected-item-remove-button');
             const incrementButton = row.querySelector('.increment-button');
@@ -233,12 +240,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
             incrementButton.addEventListener('click', () => {
                 quantityDisplay.textContent = parseInt(quantityDisplay.textContent) + 1;
+                // Обновляем сумму при изменении количества
+                totalPriceElement.textContent = formatPrice(parseInt(quantityDisplay.textContent) * parseFloat(price));
                 updateTotal();
             });
 
             decrementButton.addEventListener('click', () => {
                 if (parseInt(quantityDisplay.textContent) > 1) {
                     quantityDisplay.textContent = parseInt(quantityDisplay.textContent) - 1;
+                    // Обновляем сумму при изменении количества
+                    totalPriceElement.textContent = formatPrice(parseInt(quantityDisplay.textContent) * parseFloat(price));
                     updateTotal();
                 }
             });
@@ -272,10 +283,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTotal() {
         let total = 0;
         selectedItems.querySelectorAll('tr').forEach(row => {
-            total += parseFloat(row.querySelector('.selected-item-price').textContent) * parseInt(row.querySelector('.quantity-display').textContent);
+            const totalPrice = parseFloat(row.querySelector('.selected-item-price').textContent);
+            total += totalPrice;
         });
         if (totalAmount) {
-            totalAmount.textContent = total;
+            totalAmount.textContent = formatPrice(total);
+        } else {
+            console.error("Element with id 'total-amount' not found.");
         }
         sendSocketMessage({
             'type': 'update_total',
@@ -297,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateTotalAmount(total) {
         if (totalAmount) {
-            totalAmount.textContent = total;
+            totalAmount.textContent = formatPrice(total);
         }
     }
 
@@ -349,6 +363,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function resetInventoryFields() {
         inventoryComment.value = '';
+    }
+
+    function formatPrice(price) {
+        return price % 1 === 0 ? price.toFixed(0) : price.toFixed(2);
     }
 
     requestInventoryList();

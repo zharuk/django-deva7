@@ -19,28 +19,38 @@ document.addEventListener('DOMContentLoaded', function() {
         socket = new WebSocket(`${protocol}//${window.location.host}/ws/sales/`);
 
         socket.onopen = function() {
-            // Запрашиваем список продаж после успешного подключения WebSocket
             requestSalesList();
         };
 
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            if (data.type === 'search_results') {
-                displaySearchResults(data.results);
-            } else if (data.type === 'update_total') {
-                updateTotalAmount(data.total);
-            } else if (data.type === 'sell_confirmation') {
-                showNotification('success', 'Продажа завершена', 'Продажа успешно завершена!');
-                handleSellConfirmation(data.status);
-                requestSalesList();
-            } else if (data.type === 'sell_error') {
-                showNotification('danger', 'Ошибка', data.message);
-            } else if (data.type === 'item_added') {
-                showNotification('success', 'Товар добавлен', `${data.custom_sku} добавлен в корзину`);
-            } else if (data.type === 'item_not_available') {
-                showNotification('danger', 'Ошибка', `Товар ${data.custom_sku} отсутствует на складе`);
-            } else if (data.type === 'sales_list') {
-                displaySalesList(data.sales);
+            switch (data.type) {
+                case 'search_results':
+                    displaySearchResults(data.results);
+                    break;
+                case 'update_total':
+                    updateTotalAmount(data.total);
+                    break;
+                case 'sell_confirmation':
+                    showNotification('success', 'Продажа завершена', 'Продажа успешно завершена!');
+                    handleSellConfirmation(data.status);
+                    requestSalesList();
+                    break;
+                case 'sell_error':
+                    showNotification('danger', 'Ошибка', data.message);
+                    break;
+                case 'item_added':
+                    showNotification('success', 'Товар добавлен', `${data.custom_sku} добавлен в корзину`);
+                    break;
+                case 'item_not_available':
+                    showNotification('danger', 'Ошибка', `Товар ${data.custom_sku} отсутствует на складе`);
+                    updateItemStock(data.custom_sku, data.available_stock);  // Обновляем количество товара в интерфейсе
+                    break;
+                case 'sales_list':
+                    displaySalesList(data.sales);
+                    break;
+                default:
+                    console.warn('Неизвестный тип сообщения:', data.type);
             }
         };
 
@@ -66,7 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
         sendSocketMessage({ 'type': 'get_sales_list' });
     }
 
-    // Обработчик фокуса для поля ввода
     searchInput.addEventListener('focus', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
@@ -77,14 +86,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Обработчик события 'focus' для отображения результатов при возврате курсора в поле ввода
     searchInput.addEventListener('focus', function() {
         if (searchResults.innerHTML !== '') {
             searchResults.classList.add('show');
         }
     });
 
-    // Обработчик для поиска через WebSocket
     searchInput.addEventListener('input', function() {
         const query = searchInput.value.trim();
         if (query.length >= 3) {
@@ -142,14 +149,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 const row = document.importNode(searchResultTemplate, true);
                 row.querySelector('.search-item-thumbnail').src = item.thumbnail || '';
                 row.querySelector('.search-item-sku').textContent = item.custom_sku;
-                row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${item.price} грн`;
+                row.querySelector('.item-details').textContent = `👗- ${item.stock} шт, 💵- ${Math.floor(item.price)} грн`;
+
                 const addButton = row.querySelector('.search-item-add-button');
                 const quantityDisplay = row.querySelector('.quantity-display');
                 const incrementButton = row.querySelector('.increment-button');
                 const decrementButton = row.querySelector('.decrement-button');
 
                 incrementButton.addEventListener('click', () => {
-                    quantityDisplay.textContent = parseInt(quantityDisplay.textContent) + 1;
+                    if (parseInt(quantityDisplay.textContent) < item.stock) {
+                        quantityDisplay.textContent = parseInt(quantityDisplay.textContent) + 1;
+                    } else {
+                        showNotification('danger', 'Ошибка', `Товара ${item.custom_sku} больше нет на складе`);
+                    }
                 });
 
                 decrementButton.addEventListener('click', () => {
@@ -158,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
 
-                addButton.addEventListener('click', () => checkAvailabilityAndAddItem(item.custom_sku, item.price, item.stock, item.thumbnail, parseInt(quantityDisplay.textContent)));
+                addButton.addEventListener('click', () => checkAvailabilityAndAddItem(item.custom_sku, Math.floor(item.price), item.stock, item.thumbnail, parseInt(quantityDisplay.textContent)));
                 searchResults.appendChild(row);
             });
         } else {
@@ -185,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 saleTemplate.querySelector('.sale-id').textContent = sale.id;
                 saleTemplate.querySelector('.sale-time').textContent = new Date(sale.created_at).toLocaleTimeString();
                 saleTemplate.querySelector('.sale-user').textContent = sale.user || 'Неизвестно';
-                saleTemplate.querySelector('.sale-total-amount').textContent = sale.total_amount;
+                saleTemplate.querySelector('.sale-total-amount').textContent = Math.floor(sale.total_amount);
                 saleTemplate.querySelector('.sale-type').textContent = sale.payment_method;
 
                 if (sale.comment) {
@@ -200,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     productTemplate.querySelector('.sale-product-thumbnail').src = item.thumbnail;
                     productTemplate.querySelector('.sale-product-sku').textContent = item.custom_sku;
                     productTemplate.querySelector('.sale-product-quantity').textContent = `${item.quantity} шт.`;
-                    productTemplate.querySelector('.sale-product-price').textContent = `${item.total_price} грн`;
+                    productTemplate.querySelector('.sale-product-price').textContent = `${Math.floor(item.total_price)} грн`;
                     saleProductsContainer.appendChild(productTemplate);
                 });
 
@@ -210,44 +222,53 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             document.getElementById('daily-total-items').textContent = totalItems;
-            document.getElementById('daily-total-amount').textContent = totalAmount;
+            document.getElementById('daily-total-amount').textContent = Math.floor(totalAmount);
         }
     }
 
     window.checkAvailabilityAndAddItem = function(sku, price, stock, thumbnail, quantity) {
         const existingItem = [...selectedItems.querySelectorAll('tr')].find(row => row.querySelector('.selected-item-sku').textContent === sku);
-        const currentStock = stock - parseInt(quantity);
 
-        if (currentStock < 0) {
-            showNotification('danger', 'Ошибка', `Недостаточно товара ${sku} на складе`);
-        } else if (existingItem) {
+        if (existingItem) {
             const existingQuantity = existingItem.querySelector('.quantity-display');
+            const totalElement = existingItem.querySelector('.selected-item-total');
             const newQuantity = parseInt(existingQuantity.textContent) + quantity;
+
             if (newQuantity <= stock) {
                 existingQuantity.textContent = newQuantity;
+                totalElement.textContent = Math.floor(price * newQuantity);
                 updateTotal();
             } else {
                 showNotification('danger', 'Ошибка', `Недостаточно товара ${sku} на складе`);
             }
-        } else {
+        } else if (quantity <= stock) {
             const row = document.importNode(selectedItemTemplate, true);
             row.querySelector('.selected-item-thumbnail').src = thumbnail || '';
             row.querySelector('.selected-item-sku').textContent = sku;
             row.querySelector('.quantity-display').textContent = quantity;
-            row.querySelector('.selected-item-price').textContent = price;
-            const removeButton = row.querySelector('.selected-item-remove-button');
+            row.querySelector('.selected-item-total').textContent = Math.floor(price * quantity);
+
             const incrementButton = row.querySelector('.increment-button');
             const decrementButton = row.querySelector('.decrement-button');
+            const removeButton = row.querySelector('.selected-item-remove-button');
             const quantityDisplay = row.querySelector('.quantity-display');
+            const totalElement = row.querySelector('.selected-item-total');
 
             incrementButton.addEventListener('click', () => {
-                quantityDisplay.textContent = parseInt(quantityDisplay.textContent) + 1;
-                updateTotal();
+                const currentQuantity = parseInt(quantityDisplay.textContent);
+                if (currentQuantity < stock) {
+                    quantityDisplay.textContent = currentQuantity + 1;
+                    totalElement.textContent = Math.floor(price * (currentQuantity + 1));
+                    updateTotal();
+                } else {
+                    showNotification('danger', 'Ошибка', `Товара ${sku} больше нет на складе`);
+                }
             });
 
             decrementButton.addEventListener('click', () => {
                 if (parseInt(quantityDisplay.textContent) > 1) {
                     quantityDisplay.textContent = parseInt(quantityDisplay.textContent) - 1;
+                    totalElement.textContent = Math.floor(price * parseInt(quantityDisplay.textContent));
                     updateTotal();
                 }
             });
@@ -266,6 +287,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (searchInput.value.trim() !== '') {
                 searchResults.classList.add('show');
             }
+        } else {
+            showNotification('danger', 'Ошибка', `Недостаточно товара ${sku} на складе`);
         }
     };
 
@@ -281,11 +304,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTotal() {
         let total = 0;
         selectedItems.querySelectorAll('tr').forEach(row => {
-            total += parseFloat(row.querySelector('.selected-item-price').textContent) * parseInt(row.querySelector('.quantity-display').textContent);
+            const priceElement = row.querySelector('.selected-item-total');
+            const quantityElement = row.querySelector('.quantity-display');
+
+            if (priceElement && quantityElement) {
+                total += parseInt(priceElement.textContent, 10);
+            }
         });
-        if (totalAmount) {
-            totalAmount.textContent = total;
-        }
+
+        totalAmount.textContent = Math.floor(total);
         sendSocketMessage({
             'type': 'update_total',
             'total': total
@@ -295,19 +322,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function getSelectedItems() {
         const items = [];
         selectedItems.querySelectorAll('tr').forEach(row => {
-            items.push({
-                custom_sku: row.querySelector('.selected-item-sku').textContent,
-                quantity: parseInt(row.querySelector('.quantity-display').textContent),
-                price: parseFloat(row.querySelector('.selected-item-price').textContent)
-            });
+            const skuElement = row.querySelector('.selected-item-sku');
+            const quantityElement = row.querySelector('.quantity-display');
+            const totalElement = row.querySelector('.selected-item-total');
+
+            if (skuElement && quantityElement && totalElement) {
+                items.push({
+                    custom_sku: skuElement.textContent.trim(),
+                    quantity: parseInt(quantityElement.textContent.trim(), 10),
+                    total: parseInt(totalElement.textContent.trim(), 10)
+                });
+            }
         });
         return items;
     }
 
     function updateTotalAmount(total) {
-        if (totalAmount) {
-            totalAmount.textContent = total;
-        }
+        totalAmount.textContent = Math.floor(total);
     }
 
     function showNotification(type, title, message) {
