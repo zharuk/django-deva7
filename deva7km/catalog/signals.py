@@ -1,3 +1,5 @@
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.db.models.signals import m2m_changed, post_save, pre_save, pre_delete, post_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
@@ -185,9 +187,32 @@ def preorder_saved(sender, instance, created, **kwargs):
         instance.save(update_fields=['last_modified_by'])
 
     event_type = 'preorder_saved' if created else 'preorder_updated'
+
+    # Оповещение всех подключенных клиентов
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'preorder_updates',  # Имя группы WebSocket
+        {
+            'type': 'notify_preorders_update',
+            'event': event_type,
+            'preorder_id': instance.id
+        }
+    )
+
     notify_preorder_change(sender=PreOrder, instance=instance, event_type=event_type)
 
 
 @receiver(post_delete, sender=PreOrder)
 def preorder_deleted(sender, instance, **kwargs):
+    # Оповещение всех подключенных клиентов
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'preorder_updates',
+        {
+            'type': 'notify_preorders_update',
+            'event': 'preorder_deleted',
+            'preorder_id': instance.id
+        }
+    )
+
     notify_preorder_change(sender=PreOrder, instance=instance, event_type='preorder_deleted')

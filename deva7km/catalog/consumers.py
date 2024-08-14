@@ -46,13 +46,17 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         elif event_type == 'notify_preorders_update':
             await self.notify_preorders_update(data)
 
-    async def notify_preorders_update(self, data):
-        html = data.get('html')
-        counts = data.get('counts')
+    async def notify_preorders_update(self, event):
+        event_type = event.get('event')
+        preorder_id = event.get('preorder_id')
+
+        # Вызываем метод обновления предзаказов, чтобы отправить актуальные данные клиентам
+        await self.send_preorders_update()
+
+        # Если нужно, можно передать дополнительную информацию клиенту
         await self.send(text_data=json.dumps({
-            'event': 'preorder_list',
-            'html': html,
-            'counts': counts,
+            'event': event_type,
+            'preorder_id': preorder_id,
         }))
 
     async def handle_get_preorder(self, data):
