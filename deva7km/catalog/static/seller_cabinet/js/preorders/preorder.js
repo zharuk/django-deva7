@@ -1,16 +1,22 @@
 document.addEventListener("DOMContentLoaded", function() {
     const preordersContainer = document.getElementById("preorders-container");
+
     const filterButtons = document.querySelectorAll('.filter-button');
     const searchInput = document.getElementById("search-input");
     const clearSearchButton = document.getElementById("clear-search");
     const refreshStatusButton = document.getElementById("refresh-status-btn");
-    const userId = document.getElementById("user-id").value;
+    const createPreorderBtn = document.getElementById("create-preorder-btn");
+    const preorderModalElement = document.getElementById('preorderModal');
+    const preorderModal = new bootstrap.Modal(preorderModalElement);
+    const preorderFormContainer = document.getElementById('preorder-form-container');
+    const preorderForm = document.getElementById('preorder-form');
+    const deletePreorderBtn = document.getElementById('delete-preorder-btn');
+    const userId = document.getElementById("user-id") ? document.getElementById("user-id").value : null;
     let activeFilter = 'all';
     let isWebSocketConnected = false;
     let socket;
 
-    if (!preordersContainer || !searchInput || !clearSearchButton || !refreshStatusButton || !userId) {
-        console.error("One or more elements not found in the DOM.");
+    if (!searchInput || !clearSearchButton || !refreshStatusButton) {
         return;
     }
 
@@ -23,13 +29,32 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+    function openPreorderModal(preorderId = null) {
+        if (preorderId) {
+            sendWebSocketMessage({
+                type: 'get_preorder',
+                id: preorderId,
+                user_id: userId
+            });
+        } else {
+            preorderForm.reset();
+            preorderForm.dataset.id = '';
+            deletePreorderBtn.classList.add('d-none');
+            preorderModal.show();
+        }
+    }
+
+    createPreorderBtn.addEventListener('click', function() {
+        openPreorderModal();
+    });
+
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             activeFilter = this.getAttribute('data-filter');
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             if (isWebSocketConnected) {
-                sendWebSocketMessage({ filter: activeFilter });
+                sendWebSocketMessage({ type: 'filter', filter: activeFilter });
             }
         });
     });
@@ -49,7 +74,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     refreshStatusButton.addEventListener('click', function() {
         if (isWebSocketConnected) {
-            sendWebSocketMessage({ ttns: getTtns() });
+            sendWebSocketMessage({
+                type: 'update_ttns',
+                ttns: getTtns()
+            });
         }
     });
 
@@ -61,8 +89,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function sendWebSocketMessage(message) {
         message.user_id = userId;
-        const wsMessage = JSON.stringify(message);
-        socket.send(wsMessage);
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify(message));
+        }
     }
 
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
@@ -76,31 +105,30 @@ document.addEventListener("DOMContentLoaded", function() {
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
 
-        if (data.event) {
-            if (data.event === 'preorder_list') {
-                preordersContainer.innerHTML = data.html;
-                updateFilterCounts(data.counts);
-                bindSwitchEvents(preordersContainer);
-                bindCopyEvent(preordersContainer);
-            } else if (data.event === 'preorder_saved' || data.event === 'preorder_updated') {
-                const existingCard = preordersContainer.querySelector(`.col-md-4[data-id="${data.preorder_id}"]`);
-                if (existingCard) {
-                    existingCard.outerHTML = data.html;
-                } else {
-                    preordersContainer.insertAdjacentHTML('afterbegin', data.html);
+        if (data.event === 'preorder_saved') {
+            showNotification('success', 'Успех', 'Предзаказ успешно сохранен.');
+            preorderModal.hide();
+        } else if (data.event === 'preorder_list') {
+            if (data.html && data.counts) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = data.html;
+
+                const newContent = tempDiv.querySelector('#preorders-container');
+                if (newContent) {
+                    preordersContainer.innerHTML = newContent.innerHTML;
+
+                    bindSwitchEvents(preordersContainer);
+                    bindCopyEvent(preordersContainer);
+                    updateFilterCounts(data.counts);
                 }
-                updateFilterCounts(data.counts);
-                bindSwitchEvents(preordersContainer);
-                bindCopyEvent(preordersContainer);
-            } else if (data.event === 'preorder_deleted') {
-                const cardToRemove = preordersContainer.querySelector(`.col-md-4[data-id="${data.preorder_id}"]`);
-                if (cardToRemove) {
-                    cardToRemove.remove();
-                }
-                updateFilterCounts(data.counts);
-            } else if (data.event === 'update_complete') {
-                showNotification('success', 'Обновление завершено', data.message);
             }
+        } else if (data.event === 'get_preorder') {
+            preloadPreorderForm(data);
+            preorderModal.show();
+        } else if (data.event === 'form_invalid') {
+            showNotification('danger', 'Ошибка', 'Проверьте введенные данные.');
+        } else if (data.event === 'update_complete') {
+            showNotification('success', 'Обновление', data.message);
         }
     };
 
@@ -108,6 +136,66 @@ document.addEventListener("DOMContentLoaded", function() {
         isWebSocketConnected = false;
         showConnectionLostModal();
     };
+
+    preorderForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const data = {};
+        formData.forEach((value, key) => data[key] = value);
+        data['drop'] = document.getElementById('drop').checked;
+        const message = {
+            type: 'create_or_edit',
+            form_data: data,
+            id: preorderForm.dataset.id || null,
+            user_id: userId
+        };
+        sendWebSocketMessage(message);
+    });
+
+    deletePreorderBtn.addEventListener('click', function() {
+        const preorderId = preorderForm.dataset.id;
+        if (preorderId) {
+            sendWebSocketMessage({
+                type: 'delete',
+                id: preorderId,
+                user_id: userId
+            });
+            preorderModal.hide();
+        }
+    });
+
+    preordersContainer.addEventListener('click', function(event) {
+        if (event.target.closest('.edit-link')) {
+            event.preventDefault();
+            const preorderId = event.target.closest('.edit-link').getAttribute('data-id');
+            openPreorderModal(preorderId);
+        }
+    });
+
+    function preloadPreorderForm(data) {
+        preorderForm.dataset.id = data.preorder_id;
+
+        document.getElementById('full_name').value = data.full_name || '';
+        document.getElementById('text').value = data.text || '';
+
+        const dropCheckbox = document.getElementById('drop');
+        if (dropCheckbox) {
+            dropCheckbox.checked = !!data.drop;
+        }
+
+        document.getElementById('receipt_issued').checked = !!data.receipt_issued;
+        document.getElementById('ttn').value = data.ttn || '';
+        document.getElementById('shipped_to_customer').checked = !!data.shipped_to_customer;
+        document.getElementById('status').value = data.status || '';
+        document.getElementById('payment_received').checked = !!data.payment_received;
+
+        if (data.preorder_id) {
+            deletePreorderBtn.classList.remove('d-none');
+            deletePreorderBtn.dataset.id = data.preorder_id;
+        } else {
+            deletePreorderBtn.classList.add('d-none');
+        }
+    }
 
     function bindSwitchEvents(container) {
         container.querySelectorAll('.receipt-switch').forEach(item => {

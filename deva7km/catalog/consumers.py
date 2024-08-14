@@ -1,15 +1,15 @@
 import json
-import logging
-from datetime import datetime
 
 from asgiref.sync import sync_to_async
-from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.db.models import Q
-from .models import PreOrder, ProductModification, Sale, SaleItem, TelegramUser, Return, ReturnItem, Inventory, \
+
+from .forms import PreOrderForm
+from .models import PreOrder, ProductModification, Sale, SaleItem, Return, ReturnItem, Inventory, \
     InventoryItem, WriteOff, WriteOffItem
 from .novaposhta import update_tracking_status
 
@@ -19,73 +19,136 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add('preorder_updates', self.channel_name)
         await self.accept()
         self.active_filter = 'all'
-        await self.send_preorders()
+        await self.send_preorders_update()
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard('preorder_updates', self.channel_name)
 
-    async def notify_preorders_update(self, event):
-        preorder = event['preorder']
-        matches_filter = await self.matches_active_filter(preorder)
-        counts = await self.get_preorder_counts()
-
-        if matches_filter:
-            preorder_html = await sync_to_async(render_to_string)('seller_cabinet/preorders/preorder_card.html',
-                                                                  {'preorders': [preorder]})
-            await self.send(text_data=json.dumps({
-                'event': event['event'],
-                'html': preorder_html,
-                'preorder_id': preorder['id'],
-                'counts': counts
-            }))
-        else:
-            await self.send(text_data=json.dumps({
-                'event': 'preorder_deleted',
-                'preorder_id': preorder['id'],
-                'counts': counts
-            }))
-
     async def receive(self, text_data):
         data = json.loads(text_data)
-        filter_type = data.get('filter')
-        search_text = data.get('search_text')
-        switch_type = data.get('type')
-        id = data.get('id')
-        status = data.get('status')
-        ttns = data.get('ttns')
-        user_id = data.get('user_id')  # Получаем user_id из данных
+        event_type = data.get('type')
 
-        if filter_type:
-            self.active_filter = filter_type
-            preorders = await self.filter_preorders(filter_type)
-            await self.send_preorders(preorders)
-        elif search_text is not None:
-            preorders = await self.search_preorders(search_text)
-            await self.send_preorders(preorders)
-        elif switch_type and id is not None and status is not None:
-            await self.update_switch_status(switch_type, id, status, user_id)  # Передаем user_id
-        elif ttns:
-            await update_tracking_status()
+        if event_type == 'filter':
+            self.active_filter = data.get('filter', 'all')
+            await self.send_preorders_update()
+        elif event_type == 'search':
+            await self.handle_search(data)
+        elif event_type == 'get_preorder':
+            await self.handle_get_preorder(data)
+        elif event_type in ['toggle_receipt', 'toggle_shipped', 'toggle_payment']:
+            await self.handle_toggle_status(event_type, data)
+        elif event_type == 'create_or_edit':
+            await self.handle_create_or_edit(data)
+        elif event_type == 'delete':
+            await self.handle_delete(data)
+        elif event_type == 'update_ttns':
+            await self.handle_ttn_update()
+        elif event_type == 'notify_preorders_update':
+            await self.notify_preorders_update(data)
+
+    async def notify_preorders_update(self, data):
+        html = data.get('html')
+        counts = data.get('counts')
+        await self.send(text_data=json.dumps({
+            'event': 'preorder_list',
+            'html': html,
+            'counts': counts,
+        }))
+
+    async def handle_get_preorder(self, data):
+        preorder_id = data.get('id')
+        preorder = await sync_to_async(PreOrder.objects.get)(pk=preorder_id)
+        form_data = {
+            'preorder_id': preorder.id,
+            'full_name': preorder.full_name,
+            'text': preorder.text,
+            'drop': preorder.drop,
+            'receipt_issued': preorder.receipt_issued,
+            'ttn': preorder.ttn,
+            'shipped_to_customer': preorder.shipped_to_customer,
+            'status': preorder.status,
+            'payment_received': preorder.payment_received,
+        }
+        await self.send(text_data=json.dumps({
+            'event': 'get_preorder',
+            **form_data
+        }))
+
+    async def handle_search(self, data):
+        search_text = data.get('search_text', '')
+        preorders = await self.search_preorders(search_text)
+        await self.send_preorders_update(preorders=preorders)
+
+    async def handle_toggle_status(self, switch_type, data):
+        preorder_id = data.get('id')
+        status = data.get('status')
+        user_id = data.get('user_id')
+        preorder = await sync_to_async(PreOrder.objects.get)(pk=preorder_id)
+        user = await sync_to_async(User.objects.get)(pk=user_id)
+
+        if switch_type == 'toggle_receipt':
+            preorder.receipt_issued = status
+        elif switch_type == 'toggle_shipped':
+            preorder.shipped_to_customer = status
+        elif switch_type == 'toggle_payment':
+            preorder.payment_received = status
+
+        preorder.last_modified_by = user
+        await sync_to_async(preorder.save)()
+        await self.send_preorders_update()
+
+    async def handle_create_or_edit(self, data):
+        preorder_id = data.get('id')
+        preorder = await sync_to_async(PreOrder.objects.get)(pk=preorder_id) if preorder_id else PreOrder()
+
+        form_data = data.get('form_data')
+        form = PreOrderForm(form_data, instance=preorder)
+        if form.is_valid():
+            preorder = form.save(commit=False)
+            user = await sync_to_async(User.objects.get)(id=data.get('user_id'))
+            preorder.last_modified_by = user
+            await sync_to_async(preorder.save)()
+
             await self.send(text_data=json.dumps({
-                'event': 'update_complete',
-                'message': 'Все TTN были успешно обновлены.'
+                'event': 'preorder_saved',
+            }))
+            await self.send_preorders_update()
+        else:
+            await self.send(text_data=json.dumps({
+                'event': 'form_invalid',
+                'errors': form.errors,
             }))
 
-    async def filter_preorders(self, filter_type):
-        if filter_type == 'all':
-            preorders = await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
-        elif filter_type == 'not-shipped':
-            preorders = await sync_to_async(list)(
-                PreOrder.objects.filter(shipped_to_customer=False).order_by('-created_at'))
-        elif filter_type == 'not-receipted':
-            preorders = await sync_to_async(list)(PreOrder.objects.filter(receipt_issued=False).order_by('-created_at'))
-        elif filter_type == 'not-paid':
-            preorders = await sync_to_async(list)(
-                PreOrder.objects.filter(payment_received=False).order_by('-created_at'))
-        else:
-            preorders = await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
+    async def handle_delete(self, data):
+        preorder_id = data.get('id')
+        preorder = await sync_to_async(PreOrder.objects.get)(pk=preorder_id)
+        await sync_to_async(preorder.delete)()
+        await self.send_preorders_update()
 
-        return preorders
+    async def handle_ttn_update(self):
+        await update_tracking_status()
+        await self.send_preorders_update()
+        await self.send(text_data=json.dumps({
+            'event': 'update_complete',
+            'message': 'Все TTN были успешно обновлены.'
+        }))
+
+    async def send_preorders_update(self, preorders=None):
+        if preorders is None:
+            preorders = await self.get_filtered_preorders(self.active_filter)
+
+        preorders_data = await sync_to_async(self.build_preorders_data)(preorders)
+        counts = await self.get_preorder_counts()
+
+        html = await sync_to_async(render_to_string)(
+            'seller_cabinet/preorders/seller_preorders.html', {'preorders': preorders_data}
+        ) if preorders_data and counts else None
+
+        await self.send(text_data=json.dumps({
+            'event': 'preorder_list',
+            'html': html,
+            'counts': counts
+        }))
 
     async def search_preorders(self, search_text):
         preorders = await sync_to_async(list)(
@@ -97,39 +160,6 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         )
         return preorders
 
-    async def update_switch_status(self, switch_type, id, status, user_id):
-        preorder = await sync_to_async(PreOrder.objects.get)(id=id)
-        user = await sync_to_async(User.objects.get)(id=user_id)
-
-        if switch_type == 'toggle_receipt':
-            preorder.receipt_issued = status
-        elif switch_type == 'toggle_shipped':
-            preorder.shipped_to_customer = status
-        elif switch_type == 'toggle_payment':
-            preorder.payment_received = status
-
-        preorder.last_modified_by = user
-        await sync_to_async(preorder.save)()
-        await self.notify_preorders_update({
-            'event': 'preorder_updated',
-            'preorder': self.build_preorder_data(preorder)
-        })
-
-    async def send_preorders(self, preorders=None):
-        if preorders is None:
-            preorders = await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
-
-        preorders_data = await sync_to_async(self.build_preorders_data)(preorders)
-        counts = await self.get_preorder_counts()
-        html = await sync_to_async(render_to_string)('seller_cabinet/preorders/preorder_card.html',
-                                                     {'preorders': preorders_data})
-
-        await self.send(text_data=json.dumps({
-            'event': 'preorder_list',
-            'html': html,
-            'counts': counts
-        }))
-
     async def get_preorder_counts(self):
         counts = {
             'all': await sync_to_async(PreOrder.objects.count)(),
@@ -140,10 +170,7 @@ class PreorderConsumer(AsyncWebsocketConsumer):
         return counts
 
     def build_preorders_data(self, preorders):
-        preorders_data = []
-        for preorder in preorders:
-            preorders_data.append(self.build_preorder_data(preorder))
-        return preorders_data
+        return [self.build_preorder_data(preorder) for preorder in preorders]
 
     def build_preorder_data(self, preorder):
         last_modified_by = preorder.last_modified_by.username if preorder.last_modified_by else 'N/A'
@@ -167,16 +194,22 @@ class PreorderConsumer(AsyncWebsocketConsumer):
             'last_modified_by': last_modified_by,
         }
 
-    async def matches_active_filter(self, preorder):
-        if self.active_filter == 'all':
-            return True
-        if self.active_filter == 'not-shipped' and preorder['shipped_to_customer']:
-            return False
-        if self.active_filter == 'not-receipted' and preorder['receipt_issued']:
-            return False
-        if self.active_filter == 'not-paid' and preorder['payment_received']:
-            return False
-        return True
+    async def get_filtered_preorders(self, filter_type):
+        if filter_type == 'all':
+            preorders = await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
+        elif filter_type == 'not-shipped':
+            preorders = await sync_to_async(list)(
+                PreOrder.objects.filter(shipped_to_customer=False).order_by('-created_at'))
+        elif filter_type == 'not-receipted':
+            preorders = await sync_to_async(list)(
+                PreOrder.objects.filter(receipt_issued=False).order_by('-created_at'))
+        elif filter_type == 'not-paid':
+            preorders = await sync_to_async(list)(
+                PreOrder.objects.filter(payment_received=False).order_by('-created_at'))
+        else:
+            preorders = await sync_to_async(list)(PreOrder.objects.all().order_by('-created_at'))
+
+        return preorders
 
 
 class SalesConsumer(AsyncWebsocketConsumer):
@@ -218,7 +251,8 @@ class SalesConsumer(AsyncWebsocketConsumer):
         for r in results:
             product = await sync_to_async(lambda: r.product)()
             thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
-            actual_price = await sync_to_async(lambda: product.get_actual_wholesale_price())()  # Используем метод get_actual_wholesale_price
+            actual_price = await sync_to_async(
+                lambda: product.get_actual_wholesale_price())()  # Используем метод get_actual_wholesale_price
             products.append({
                 'name': f"{product.title}-{r.custom_sku}",
                 'stock': r.stock,

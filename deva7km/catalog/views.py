@@ -387,55 +387,5 @@ def seller_cabinet_write_off(request):
 
 
 @login_required
-def preorder_list(request):
-    preorders = PreOrder.objects.all().order_by('-created_at')
-    return render(request, 'seller_cabinet/preorders/preorder_list.html',
-                  {'preorders': preorders, 'user_id': request.user.id})
-
-
-@login_required
-def preorder_create_or_edit(request, pk=None):
-    if pk:
-        preorder = get_object_or_404(PreOrder, pk=pk)
-    else:
-        preorder = None
-
-    if request.method == "POST":
-        form = PreOrderForm(request.POST, instance=preorder)
-        if form.is_valid():
-            preorder = form.save(commit=False)
-            preorder.last_modified_by = request.user
-            preorder.save()
-            return redirect('preorder_list')
-    else:
-        form = PreOrderForm(instance=preorder)
-
-    return render(request, 'seller_cabinet/preorders/preorder_form.html', {'form': form})
-
-
-@login_required
-def preorder_delete(request, pk):
-    preorder = get_object_or_404(PreOrder, pk=pk)
-    if request.method == 'POST':
-        notify_preorder_change(sender=PreOrder, instance=preorder, event_type='preorder_deleted')
-        preorder.delete()
-        return redirect('preorder_list')
-    return render(request, 'seller_cabinet/preorders/preorder_confirm_delete.html', {'preorder': preorder})
-
-
-@csrf_exempt
-@login_required
-def toggle_receipt(request):
-    return toggle_preorder_status(request, 'receipt_issued')
-
-
-@csrf_exempt
-@login_required
-def toggle_shipped(request):
-    return toggle_preorder_status(request, 'shipped_to_customer')
-
-
-@csrf_exempt
-@login_required
-def toggle_payment(request):
-    return toggle_preorder_status(request, 'payment_received')
+def preorders(request):
+    return render(request, 'seller_cabinet/preorders/seller_preorders.html', {'user_id': request.user.id})

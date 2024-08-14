@@ -34,13 +34,7 @@ urlpatterns = [
     path('seller_cabinet/returns/', views.seller_cabinet_returns, name='seller_cabinet_returns'),
     path('seller_cabinet/inventory/', views.seller_cabinet_inventory, name='seller_cabinet_inventory'),
     path('seller_cabinet/write-offs/', views.seller_cabinet_write_off, name='seller_cabinet_write_off'),
-    path('seller_cabinet/preorder/add/', views.preorder_create_or_edit, name='preorder_create'),
-    path('seller_cabinet/preorder/<int:pk>/edit/', views.preorder_create_or_edit, name='preorder_edit'),
-    path('seller_cabinet/preorder/<int:pk>/delete/', views.preorder_delete, name='preorder_delete'),
-    path('seller_cabinet/preorder/toggle_receipt/', views.toggle_receipt, name='toggle_receipt'),
-    path('seller_cabinet/preorder/toggle_shipped/', views.toggle_shipped, name='toggle_shipped'),
-    path('seller_cabinet/preorder/toggle_payment/', views.toggle_payment, name='toggle_payment'),
-    path('seller_cabinet/preorder/', views.preorder_list, name='preorder_list'),
+    path('seller_cabinet/preorders/', views.preorders, name='seller_cabinet_preorders'),
 
 ]
 
