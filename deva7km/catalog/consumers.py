@@ -1,4 +1,5 @@
 import json
+from datetime import timedelta, datetime
 
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -771,3 +772,126 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
             'total_amount': total_amount,
             'items': items_data,
         }
+
+
+from datetime import timedelta
+from django.utils import timezone
+
+class ReportConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
+        self.period = 'today'  # Устанавливаем период по умолчанию
+        print(f"WebSocket соединение установлено. Период по умолчанию: {self.period}")
+
+    async def disconnect(self, close_code):
+        print(f"WebSocket соединение закрыто. Код: {close_code}")
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        event_type = data.get('type')
+        print(f"Получено сообщение: {data}")
+
+        if event_type == 'update_period':
+            self.period = data.get('period', 'today')
+            if self.period == 'custom':
+                self.start_date = data.get('start_date')
+                self.end_date = data.get('end_date')
+            print(f"Период обновлен на: {self.period}")
+            await self.send_report_data()
+        elif event_type == 'get_initial_data':
+            print("Запрос на получение начальных данных.")
+            await self.send_report_data()
+
+    async def send_report_data(self):
+        print(f"Отправка данных для периода: {self.period}")
+        if self.period == 'custom':
+            sales_data = await self.get_sales_data(self.period, self.start_date, self.end_date)
+        else:
+            sales_data = await self.get_sales_data(self.period)
+        print(f"Данные для отправки: {sales_data}")
+        await self.send(text_data=json.dumps({
+            'event': 'report_data',
+            'sales_data': sales_data
+        }))
+
+    async def get_sales_data(self, period, start_date=None, end_date=None):
+        print(f"Получение данных о продажах для периода: {period}")
+        start_date, end_date = self.get_date_range(period, start_date, end_date)
+        print(f"Период: с {start_date} по {end_date}")
+
+        # Получаем все продажи за указанный период с предзагрузкой связанных модификаций товаров
+        sales = await sync_to_async(list)(
+            Sale.objects.filter(created_at__range=(start_date, end_date)).prefetch_related(
+                'items__product_modification')
+        )
+        print(f"Найдено продаж: {len(sales)}")
+
+        # Собираем данные о количестве проданных товаров по модификациям
+        sales_summary = {}
+        for sale in sales:
+            for item in sale.items.all():
+                # Обращаемся к product через sync_to_async
+                product = await sync_to_async(lambda: item.product_modification.product)()
+                product_sku = product.sku
+                product_title = product.title
+                modification_sku = item.product_modification.custom_sku
+                quantity = item.quantity
+                thumbnail_url = await sync_to_async(lambda: item.thumbnail_image_url())()  # Получаем миниатюру
+                collage_image_url = await sync_to_async(
+                    lambda: product.collage_image_url())()  # Получаем коллажное изображение
+
+                if product_sku not in sales_summary:
+                    sales_summary[product_sku] = {
+                        'product_title': product_title,
+                        'total_quantity': 0,
+                        'collage_image_url': collage_image_url,  # Добавляем коллажное изображение
+                        'modifications': {}
+                    }
+
+                sales_summary[product_sku]['total_quantity'] += quantity
+                if modification_sku not in sales_summary[product_sku]['modifications']:
+                    sales_summary[product_sku]['modifications'][modification_sku] = {
+                        'quantity': 0,
+                        'thumbnail_url': thumbnail_url
+                    }
+                sales_summary[product_sku]['modifications'][modification_sku]['quantity'] += quantity
+
+        # Сортируем модификации по количеству от большего к меньшему
+        for product_data in sales_summary.values():
+            product_data['modifications'] = dict(sorted(
+                product_data['modifications'].items(),
+                key=lambda item: item[1]['quantity'],
+                reverse=True
+            ))
+
+        print(f"Сформированные данные о продажах: {sales_summary}")
+        return sales_summary
+
+    def get_date_range(self, period, start_date=None, end_date=None):
+        now = timezone.now()
+        print(f"Текущая дата и время: {now}")
+
+        if period == 'today':
+            start_date = now.replace(hour=0, minute=0, second=0)
+            end_date = now
+        elif period == 'yesterday':
+            start_date = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0)
+            end_date = start_date + timedelta(days=1)
+        elif period == 'week':
+            start_date = now - timedelta(days=now.weekday())
+            end_date = now
+        elif period == 'month':
+            start_date = now.replace(day=1, hour=0, minute=0, second=0)
+            end_date = now
+        elif period == 'year':
+            start_date = now.replace(month=1, day=1, hour=0, minute=0, second=0)
+            end_date = now
+        elif period == 'custom' and start_date and end_date:
+            start_date = timezone.make_aware(datetime.strptime(start_date, '%d-%m-%Y'))
+            end_date = timezone.make_aware(datetime.strptime(end_date, '%d-%m-%Y'))
+            end_date = end_date.replace(hour=23, minute=59, second=59)
+        else:
+            raise ValueError("Неподдерживаемый период или отсутствуют даты для кастомного периода.")
+
+        print(f"Рассчитанный период: с {start_date} по {end_date}")
+        return start_date, end_date

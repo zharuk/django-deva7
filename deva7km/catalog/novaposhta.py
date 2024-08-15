@@ -38,21 +38,25 @@ async def update_tracking_status():
     logger.info("Old preorders or received ones deleted.")
 
     # Получаем все TTN из базы данных, которые были обновлены не менее 30 минут назад
-    thirty_minutes_ago = now - timezone.timedelta(minutes=30)
+    thirty_minutes_ago = now - timezone.timedelta(minutes=1)
     all_ttns = await sync_to_async(list)(
         PreOrder.objects.filter(updated_at__lt=thirty_minutes_ago).values_list('ttn', flat=True)
     )
     logger.info(f"Retrieved TTNs from database: {all_ttns}")
 
-    ttn_mapping = {ttn.replace(" ", ""): ttn for ttn in all_ttns if ttn and ttn.replace(" ", "").isdigit()}
+    # Фильтрация TTN и удаление некорректных номеров
+    ttn_mapping = {
+        ttn.replace(" ", ""): ttn for ttn in all_ttns
+        if ttn and ttn.replace(" ", "").isdigit() and len(ttn.replace(" ", "")) == 14
+    }
     cleaned_ttns = list(ttn_mapping.keys())
-    logger.info(f"Cleaned TTNs: {cleaned_ttns}")
+    logger.info(f"Valid TTNs for status update: {cleaned_ttns}")
 
     if not cleaned_ttns:
         logger.info("No valid TTNs found for updating status.")
         return
 
-    # Разбиваем список TTN на порции по 100 элементов
+    # Разбиваем список TTN на порции по 25 элементов
     chunk_size = 25
     chunks = [cleaned_ttns[i:i + chunk_size] for i in range(0, len(cleaned_ttns), chunk_size)]
 
@@ -62,6 +66,8 @@ async def update_tracking_status():
 
         if not status_response.get('success'):
             logger.error("Failed to get status from Nova Poshta.")
+            logger.error(f"Nova Poshta errors: {status_response.get('errors')}")
+            logger.error(f"Nova Poshta warnings: {status_response.get('warnings')}")
             continue
 
         status_data_list = status_response.get('data', [])

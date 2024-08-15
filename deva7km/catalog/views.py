@@ -389,3 +389,8 @@ def seller_cabinet_write_off(request):
 @login_required
 def preorders(request):
     return render(request, 'seller_cabinet/preorders/seller_preorders.html', {'user_id': request.user.id})
+
+
+@login_required
+def seller_cabinet_reports(request):
+    return render(request, 'seller_cabinet/reports/seller_reports.html')

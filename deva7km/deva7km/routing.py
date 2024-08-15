@@ -1,6 +1,7 @@
 from django.urls import path
 
-from catalog.consumers import PreorderConsumer, SalesConsumer, ReturnConsumer, InventoryConsumer, WriteOffConsumer
+from catalog.consumers import PreorderConsumer, SalesConsumer, ReturnConsumer, InventoryConsumer, WriteOffConsumer, \
+    ReportConsumer
 
 websocket_urlpatterns = [
     path('ws/preorders/', PreorderConsumer.as_asgi()),
@@ -8,4 +9,5 @@ websocket_urlpatterns = [
     path('ws/returns/', ReturnConsumer.as_asgi()),
     path('ws/inventory/', InventoryConsumer.as_asgi()),
     path("ws/write_off/", WriteOffConsumer.as_asgi()),
+    path("ws/reports/", ReportConsumer.as_asgi()),
 ]

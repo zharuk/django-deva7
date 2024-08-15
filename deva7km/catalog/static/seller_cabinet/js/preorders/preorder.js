@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
+
     const preordersContainer = document.getElementById("preorders-container");
 
     const filterButtons = document.querySelectorAll('.filter-button');
@@ -19,6 +20,14 @@ document.addEventListener("DOMContentLoaded", function() {
     if (!searchInput || !clearSearchButton || !refreshStatusButton) {
         return;
     }
+
+    preorderModalElement.addEventListener('shown.bs.modal', function () {
+        const textArea = document.getElementById('text');
+        autoResizeTextArea(textArea);
+        textArea.addEventListener('input', function() {
+            autoResizeTextArea(textArea);
+        });
+    });
 
     function updateFilterCounts(counts) {
         if (counts) {
@@ -266,6 +275,11 @@ document.addEventListener("DOMContentLoaded", function() {
             toast.hide();
             toastMessage.remove();
         }, 2000);
+    }
+
+    function autoResizeTextArea(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = (textarea.scrollHeight) + 'px';
     }
 
     function showConnectionLostModal() {

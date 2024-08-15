@@ -1,0 +1,100 @@
+{% extends 'seller_cabinet/base.html' %}
+
+{% load static %}
+
+{% block title %}Отчеты{% endblock %}
+
+{% block content %}
+<div class="toast-container position-fixed top-0 end-0 p-3" id="notificationToast">
+    <div id="notificationMessage"></div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h1>Отчеты по продажам</h1>
+        <h3 id="report-title">Выберите период</h3>
+        <div id="report-controls" class="mb-3">
+            <button class="btn btn-primary btn-sm report-period-button active" data-period="today">Сегодня</button>
+            <button class="btn btn-secondary btn-sm report-period-button ms-1" data-period="yesterday">Вчера</button>
+            <button class="btn btn-secondary btn-sm report-period-button ms-1" data-period="week">Неделя</button>
+            <button class="btn btn-secondary btn-sm report-period-button ms-1" data-period="month">Месяц</button>
+            <button class="btn btn-secondary btn-sm report-period-button ms-1" data-period="year">Год</button>
+            <button class="btn btn-warning btn-sm ms-1" id="custom-period-button">
+                <i class="bi bi-calendar"></i>
+            </button>
+        </div>
+        <div id="sales-chart" style="width: 100%; height: 400px;" class="mb-3"></div>
+        <div id="sales-report-container" class="mb-3">
+            <!-- Здесь будет отображена таблица с отчетами по продажам -->
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для выбора периода -->
+<div id="customPeriodModal" class="modal" tabindex="-1" aria-labelledby="customPeriodLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customPeriodLabel">Выбор периода</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="custom-period-form">
+                    <div class="mb-3">
+                        <label for="start-date" class="form-label">Дата начала</label>
+                        <input type="text" class="form-control" id="start-date" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="end-date" class="form-label">Дата окончания</label>
+                        <input type="text" class="form-control" id="end-date" readonly>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="apply-custom-period">Применить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Шаблон для уведомления -->
+<template id="notification-template">
+    <div class="toast align-items-center text-bg-[[type]] border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <strong>[[title]]</strong>: [[message]]
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Шаблон для модального окна о разрыве соединения -->
+<div class="modal fade" id="connectionLostModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Соединение потеряно</h5>
+      </div>
+      <div class="modal-body">
+        Соединение с сервером было потеряно. Пожалуйста, обновите страницу, чтобы восстановить соединение.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="location.reload()">Обновить страницу</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Подключение ECharts -->
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+
+<!-- Подключение jQuery UI для использования календаря -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<script src="{% static 'seller_cabinet/js/reports/reports.js' %}"></script>
+{% endblock %}

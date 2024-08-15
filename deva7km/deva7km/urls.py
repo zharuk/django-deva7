@@ -35,6 +35,7 @@ urlpatterns = [
     path('seller_cabinet/inventory/', views.seller_cabinet_inventory, name='seller_cabinet_inventory'),
     path('seller_cabinet/write-offs/', views.seller_cabinet_write_off, name='seller_cabinet_write_off'),
     path('seller_cabinet/preorders/', views.preorders, name='seller_cabinet_preorders'),
+    path('seller_cabinet/reports/', views.seller_cabinet_reports, name='seller_cabinet_reports'),
 
 ]
 
