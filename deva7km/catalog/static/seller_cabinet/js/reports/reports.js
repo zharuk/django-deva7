@@ -146,7 +146,12 @@ document.addEventListener('DOMContentLoaded', function() {
         salesReportContainer.innerHTML = '';
         returnsReportContainer.innerHTML = '';
 
-        if (salesData && Object.keys(salesData).length > 1) {
+        // Сортируем продукты по количеству продаж
+        const sortedSalesData = Object.entries(salesData)
+            .filter(([key]) => key !== 'total')
+            .sort(([, a], [, b]) => b.total_quantity - a.total_quantity);
+
+        if (salesData && sortedSalesData.length > 0) {
             const salesSummary = document.createElement('div');
             salesSummary.innerHTML = `
                 <h5>Итого продано: ${salesData.total.total_quantity} шт</h5>
@@ -158,7 +163,11 @@ document.addEventListener('DOMContentLoaded', function() {
             salesTitle.textContent = 'Продажи';
             salesReportContainer.appendChild(salesTitle);
 
-            for (const [productSku, product] of Object.entries(salesData).filter(([key]) => key !== 'total')) {
+            sortedSalesData.forEach(([productSku, product]) => {
+                // Сортируем модификации по количеству
+                const sortedModifications = Object.entries(product.modifications)
+                    .sort(([, a], [, b]) => b.quantity - a.quantity);
+
                 const table = document.createElement('table');
                 table.classList.add('table', 'table-striped', 'table-bordered', 'mb-4');
 
@@ -182,9 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const tbody = document.createElement('tbody');
 
-                for (const modSku in product.modifications) {
-                    const mod = product.modifications[modSku];
-
+                sortedModifications.forEach(([modSku, mod]) => {
                     const modRow = document.createElement('tr');
                     const modThumbnailCell = document.createElement('td');
                     const modSkuCell = document.createElement('td');
@@ -207,18 +214,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     modRow.appendChild(modSkuCell);
                     modRow.appendChild(modQuantityCell);
                     tbody.appendChild(modRow);
-                }
+                });
 
                 table.appendChild(tbody);
                 salesReportContainer.appendChild(table);
-            }
+            });
         } else {
             const noSalesMessage = document.createElement('h3');
             noSalesMessage.textContent = 'Продаж нет';
             salesReportContainer.appendChild(noSalesMessage);
         }
 
-        if (returnsData && Object.keys(returnsData).length > 1) {
+        // Аналогичная сортировка для возвратов
+        const sortedReturnsData = Object.entries(returnsData)
+            .filter(([key]) => key !== 'total')
+            .sort(([, a], [, b]) => b.total_quantity - a.total_quantity);
+
+        if (returnsData && sortedReturnsData.length > 0) {
             const returnsSummary = document.createElement('div');
             returnsSummary.innerHTML = `
                 <h5>Итого возвращено: ${returnsData.total.total_quantity} шт</h5>
@@ -230,7 +242,10 @@ document.addEventListener('DOMContentLoaded', function() {
             returnsTitle.textContent = 'Возвраты';
             returnsReportContainer.appendChild(returnsTitle);
 
-            for (const [productSku, product] of Object.entries(returnsData).filter(([key]) => key !== 'total')) {
+            sortedReturnsData.forEach(([productSku, product]) => {
+                const sortedModifications = Object.entries(product.modifications)
+                    .sort(([, a], [, b]) => b.quantity - a.quantity);
+
                 const table = document.createElement('table');
                 table.classList.add('table', 'table-striped', 'table-bordered', 'mb-4');
 
@@ -254,9 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const tbody = document.createElement('tbody');
 
-                for (const modSku in product.modifications) {
-                    const mod = product.modifications[modSku];
-
+                sortedModifications.forEach(([modSku, mod]) => {
                     const modRow = document.createElement('tr');
                     const modThumbnailCell = document.createElement('td');
                     const modSkuCell = document.createElement('td');
@@ -279,11 +292,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     modRow.appendChild(modSkuCell);
                     modRow.appendChild(modQuantityCell);
                     tbody.appendChild(modRow);
-                }
+                });
 
                 table.appendChild(tbody);
                 returnsReportContainer.appendChild(table);
-            }
+            });
         } else {
             const noReturnsMessage = document.createElement('h3');
             noReturnsMessage.textContent = 'Возвратов нет';
