@@ -92,10 +92,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function updateSalesReport(salesData) {
-        salesReportContainer.innerHTML = '';  // Очистка контейнера перед обновлением
+        // Удаляем предыдущий элемент с итогами, если он существует
+        const existingTotalContainer = document.getElementById('total-sales-summary');
+        if (existingTotalContainer) {
+            existingTotalContainer.remove();
+        }
 
         const sortedSalesData = Object.entries(salesData)
+            .filter(([key]) => key !== 'total')
             .sort(([, a], [, b]) => b.total_quantity - a.total_quantity);
+
+        // Добавляем строку с общей суммой и количеством проданного сразу под графиком
+        if (salesData.total) {
+            const totalContainer = document.createElement('div');
+            totalContainer.id = 'total-sales-summary';
+            totalContainer.classList.add('mt-3');
+            totalContainer.innerHTML = `
+                <h5>Итого продано: ${salesData.total.total_quantity} шт</h5>
+                <h5>Общая сумма продаж: ${Math.floor(salesData.total.total_sales_sum)} грн</h5>
+            `;
+            salesChartContainer.insertAdjacentElement('afterend', totalContainer);
+        }
+
+        salesReportContainer.innerHTML = '';  // Очистка контейнера перед обновлением
 
         for (const [productSku, product] of sortedSalesData) {
             const table = document.createElement('table');
@@ -160,7 +179,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }));
 
         const option = {
-            // Заголовок удален
             tooltip: {
                 trigger: 'item',
                 formatter: function(params) {
@@ -168,12 +186,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             },
             legend: {
-                type: 'scroll',
-                bottom: '0%',
+                type: 'plain',  // Используем режим plain, чтобы расположить все элементы без прокрутки
+                bottom: 0,
                 left: 'center',
+                itemWidth: 14,  // Ширина символов легенды
+                itemHeight: 14, // Высота символов легенды
                 textStyle: {
-                    color: '#ffffff' // Светлый цвет для темной темы
+                    color: '#ffffff',  // Цвет текста легенды для темной темы
+                    fontSize: 12
+                },
+                pageIconColor: '#ffffff',
+                pageTextStyle: {
+                    color: '#ffffff'
                 }
+            },
+            grid: {
+                top: '10%',   // Оставляем больше места сверху для легенды
+                bottom: '15%',  // Увеличиваем пространство снизу, чтобы уместить легенду
+                containLabel: true
             },
             series: [
                 {

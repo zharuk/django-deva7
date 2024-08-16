@@ -815,36 +815,36 @@ class ReportConsumer(AsyncWebsocketConsumer):
         }))
 
     async def get_sales_data(self, period, start_date=None, end_date=None):
-        print(f"Получение данных о продажах для периода: {period}")
         start_date, end_date = self.get_date_range(period, start_date, end_date)
-        print(f"Период: с {start_date} по {end_date}")
-
-        # Получаем все продажи за указанный период с предзагрузкой связанных модификаций товаров
         sales = await sync_to_async(list)(
             Sale.objects.filter(created_at__range=(start_date, end_date)).prefetch_related(
                 'items__product_modification')
         )
-        print(f"Найдено продаж: {len(sales)}")
 
-        # Собираем данные о количестве проданных товаров по модификациям
         sales_summary = {}
+        total_quantity = 0
+        total_sales_sum = 0.0
+
         for sale in sales:
             for item in sale.items.all():
-                # Обращаемся к product через sync_to_async
                 product = await sync_to_async(lambda: item.product_modification.product)()
                 product_sku = product.sku
                 product_title = product.title
                 modification_sku = item.product_modification.custom_sku
                 quantity = item.quantity
-                thumbnail_url = await sync_to_async(lambda: item.thumbnail_image_url())()  # Получаем миниатюру
-                collage_image_url = await sync_to_async(
-                    lambda: product.collage_image_url())()  # Получаем коллажное изображение
+                product_price = await sync_to_async(lambda: product.get_actual_wholesale_price())()
+                item_total_price = product_price * quantity
+                thumbnail_url = await sync_to_async(lambda: item.thumbnail_image_url())()
+                collage_image_url = await sync_to_async(lambda: product.collage_image_url())()
+
+                total_quantity += quantity
+                total_sales_sum += item_total_price
 
                 if product_sku not in sales_summary:
                     sales_summary[product_sku] = {
                         'product_title': product_title,
                         'total_quantity': 0,
-                        'collage_image_url': collage_image_url,  # Добавляем коллажное изображение
+                        'collage_image_url': collage_image_url,
                         'modifications': {}
                     }
 
@@ -856,7 +856,7 @@ class ReportConsumer(AsyncWebsocketConsumer):
                     }
                 sales_summary[product_sku]['modifications'][modification_sku]['quantity'] += quantity
 
-        # Сортируем модификации по количеству от большего к меньшему
+        # Сортировка
         for product_data in sales_summary.values():
             product_data['modifications'] = dict(sorted(
                 product_data['modifications'].items(),
@@ -864,7 +864,12 @@ class ReportConsumer(AsyncWebsocketConsumer):
                 reverse=True
             ))
 
-        print(f"Сформированные данные о продажах: {sales_summary}")
+        # Добавляем общие суммы в результат
+        sales_summary['total'] = {
+            'total_quantity': total_quantity,
+            'total_sales_sum': total_sales_sum
+        }
+
         return sales_summary
 
     def get_date_range(self, period, start_date=None, end_date=None):
