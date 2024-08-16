@@ -778,6 +778,8 @@ class ReportConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
         self.period = 'today'  # Устанавливаем период по умолчанию
+        self.start_date = None  # Инициализация start_date
+        self.end_date = None    # Инициализация end_date
         print(f"WebSocket соединение установлено. Период по умолчанию: {self.period}")
 
     async def disconnect(self, close_code):
@@ -793,6 +795,9 @@ class ReportConsumer(AsyncWebsocketConsumer):
             if self.period == 'custom':
                 self.start_date = data.get('start_date')
                 self.end_date = data.get('end_date')
+            else:
+                self.start_date = None
+                self.end_date = None
             print(f"Период обновлен на: {self.period}")
             await self.send_report_data()
         elif event_type == 'get_initial_data':
@@ -800,7 +805,8 @@ class ReportConsumer(AsyncWebsocketConsumer):
             await self.send_report_data()
 
     async def send_report_data(self):
-        report_data = await self.get_report_data(self.period)
+        print(f"Полученные даты: start_date={self.start_date}, end_date={self.end_date}")
+        report_data = await self.get_report_data(self.period, self.start_date, self.end_date)
 
         sales_data = report_data.get('sales')
         returns_data = report_data.get('returns')
@@ -899,26 +905,31 @@ class ReportConsumer(AsyncWebsocketConsumer):
         print(f"Текущая дата и время: {now}")
 
         if period == 'today':
-            start_date = now.replace(hour=0, minute=0, second=0)
+            start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
             end_date = now
         elif period == 'yesterday':
-            start_date = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0)
+            start_date = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
             end_date = start_date + timedelta(days=1)
         elif period == 'week':
-            start_date = now - timedelta(days=now.weekday())
+            start_date = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
             end_date = now
         elif period == 'month':
-            start_date = now.replace(day=1, hour=0, minute=0, second=0)
+            start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             end_date = now
         elif period == 'year':
-            start_date = now.replace(month=1, day=1, hour=0, minute=0, second=0)
+            start_date = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
             end_date = now
-        elif period == 'custom' and start_date and end_date:
-            start_date = timezone.make_aware(datetime.strptime(start_date, '%d-%m-%Y'))
-            end_date = timezone.make_aware(datetime.strptime(end_date, '%d-%m-%Y'))
-            end_date = end_date.replace(hour=23, minute=59, second=59)
+        elif period == 'custom':
+            if not start_date or not end_date:
+                raise ValueError("Отсутствуют даты для кастомного периода.")
+            try:
+                start_date = timezone.make_aware(datetime.strptime(start_date, '%d-%m-%Y'))
+                end_date = timezone.make_aware(datetime.strptime(end_date, '%d-%m-%Y')).replace(hour=23, minute=59, second=59)
+            except ValueError as e:
+                print(f"Ошибка преобразования дат: {e}")
+                raise ValueError("Неправильный формат дат для кастомного периода.")
         else:
-            raise ValueError("Неподдерживаемый период или отсутствуют даты для кастомного периода.")
+            raise ValueError("Неподдерживаемый период.")
 
         print(f"Рассчитанный период: с {start_date} по {end_date}")
         return start_date, end_date

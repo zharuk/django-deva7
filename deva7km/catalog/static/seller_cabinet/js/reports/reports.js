@@ -17,10 +17,51 @@ document.addEventListener('DOMContentLoaded', function() {
     let salesChart;
     let returnsChart;
 
+    // Отладка
+    console.log('Инициализация начата');
+
+    // Проверка наличия кнопки и модального окна
+    if (!customPeriodButton) {
+        console.error('Кнопка календаря не найдена!');
+    }
+
+    if (!customPeriodModal) {
+        console.error('Модальное окно для выбора периода не найдено!');
+    }
+
+    // Инициализация календаря для выбора дат с отладкой
+    $(startDateInput).datepicker({
+        dateFormat: 'dd-mm-yy',
+        maxDate: new Date(),
+        onSelect: function(selectedDate) {
+            console.log(`Дата начала выбрана: ${selectedDate}`);
+            $(endDateInput).datepicker('option', 'minDate', selectedDate);
+        }
+    });
+
+    $(endDateInput).datepicker({
+        dateFormat: 'dd-mm-yy',
+        maxDate: new Date(),
+        onSelect: function(selectedDate) {
+            console.log(`Дата окончания выбрана: ${selectedDate}`);
+            $(startDateInput).datepicker('option', 'maxDate', selectedDate);
+        }
+    });
+
+    // Обработчик клика на кнопку календаря
+    customPeriodButton.addEventListener('click', function() {
+        console.log('Кнопка календаря нажата');
+        customPeriodModal.show(); // Открываем модальное окно
+    });
+
     function initializeCharts() {
         salesChart = echarts.init(salesChartContainer);
         returnsChart = echarts.init(returnsChartContainer);
         console.log("Графики инициализированы.");
+
+        // Устанавливаем заголовок при первоначальной загрузке
+        const today = new Date();
+        updateReportTitle('today', formatDate(today), formatDate(today));
     }
 
     function resetCharts() {
@@ -70,6 +111,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     connectWebSocket();
+
+    applyCustomPeriodButton.addEventListener('click', function() {
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+
+        console.log(`Кнопка "Применить" нажата. Начальная дата: ${startDate}, Конечная дата: ${endDate}`);
+
+        if (startDate && endDate) {
+            console.log("Начальная и конечная даты выбраны, отправка данных на сервер...");
+
+            // Обновляем стили кнопок для выделения кастомного периода
+            document.querySelectorAll('.report-period-button').forEach(button => {
+                button.classList.remove('btn-primary', 'active');
+                button.classList.add('btn-secondary');
+            });
+
+            customPeriodButton.classList.remove('btn-secondary');
+            customPeriodButton.classList.add('btn-primary', 'active');
+
+            updateReportTitle('custom', startDate, endDate);
+            socket.send(JSON.stringify({
+                type: 'update_period',
+                period: 'custom',
+                start_date: startDate,
+                end_date: endDate
+            }));
+            customPeriodModal.hide();
+        } else {
+            console.warn("Начальная или конечная дата не выбраны!");
+        }
+    });
 
     function updateSalesReport(salesData, returnsData, netData) {
         salesSummaryContainer.innerHTML = '';
@@ -387,28 +459,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateReportTitle(period, startDate = null, endDate = null) {
         let titleText = '';
+        let calculatedStartDate, calculatedEndDate;
+
         switch (period) {
             case 'today':
-                titleText = 'Продажи за сегодня';
+                calculatedStartDate = new Date();
+                calculatedEndDate = new Date();
+                titleText = `Продажи за сегодня (${formatDate(calculatedStartDate)} - ${formatDate(calculatedEndDate)})`;
                 break;
             case 'yesterday':
-                titleText = 'Продажи за вчера';
+                calculatedStartDate = new Date();
+                calculatedStartDate.setDate(calculatedStartDate.getDate() - 1);
+                calculatedEndDate = new Date(calculatedStartDate);
+                titleText = `Продажи за вчера (${formatDate(calculatedStartDate)} - ${formatDate(calculatedEndDate)})`;
                 break;
             case 'week':
-                titleText = 'Продажи за неделю';
+                calculatedStartDate = new Date();
+                calculatedStartDate.setDate(calculatedStartDate.getDate() - calculatedStartDate.getDay() + 1); // Начало недели (понедельник)
+                calculatedEndDate = new Date();
+                titleText = `Продажи за неделю (${formatDate(calculatedStartDate)} - ${formatDate(calculatedEndDate)})`;
                 break;
             case 'month':
-                titleText = 'Продажи за месяц';
+                calculatedStartDate = new Date();
+                calculatedStartDate.setDate(1); // Начало месяца
+                calculatedEndDate = new Date();
+                titleText = `Продажи за месяц (${formatDate(calculatedStartDate)} - ${formatDate(calculatedEndDate)})`;
                 break;
             case 'year':
-                titleText = 'Продажи за год';
+                calculatedStartDate = new Date();
+                calculatedStartDate.setMonth(0, 1); // Начало года
+                calculatedEndDate = new Date();
+                titleText = `Продажи за год (${formatDate(calculatedStartDate)} - ${formatDate(calculatedEndDate)})`;
                 break;
             case 'custom':
-                titleText = `Продажи за период с ${startDate} по ${endDate}`;
+                calculatedStartDate = parseDate(startDate);
+                calculatedEndDate = parseDate(endDate);
+                titleText = `Продажи за период с ${formatDate(calculatedStartDate)} по ${formatDate(calculatedEndDate)}`;
                 break;
             default:
                 titleText = 'Выберите период';
         }
+
         reportTitle.textContent = titleText;
     }
+
+    function formatDate(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Месяцы в JavaScript начинаются с 0
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    }
+
+    function parseDate(dateString) {
+        const [day, month, year] = dateString.split('-');
+        return new Date(year, month - 1, day); // Месяцы в JavaScript начинаются с 0
+    }
+
 });
