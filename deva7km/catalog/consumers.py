@@ -780,15 +780,13 @@ class ReportConsumer(AsyncWebsocketConsumer):
         self.period = 'today'  # Устанавливаем период по умолчанию
         self.start_date = None  # Инициализация start_date
         self.end_date = None    # Инициализация end_date
-        print(f"WebSocket соединение установлено. Период по умолчанию: {self.period}")
 
     async def disconnect(self, close_code):
-        print(f"WebSocket соединение закрыто. Код: {close_code}")
+        pass
 
     async def receive(self, text_data):
         data = json.loads(text_data)
         event_type = data.get('type')
-        print(f"Получено сообщение: {data}")
 
         if event_type == 'update_period':
             self.period = data.get('period', 'today')
@@ -798,14 +796,11 @@ class ReportConsumer(AsyncWebsocketConsumer):
             else:
                 self.start_date = None
                 self.end_date = None
-            print(f"Период обновлен на: {self.period}")
             await self.send_report_data()
         elif event_type == 'get_initial_data':
-            print("Запрос на получение начальных данных.")
             await self.send_report_data()
 
     async def send_report_data(self):
-        print(f"Полученные даты: start_date={self.start_date}, end_date={self.end_date}")
         report_data = await self.get_report_data(self.period, self.start_date, self.end_date)
 
         sales_data = report_data.get('sales')
@@ -902,7 +897,6 @@ class ReportConsumer(AsyncWebsocketConsumer):
 
     def get_date_range(self, period, start_date=None, end_date=None):
         now = timezone.now()
-        print(f"Текущая дата и время: {now}")
 
         if period == 'today':
             start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -925,11 +919,9 @@ class ReportConsumer(AsyncWebsocketConsumer):
             try:
                 start_date = timezone.make_aware(datetime.strptime(start_date, '%d-%m-%Y'))
                 end_date = timezone.make_aware(datetime.strptime(end_date, '%d-%m-%Y')).replace(hour=23, minute=59, second=59)
-            except ValueError as e:
-                print(f"Ошибка преобразования дат: {e}")
+            except ValueError:
                 raise ValueError("Неправильный формат дат для кастомного периода.")
         else:
             raise ValueError("Неподдерживаемый период.")
 
-        print(f"Рассчитанный период: с {start_date} по {end_date}")
         return start_date, end_date

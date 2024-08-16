@@ -17,15 +17,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let salesChart;
     let returnsChart;
 
-    // Отладка
-    console.log('Инициализация начата');
-
-    // Инициализация календаря для выбора дат с отладкой
+    // Инициализация календаря для выбора дат
     $(startDateInput).datepicker({
         dateFormat: 'dd-mm-yy',
         maxDate: new Date(),
         onSelect: function(selectedDate) {
-            console.log(`Дата начала выбрана: ${selectedDate}`);
             $(endDateInput).datepicker('option', 'minDate', selectedDate);
         }
     });
@@ -34,21 +30,18 @@ document.addEventListener('DOMContentLoaded', function() {
         dateFormat: 'dd-mm-yy',
         maxDate: new Date(),
         onSelect: function(selectedDate) {
-            console.log(`Дата окончания выбрана: ${selectedDate}`);
             $(startDateInput).datepicker('option', 'maxDate', selectedDate);
         }
     });
 
     // Обработчик клика на кнопку календаря
     customPeriodButton.addEventListener('click', function() {
-        console.log('Кнопка календаря нажата');
         customPeriodModal.show(); // Открываем модальное окно
     });
 
     function initializeCharts() {
         salesChart = echarts.init(salesChartContainer);
         returnsChart = echarts.init(returnsChartContainer);
-        console.log("Графики инициализированы.");
 
         // Устанавливаем заголовок при первоначальной загрузке
         const today = new Date();
@@ -69,20 +62,14 @@ document.addEventListener('DOMContentLoaded', function() {
         socket = new WebSocket(`${protocol}//${window.location.host}/ws/reports/`);
 
         socket.onopen = function() {
-            console.log("WebSocket соединение установлено.");
             socket.send(JSON.stringify({ type: 'get_initial_data' }));
         };
 
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
-            console.log("Полученные данные:", data);
-
             const salesData = data.sales_data.sales || null;
             const returnsData = data.sales_data.returns || null;
             const netData = data.sales_data.net || null;
-
-            console.log("Данные для графика продаж:", salesData);
-            console.log("Данные для графика возвратов:", returnsData);
 
             if (data.event === 'report_data') {
                 salesChart.hideLoading();  // Скрываем индикатор загрузки
@@ -94,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         socket.onclose = function(e) {
-            console.log("WebSocket соединение закрыто.");
             setTimeout(connectWebSocket, 1000);
         };
 
@@ -109,11 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const startDate = startDateInput.value;
         const endDate = endDateInput.value;
 
-        console.log(`Кнопка "Применить" нажата. Начальная дата: ${startDate}, Конечная дата: ${endDate}`);
-
         if (startDate && endDate) {
-            console.log("Начальная и конечная даты выбраны, отправка данных на сервер...");
-
             salesChart.showLoading();  // Показываем индикатор загрузки для графика продаж
             returnsChart.showLoading();  // Показываем индикатор загрузки для графика возвратов
 
@@ -134,8 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 end_date: endDate
             }));
             customPeriodModal.hide();
-        } else {
-            console.warn("Начальная или конечная дата не выбраны!");
         }
     });
 
@@ -386,7 +366,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         salesChart.setOption(option);
         salesChart.resize();
-        console.log("График продаж обновлен.");
     }
 
     function updateReturnsChart(returnsData) {
@@ -446,7 +425,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         returnsChart.setOption(option);
         returnsChart.resize();
-        console.log("График возвратов обновлен.");
     }
 
     initializeCharts();
