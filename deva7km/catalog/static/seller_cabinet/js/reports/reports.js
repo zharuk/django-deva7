@@ -140,18 +140,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function updateSalesReport(salesData, returnsData, netData) {
+        // Очистка контейнеров
         salesSummaryContainer.innerHTML = '';
         returnsSummaryContainer.innerHTML = '';
         netSummaryContainer.innerHTML = '';
         salesReportContainer.innerHTML = '';
         returnsReportContainer.innerHTML = '';
 
-        // Сортируем продукты по количеству продаж
-        const sortedSalesData = Object.entries(salesData)
-            .filter(([key]) => key !== 'total')
-            .sort(([, a], [, b]) => b.total_quantity - a.total_quantity);
+        // Проверяем наличие данных по продажам и сортируем их по количеству продаж
+        if (salesData && Object.keys(salesData).length > 1) {
+            const sortedSalesData = Object.entries(salesData)
+                .filter(([key]) => key !== 'total')
+                .sort(([, a], [, b]) => b.total_quantity - a.total_quantity);
 
-        if (salesData && sortedSalesData.length > 0) {
             const salesSummary = document.createElement('div');
             salesSummary.innerHTML = `
                 <h5>Итого продано: ${salesData.total.total_quantity} шт</h5>
@@ -164,7 +165,6 @@ document.addEventListener('DOMContentLoaded', function() {
             salesReportContainer.appendChild(salesTitle);
 
             sortedSalesData.forEach(([productSku, product]) => {
-                // Сортируем модификации по количеству
                 const sortedModifications = Object.entries(product.modifications)
                     .sort(([, a], [, b]) => b.quantity - a.quantity);
 
@@ -225,12 +225,12 @@ document.addEventListener('DOMContentLoaded', function() {
             salesReportContainer.appendChild(noSalesMessage);
         }
 
-        // Аналогичная сортировка для возвратов
-        const sortedReturnsData = Object.entries(returnsData)
-            .filter(([key]) => key !== 'total')
-            .sort(([, a], [, b]) => b.total_quantity - a.total_quantity);
+        // Проверяем наличие данных по возвратам и сортируем их по количеству возвратов
+        if (returnsData && Object.keys(returnsData).length > 1) {
+            const sortedReturnsData = Object.entries(returnsData)
+                .filter(([key]) => key !== 'total')
+                .sort(([, a], [, b]) => b.total_quantity - a.total_quantity);
 
-        if (returnsData && sortedReturnsData.length > 0) {
             const returnsSummary = document.createElement('div');
             returnsSummary.innerHTML = `
                 <h5>Итого возвращено: ${returnsData.total.total_quantity} шт</h5>
@@ -303,6 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
             returnsReportContainer.appendChild(noReturnsMessage);
         }
 
+        // Обработка данных по чистой кассе
         if (netData) {
             const netSummary = document.createElement('div');
             netSummary.innerHTML = `
