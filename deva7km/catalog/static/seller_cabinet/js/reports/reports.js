@@ -186,30 +186,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             },
             legend: {
-                type: 'plain',  // Используем режим plain, чтобы расположить все элементы без прокрутки
-                bottom: 0,
+                type: 'plain',
+                orient: 'horizontal',  // Легенда располагается горизонтально
+                bottom: '5%',           // Перемещаем легенду ниже графика
                 left: 'center',
-                itemWidth: 14,  // Ширина символов легенды
-                itemHeight: 14, // Высота символов легенды
+                itemWidth: 14,
+                itemHeight: 14,
                 textStyle: {
-                    color: '#ffffff',  // Цвет текста легенды для темной темы
+                    color: '#ffffff',
                     fontSize: 12
-                },
-                pageIconColor: '#ffffff',
-                pageTextStyle: {
-                    color: '#ffffff'
                 }
             },
             grid: {
-                top: '10%',   // Оставляем больше места сверху для легенды
-                bottom: '15%',  // Увеличиваем пространство снизу, чтобы уместить легенду
+                top: '10%',    // Пространство сверху
+                bottom: '20%', // Увеличиваем пространство снизу для легенды
                 containLabel: true
             },
             series: [
                 {
                     name: 'Продажи',
                     type: 'pie',
-                    radius: ['40%', '70%'],
+                    radius: ['40%', '70%'],  // Размер круговой диаграммы
                     avoidLabelOverlap: false,
                     label: {
                         show: false,
