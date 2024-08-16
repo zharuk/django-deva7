@@ -173,10 +173,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateSalesChart(salesData) {
-        const chartData = Object.entries(salesData).map(([productSku, product]) => ({
-            name: productSku,
-            value: product.total_quantity
-        }));
+        // Отфильтровываем данные, исключая ключ 'total'
+        const chartData = Object.entries(salesData)
+            .filter(([key]) => key !== 'total')
+            .map(([productSku, product]) => ({
+                name: productSku,
+                value: product.total_quantity
+            }));
 
         const option = {
             tooltip: {
