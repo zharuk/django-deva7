@@ -774,9 +774,6 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
         }
 
 
-from datetime import timedelta
-from django.utils import timezone
-
 class ReportConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
@@ -803,30 +800,69 @@ class ReportConsumer(AsyncWebsocketConsumer):
             await self.send_report_data()
 
     async def send_report_data(self):
-        print(f"Отправка данных для периода: {self.period}")
-        if self.period == 'custom':
-            sales_data = await self.get_sales_data(self.period, self.start_date, self.end_date)
-        else:
-            sales_data = await self.get_sales_data(self.period)
-        print(f"Данные для отправки: {sales_data}")
+        report_data = await self.get_report_data(self.period)
+
+        sales_data = report_data.get('sales')
+        returns_data = report_data.get('returns')
+        net_data = report_data.get('net')
+
         await self.send(text_data=json.dumps({
             'event': 'report_data',
-            'sales_data': sales_data
+            'sales_data': {
+                'sales': sales_data,
+                'returns': returns_data,
+                'net': net_data
+            }
         }))
 
-    async def get_sales_data(self, period, start_date=None, end_date=None):
+    async def get_report_data(self, period, start_date=None, end_date=None):
         start_date, end_date = self.get_date_range(period, start_date, end_date)
+
         sales = await sync_to_async(list)(
             Sale.objects.filter(created_at__range=(start_date, end_date)).prefetch_related(
                 'items__product_modification')
         )
 
-        sales_summary = {}
-        total_quantity = 0
-        total_sales_sum = 0.0
+        returns = await sync_to_async(list)(
+            Return.objects.filter(created_at__range=(start_date, end_date)).prefetch_related(
+                'items__product_modification')
+        )
 
-        for sale in sales:
-            for item in sale.items.all():
+        sales_summary, total_sales_quantity, total_sales_sum = await self.process_transactions(sales)
+        returns_summary, total_returns_quantity, total_returns_sum = await self.process_transactions(returns)
+
+        # Добавляем общие суммы в результат по продажам и возвратам
+        sales_summary['total'] = {
+            'total_quantity': total_sales_quantity,
+            'total_sales_sum': total_sales_sum
+        }
+
+        returns_summary['total'] = {
+            'total_quantity': total_returns_quantity,
+            'total_sales_sum': total_returns_sum
+        }
+
+        # Рассчитываем чистую кассу
+        net_sales_quantity = total_sales_quantity - total_returns_quantity
+        net_sales_sum = total_sales_sum - total_returns_sum
+
+        return {
+            'sales': sales_summary if total_sales_quantity > 0 else None,
+            'returns': returns_summary if total_returns_quantity > 0 else None,
+            'net': {
+                'net_sales_quantity': net_sales_quantity,
+                'net_sales_sum': net_sales_sum
+            }
+        }
+
+    async def process_transactions(self, transactions):
+        summary = {}
+        total_quantity = 0
+        total_sum = 0.0
+
+        for transaction in transactions:
+            for item in transaction.items.all():
+                # Используем sync_to_async для получения связанных данных
                 product = await sync_to_async(lambda: item.product_modification.product)()
                 product_sku = product.sku
                 product_title = product.title
@@ -838,39 +874,25 @@ class ReportConsumer(AsyncWebsocketConsumer):
                 collage_image_url = await sync_to_async(lambda: product.collage_image_url())()
 
                 total_quantity += quantity
-                total_sales_sum += item_total_price
+                total_sum += item_total_price
 
-                if product_sku not in sales_summary:
-                    sales_summary[product_sku] = {
+                if product_sku not in summary:
+                    summary[product_sku] = {
                         'product_title': product_title,
                         'total_quantity': 0,
                         'collage_image_url': collage_image_url,
                         'modifications': {}
                     }
 
-                sales_summary[product_sku]['total_quantity'] += quantity
-                if modification_sku not in sales_summary[product_sku]['modifications']:
-                    sales_summary[product_sku]['modifications'][modification_sku] = {
+                summary[product_sku]['total_quantity'] += quantity
+                if modification_sku not in summary[product_sku]['modifications']:
+                    summary[product_sku]['modifications'][modification_sku] = {
                         'quantity': 0,
                         'thumbnail_url': thumbnail_url
                     }
-                sales_summary[product_sku]['modifications'][modification_sku]['quantity'] += quantity
+                summary[product_sku]['modifications'][modification_sku]['quantity'] += quantity
 
-        # Сортировка
-        for product_data in sales_summary.values():
-            product_data['modifications'] = dict(sorted(
-                product_data['modifications'].items(),
-                key=lambda item: item[1]['quantity'],
-                reverse=True
-            ))
-
-        # Добавляем общие суммы в результат
-        sales_summary['total'] = {
-            'total_quantity': total_quantity,
-            'total_sales_sum': total_sales_sum
-        }
-
-        return sales_summary
+        return summary, total_quantity, total_sum
 
     def get_date_range(self, period, start_date=None, end_date=None):
         now = timezone.now()
