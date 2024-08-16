@@ -20,15 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Отладка
     console.log('Инициализация начата');
 
-    // Проверка наличия кнопки и модального окна
-    if (!customPeriodButton) {
-        console.error('Кнопка календаря не найдена!');
-    }
-
-    if (!customPeriodModal) {
-        console.error('Модальное окно для выбора периода не найдено!');
-    }
-
     // Инициализация календаря для выбора дат с отладкой
     $(startDateInput).datepicker({
         dateFormat: 'dd-mm-yy',
@@ -94,6 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("Данные для графика возвратов:", returnsData);
 
             if (data.event === 'report_data') {
+                salesChart.hideLoading();  // Скрываем индикатор загрузки
+                returnsChart.hideLoading();  // Скрываем индикатор загрузки
                 resetCharts(); // Сброс графиков перед обновлением
                 updateSalesReport(salesData, returnsData, netData);
                 updateCharts(salesData, returnsData);
@@ -120,6 +113,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (startDate && endDate) {
             console.log("Начальная и конечная даты выбраны, отправка данных на сервер...");
+
+            salesChart.showLoading();  // Показываем индикатор загрузки для графика продаж
+            returnsChart.showLoading();  // Показываем индикатор загрузки для графика возвратов
 
             // Обновляем стили кнопок для выделения кастомного периода
             document.querySelectorAll('.report-period-button').forEach(button => {
@@ -452,6 +448,10 @@ document.addEventListener('DOMContentLoaded', function() {
             event.target.classList.add('btn-primary', 'active');
 
             const period = event.target.getAttribute('data-period');
+
+            salesChart.showLoading();  // Показываем индикатор загрузки при смене периода
+            returnsChart.showLoading();  // Показываем индикатор загрузки при смене периода
+
             updateReportTitle(period);
             socket.send(JSON.stringify({ type: 'update_period', period: period }));
         }
