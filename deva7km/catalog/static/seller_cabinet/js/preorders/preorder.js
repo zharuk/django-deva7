@@ -60,10 +60,14 @@ document.addEventListener("DOMContentLoaded", function() {
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             activeFilter = this.getAttribute('data-filter');
+
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
+
             if (isWebSocketConnected) {
                 sendWebSocketMessage({ type: 'filter', filter: activeFilter });
+            } else {
+                showNotification('warning', 'Ошибка', 'WebSocket не подключен.');
             }
         });
     });
@@ -129,7 +133,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     bindSwitchEvents(preordersContainer);
                     bindCopyEvent(preordersContainer);
                     updateFilterCounts(data.counts);
+                } else {
+                    preordersContainer.innerHTML = ''; // Очищаем контейнер, если новый контент не найден
+                    updateFilterCounts(data.counts);
                 }
+            } else {
+                preordersContainer.innerHTML = ''; // Очищаем контейнер, если HTML не получен
+                updateFilterCounts(data.counts);
             }
         } else if (data.event === 'get_preorder') {
             preloadPreorderForm(data);
