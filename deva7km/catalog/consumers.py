@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.db.models import Q
@@ -318,14 +318,12 @@ class SalesConsumer(AsyncWebsocketConsumer):
                 quantity=item['quantity']
             )
 
-        # Добавляем проверку на наличие ключа 'price'
         total_amount = 0
         for item in items:
             if 'price' in item:
                 total_amount += item['quantity'] * item['price']
             else:
-                # Можно добавить логирование или другое действие, если ключ 'price' отсутствует
-                print(f"Warning: 'price' key missing in item: {item}")
+                raise ValidationError(f"Key 'price' is missing in item: {item}")
 
         sale.total_amount = total_amount
         await sync_to_async(sale.save)()

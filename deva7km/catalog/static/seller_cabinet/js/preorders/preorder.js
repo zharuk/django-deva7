@@ -74,7 +74,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     searchInput.addEventListener('input', function() {
         if (isWebSocketConnected) {
-            sendWebSocketMessage({ search_text: this.value });
+            const message = { type: 'search', search_text: this.value };
+            sendWebSocketMessage(message);
         }
     });
 
