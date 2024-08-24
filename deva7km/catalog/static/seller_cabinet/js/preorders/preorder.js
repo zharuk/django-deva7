@@ -74,7 +74,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     searchInput.addEventListener('input', function() {
         if (isWebSocketConnected) {
-            const message = { type: 'search', search_text: this.value };
+            const searchText = this.value;
+            const message = { type: 'search', search_text: searchText };
             sendWebSocketMessage(message);
         }
     });
@@ -82,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
     clearSearchButton.addEventListener('click', function() {
         searchInput.value = '';
         if (isWebSocketConnected) {
-            sendWebSocketMessage({ search_text: '' });
+            sendWebSocketMessage({ type: 'search', search_text: '' });
         }
     });
 
@@ -119,10 +120,7 @@ document.addEventListener("DOMContentLoaded", function() {
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
 
-        if (data.event === 'preorder_saved') {
-            showNotification('success', 'Успех', 'Предзаказ успешно сохранен.');
-            preorderModal.hide();
-        } else if (data.event === 'preorder_list') {
+        if (data.event === 'preorder_list') {
             if (data.html && data.counts) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = data.html;
@@ -145,10 +143,6 @@ document.addEventListener("DOMContentLoaded", function() {
         } else if (data.event === 'get_preorder') {
             preloadPreorderForm(data);
             preorderModal.show();
-        } else if (data.event === 'form_invalid') {
-            showNotification('danger', 'Ошибка', 'Проверьте введенные данные.');
-        } else if (data.event === 'update_complete') {
-            showNotification('success', 'Обновление', data.message);
         }
     };
 
