@@ -82,8 +82,17 @@ document.addEventListener("DOMContentLoaded", function() {
 
     clearSearchButton.addEventListener('click', function() {
         searchInput.value = '';
+        activeFilter = 'all';  // Устанавливаем активный фильтр на "Все"
+        filterButtons.forEach(button => {
+            if (button.getAttribute('data-filter') === 'all') {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
         if (isWebSocketConnected) {
             sendWebSocketMessage({ type: 'search', search_text: '' });
+            sendWebSocketMessage({ type: 'filter', filter: activeFilter });  // Отправляем обновленный фильтр
         }
     });
 
