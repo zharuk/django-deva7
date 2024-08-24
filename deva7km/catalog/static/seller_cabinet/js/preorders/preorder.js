@@ -129,7 +129,10 @@ document.addEventListener("DOMContentLoaded", function() {
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
 
-        if (data.event === 'preorder_list') {
+        if (data.event === 'preorder_saved') {
+            showNotification('success', 'Успех', 'Предзаказ успешно сохранен.');
+            preorderModal.hide();
+        } else if (data.event === 'preorder_list') {
             if (data.html && data.counts) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = data.html;
@@ -152,6 +155,10 @@ document.addEventListener("DOMContentLoaded", function() {
         } else if (data.event === 'get_preorder') {
             preloadPreorderForm(data);
             preorderModal.show();
+        } else if (data.event === 'form_invalid') {
+            showNotification('danger', 'Ошибка', 'Проверьте введенные данные.');
+        } else if (data.event === 'update_complete') {
+            showNotification('success', 'Обновление', data.message);
         }
     };
 
