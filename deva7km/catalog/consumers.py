@@ -320,10 +320,11 @@ class SalesConsumer(AsyncWebsocketConsumer):
 
         total_amount = 0
         for item in items:
-            if 'price' in item:
-                total_amount += item['quantity'] * item['price']
+            print(items)
+            if 'total' in item:
+                total_amount += item['quantity'] * item['total']
             else:
-                raise ValidationError(f"Key 'price' is missing in item: {item}")
+                raise ValidationError(f"Key 'total' is missing in item: {item}")
 
         sale.total_amount = total_amount
         await sync_to_async(sale.save)()
