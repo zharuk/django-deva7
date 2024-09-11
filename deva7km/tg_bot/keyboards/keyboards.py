@@ -1,20 +1,34 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from asgiref.sync import sync_to_async
 from catalog.models import Product, ProductModification
 
 
 # клавиатура основного меню
-async def create_main_menu_kb():
-    # Создаем кнопки "Список товаров", "Добавить товар", "Добавить товар одной строкой", "Статистика"
+async def create_main_menu_kb() -> InlineKeyboardMarkup:
+    # Создаем кнопки
     products_button = InlineKeyboardButton(text='📋 Список товаров', callback_data='products')
     sell_button = InlineKeyboardButton(text='💸 Продать', callback_data='sell')
     return_button = InlineKeyboardButton(text='🔙 Вернуть', callback_data='return')
     inventory_button = InlineKeyboardButton(text='📈 Оприходование', callback_data='inventory')
     write_off_button = InlineKeyboardButton(text='📉 Списание', callback_data='write_off')
     report_button = InlineKeyboardButton(text='📊 Статистика', callback_data='report')
+
+    # Создаем кнопку для открытия Web App
+    web_app_button = InlineKeyboardButton(
+        text='Открыть кабинет продавца',
+        web_app=WebAppInfo(url='https://deva7km.com.ua/seller_cabinet/')
+    )
+
     # Создаем список кнопок
-    inline_keyboard = [[products_button], [sell_button], [return_button], [inventory_button], [write_off_button],
-                       [report_button]]
+    inline_keyboard = [
+        [products_button],
+        [sell_button],
+        [return_button],
+        [inventory_button],
+        [write_off_button],
+        [report_button],
+        [web_app_button]  # Добавляем кнопку для Web App
+    ]
 
     # Возвращаем объект инлайн-клавиатуры
     return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
