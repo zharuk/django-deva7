@@ -320,7 +320,6 @@ class SalesConsumer(AsyncWebsocketConsumer):
 
         total_amount = 0
         for item in items:
-            print(items)
             if 'total' in item:
                 total_amount += item['quantity'] * item['total']
             else:
