@@ -45,7 +45,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function openPreorderModal(preorderId = null) {
-        console.log('openPreorderModal вызвана с ID:', preorderId);
         if (preorderId) {
             sendWebSocketMessage({
                 type: 'get_preorder',
@@ -57,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function() {
             preorderForm.dataset.id = '';
             deletePreorderBtn.classList.add('d-none');
             preorderModal.show();
-            console.log('Модальное окно открыто для создания нового предзаказа');
         }
     }
 
@@ -122,7 +120,6 @@ document.addEventListener("DOMContentLoaded", function() {
     function sendWebSocketMessage(message) {
         message.user_id = userId;
         if (socket && socket.readyState === WebSocket.OPEN) {
-            console.log('Отправка WebSocket сообщения:', message);
             socket.send(JSON.stringify(message));
         } else {
             console.error('WebSocket не подключен');
@@ -134,21 +131,16 @@ document.addEventListener("DOMContentLoaded", function() {
     socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
 
     socket.onopen = function() {
-        console.log('WebSocket соединение установлено');
         isWebSocketConnected = true;
         sendWebSocketMessage({ type: 'filter', filter: 'all' });
     };
 
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        console.log('Получено WebSocket сообщение:', data);
 
         if (data.event === 'get_preorder') {
-            console.log('Получены данные предзаказа:', data);
             preloadPreorderForm(data);
-            console.log('Форма предзаказа заполнена');
             preorderModal.show();
-            console.log('Вызван метод show() для модального окна');
         } else if (data.event === 'preorder_list') {
             updatePreorderList(data);
         } else if (data.event === 'form_invalid') {
@@ -159,7 +151,6 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     socket.onclose = function() {
-        console.log('WebSocket соединение закрыто');
         isWebSocketConnected = false;
         showConnectionLostModal();
     };
@@ -223,7 +214,6 @@ document.addEventListener("DOMContentLoaded", function() {
             event.preventDefault();
             const preorderId = editLink.getAttribute('data-id');
             if (preorderId) {
-                console.log('Открываем модальное окно для редактирования предзаказа:', preorderId);
                 openPreorderModal(preorderId);
             } else {
                 console.error('ID предзаказа не найден');
@@ -232,7 +222,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     function preloadPreorderForm(data) {
-        console.log('Заполнение формы данными:', data);
         preorderForm.dataset.id = data.preorder_id;
 
         document.getElementById('full_name').value = data.full_name || '';
