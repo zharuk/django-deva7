@@ -1,6 +1,7 @@
 from adminsortable2.admin import SortableAdminMixin, SortableStackedInline
 from ckeditor.widgets import CKEditorWidget
 from django.contrib import admin
+from django.contrib.auth.models import User
 from django.db import models
 from django.urls import path
 from modeltranslation.admin import TranslationAdmin
@@ -15,10 +16,29 @@ from .generate_xlsx import generate_product_xlsx
 
 
 class TelegramUserAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'user_name', 'first_name', 'last_name', 'role', 'created_at')
+    list_display = ('telegram_id', 'user_name', 'first_name', 'last_name', 'role', 'created_at')
     list_filter = ('role', 'created_at')
-    search_fields = ('user_id', 'user_name', 'first_name', 'last_name')
+    search_fields = ('telegram_id', 'user_name', 'first_name', 'last_name')
     list_per_page = 25
+
+
+class TelegramUserInline(admin.StackedInline):
+    model = TelegramUser
+    can_delete = False
+    verbose_name_plural = 'Telegram User'
+    fk_name = 'user'
+    extra = 0
+
+
+class UserAdmin(admin.ModelAdmin):
+    inlines = [TelegramUserInline]
+
+    list_display = ('username', 'email', 'first_name', 'last_name', 'telegram_user')
+
+    def telegram_user(self, obj):
+        return obj.telegram_user.first_name if obj.telegram_user else 'Нет данных'
+
+    telegram_user.short_description = 'Имя пользователя Telegram'
 
 
 class ReturnItemInline(admin.TabularInline):
@@ -249,3 +269,5 @@ admin.site.register(ProductModification, ProductModificationAdmin)
 admin.site.register(Sale, SaleAdmin)
 admin.site.register(Return, ReturnAdmin)
 admin.site.register(TelegramUser, TelegramUserAdmin)
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)

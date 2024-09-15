@@ -1,25 +1,19 @@
-import json
-import re
-
-from channels.layers import get_channel_layer
+import logging
+from functools import wraps
+from django.contrib.auth import login as django_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Count, Q
-from django.http import JsonResponse
-from django.template.loader import render_to_string
-from django.utils.decorators import method_decorator
-from django.utils.html import format_html
+from django.http import JsonResponse, HttpResponseForbidden
+from django.urls import reverse
 from django.utils.translation import get_language
-from django.views import View
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
 from catalog.email_utils import send_new_order_notification_email
 from catalog.forms import PreOrderForm
-from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem, Sale, SaleItem, \
-    Return, Inventory, WriteOff
-from django.shortcuts import render, get_object_or_404, redirect, get_list_or_404
+from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem, TelegramUser
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from catalog.generate_xlsx import generate_product_xlsx
 from django.contrib import messages
@@ -27,11 +21,16 @@ from django.utils import timezone
 from datetime import timedelta
 from .management.commands.update_tracking_status import update_tracking_status
 from .models import PreOrder
-from asgiref.sync import sync_to_async, async_to_sync
+from asgiref.sync import sync_to_async
 import asyncio
 
-from .services import handle_preorder_form, toggle_preorder_status
-from .utils import notify_preorder_change
+# Настройка логгирования
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)  # Убедитесь, что уровень логгирования соответствует вашим требованиям
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 def home(request):
@@ -342,11 +341,6 @@ def export_products_xlsx(request):
     return response
 
 
-import logging
-
-logger_tracking = logging.getLogger('tracking')
-
-
 async def update_tracking_status_view(request):
     try:
         ten_days_ago = timezone.now() - timedelta(days=10)
@@ -355,42 +349,102 @@ async def update_tracking_status_view(request):
         await asyncio.gather(*tasks)
         await sync_to_async(messages.success)(request,
                                               "Статусы всех заказов, созданных за последние 10 дней, успешно обновлены.")
+        logger.info("Статусы всех заказов, созданных за последние 10 дней, успешно обновлены.")
     except Exception as e:
-        logger_tracking.error(f"Произошла ошибка при обновлении статусов: {e}")
+        logger.error(f"Произошла ошибка при обновлении статусов: {e}")
         await sync_to_async(messages.error)(request, "Произошла ошибка при обновлении статусов.")
     return await sync_to_async(redirect)('admin:catalog_preorder_changelist')
 
 
-@login_required
+def check_telegram_user(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        telegram_id = request.GET.get('telegram_id')
+        current_path = request.GET.get('next', request.get_full_path())
+        logger.debug(f"Extracted telegram_id: {telegram_id}")
+        logger.debug(f"Current path: {current_path}")
+        logger.debug(f"Request user: {request.user}")
+
+        if request.user.is_authenticated:
+            try:
+                telegram_user = getattr(request.user, 'telegram_user', None)
+                if telegram_user:
+                    logger.debug(f"Found associated TelegramUser: {telegram_user}")
+                    if telegram_user.role in ['admin', 'seller']:
+                        logger.debug(f"User role ({telegram_user.role}) allows access.")
+                        request.telegram_user = telegram_user
+                        return view_func(request, *args, **kwargs)
+                    else:
+                        logger.debug(f"User role ({telegram_user.role}) does not allow access.")
+                        return HttpResponseForbidden("У вас недостаточно прав для доступа к этой странице.")
+                else:
+                    logger.debug("No associated TelegramUser found.")
+                    return HttpResponseForbidden("У вас нет связанного аккаунта Telegram.")
+            except AttributeError as e:
+                logger.error(f"AttributeError: {str(e)}")
+                return HttpResponseForbidden("У вас нет связанного аккаунта Telegram.")
+
+        if not request.user.is_authenticated:
+            if telegram_id:
+                logger.debug("Processing with telegram_id for unauthenticated user.")
+                try:
+                    telegram_user = TelegramUser.objects.get(telegram_id=telegram_id)
+                    logger.debug(f"Found TelegramUser: {telegram_user}")
+
+                    if telegram_user.role in ['admin', 'seller']:
+                        logger.debug(f"User role ({telegram_user.role}) allows access.")
+                        if telegram_user.user:
+                            django_login(request, telegram_user.user)
+                            logger.debug(f"User {telegram_user.user} logged in.")
+                            redirect_url = request.GET.get('next', request.path)
+                            logger.debug(f"Redirecting to: {redirect_url}")
+                            return redirect(redirect_url)
+                        else:
+                            logger.debug("No Django user associated with the TelegramUser.")
+                            return HttpResponseForbidden("У вас нет связанного аккаунта Telegram.")
+                    else:
+                        logger.debug(f"User role ({telegram_user.role}) does not allow access.")
+                        return redirect('login')
+                except TelegramUser.DoesNotExist:
+                    logger.debug("TelegramUser does not exist.")
+                    return HttpResponseForbidden("У вас нет связанного аккаунта Telegram.")
+            else:
+                logger.debug("User not authenticated and no telegram_id provided. Redirecting to login.")
+                return redirect(f"{reverse('login')}?next={current_path}")
+
+    return _wrapped_view
+
+
+@check_telegram_user
 def seller_cabinet_main(request):
     return render(request, 'seller_cabinet/main.html')
 
 
-@login_required
+@check_telegram_user
 def seller_cabinet_sales(request):
     return render(request, 'seller_cabinet/sales/seller_sales.html')
 
 
-@login_required
+@check_telegram_user
 def seller_cabinet_returns(request):
     return render(request, 'seller_cabinet/returns/seller_returns.html')
 
 
-@login_required
+@check_telegram_user
 def seller_cabinet_inventory(request):
     return render(request, 'seller_cabinet/inventory/seller_inventory.html')
 
 
-@login_required
+@check_telegram_user
 def seller_cabinet_write_off(request):
     return render(request, 'seller_cabinet/write_off/seller_write_off.html')
 
 
-@login_required
+@check_telegram_user
 def preorders(request):
     return render(request, 'seller_cabinet/preorders/seller_preorders.html', {'user_id': request.user.id})
 
 
-@login_required
+@check_telegram_user
 def seller_cabinet_reports(request):
     return render(request, 'seller_cabinet/reports/seller_reports.html')
