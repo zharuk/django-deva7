@@ -114,10 +114,9 @@ class PreorderConsumer(AsyncWebsocketConsumer):
             preorder.last_modified_by = user
             await sync_to_async(preorder.save)()
 
-            await self.send(text_data=json.dumps({
-                'event': 'preorder_saved',
-            }))
-            await self.send_preorders_update()
+            # Вместо отправки отдельного события 'preorder_saved',
+            # мы передаем дополнительное событие в send_preorders_update
+            await self.send_preorders_update(additional_event='preorder_saved')
         else:
             await self.send(text_data=json.dumps({
                 'event': 'form_invalid',
@@ -138,7 +137,7 @@ class PreorderConsumer(AsyncWebsocketConsumer):
             'message': 'Все TTN были успешно обновлены.'
         }))
 
-    async def send_preorders_update(self, preorders=None):
+    async def send_preorders_update(self, preorders=None, additional_event=None):
         if preorders is None:
             preorders = await self.get_filtered_preorders(self.active_filter)
 
@@ -149,11 +148,17 @@ class PreorderConsumer(AsyncWebsocketConsumer):
             'seller_cabinet/preorders/seller_preorders.html', {'preorders': preorders_data}
         ) if preorders_data and counts else None
 
-        await self.send(text_data=json.dumps({
+        message = {
             'event': 'preorder_list',
             'html': html,
             'counts': counts
-        }))
+        }
+
+        # Добавляем дополнительное событие, если оно есть
+        if additional_event:
+            message['additional_event'] = additional_event
+
+        await self.send(text_data=json.dumps(message))
 
     async def search_preorders(self, search_text):
         preorders = await sync_to_async(list)(

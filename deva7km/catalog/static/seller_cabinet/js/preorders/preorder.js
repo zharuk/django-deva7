@@ -21,6 +21,12 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
     }
 
+    // Проверка наличия элемента модального окна
+    if (!preorderModalElement) {
+        console.error('Элемент модального окна не найден');
+        return;
+    }
+
     preorderModalElement.addEventListener('shown.bs.modal', function () {
         const textArea = document.getElementById('text');
         autoResizeTextArea(textArea);
@@ -39,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function openPreorderModal(preorderId = null) {
+        console.log('openPreorderModal вызвана с ID:', preorderId);
         if (preorderId) {
             sendWebSocketMessage({
                 type: 'get_preorder',
@@ -50,6 +57,7 @@ document.addEventListener("DOMContentLoaded", function() {
             preorderForm.dataset.id = '';
             deletePreorderBtn.classList.add('d-none');
             preorderModal.show();
+            console.log('Модальное окно открыто для создания нового предзаказа');
         }
     }
 
@@ -114,7 +122,11 @@ document.addEventListener("DOMContentLoaded", function() {
     function sendWebSocketMessage(message) {
         message.user_id = userId;
         if (socket && socket.readyState === WebSocket.OPEN) {
+            console.log('Отправка WebSocket сообщения:', message);
             socket.send(JSON.stringify(message));
+        } else {
+            console.error('WebSocket не подключен');
+            showNotification('error', 'Ошибка', 'WebSocket не подключен');
         }
     }
 
@@ -122,39 +134,23 @@ document.addEventListener("DOMContentLoaded", function() {
     socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
 
     socket.onopen = function() {
+        console.log('WebSocket соединение установлено');
         isWebSocketConnected = true;
-        sendWebSocketMessage({ filter: activeFilter });
+        sendWebSocketMessage({ type: 'filter', filter: 'all' });
     };
 
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
+        console.log('Получено WebSocket сообщение:', data);
 
-        if (data.event === 'preorder_saved') {
-            showNotification('success', 'Успех', 'Предзаказ успешно сохранен.');
-            preorderModal.hide();
-        } else if (data.event === 'preorder_list') {
-            if (data.html && data.counts) {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = data.html;
-
-                const newContent = tempDiv.querySelector('#preorders-container');
-                if (newContent) {
-                    preordersContainer.innerHTML = newContent.innerHTML;
-
-                    bindSwitchEvents(preordersContainer);
-                    bindCopyEvent(preordersContainer);
-                    updateFilterCounts(data.counts);
-                } else {
-                    preordersContainer.innerHTML = ''; // Очищаем контейнер, если новый контент не найден
-                    updateFilterCounts(data.counts);
-                }
-            } else {
-                preordersContainer.innerHTML = ''; // Очищаем контейнер, если HTML не получен
-                updateFilterCounts(data.counts);
-            }
-        } else if (data.event === 'get_preorder') {
+        if (data.event === 'get_preorder') {
+            console.log('Получены данные предзаказа:', data);
             preloadPreorderForm(data);
+            console.log('Форма предзаказа заполнена');
             preorderModal.show();
+            console.log('Вызван метод show() для модального окна');
+        } else if (data.event === 'preorder_list') {
+            updatePreorderList(data);
         } else if (data.event === 'form_invalid') {
             showNotification('danger', 'Ошибка', 'Проверьте введенные данные.');
         } else if (data.event === 'update_complete') {
@@ -163,9 +159,36 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     socket.onclose = function() {
+        console.log('WebSocket соединение закрыто');
         isWebSocketConnected = false;
         showConnectionLostModal();
     };
+
+    function updatePreorderList(data) {
+        if (data.html && data.counts) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = data.html;
+
+            const newContent = tempDiv.querySelector('#preorders-container');
+            if (newContent) {
+                preordersContainer.innerHTML = newContent.innerHTML;
+                bindSwitchEvents(preordersContainer);
+                bindCopyEvent(preordersContainer);
+                updateFilterCounts(data.counts);
+            } else {
+                preordersContainer.innerHTML = '';
+                updateFilterCounts(data.counts);
+            }
+        } else {
+            preordersContainer.innerHTML = '';
+            updateFilterCounts(data.counts);
+        }
+
+        if (data.additional_event === 'preorder_saved') {
+            showNotification('success', 'Успех', 'Предзаказ успешно сохранен.');
+            preorderModal.hide();
+        }
+    }
 
     preorderForm.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -195,14 +218,21 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     preordersContainer.addEventListener('click', function(event) {
-        if (event.target.closest('.edit-link')) {
+        const editLink = event.target.closest('.edit-link');
+        if (editLink) {
             event.preventDefault();
-            const preorderId = event.target.closest('.edit-link').getAttribute('data-id');
-            openPreorderModal(preorderId);
+            const preorderId = editLink.getAttribute('data-id');
+            if (preorderId) {
+                console.log('Открываем модальное окно для редактирования предзаказа:', preorderId);
+                openPreorderModal(preorderId);
+            } else {
+                console.error('ID предзаказа не найден');
+            }
         }
     });
 
     function preloadPreorderForm(data) {
+        console.log('Заполнение формы данными:', data);
         preorderForm.dataset.id = data.preorder_id;
 
         document.getElementById('full_name').value = data.full_name || '';
@@ -270,7 +300,10 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    let notificationTimeout;
     function showNotification(type, title, message) {
+        clearTimeout(notificationTimeout);
+
         const toastContainer = document.getElementById('notificationToast');
         const toastMessage = document.createElement('div');
         toastMessage.className = `toast align-items-center text-bg-${type} border-0`;
@@ -292,9 +325,11 @@ document.addEventListener("DOMContentLoaded", function() {
         const toast = new bootstrap.Toast(toastMessage);
         toast.show();
 
-        setTimeout(() => {
+        notificationTimeout = setTimeout(() => {
             toast.hide();
-            toastMessage.remove();
+            setTimeout(() => {
+                toastMessage.remove();
+            }, 500);
         }, 2000);
     }
 
