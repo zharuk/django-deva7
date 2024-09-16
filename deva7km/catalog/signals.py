@@ -1,13 +1,18 @@
-from asgiref.sync import async_to_sync
+from aiogram.enums import ParseMode
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from asgiref.sync import async_to_sync, sync_to_async
 from channels.layers import get_channel_layer
 from django.db.models.signals import m2m_changed, post_save, pre_save, pre_delete, post_delete
 from django.dispatch import receiver
+from django.utils.html import escape
 from django.utils.text import slugify
 from transliterate import translit
 from itertools import product
 from unidecode import unidecode
+
+from tg_bot.bot import bot
 from .models import Product, ProductModification, Image, Category, Sale, SaleItem, ReturnItem, Return, InventoryItem, \
-    Inventory, WriteOffItem, WriteOff, BlogPost, PreOrder
+    Inventory, WriteOffItem, WriteOff, BlogPost, PreOrder, TelegramUser
 from .utils import format_ttn, notify_preorder_change
 
 
@@ -181,25 +186,103 @@ def format_ttn_before_save(sender, instance, **kwargs):
 
 @receiver(post_save, sender=PreOrder)
 def preorder_saved(sender, instance, created, **kwargs):
-    request = kwargs.get('request')
-    if request and request.user.is_authenticated:
-        instance.last_modified_by = request.user
-        instance.save(update_fields=['last_modified_by'])
 
-    event_type = 'preorder_saved' if created else 'preorder_updated'
-
-    # Оповещение всех подключенных клиентов
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        'preorder_updates',  # Имя группы WebSocket
-        {
-            'type': 'notify_preorders_update',
-            'event': event_type,
-            'preorder_id': instance.id
-        }
+    user_ids = list(
+        TelegramUser.objects.filter(role__in=['admin', 'seller'])
+        .values_list('telegram_id', flat=True)
     )
 
-    notify_preorder_change(sender=PreOrder, instance=instance, event_type=event_type)
+    # Определяем тип события
+    if created:
+        event_type = 'preorder_saved'
+
+        # Оповещение всех подключенных клиентов через WebSocket
+        channel_layer = get_channel_layer()
+
+        async_to_sync(channel_layer.group_send)(
+            'preorder_updates',  # Имя группы WebSocket
+            {
+                'type': 'notify_preorders_update',
+                'event': event_type,
+                'preorder_id': instance.id
+            }
+        )
+
+        # Создаем сообщение для нового предзаказа
+        message_text = (
+            f"Создан предзаказ №{instance.id}\n\n"
+            f"{escape(instance.full_name)}\n\n"
+            f"{escape(instance.text)}\n\n"
+            f"Дроп: {'✅' if instance.drop else '❌'}\n"
+            f"Оплата: {'✅' if instance.payment_received else '❌'}\n\n"
+            f"Создан: {instance.created_at.strftime('%d-%m-%Y %H:%M:%S')}\n"
+            f"Изменено пользователем: {instance.last_modified_by.username if instance.last_modified_by else 'Неизвестно'}\n"
+            f"ТТН: <code>{escape(instance.ttn)}</code>"  # Выводим ТТН моноширинным шрифтом
+        )
+
+    else:
+        # Проверяем, соответствует ли предзаказ критериям для уведомления
+        if instance.ttn and instance.receipt_issued and instance.payment_received:
+            if instance.shipped_to_customer:
+                # Если заказ отправлен
+                event_type = 'preorder_shipped'
+                message_text = (
+                    f"Предзаказ №{instance.id} ({escape(instance.full_name)}) отправлен {instance.last_modified_by.username if instance.last_modified_by else 'Неизвестно'} ✅!"
+                )
+            else:
+                # Если заказ готов к отправке, но не отправлен
+                event_type = 'preorder_updated'
+                message_text = (
+                    f"Предзаказ №{instance.id} готов к отправке!\n\n"
+                    f"{escape(instance.full_name)}\n\n"
+                    f"{escape(instance.text)}\n\n"
+                    f"Дроп: {'✅' if instance.drop else '❌'}\n"
+                    f"Оплата: {'✅' if instance.payment_received else '❌'}\n"
+                    f"Чек: {'✅' if instance.receipt_issued else '❌'}\n"
+                    f"Отправлен: {'✅' if instance.shipped_to_customer else '❌'}\n\n"
+                    f"ТТН: <code>{escape(instance.ttn)}</code>\n\n"  # Выводим ТТН моноширинным шрифтом
+                    f"Создан: {instance.created_at.strftime('%d-%m-%Y %H:%M:%S')}\n"
+                    f"Последний раз изменен: {instance.last_modified_by.username if instance.last_modified_by else 'Неизвестно'}"
+                )
+
+            # Оповещение всех подключенных клиентов через WebSocket
+            channel_layer = get_channel_layer()
+
+            async_to_sync(channel_layer.group_send)(
+                'preorder_updates',  # Имя группы WebSocket
+                {
+                    'type': 'notify_preorders_update',
+                    'event': event_type,
+                    'preorder_id': instance.id
+                }
+            )
+
+        else:
+            # Если предзаказ не готов к отправке, не отправляем уведомление
+            return
+
+    # Асинхронная функция для отправки сообщения
+    async def send_message(user_id, message_text):
+        try:
+            await bot.send_message(
+                chat_id=user_id,
+                text=message_text,
+                parse_mode='HTML'
+            )
+            print(f"Message sent to Telegram user ID: {user_id}")
+        except Exception as e:
+            print(f"Failed to send message to user ID {user_id}: {e}")
+
+    # Запускаем асинхронные задачи для отправки сообщений
+    async def send_messages(message_text):
+        for user_id in user_ids:
+            await send_message(user_id, message_text)
+
+    # Выполняем асинхронные задачи только если есть пользователи и сообщение
+    if user_ids and message_text:
+        async_to_sync(send_messages)(message_text)
+    else:
+        print("No users to notify or message text is missing.")
 
 
 @receiver(post_delete, sender=PreOrder)

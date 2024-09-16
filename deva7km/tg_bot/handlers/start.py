@@ -30,7 +30,7 @@ async def command_start_handler(message: Message, state: FSMContext) -> None:
 
     await message.answer(
         f"Привет {hbold(message.from_user.full_name)}!\n"
-        f"Сегодня {date_str}, что делаем?\n\n",
+        f"Сегодня {date_str}",
         reply_markup=kb
     )
 
@@ -56,6 +56,6 @@ async def process_callback_query_start(callback: CallbackQuery, state: FSMContex
     kb = await create_main_menu_kb(telegram_id)
 
     await callback.message.answer(
-        f"Привет {hbold(callback.from_user.full_name)}!\nСегодня {date_str} {hbold(day_of_week)}, что делаем?",
+        f"Привет {hbold(callback.from_user.full_name)}!\nСегодня {date_str} {hbold(day_of_week)}",
         reply_markup=kb)
     await callback.answer()
