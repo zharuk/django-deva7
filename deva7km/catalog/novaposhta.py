@@ -3,10 +3,13 @@ import asyncio
 import requests
 import logging
 from django.conf import settings
+from django.db.models.signals import post_save
 from django.utils import timezone
 from asgiref.sync import sync_to_async
 from .models import PreOrder
 from django.db.models import Q
+
+from .signals import preorder_saved
 
 NOVA_POSHTA_API_URL = "https://api.novaposhta.ua/v2.0/json/"
 NOVA_POSHTA_API_KEY = settings.NOVA_POSHTA_API_KEY  # Убедитесь, что здесь используется правильное имя
@@ -27,9 +30,20 @@ def get_tracking_status(ttns):
     return response.json()
 
 
+# Функция для временного отключения сигналов
+def disable_signals():
+    post_save.disconnect(receiver=preorder_saved, sender=PreOrder)
+
+
+# Функция для повторного включения сигналов
+def enable_signals():
+    post_save.connect(preorder_saved, sender=PreOrder)
+
+
 async def update_tracking_status():
     logger.info("Starting to update tracking statuses.")
     now = timezone.now()
+    disable_signals()  # Отключаем сигнал перед обновлением
 
     # Удаляем предзаказы старше 30 дней или с статусом "Відправлення отримано"
     await sync_to_async(PreOrder.objects.filter(
@@ -37,10 +51,9 @@ async def update_tracking_status():
     ).delete)()
     logger.info("Old preorders or received ones deleted.")
 
-    # Получаем все TTN из базы данных, которые были обновлены не менее 30 минут назад
-    thirty_minutes_ago = now - timezone.timedelta(minutes=1)
+    # Получаем все TTN из базы данных
     all_ttns = await sync_to_async(list)(
-        PreOrder.objects.filter(updated_at__lt=thirty_minutes_ago).values_list('ttn', flat=True)
+        PreOrder.objects.values_list('ttn', flat=True)
     )
     logger.info(f"Retrieved TTNs from database: {all_ttns}")
 
@@ -84,10 +97,10 @@ async def update_tracking_status():
 
             try:
                 preorders = await sync_to_async(list)(
-                    PreOrder.objects.filter(ttn=original_ttn_number, updated_at__lt=thirty_minutes_ago)
+                    PreOrder.objects.filter(ttn=original_ttn_number)
                 )
                 if not preorders:
-                    logger.warning(f"PreOrder with TTN {original_ttn_number} does not exist or was recently updated.")
+                    logger.warning(f"PreOrder with TTN {original_ttn_number} does not exist.")
                     continue
             except Exception as e:
                 logger.error(f"Error retrieving PreOrder with TTN {original_ttn_number}: {e}")
@@ -103,3 +116,6 @@ async def update_tracking_status():
 
         # Добавляем задержку 1 секунду между обработкой чанков
         await asyncio.sleep(1)
+
+    enable_signals()  # Включаем сигнал после завершения обновления
+

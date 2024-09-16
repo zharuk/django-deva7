@@ -9,6 +9,7 @@ from django.db.models import Count, Q
 from django.http import JsonResponse, HttpResponseForbidden
 from django.urls import reverse
 from django.utils.translation import get_language
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
 from catalog.email_utils import send_new_order_notification_email
 from catalog.forms import PreOrderForm
@@ -445,6 +446,7 @@ def preorders(request):
     return render(request, 'seller_cabinet/preorders/seller_preorders.html', {'user_id': request.user.id})
 
 
+@csrf_exempt
 @check_telegram_user
 def seller_cabinet_reports(request):
     return render(request, 'seller_cabinet/reports/seller_reports.html')
