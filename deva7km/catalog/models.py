@@ -709,6 +709,10 @@ class PreOrder(models.Model):
     status = models.CharField("Статус посылки", max_length=255, blank=True)
     payment_received = models.BooleanField("Оплата", default=False)
 
+    # Новые флаги для отслеживания уведомлений
+    ready_for_shipment_notified = models.BooleanField("Уведомление о готовности к отправке отправлено", default=False)
+    shipped_notified = models.BooleanField("Уведомление об отправке отправлено", default=False)
+
     def save(self, *args, **kwargs):
         request = kwargs.pop('request', None)
         if request and request.user.is_authenticated:

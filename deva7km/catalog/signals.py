@@ -186,21 +186,55 @@ def format_ttn_before_save(sender, instance, **kwargs):
 
 @receiver(post_save, sender=PreOrder)
 def preorder_saved(sender, instance, created, **kwargs):
-
     user_ids = list(
         TelegramUser.objects.filter(role__in=['admin', 'seller'])
         .values_list('telegram_id', flat=True)
     )
 
-    # Определяем тип события
+    channel_layer = get_channel_layer()
+    message_text = None
+    event_type = None
+
     if created:
         event_type = 'preorder_saved'
+        message_text = (
+            f"<b>Создан предзаказ №{instance.id}</b>\n\n"
+            f"{escape(instance.full_name)}\n\n"
+            f"{escape(instance.text)}\n\n"
+            f"Дроп: {'✅' if instance.drop else '❌'}\n"
+            f"Оплата: {'✅' if instance.payment_received else '❌'}\n\n"
+            f"Создан: {instance.created_at.strftime('%d-%m-%Y %H:%M:%S')}\n"
+            f"Изменено пользователем: {instance.last_modified_by.username if instance.last_modified_by else 'Неизвестно'}\n"
+        )
+    else:
+        if instance.ttn and instance.receipt_issued and instance.payment_received:
+            if instance.shipped_to_customer and not instance.shipped_notified:
+                event_type = 'preorder_shipped'
+                message_text = (
+                    f"<b>Предзаказ №{instance.id} ({escape(instance.full_name)}) отправлен {instance.last_modified_by.username if instance.last_modified_by else 'Неизвестно'} ✅!</b>"
+                )
+                instance.shipped_notified = True
+                instance.save(update_fields=['shipped_notified'])
+            elif not instance.shipped_to_customer and not instance.ready_for_shipment_notified:
+                event_type = 'preorder_updated'
+                message_text = (
+                    f"<b>Предзаказ №{instance.id} готов к отправке!</b>\n\n"
+                    f"{escape(instance.full_name)}\n\n"
+                    f"{escape(instance.text)}\n\n"
+                    f"Дроп: {'✅' if instance.drop else '❌'}\n"
+                    f"Оплата: {'✅' if instance.payment_received else '❌'}\n"
+                    f"Чек: {'✅' if instance.receipt_issued else '❌'}\n"
+                    f"Отправлен: {'✅' if instance.shipped_to_customer else '❌'}\n\n"
+                    f"ТТН: <code>{escape(instance.ttn)}</code>\n\n"
+                    f"Создан: {instance.created_at.strftime('%d-%m-%Y %H:%M:%S')}\n"
+                    f"Последний раз изменен: {instance.last_modified_by.username if instance.last_modified_by else 'Неизвестно'}"
+                )
+                instance.ready_for_shipment_notified = True
+                instance.save(update_fields=['ready_for_shipment_notified'])
 
-        # Оповещение всех подключенных клиентов через WebSocket
-        channel_layer = get_channel_layer()
-
+    if event_type and message_text:
         async_to_sync(channel_layer.group_send)(
-            'preorder_updates',  # Имя группы WebSocket
+            'preorder_updates',
             {
                 'type': 'notify_preorders_update',
                 'event': event_type,
@@ -208,81 +242,25 @@ def preorder_saved(sender, instance, created, **kwargs):
             }
         )
 
-        # Создаем сообщение для нового предзаказа
-        message_text = (
-            f"Создан предзаказ №{instance.id}\n\n"
-            f"{escape(instance.full_name)}\n\n"
-            f"{escape(instance.text)}\n\n"
-            f"Дроп: {'✅' if instance.drop else '❌'}\n"
-            f"Оплата: {'✅' if instance.payment_received else '❌'}\n\n"
-            f"Создан: {instance.created_at.strftime('%d-%m-%Y %H:%M:%S')}\n"
-            f"Изменено пользователем: {instance.last_modified_by.username if instance.last_modified_by else 'Неизвестно'}\n"
-            f"ТТН: <code>{escape(instance.ttn)}</code>"  # Выводим ТТН моноширинным шрифтом
-        )
-
-    else:
-        # Проверяем, соответствует ли предзаказ критериям для уведомления
-        if instance.ttn and instance.receipt_issued and instance.payment_received:
-            if instance.shipped_to_customer:
-                # Если заказ отправлен
-                event_type = 'preorder_shipped'
-                message_text = (
-                    f"Предзаказ №{instance.id} ({escape(instance.full_name)}) отправлен {instance.last_modified_by.username if instance.last_modified_by else 'Неизвестно'} ✅!"
+        async def send_message(user_id, message_text):
+            try:
+                await bot.send_message(
+                    chat_id=user_id,
+                    text=message_text,
+                    parse_mode='HTML'
                 )
-            else:
-                # Если заказ готов к отправке, но не отправлен
-                event_type = 'preorder_updated'
-                message_text = (
-                    f"Предзаказ №{instance.id} готов к отправке!\n\n"
-                    f"{escape(instance.full_name)}\n\n"
-                    f"{escape(instance.text)}\n\n"
-                    f"Дроп: {'✅' if instance.drop else '❌'}\n"
-                    f"Оплата: {'✅' if instance.payment_received else '❌'}\n"
-                    f"Чек: {'✅' if instance.receipt_issued else '❌'}\n"
-                    f"Отправлен: {'✅' if instance.shipped_to_customer else '❌'}\n\n"
-                    f"ТТН: <code>{escape(instance.ttn)}</code>\n\n"  # Выводим ТТН моноширинным шрифтом
-                    f"Создан: {instance.created_at.strftime('%d-%m-%Y %H:%M:%S')}\n"
-                    f"Последний раз изменен: {instance.last_modified_by.username if instance.last_modified_by else 'Неизвестно'}"
-                )
+                print(f"Message sent to Telegram user ID: {user_id}")
+            except Exception as e:
+                print(f"Failed to send message to user ID {user_id}: {e}")
 
-            # Оповещение всех подключенных клиентов через WebSocket
-            channel_layer = get_channel_layer()
+        async def send_messages(message_text):
+            for user_id in user_ids:
+                await send_message(user_id, message_text)
 
-            async_to_sync(channel_layer.group_send)(
-                'preorder_updates',  # Имя группы WebSocket
-                {
-                    'type': 'notify_preorders_update',
-                    'event': event_type,
-                    'preorder_id': instance.id
-                }
-            )
-
+        if user_ids and message_text:
+            async_to_sync(send_messages)(message_text)
         else:
-            # Если предзаказ не готов к отправке, не отправляем уведомление
-            return
-
-    # Асинхронная функция для отправки сообщения
-    async def send_message(user_id, message_text):
-        try:
-            await bot.send_message(
-                chat_id=user_id,
-                text=message_text,
-                parse_mode='HTML'
-            )
-            print(f"Message sent to Telegram user ID: {user_id}")
-        except Exception as e:
-            print(f"Failed to send message to user ID {user_id}: {e}")
-
-    # Запускаем асинхронные задачи для отправки сообщений
-    async def send_messages(message_text):
-        for user_id in user_ids:
-            await send_message(user_id, message_text)
-
-    # Выполняем асинхронные задачи только если есть пользователи и сообщение
-    if user_ids and message_text:
-        async_to_sync(send_messages)(message_text)
-    else:
-        print("No users to notify or message text is missing.")
+            print("No users to notify or message text is missing.")
 
 
 @receiver(post_delete, sender=PreOrder)
