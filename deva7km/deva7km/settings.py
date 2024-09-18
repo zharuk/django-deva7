@@ -31,6 +31,8 @@ INSTALLED_APPS = [
     'channels',
 ]
 
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
 # Настройки для каналов
 CHANNEL_LAYERS = {
     'default': {
