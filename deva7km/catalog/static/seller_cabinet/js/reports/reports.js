@@ -133,10 +133,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 .filter(([key]) => key !== 'total')
                 .sort(([, a], [, b]) => b.total_quantity - a.total_quantity);
 
+            // Обновляем заголовок с общей информацией по продажам
             const salesSummary = document.createElement('div');
             salesSummary.innerHTML = `
-                <h5>Итого продано: ${salesData.total.total_quantity} шт</h5>
-                <h5>Общая сумма продаж: ${Math.floor(salesData.total.total_sales_sum)} грн</h5>
+                <h4>Итого продано: ${salesData.total.total_quantity} шт</h4>
+                <h4>Общая сумма продаж: ${Math.floor(salesData.total.total_sales_sum)} грн</h4>
+                <h5>за наличные: ${Math.floor(salesData.total.cash_sales)} грн</h5>
+                <h5>по безналу: ${Math.floor(salesData.total.non_cash_sales)} грн</h5>
             `;
             salesSummaryContainer.appendChild(salesSummary);
 
@@ -144,6 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
             salesTitle.textContent = 'Продажи';
             salesReportContainer.appendChild(salesTitle);
 
+            // Генерация таблицы с информацией о продажах по продуктам и модификациям
             sortedSalesData.forEach(([productSku, product]) => {
                 const sortedModifications = Object.entries(product.modifications)
                     .sort(([, a], [, b]) => b.quantity - a.quantity);
@@ -205,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
             salesReportContainer.appendChild(noSalesMessage);
         }
 
-        // Проверяем наличие данных по возвратам и сортируем их по количеству возвратов
+        // Обработка данных по возвратам
         if (returnsData && Object.keys(returnsData).length > 1) {
             const sortedReturnsData = Object.entries(returnsData)
                 .filter(([key]) => key !== 'total')

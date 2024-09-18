@@ -780,9 +780,9 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
 class ReportConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
-        self.period = 'today'  # Устанавливаем период по умолчанию
-        self.start_date = None  # Инициализация start_date
-        self.end_date = None    # Инициализация end_date
+        self.period = 'today'
+        self.start_date = None
+        self.end_date = None
 
     async def disconnect(self, close_code):
         pass
@@ -832,13 +832,18 @@ class ReportConsumer(AsyncWebsocketConsumer):
                 'items__product_modification')
         )
 
-        sales_summary, total_sales_quantity, total_sales_sum = await self.process_transactions(sales)
+        # Добавим разделение по типам оплаты
+        sales_by_payment = {'cash': 0, 'non_cash': 0}
+        sales_summary, total_sales_quantity, total_sales_sum = await self.process_transactions(sales, sales_by_payment)
+
         returns_summary, total_returns_quantity, total_returns_sum = await self.process_transactions(returns)
 
         # Добавляем общие суммы в результат по продажам и возвратам
         sales_summary['total'] = {
             'total_quantity': total_sales_quantity,
-            'total_sales_sum': total_sales_sum
+            'total_sales_sum': total_sales_sum,
+            'cash_sales': sales_by_payment['cash'],
+            'non_cash_sales': sales_by_payment['non_cash']
         }
 
         returns_summary['total'] = {
@@ -859,23 +864,34 @@ class ReportConsumer(AsyncWebsocketConsumer):
             }
         }
 
-    async def process_transactions(self, transactions):
+    async def process_transactions(self, transactions, sales_by_payment=None):
         summary = {}
         total_quantity = 0
         total_sum = 0.0
 
         for transaction in transactions:
-            for item in transaction.items.all():
-                # Используем sync_to_async для получения связанных данных
-                product = await sync_to_async(lambda: item.product_modification.product)()
+            # Определяем тип оплаты и добавляем соответствующую сумму
+            if sales_by_payment is not None:
+                total_amount = await sync_to_async(transaction.calculate_total_amount)()
+                if transaction.payment_method == 'cash':
+                    sales_by_payment['cash'] += total_amount
+                else:
+                    sales_by_payment['non_cash'] += total_amount
+
+            # Получаем связанные данные через sync_to_async
+            items = await sync_to_async(list)(transaction.items.all())
+            for item in items:
+                product_modification = await sync_to_async(lambda: item.product_modification)()
+                product = await sync_to_async(lambda: product_modification.product)()
+
                 product_sku = product.sku
                 product_title = product.title
-                modification_sku = item.product_modification.custom_sku
+                modification_sku = product_modification.custom_sku
                 quantity = item.quantity
-                product_price = await sync_to_async(lambda: product.get_actual_wholesale_price())()
+                product_price = await sync_to_async(product.get_actual_wholesale_price)()
                 item_total_price = product_price * quantity
-                thumbnail_url = await sync_to_async(lambda: item.thumbnail_image_url())()
-                collage_image_url = await sync_to_async(lambda: product.collage_image_url())()
+                thumbnail_url = await sync_to_async(item.thumbnail_image_url)()
+                collage_image_url = await sync_to_async(product.collage_image_url)()
 
                 total_quantity += quantity
                 total_sum += item_total_price
