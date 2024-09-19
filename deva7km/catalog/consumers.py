@@ -11,7 +11,7 @@ from django.db.models import Q
 
 from .forms import PreOrderForm
 from .models import PreOrder, ProductModification, Sale, SaleItem, Return, ReturnItem, Inventory, \
-    InventoryItem, WriteOff, WriteOffItem
+    InventoryItem, WriteOff, WriteOffItem, TelegramUser
 from .novaposhta import update_tracking_status
 
 
@@ -232,14 +232,13 @@ class SalesConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         data_type = data.get('type')
+
         if data_type == 'search':
             await self.search_items(data.get('query', ''))
         elif data_type == 'add_item':
             await self.add_item_to_sale(data.get('custom_sku', ''), data.get('quantity', 1))
         elif data_type == 'create_sale':
             await self.create_sale(
-                data.get('user_id'),
-                data.get('telegram_user_id'),
                 data.get('source'),
                 data.get('payment_method'),
                 data.get('comment', ''),
@@ -306,15 +305,28 @@ class SalesConsumer(AsyncWebsocketConsumer):
                 'custom_sku': custom_sku
             }))
 
-    async def create_sale(self, user_id, telegram_user_id, source, payment_method, comment, items):
+    async def create_sale(self, source, payment_method, comment, items):
+        # Получаем текущего пользователя из сессии WebSocket
+        user = self.scope['user']
+        # Получаем TelegramUser асинхронно
+        telegram_user = await sync_to_async(lambda: getattr(user, 'telegram_user', None))()
+        if not telegram_user:
+            await self.send(text_data=json.dumps({
+                'type': 'sell_error',
+                'message': f'TelegramUser associated with User ID {user.id} does not exist.'
+            }))
+            return
+
+        # Создаём запись о продаже
         sale = await sync_to_async(Sale.objects.create)(
-            user_id=user_id,
-            telegram_user_id=telegram_user_id,
+            user=user,
+            telegram_user=telegram_user,
             source=source,
             payment_method=payment_method,
             comment=comment
         )
 
+        # Добавляем товары в продажу
         for item in items:
             product_modification = await sync_to_async(ProductModification.objects.get)(custom_sku=item['custom_sku'])
             await sync_to_async(SaleItem.objects.create)(
@@ -336,7 +348,9 @@ class SalesConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'sell_confirmation',
             'status': 'success',
-            'sale_id': sale.id
+            'sale_id': sale.id,
+            'user': user.username,
+            'telegram_user': telegram_user.user_name
         }))
 
     async def send_sales_list(self):
@@ -362,6 +376,8 @@ class SalesConsumer(AsyncWebsocketConsumer):
                 'id': sale.id,
                 'created_at': timezone.localtime(sale.created_at).strftime('%Y-%m-%d %H:%M:%S'),
                 'user': await sync_to_async(lambda: sale.user.username if sale.user else 'Неизвестно')(),
+                'telegram_user': await sync_to_async(
+                    lambda: sale.telegram_user.user_name if sale.telegram_user else 'Неизвестно')(),
                 'items': items_data,
                 'total_amount': await sync_to_async(sale.calculate_total_amount)(),
                 'payment_method': sale.get_payment_method_display(),
@@ -404,7 +420,11 @@ class SalesConsumer(AsyncWebsocketConsumer):
 
 class ReturnConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        await self.accept()
+        # Проверяем, авторизован ли пользователь
+        if self.scope["user"].is_authenticated:
+            await self.accept()
+        else:
+            await self.close()
 
     async def disconnect(self, close_code):
         pass
@@ -425,21 +445,15 @@ class ReturnConsumer(AsyncWebsocketConsumer):
 
         products = []
         for r in results:
-            product = await sync_to_async(lambda: r.product)()  # Оборачиваем доступ к product в sync_to_async
+            product = await sync_to_async(lambda: r.product)()
             thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
-            actual_price = await sync_to_async(
-                product.get_actual_wholesale_price)()  # Используем метод для получения актуальной цены
+            actual_price = await sync_to_async(product.get_actual_wholesale_price)()
             products.append({
                 'sku': r.custom_sku,
                 'stock': r.stock,
-                'price': actual_price,  # Используем актуальную цену
+                'price': actual_price,
                 'thumbnail': thumbnail_url
             })
-
-        await self.send(text_data=json.dumps({
-            'type': 'search_results',
-            'results': products
-        }))
 
         await self.send(text_data=json.dumps({
             'type': 'search_results',
@@ -450,26 +464,30 @@ class ReturnConsumer(AsyncWebsocketConsumer):
         items = data['items']
 
         try:
-            user = await sync_to_async(User.objects.get)(id=data['user_id'])
-        except User.DoesNotExist:
-            await self.send(text_data=json.dumps({
-                'type': 'return_error',
-                'message': 'User not found'
-            }))
-            return
+            user = self.scope["user"]  # Используем пользователя из WebSocket сессии
+            telegram_user = await sync_to_async(lambda: getattr(user, 'telegram_user', None))()
 
-        try:
+            if not telegram_user:
+                await self.send(text_data=json.dumps({
+                    'type': 'return_error',
+                    'message': f'TelegramUser associated with User {user.username} does not exist.'
+                }))
+                return
+
+            # Создаем возврат
             return_obj = Return(
                 user=user,
+                telegram_user=telegram_user,  # Привязываем TelegramUser
                 comment=data['comment']
             )
             await sync_to_async(return_obj.save)()
 
             for item in items:
                 product_modification = await sync_to_async(ProductModification.objects.get)(
-                    custom_sku=item['custom_sku'])
+                    custom_sku=item['custom_sku']
+                )
                 return_item = ReturnItem(
-                    return_sale=return_obj,  # Используем правильное поле
+                    return_sale=return_obj,
                     product_modification=product_modification,
                     quantity=item['quantity']
                 )
@@ -481,6 +499,7 @@ class ReturnConsumer(AsyncWebsocketConsumer):
             }))
 
             await self.send_return_list()
+
         except ProductModification.DoesNotExist:
             await self.send(text_data=json.dumps({
                 'type': 'return_error',
@@ -505,6 +524,9 @@ class ReturnConsumer(AsyncWebsocketConsumer):
 
     async def return_to_dict(self, return_obj):
         user = await sync_to_async(lambda: return_obj.user.username if return_obj.user else 'Неизвестно')()
+        telegram_user = await sync_to_async(
+            lambda: return_obj.telegram_user.user_name if return_obj.telegram_user else 'Неизвестно')()
+
         items = await sync_to_async(list)(return_obj.items.all())
         items_data = []
 
@@ -525,6 +547,7 @@ class ReturnConsumer(AsyncWebsocketConsumer):
             'id': return_obj.id,
             'created_at': return_obj.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'user': user,
+            'telegram_user': telegram_user,
             'total_amount': await sync_to_async(return_obj.calculate_total_amount)(),
             'items': items_data,
             'comment': return_obj.comment
@@ -533,7 +556,11 @@ class ReturnConsumer(AsyncWebsocketConsumer):
 
 class InventoryConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        await self.accept()
+        # Проверяем, авторизован ли пользователь
+        if self.scope["user"].is_authenticated:
+            await self.accept()
+        else:
+            await self.close()
 
     async def disconnect(self, close_code):
         pass
@@ -555,19 +582,14 @@ class InventoryConsumer(AsyncWebsocketConsumer):
         for r in results:
             product = await sync_to_async(lambda: r.product)()
             actual_price = await sync_to_async(
-                lambda: product.get_actual_wholesale_price())()  # Используем метод для получения цены
+                product.get_actual_wholesale_price)()
             thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
             products.append({
                 'sku': r.custom_sku,
                 'stock': r.stock,
-                'price': actual_price,  # Используем правильную цену
+                'price': actual_price,
                 'thumbnail': thumbnail_url
             })
-
-        await self.send(text_data=json.dumps({
-            'type': 'search_results',
-            'results': products
-        }))
 
         await self.send(text_data=json.dumps({
             'type': 'search_results',
@@ -578,24 +600,28 @@ class InventoryConsumer(AsyncWebsocketConsumer):
         items = data['items']
 
         try:
-            user = await sync_to_async(User.objects.get)(id=data['user_id'])
-        except User.DoesNotExist:
-            await self.send(text_data=json.dumps({
-                'type': 'inventory_error',
-                'message': 'User not found'
-            }))
-            return
+            user = self.scope["user"]  # Используем пользователя из WebSocket сессии
+            telegram_user = await sync_to_async(lambda: getattr(user, 'telegram_user', None))()
 
-        try:
+            if not telegram_user:
+                await self.send(text_data=json.dumps({
+                    'type': 'inventory_error',
+                    'message': f'TelegramUser associated with User {user.username} does not exist.'
+                }))
+                return
+
+            # Создаем инвентаризацию
             inventory_obj = Inventory(
                 user=user,
+                telegram_user=telegram_user,  # Привязываем TelegramUser
                 comment=data['comment']
             )
             await sync_to_async(inventory_obj.save)()
 
             for item in items:
                 product_modification = await sync_to_async(ProductModification.objects.get)(
-                    custom_sku=item['custom_sku'])
+                    custom_sku=item['custom_sku']
+                )
                 inventory_item = InventoryItem(
                     inventory=inventory_obj,
                     product_modification=product_modification,
@@ -609,6 +635,7 @@ class InventoryConsumer(AsyncWebsocketConsumer):
             }))
 
             await self.send_inventory_list()
+
         except ProductModification.DoesNotExist:
             await self.send(text_data=json.dumps({
                 'type': 'inventory_error',
@@ -633,6 +660,9 @@ class InventoryConsumer(AsyncWebsocketConsumer):
 
     async def inventory_to_dict(self, inventory_obj):
         user = await sync_to_async(lambda: inventory_obj.user.username if inventory_obj.user else 'Неизвестно')()
+        telegram_user = await sync_to_async(
+            lambda: inventory_obj.telegram_user.user_name if inventory_obj.telegram_user else 'Неизвестно')()
+
         items = await sync_to_async(list)(inventory_obj.items.all())
         items_data = []
 
@@ -653,6 +683,7 @@ class InventoryConsumer(AsyncWebsocketConsumer):
             'id': inventory_obj.id,
             'created_at': inventory_obj.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'user': user,
+            'telegram_user': telegram_user,
             'total_amount': await sync_to_async(inventory_obj.calculate_total_amount)(),
             'items': items_data
         }
@@ -660,7 +691,11 @@ class InventoryConsumer(AsyncWebsocketConsumer):
 
 class WriteOffConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        await self.accept()
+        # Проверяем авторизацию пользователя
+        if self.scope["user"].is_authenticated:
+            await self.accept()
+        else:
+            await self.close()
 
     async def disconnect(self, close_code):
         pass
@@ -681,13 +716,12 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
         products = []
         for r in results:
             product = await sync_to_async(lambda: r.product)()
-            actual_price = await sync_to_async(
-                lambda: product.get_actual_wholesale_price())()  # Получаем фактическую оптовую цену
+            actual_price = await sync_to_async(product.get_actual_wholesale_price)()
             thumbnail_url = await sync_to_async(r.thumbnail_image_url)()
             products.append({
                 'sku': r.custom_sku,
                 'stock': r.stock,
-                'price': actual_price,  # Используем правильную цену
+                'price': actual_price,
                 'thumbnail': thumbnail_url
             })
 
@@ -700,25 +734,28 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
         items = data['items']
 
         try:
-            user = await sync_to_async(User.objects.get, thread_sensitive=True)(id=data['user_id'])
-        except User.DoesNotExist:
-            await self.send(text_data=json.dumps({
-                'type': 'write_off_error',
-                'message': 'User not found'
-            }))
-            return
+            user = self.scope["user"]  # Используем текущего пользователя из WebSocket сессии
+            telegram_user = await sync_to_async(lambda: getattr(user, 'telegram_user', None))()
 
-        try:
+            if not telegram_user:
+                await self.send(text_data=json.dumps({
+                    'type': 'write_off_error',
+                    'message': f'TelegramUser associated with User {user.username} does not exist.'
+                }))
+                return
+
+            # Создаем списание
             write_off = await sync_to_async(WriteOff.objects.create, thread_sensitive=True)(
                 user=user,
-                telegram_user_id=data.get('telegram_user_id'),
+                telegram_user=telegram_user,  # Привязываем TelegramUser
                 source=data['source'],
                 comment=data['comment']
             )
 
             for item in items:
                 product_modification = await sync_to_async(ProductModification.objects.get, thread_sensitive=True)(
-                    custom_sku=item['custom_sku'])
+                    custom_sku=item['custom_sku']
+                )
                 await sync_to_async(WriteOffItem.objects.create, thread_sensitive=True)(
                     write_off=write_off,
                     product_modification=product_modification,
@@ -731,6 +768,7 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
             }))
 
             await self.send_write_off_list()
+
         except ProductModification.DoesNotExist:
             await self.send(text_data=json.dumps({
                 'type': 'write_off_error',
@@ -754,6 +792,7 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
 
     async def write_off_to_dict(self, write_off):
         user_username = await sync_to_async(lambda: write_off.user.username if write_off.user else 'Неизвестно')()
+        telegram_user = await sync_to_async(lambda: write_off.telegram_user.user_name if write_off.telegram_user else 'Неизвестно')()
         total_amount = await sync_to_async(write_off.calculate_total_amount)()
         items = await sync_to_async(list)(write_off.items.all())
 
@@ -772,6 +811,7 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
             'id': write_off.id,
             'created_at': write_off.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'user': user_username,
+            'telegram_user': telegram_user,
             'total_amount': total_amount,
             'items': items_data,
         }
@@ -937,7 +977,8 @@ class ReportConsumer(AsyncWebsocketConsumer):
                 raise ValueError("Отсутствуют даты для кастомного периода.")
             try:
                 start_date = timezone.make_aware(datetime.strptime(start_date, '%d-%m-%Y'))
-                end_date = timezone.make_aware(datetime.strptime(end_date, '%d-%m-%Y')).replace(hour=23, minute=59, second=59)
+                end_date = timezone.make_aware(datetime.strptime(end_date, '%d-%m-%Y')).replace(hour=23, minute=59,
+                                                                                                second=59)
             except ValueError:
                 raise ValueError("Неправильный формат дат для кастомного периода.")
         else:
