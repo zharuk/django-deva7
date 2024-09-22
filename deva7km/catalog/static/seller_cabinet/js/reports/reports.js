@@ -477,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </th>
                     </tr>
                     <tr>
-                        <th>Изображение модификации</th>
+                        <th></th>
                         <th>Товар</th>
                         <th>Остаток</th>
                     </tr>
