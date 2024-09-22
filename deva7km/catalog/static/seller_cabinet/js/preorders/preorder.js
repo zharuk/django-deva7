@@ -9,13 +9,31 @@ document.addEventListener("DOMContentLoaded", function() {
     const createPreorderBtn = document.getElementById("create-preorder-btn");
     const preorderModalElement = document.getElementById('preorderModal');
     const preorderModal = new bootstrap.Modal(preorderModalElement);
-    const preorderFormContainer = document.getElementById('preorder-form-container');
     const preorderForm = document.getElementById('preorder-form');
     const deletePreorderBtn = document.getElementById('delete-preorder-btn');
     const userId = document.getElementById("user-id") ? document.getElementById("user-id").value : null;
+    const spinnerCreatePreorder = document.getElementById("spinner-create-preorder");
+    const spinnerRefreshStatus = document.getElementById("spinner-refresh-status");
+    const spinnerSavePreorder = document.getElementById("spinner-save-preorder");
+
+    // Элементы для модального окна подтверждения удаления
+    const confirmDeleteModalElement = document.getElementById('confirmDeleteModal');
+    const confirmDeleteModal = new bootstrap.Modal(confirmDeleteModalElement);
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    let preorderIdToDelete = null; // Переменная для хранения ID предзаказа для удаления
+
     let activeFilter = 'all';
     let isWebSocketConnected = false;
     let socket;
+
+    // Вспомогательная функция для управления отображением спиннера
+    function toggleSpinner(spinner, show) {
+        if (show) {
+            spinner.classList.remove('d-none');
+        } else {
+            spinner.classList.add('d-none');
+        }
+    }
 
     if (!searchInput || !clearSearchButton || !refreshStatusButton) {
         return;
@@ -45,6 +63,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function openPreorderModal(preorderId = null) {
+        toggleSpinner(spinnerCreatePreorder, true); // Показать спиннер при открытии модального окна
         if (preorderId) {
             sendWebSocketMessage({
                 type: 'get_preorder',
@@ -56,6 +75,7 @@ document.addEventListener("DOMContentLoaded", function() {
             preorderForm.dataset.id = '';
             deletePreorderBtn.classList.add('d-none');
             preorderModal.show();
+            toggleSpinner(spinnerCreatePreorder, false); // Скрыть спиннер после загрузки модального окна
         }
     }
 
@@ -103,6 +123,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     refreshStatusButton.addEventListener('click', function() {
+        toggleSpinner(spinnerRefreshStatus, true); // Показать спиннер при обновлении статусов
         if (isWebSocketConnected) {
             sendWebSocketMessage({
                 type: 'update_ttns',
@@ -117,6 +138,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .filter(ttn => ttn);
     }
 
+    // Вспомогательная функция для отправки сообщения WebSocket
     function sendWebSocketMessage(message) {
         message.user_id = userId;
         if (socket && socket.readyState === WebSocket.OPEN) {
@@ -126,6 +148,19 @@ document.addEventListener("DOMContentLoaded", function() {
             showNotification('error', 'Ошибка', 'WebSocket не подключен');
         }
     }
+
+    // Удаление предзаказа (после подтверждения)
+    confirmDeleteBtn.addEventListener('click', function() {
+        if (preorderIdToDelete) {
+            sendWebSocketMessage({
+                type: 'delete',
+                id: preorderIdToDelete,
+                user_id: userId
+            });
+            confirmDeleteModal.hide();
+            preorderModal.hide();
+        }
+    });
 
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
     socket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/preorders/");
@@ -141,12 +176,14 @@ document.addEventListener("DOMContentLoaded", function() {
         if (data.event === 'get_preorder') {
             preloadPreorderForm(data);
             preorderModal.show();
+            toggleSpinner(spinnerCreatePreorder, false); // Скрыть спиннер после загрузки данных
         } else if (data.event === 'preorder_list') {
             updatePreorderList(data);
         } else if (data.event === 'form_invalid') {
             showNotification('danger', 'Ошибка', 'Проверьте введенные данные.');
         } else if (data.event === 'update_complete') {
             showNotification('success', 'Обновление', data.message);
+            toggleSpinner(spinnerRefreshStatus, false); // Скрыть спиннер после обновления статусов
         }
     };
 
@@ -178,11 +215,13 @@ document.addEventListener("DOMContentLoaded", function() {
         if (data.additional_event === 'preorder_saved') {
             showNotification('success', 'Успех', 'Предзаказ успешно сохранен.');
             preorderModal.hide();
+            toggleSpinner(spinnerSavePreorder, false); // Скрыть спиннер после сохранения
         }
     }
 
     preorderForm.addEventListener('submit', function(event) {
         event.preventDefault();
+        toggleSpinner(spinnerSavePreorder, true); // Показать спиннер при сохранении предзаказа
         const formData = new FormData(event.target);
         const data = {};
         formData.forEach((value, key) => data[key] = value);
@@ -196,15 +235,11 @@ document.addEventListener("DOMContentLoaded", function() {
         sendWebSocketMessage(message);
     });
 
+    // При клике на кнопку "Удалить" открываем модальное окно подтверждения
     deletePreorderBtn.addEventListener('click', function() {
-        const preorderId = preorderForm.dataset.id;
-        if (preorderId) {
-            sendWebSocketMessage({
-                type: 'delete',
-                id: preorderId,
-                user_id: userId
-            });
-            preorderModal.hide();
+        preorderIdToDelete = preorderForm.dataset.id; // Сохраняем ID предзаказа для удаления
+        if (preorderIdToDelete) {
+            confirmDeleteModal.show(); // Показываем окно подтверждения
         }
     });
 

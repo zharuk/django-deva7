@@ -1,18 +1,10 @@
-from catalog.models import Product
-from django.db.models.functions import Lower
-from django.db.models import Q
+import sqlite3
 
-# Тестовый запрос
-query = 'платье'.strip().lower()
+conn = sqlite3.connect(r'C:\Users\user\AppData\Roaming\ViberPC\380959291465\viber.db')  # Используйте 'r' для raw string, чтобы избежать проблем с экранированием
+cursor = conn.cursor()
 
-# Выполняем аннотацию и фильтрацию
-results = Product.objects.annotate(
-    title_lower=Lower('title'),
-    sku_lower=Lower('sku')
-).filter(
-    Q(title_lower__icontains=query) | Q(sku_lower__icontains=query)
-)
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+tables = cursor.fetchall()
+print(tables)
 
-# Печатаем результаты
-for product in results:
-    print(f"Результат: {product.title} (SKU: {product.sku})")
+conn.close()

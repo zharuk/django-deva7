@@ -9,8 +9,12 @@
 
 <h1 class="mb-4">Предзаказы</h1>
 <div class="d-flex mb-4">
-    <button id="create-preorder-btn" class="btn btn-primary mt-4 mb-4 me-2">Создать новый предзаказ</button>
-    <button id="refresh-status-btn" class="btn btn-secondary mt-4 mb-4">Обновить статусы</button>
+    <button id="create-preorder-btn" class="btn btn-primary mt-4 mb-4 me-2">
+        Создать новый предзаказ <span class="spinner-border spinner-border-sm d-none" id="spinner-create-preorder" role="status" aria-hidden="true"></span>
+    </button>
+    <button id="refresh-status-btn" class="btn btn-secondary mt-4 mb-4">
+        Обновить статусы <span class="spinner-border spinner-border-sm d-none" id="spinner-refresh-status" role="status" aria-hidden="true"></span>
+    </button>
 </div>
 
 <div class="mb-4 filter-buttons">
@@ -138,7 +142,9 @@
                         </div>
                     </div>
                     <div class="btn-group mt-3" role="group">
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="submit" class="btn btn-primary">
+                            Сохранить <span class="spinner-border spinner-border-sm d-none" id="spinner-save-preorder" role="status" aria-hidden="true"></span>
+                        </button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                         <button type="button" id="delete-preorder-btn" class="btn btn-danger d-none" data-id="">Удалить</button>
                     </div>
@@ -163,6 +169,25 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Модальное окно для подтверждения удаления предзаказа -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите удалить этот предзаказ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" id="confirm-delete-btn" class="btn btn-danger">Удалить</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
