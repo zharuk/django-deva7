@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const salesSummaryContainer = document.getElementById('sales-summary-container');
     const returnsSummaryContainer = document.getElementById('returns-summary-container');
     const netSummaryContainer = document.getElementById('net-summary-container');
+    const stockButton = document.getElementById('stock-button');
 
     let salesChart;
     let returnsChart;
@@ -49,10 +50,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function resetCharts() {
-        salesChart.clear();
-        returnsChart.clear();
-        salesChartContainer.style.display = 'none';
-        returnsChartContainer.style.display = 'none';
+        if (salesChart) salesChart.clear();
+        if (returnsChart) returnsChart.clear();
+        salesChartContainer.parentElement.style.display = 'none'; // Скрываем контейнер графика продаж
+        returnsChartContainer.parentElement.style.display = 'none'; // Скрываем контейнер графика возвратов
     }
 
     let socket;
@@ -67,16 +68,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
-            const salesData = data.sales_data.sales || null;
-            const returnsData = data.sales_data.returns || null;
-            const netData = data.sales_data.net || null;
 
             if (data.event === 'report_data') {
+                const salesData = data.sales_data.sales || null;
+                const returnsData = data.sales_data.returns || null;
+                const netData = data.sales_data.net || null;
+
                 salesChart.hideLoading();  // Скрываем индикатор загрузки
                 returnsChart.hideLoading();  // Скрываем индикатор загрузки
-                resetCharts(); // Сброс графиков перед обновлением
+                // resetCharts(); // Не сбрасываем графики здесь
+
                 updateSalesReport(salesData, returnsData, netData);
                 updateCharts(salesData, returnsData);
+            } else if (data.event === 'stock_data') {
+                const stockData = data.stock_data;
+                resetCharts(); // Скрываем графики
+                updateStockReport(stockData);
             }
         };
 
@@ -107,6 +114,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             customPeriodButton.classList.remove('btn-secondary');
             customPeriodButton.classList.add('btn-primary', 'active');
+
+            // Убираем активное состояние с кнопки Остатки
+            stockButton.classList.remove('btn-primary', 'active');
+            stockButton.classList.add('btn-secondary');
 
             updateReportTitle('custom', startDate, endDate);
             socket.send(JSON.stringify({
@@ -160,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <tr>
                         <th colspan="3">
                             <div class="d-flex align-items-center">
-                                ${product.collage_image_url ? `<img src="${product.collage_image_url}" alt="${product.product_title}" style="max-width: 50px;" class="me-2">` : ''}
+                                ${product.collage_image_url ? `<img src="${product.collage_image_url}" alt="${product.product_title}" style="max-width: 25px;" class="me-2">` : ''}
                                 <span>${product.product_title} (${productSku}) продано ${product.total_quantity} шт</span>
                             </div>
                         </th>
@@ -185,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const modThumbnailImage = document.createElement('img');
                         modThumbnailImage.src = mod.thumbnail_url;
                         modThumbnailImage.alt = modSku;
-                        modThumbnailImage.style.maxWidth = '50px';
+                        modThumbnailImage.style.maxWidth = '35px';
                         modThumbnailCell.appendChild(modThumbnailImage);
                     } else {
                         modThumbnailCell.textContent = 'Нет изображения';
@@ -238,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <tr>
                         <th colspan="3">
                             <div class="d-flex align-items-center">
-                                ${product.collage_image_url ? `<img src="${product.collage_image_url}" alt="${product.product_title}" style="max-width: 50px;" class="me-2">` : ''}
+                                ${product.collage_image_url ? `<img src="${product.collage_image_url}" alt="${product.product_title}" style="max-width: 25px;" class="me-2">` : ''}
                                 <span>${product.product_title} (${productSku}) возвращено ${product.total_quantity} шт</span>
                             </div>
                         </th>
@@ -263,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const modThumbnailImage = document.createElement('img');
                         modThumbnailImage.src = mod.thumbnail_url;
                         modThumbnailImage.alt = modSku;
-                        modThumbnailImage.style.maxWidth = '50px';
+                        modThumbnailImage.style.maxWidth = '35px';
                         modThumbnailCell.appendChild(modThumbnailImage);
                     } else {
                         modThumbnailCell.textContent = 'Нет изображения';
@@ -299,17 +310,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateCharts(salesData, returnsData) {
         if (salesData && Object.keys(salesData).length > 1) {
-            salesChartContainer.parentElement.style.display = 'block'; // Показываем контейнер графика
+            salesChartContainer.parentElement.style.display = 'block'; // Показываем контейнер графика продаж
             updateSalesChart(salesData);
         } else {
-            salesChartContainer.parentElement.style.display = 'none'; // Скрываем контейнер графика
+            salesChartContainer.parentElement.style.display = 'none'; // Скрываем контейнер графика продаж
         }
 
         if (returnsData && Object.keys(returnsData).length > 1) {
-            returnsChartContainer.parentElement.style.display = 'block'; // Показываем контейнер графика
+            returnsChartContainer.parentElement.style.display = 'block'; // Показываем контейнер графика возвратов
             updateReturnsChart(returnsData);
         } else {
-            returnsChartContainer.parentElement.style.display = 'none'; // Скрываем контейнер графика
+            returnsChartContainer.parentElement.style.display = 'none'; // Скрываем контейнер графика возвратов
         }
     }
 
@@ -431,6 +442,94 @@ document.addEventListener('DOMContentLoaded', function() {
         returnsChart.resize();
     }
 
+    function updateStockReport(stockData) {
+        // Очистка контейнеров
+        salesSummaryContainer.innerHTML = '';
+        returnsSummaryContainer.innerHTML = '';
+        netSummaryContainer.innerHTML = '';
+        salesReportContainer.innerHTML = '';
+        returnsReportContainer.innerHTML = '';
+
+        if (stockData && Object.keys(stockData).length > 0) {
+            const sortedStockData = Object.entries(stockData).sort((a, b) => extractNumericPrefix(b[0]) - extractNumericPrefix(a[0]));
+
+            sortedStockData.forEach(([productSku, product]) => {
+                // Вычисляем общую сумму остатков по всем модификациям
+                let totalStock = 0;
+                Object.values(product.modifications).forEach(mod => {
+                    totalStock += mod.stock_quantity;
+                });
+
+                const sortedModifications = Object.entries(product.modifications)
+                    .sort(([, a], [, b]) => b.stock_quantity - a.stock_quantity);
+
+                const table = document.createElement('table');
+                table.classList.add('table', 'table-striped', 'table-bordered', 'mb-4');
+
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                    <tr>
+                        <th colspan="3">
+                            <div class="d-flex align-items-center">
+                                ${product.collage_image_url ? `<img src="${product.collage_image_url}" alt="${product.product_title}" style="max-width: 25px; margin-right: 10px;" class="me-2">` : ''}
+                                <span>${product.product_title} (${productSku}) ${totalStock} шт</span>
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Изображение модификации</th>
+                        <th>Товар</th>
+                        <th>Остаток</th>
+                    </tr>
+                `;
+                table.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+
+                sortedModifications.forEach(([modSku, mod]) => {
+                    const modRow = document.createElement('tr');
+                    const modThumbnailCell = document.createElement('td');
+                    const modSkuCell = document.createElement('td');
+                    const modStockCell = document.createElement('td');
+
+                    if (mod.thumbnail_url) {
+                        const modThumbnailImage = document.createElement('img');
+                        modThumbnailImage.src = mod.thumbnail_url;
+                        modThumbnailImage.alt = modSku;
+                        modThumbnailImage.style.maxWidth = '35px';
+                        modThumbnailCell.appendChild(modThumbnailImage);
+                    } else {
+                        modThumbnailCell.textContent = 'Нет изображения';
+                    }
+
+                    modSkuCell.textContent = modSku;
+                    modStockCell.textContent = `${mod.stock_quantity} шт`;
+
+                    modRow.appendChild(modThumbnailCell);
+                    modRow.appendChild(modSkuCell);
+                    modRow.appendChild(modStockCell);
+                    tbody.appendChild(modRow);
+                });
+
+                table.appendChild(tbody);
+                salesReportContainer.appendChild(table);
+            });
+        } else {
+            const noStockMessage = document.createElement('h3');
+            noStockMessage.textContent = 'Данных по остаткам нет';
+            salesReportContainer.appendChild(noStockMessage);
+        }
+    }
+
+    function extractNumericPrefix(sku) {
+        const match = sku.match(/^(\d+)/);
+        if (match) {
+            return parseInt(match[1], 10);
+        } else {
+            return -Infinity; // Для SKU без числового префикса
+        }
+    }
+
     initializeCharts();
 
     reportControls.addEventListener('click', function(event) {
@@ -445,12 +544,47 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const period = event.target.getAttribute('data-period');
 
+            // Убираем активное состояние с кнопки Остатки
+            stockButton.classList.remove('btn-primary', 'active');
+            stockButton.classList.add('btn-secondary');
+
             salesChart.showLoading();  // Показываем индикатор загрузки при смене периода
             returnsChart.showLoading();  // Показываем индикатор загрузки при смене периода
 
             updateReportTitle(period);
             socket.send(JSON.stringify({ type: 'update_period', period: period }));
         }
+    });
+
+    stockButton.addEventListener('click', function() {
+
+        // Снимаем активное состояние с других кнопок
+        document.querySelectorAll('.report-period-button').forEach(button => {
+            button.classList.remove('btn-primary', 'active');
+            button.classList.add('btn-secondary');
+        });
+
+        // Снимаем активное состояние с кнопки кастомного периода
+        customPeriodButton.classList.remove('btn-primary', 'active');
+        customPeriodButton.classList.add('btn-secondary');
+
+        // Добавляем активное состояние к кнопке "Остатки"
+        stockButton.classList.remove('btn-secondary');
+        stockButton.classList.add('btn-primary', 'active');
+
+        // Сбрасываем графики и контейнеры
+        resetCharts();
+        salesSummaryContainer.innerHTML = '';
+        returnsSummaryContainer.innerHTML = '';
+        netSummaryContainer.innerHTML = '';
+        salesReportContainer.innerHTML = '';
+        returnsReportContainer.innerHTML = '';
+
+        // Обновляем заголовок отчёта
+        reportTitle.textContent = 'Остатки товаров';
+
+        // Отправляем запрос на получение данных по остаткам
+        socket.send(JSON.stringify({ type: 'get_stock_data' }));
     });
 
     function updateReportTitle(period, startDate = null, endDate = null) {

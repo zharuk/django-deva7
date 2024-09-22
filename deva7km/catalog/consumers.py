@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import timedelta, datetime
 
 from asgiref.sync import sync_to_async
@@ -11,7 +12,7 @@ from django.db.models import Q
 
 from .forms import PreOrderForm
 from .models import PreOrder, ProductModification, Sale, SaleItem, Return, ReturnItem, Inventory, \
-    InventoryItem, WriteOff, WriteOffItem, TelegramUser
+    InventoryItem, WriteOff, WriteOffItem, TelegramUser, Product
 from .novaposhta import update_tracking_status
 
 
@@ -842,6 +843,8 @@ class ReportConsumer(AsyncWebsocketConsumer):
             await self.send_report_data()
         elif event_type == 'get_initial_data':
             await self.send_report_data()
+        elif event_type == 'get_stock_data':
+            await self.send_stock_data()
 
     async def send_report_data(self):
         report_data = await self.get_report_data(self.period, self.start_date, self.end_date)
@@ -857,6 +860,14 @@ class ReportConsumer(AsyncWebsocketConsumer):
                 'returns': returns_data,
                 'net': net_data
             }
+        }))
+
+    async def send_stock_data(self):
+        stock_data = await self.get_stock_data()
+
+        await self.send(text_data=json.dumps({
+            'event': 'stock_data',
+            'stock_data': stock_data
         }))
 
     async def get_report_data(self, period, start_date=None, end_date=None):
@@ -904,6 +915,57 @@ class ReportConsumer(AsyncWebsocketConsumer):
             }
         }
 
+    async def get_stock_data(self):
+        try:
+            # Получаем все модификации продуктов с их связанными продуктами
+            modifications = await sync_to_async(list)(
+                ProductModification.objects.select_related('product').all()
+            )
+
+            stock_summary = {}
+
+            for mod in modifications:
+                product = await sync_to_async(lambda: mod.product)()
+                product_sku = await sync_to_async(lambda: product.sku)()
+                product_title = await sync_to_async(lambda: product.title)()
+                modification_sku = await sync_to_async(lambda: mod.custom_sku)()
+                stock_quantity = await sync_to_async(lambda: mod.stock)()
+
+                # Получаем URL коллажей
+                collage_image_url = await sync_to_async(lambda: product.collage_thumbnail.url if product.collage_thumbnail else '')()
+
+                if product_sku not in stock_summary:
+                    stock_summary[product_sku] = {
+                        'product_title': product_title,
+                        'collage_image_url': collage_image_url,
+                        'modifications': {},
+                    }
+
+                stock_summary[product_sku]['modifications'][modification_sku] = {
+                    'stock_quantity': stock_quantity,
+                    'thumbnail_url': await sync_to_async(mod.thumbnail_image_url)(),
+                }
+
+            # Сортируем продукты по SKU в порядке убывания
+            def extract_numeric_prefix(sku):
+                match = re.match(r'^(\d+)', sku)
+                if match:
+                    return int(match.group(1))
+                else:
+                    return float('-inf')  # Для SKU без числового префикса
+
+            sorted_stock_summary = dict(sorted(
+                stock_summary.items(),
+                key=lambda item: extract_numeric_prefix(item[0]),
+                reverse=True
+            ))
+
+            return sorted_stock_summary
+        except Exception as e:
+            # Логирование ошибки
+            print(f"Ошибка при получении данных по остаткам: {e}")
+            return {}
+
     async def process_transactions(self, transactions, sales_by_payment=None):
         summary = {}
         total_quantity = 0
@@ -921,17 +983,18 @@ class ReportConsumer(AsyncWebsocketConsumer):
             # Получаем связанные данные через sync_to_async
             items = await sync_to_async(list)(transaction.items.all())
             for item in items:
+                # Оборачиваем доступ к связанной модификации и продукту
                 product_modification = await sync_to_async(lambda: item.product_modification)()
                 product = await sync_to_async(lambda: product_modification.product)()
 
-                product_sku = product.sku
-                product_title = product.title
-                modification_sku = product_modification.custom_sku
-                quantity = item.quantity
-                product_price = await sync_to_async(product.get_actual_wholesale_price)()
+                product_sku = await sync_to_async(lambda: product.sku)()
+                product_title = await sync_to_async(lambda: product.title)()
+                modification_sku = await sync_to_async(lambda: product_modification.custom_sku)()
+                quantity = await sync_to_async(lambda: item.quantity)()
+                product_price = await sync_to_async(lambda: product.get_actual_wholesale_price())()
                 item_total_price = product_price * quantity
-                thumbnail_url = await sync_to_async(item.thumbnail_image_url)()
-                collage_image_url = await sync_to_async(product.collage_image_url)()
+                thumbnail_url = await sync_to_async(lambda: item.thumbnail_image_url())()
+                collage_image_url = await sync_to_async(lambda: product.collage_image_url())()
 
                 total_quantity += quantity
                 total_sum += item_total_price
@@ -977,8 +1040,7 @@ class ReportConsumer(AsyncWebsocketConsumer):
                 raise ValueError("Отсутствуют даты для кастомного периода.")
             try:
                 start_date = timezone.make_aware(datetime.strptime(start_date, '%d-%m-%Y'))
-                end_date = timezone.make_aware(datetime.strptime(end_date, '%d-%m-%Y')).replace(hour=23, minute=59,
-                                                                                                second=59)
+                end_date = timezone.make_aware(datetime.strptime(end_date, '%d-%m-%Y')).replace(hour=23, minute=59, second=59)
             except ValueError:
                 raise ValueError("Неправильный формат дат для кастомного периода.")
         else:

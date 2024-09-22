@@ -13,16 +13,18 @@
         <h1>Отчеты по продажам</h1>
         <h3 id="report-title">Выберите период</h3>
         <div id="report-controls" class="mb-3">
-            <button class="btn btn-primary btn-sm report-period-button active" data-period="today">Сегодня</button>
-            <button class="btn btn-secondary btn-sm report-period-button ms-1" data-period="yesterday">Вчера</button>
-            <button class="btn btn-secondary btn-sm report-period-button ms-1" data-period="week">Неделя</button>
-            <button class="btn btn-secondary btn-sm report-period-button ms-1" data-period="month">Месяц</button>
-            <button class="btn btn-secondary btn-sm report-period-button ms-1" data-period="year">Год</button>
-            <button class="btn btn-warning btn-sm ms-1" id="custom-period-button">
+            <button class="btn btn-primary btn-sm mr-1 mb-1 report-period-button active" data-period="today">Сегодня</button>
+            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="yesterday">Вчера</button>
+            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="week">Неделя</button>
+            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="month">Месяц</button>
+            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="year">Год</button>
+            <button class="btn btn-warning btn-sm mr-1 mb-1" id="custom-period-button">
                 <i class="bi bi-calendar"></i>
             </button>
+            <button class="btn btn-secondary btn-sm" id="stock-button">Остатки</button>
         </div>
 
+        <!-- Контейнеры графиков продаж и возвратов -->
         <div id="sales-chart-container" class="mb-3">
             <!-- График продаж -->
             <div id="sales-chart" style="width: 100%; height: 400px;"></div>
@@ -40,7 +42,7 @@
         <!-- Чистая касса -->
         <div id="net-summary-container" class="mb-3"></div>
 
-        <!-- Список продаж -->
+        <!-- Список продаж или остатков -->
         <div id="sales-report-container" class="mb-3"></div>
         <!-- Список возвратов -->
         <div id="returns-report-container" class="mb-3"></div>
