@@ -15,8 +15,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const netSummaryContainer = document.getElementById('net-summary-container');
     const stockButton = document.getElementById('stock-button');
 
+    // Спиннеры для отображения загрузки
+    const salesSpinner = document.createElement('div');
+    const returnsSpinner = document.createElement('div');
+    const stockSpinner = document.createElement('div');
+    [salesSpinner, returnsSpinner, stockSpinner].forEach(spinner => {
+        spinner.classList.add('spinner-border', 'text-primary', 'd-none');
+        spinner.role = 'status';
+        spinner.innerHTML = '<span class="visually-hidden">Loading...</span>';
+    });
+
+    // Вставляем спиннеры рядом с графиками
+    salesChartContainer.parentElement.insertBefore(salesSpinner, salesChartContainer);
+    returnsChartContainer.parentElement.insertBefore(returnsSpinner, returnsChartContainer);
+    salesReportContainer.parentElement.insertBefore(stockSpinner, salesReportContainer);
+
     let salesChart;
     let returnsChart;
+
+    // Вспомогательная функция для управления отображением спиннера
+    function toggleSpinner(spinner, show) {
+        if (show) {
+            spinner.classList.remove('d-none');
+        } else {
+            spinner.classList.add('d-none');
+        }
+    }
 
     // Инициализация календаря для выбора дат
     $(startDateInput).datepicker({
@@ -64,6 +88,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         socket.onopen = function() {
             socket.send(JSON.stringify({ type: 'get_initial_data' }));
+            toggleSpinner(salesSpinner, true); // Показываем спиннер при первой загрузке
+            toggleSpinner(returnsSpinner, true);
         };
 
         socket.onmessage = function(event) {
@@ -74,15 +100,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const returnsData = data.sales_data.returns || null;
                 const netData = data.sales_data.net || null;
 
-                salesChart.hideLoading();  // Скрываем индикатор загрузки
-                returnsChart.hideLoading();  // Скрываем индикатор загрузки
-                // resetCharts(); // Не сбрасываем графики здесь
+                toggleSpinner(salesSpinner, false); // Скрываем спиннер после загрузки
+                toggleSpinner(returnsSpinner, false);
 
                 updateSalesReport(salesData, returnsData, netData);
                 updateCharts(salesData, returnsData);
             } else if (data.event === 'stock_data') {
                 const stockData = data.stock_data;
-                resetCharts(); // Скрываем графики
+                toggleSpinner(stockSpinner, false); // Скрываем спиннер остатков
+                resetCharts();
                 updateStockReport(stockData);
             }
         };
@@ -103,8 +129,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const endDate = endDateInput.value;
 
         if (startDate && endDate) {
-            salesChart.showLoading();  // Показываем индикатор загрузки для графика продаж
-            returnsChart.showLoading();  // Показываем индикатор загрузки для графика возвратов
+            toggleSpinner(salesSpinner, true);  // Показываем спиннер для продаж
+            toggleSpinner(returnsSpinner, true); // Показываем спиннер для возвратов
 
             // Обновляем стили кнопок для выделения кастомного периода
             document.querySelectorAll('.report-period-button').forEach(button => {
@@ -138,13 +164,11 @@ document.addEventListener('DOMContentLoaded', function() {
         salesReportContainer.innerHTML = '';
         returnsReportContainer.innerHTML = '';
 
-        // Проверяем наличие данных по продажам и сортируем их по количеству продаж
         if (salesData && Object.keys(salesData).length > 1) {
             const sortedSalesData = Object.entries(salesData)
                 .filter(([key]) => key !== 'total')
                 .sort(([, a], [, b]) => b.total_quantity - a.total_quantity);
 
-            // Обновляем заголовок с общей информацией по продажам
             const salesSummary = document.createElement('div');
             salesSummary.innerHTML = `
                 <h4>Итого продано: ${salesData.total.total_quantity} шт</h4>
@@ -158,7 +182,6 @@ document.addEventListener('DOMContentLoaded', function() {
             salesTitle.textContent = 'Продажи';
             salesReportContainer.appendChild(salesTitle);
 
-            // Генерация таблицы с информацией о продажах по продуктам и модификациям
             sortedSalesData.forEach(([productSku, product]) => {
                 const sortedModifications = Object.entries(product.modifications)
                     .sort(([, a], [, b]) => b.quantity - a.quantity);
@@ -175,11 +198,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span>${product.product_title} (${productSku}) продано ${product.total_quantity} шт</span>
                             </div>
                         </th>
-                    </tr>
-                    <tr>
-                        <th>Изображение</th>
-                        <th>Товар</th>
-                        <th>Количество проданного</th>
                     </tr>
                 `;
                 table.appendChild(thead);
@@ -253,11 +271,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span>${product.product_title} (${productSku}) возвращено ${product.total_quantity} шт</span>
                             </div>
                         </th>
-                    </tr>
-                    <tr>
-                        <th>Изображение</th>
-                        <th>Товар</th>
-                        <th>Количество возвращенного</th>
                     </tr>
                 `;
                 table.appendChild(thead);
@@ -443,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateStockReport(stockData) {
-        // Очистка контейнеров
+        toggleSpinner(stockSpinner, true); // Показываем спиннер для остатков
         salesSummaryContainer.innerHTML = '';
         returnsSummaryContainer.innerHTML = '';
         netSummaryContainer.innerHTML = '';
@@ -454,7 +467,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const sortedStockData = Object.entries(stockData).sort((a, b) => extractNumericPrefix(b[0]) - extractNumericPrefix(a[0]));
 
             sortedStockData.forEach(([productSku, product]) => {
-                // Вычисляем общую сумму остатков по всем модификациям
                 let totalStock = 0;
                 Object.values(product.modifications).forEach(mod => {
                     totalStock += mod.stock_quantity;
@@ -471,15 +483,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <tr>
                         <th colspan="3">
                             <div class="d-flex align-items-center">
-                                ${product.collage_image_url ? `<img src="${product.collage_image_url}" alt="${product.product_title}" style="max-width: 25px; margin-right: 10px;" class="me-2">` : ''}
+                                ${product.collage_image_url ? `<img src="${product.collage_image_url}" alt="${product.product_title}" style="max-width: 25px; margin-right: 10px;">` : ''}
                                 <span>${product.product_title} (${productSku}) ${totalStock} шт</span>
                             </div>
                         </th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th>Товар</th>
-                        <th>Остаток</th>
                     </tr>
                 `;
                 table.appendChild(thead);
@@ -519,6 +526,7 @@ document.addEventListener('DOMContentLoaded', function() {
             noStockMessage.textContent = 'Данных по остаткам нет';
             salesReportContainer.appendChild(noStockMessage);
         }
+        toggleSpinner(stockSpinner, false); // Скрываем спиннер после загрузки
     }
 
     function extractNumericPrefix(sku) {
@@ -548,8 +556,8 @@ document.addEventListener('DOMContentLoaded', function() {
             stockButton.classList.remove('btn-primary', 'active');
             stockButton.classList.add('btn-secondary');
 
-            salesChart.showLoading();  // Показываем индикатор загрузки при смене периода
-            returnsChart.showLoading();  // Показываем индикатор загрузки при смене периода
+            toggleSpinner(salesSpinner, true); // Показываем спиннер для графика продаж
+            toggleSpinner(returnsSpinner, true); // Показываем спиннер для графика возвратов
 
             updateReportTitle(period);
             socket.send(JSON.stringify({ type: 'update_period', period: period }));
@@ -557,33 +565,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     stockButton.addEventListener('click', function() {
-
         // Снимаем активное состояние с других кнопок
         document.querySelectorAll('.report-period-button').forEach(button => {
             button.classList.remove('btn-primary', 'active');
             button.classList.add('btn-secondary');
         });
 
-        // Снимаем активное состояние с кнопки кастомного периода
         customPeriodButton.classList.remove('btn-primary', 'active');
         customPeriodButton.classList.add('btn-secondary');
 
-        // Добавляем активное состояние к кнопке "Остатки"
         stockButton.classList.remove('btn-secondary');
         stockButton.classList.add('btn-primary', 'active');
 
-        // Сбрасываем графики и контейнеры
-        resetCharts();
+        resetCharts(); // Очищаем графики
         salesSummaryContainer.innerHTML = '';
         returnsSummaryContainer.innerHTML = '';
         netSummaryContainer.innerHTML = '';
         salesReportContainer.innerHTML = '';
         returnsReportContainer.innerHTML = '';
 
-        // Обновляем заголовок отчёта
         reportTitle.textContent = 'Остатки товаров';
 
-        // Отправляем запрос на получение данных по остаткам
+        toggleSpinner(stockSpinner, true); // Показываем спиннер для остатков
         socket.send(JSON.stringify({ type: 'get_stock_data' }));
     });
 
@@ -644,5 +647,4 @@ document.addEventListener('DOMContentLoaded', function() {
         const [day, month, year] = dateString.split('-');
         return new Date(year, month - 1, day); // Месяцы в JavaScript начинаются с 0
     }
-
 });
