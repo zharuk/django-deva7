@@ -12,7 +12,7 @@ from django.utils.translation import get_language
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
 from catalog.email_utils import send_new_order_notification_email
-from catalog.forms import PreOrderForm
+from catalog.forms import PreOrderForm, OrderForm
 from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem, TelegramUser
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -252,7 +252,7 @@ def complete_order(request):
                            'item_total_sale': item_total_sale})
 
     if request.method == 'POST':
-        form = PreOrderForm(request.POST)
+        form = OrderForm(request.POST)
         if form.is_valid():
             order = Order(
                 name=form.cleaned_data['name'],
@@ -280,7 +280,7 @@ def complete_order(request):
             return redirect('thank_you_page')
 
     else:
-        form = PreOrderForm()
+        form = OrderForm()
 
     return render(request, 'complete_order.html',
                   {'form': form, 'cart_items': cart_items, 'cart_total_price': cart_total_price,

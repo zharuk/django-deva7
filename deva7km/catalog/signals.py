@@ -33,12 +33,46 @@ def update_stock_write_off(sender, instance, **kwargs):
     product_modification.save()
 
 
-# метод для продажи, вычитающий остаток
+# метод для продажи, вычитающий остаток и отправляющий уведомление
 @receiver(post_save, sender=SaleItem)
 def update_sale_add_to_stock(sender, instance, **kwargs):
     product_modification = instance.product_modification
     product_modification.stock -= instance.quantity
     product_modification.save()
+
+    # Проверяем, если остаток товара стал равен нулю
+    if product_modification.stock == 0:
+        user_ids = list(
+            TelegramUser.objects.filter(role__in=['admin', 'seller'])
+            .values_list('telegram_id', flat=True)
+        )
+
+        # Формируем текст сообщения
+        message_text = (
+            f"❗️ Товар {escape(product_modification.custom_sku)} "
+            f"был полностью продан!"
+        )
+
+        # Отправляем сообщение через Telegram
+        async def send_message(user_id, message_text):
+            try:
+                await bot.send_message(
+                    chat_id=user_id,
+                    text=message_text,
+                    parse_mode='HTML'
+                )
+                print(f"Message sent to Telegram user ID: {user_id}")
+            except Exception as e:
+                print(f"Failed to send message to user ID {user_id}: {e}")
+
+        async def send_messages(message_text):
+            for user_id in user_ids:
+                await send_message(user_id, message_text)
+
+        if user_ids and message_text:
+            async_to_sync(send_messages)(message_text)
+        else:
+            print("No users to notify or message text is missing.")
 
 
 # метод для возврата остатка при возврате

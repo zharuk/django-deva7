@@ -15,50 +15,52 @@
         <h3 id="report-title">Выберите период</h3>
 
         <div id="report-controls" class="mb-3">
-            <button class="btn btn-primary btn-sm mr-1 mb-1 report-period-button active" data-period="today">Сегодня</button>
-            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="yesterday">Вчера</button>
-            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="week">Неделя</button>
-            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="month">Месяц</button>
-            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="year">Год</button>
+            <button class="btn btn-primary btn-sm mr-1 mb-1 report-period-button active" data-period="today" id="today-button">
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                Сегодня
+            </button>
+            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="yesterday" id="yesterday-button">
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                Вчера
+            </button>
+            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="week" id="week-button">
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                Неделя
+            </button>
+            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="month" id="month-button">
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                Месяц
+            </button>
+            <button class="btn btn-secondary btn-sm mr-1 mb-1 report-period-button" data-period="year" id="year-button">
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                Год
+            </button>
             <button class="btn btn-warning btn-sm mr-1 mb-1" id="custom-period-button">
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                 <i class="bi bi-calendar"> Период</i>
             </button>
-            <button class="btn btn-secondary btn-sm mr-1 mb-1" id="stock-button">Остатки</button>
+            <button class="btn btn-secondary btn-sm mr-1 mb-1" id="stock-button">
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                Остатки
+            </button>
         </div>
 
-        <!-- Контейнер для спиннера и графика продаж -->
         <div id="sales-chart-container" class="mb-3">
-            <div id="sales-spinner" class="spinner-border text-primary d-none" role="status">
-                <span class="visually-hidden">Загрузка...</span>
-            </div>
             <div id="sales-chart" style="width: 100%; height: 400px;"></div>
         </div>
 
-        <!-- Итоги по продажам -->
         <div id="sales-summary-container" class="mb-3"></div>
 
-        <!-- Контейнер для спиннера и графика возвратов -->
         <div id="returns-chart-container" class="mb-3">
-            <div id="returns-spinner" class="spinner-border text-primary d-none" role="status">
-                <span class="visually-hidden">Загрузка...</span>
-            </div>
             <div id="returns-chart" style="width: 100%; height: 400px;"></div>
         </div>
 
-        <!-- Итоги по возвратам -->
         <div id="returns-summary-container" class="mb-3"></div>
 
-        <!-- Чистая касса -->
         <div id="net-summary-container" class="mb-3"></div>
 
-        <!-- Контейнер для спиннера и списка продаж -->
-        <div id="sales-report-container" class="mb-3">
-            <div id="stock-spinner" class="spinner-border text-primary d-none" role="status">
-                <span class="visually-hidden">Загрузка...</span>
-            </div>
-        </div>
+        <div id="sales-report-container" class="mb-3"></div>
 
-        <!-- Список возвратов -->
         <div id="returns-report-container" class="mb-3"></div>
     </div>
 </div>
@@ -90,46 +92,13 @@
         </div>
     </div>
 </div>
-
-<!-- Шаблон для уведомлений -->
-<template id="notification-template">
-    <div class="toast align-items-center text-bg-[[type]] border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                <strong>[[title]]</strong>: [[message]]
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-</template>
-
-<!-- Модальное окно потери соединения -->
-<div class="modal fade" id="connectionLostModal" tabindex="-1" role="dialog" aria-labelledby="connectionLostLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="connectionLostLabel">Соединение потеряно</h5>
-      </div>
-      <div class="modal-body">
-        Соединение с сервером было потеряно. Пожалуйста, обновите страницу, чтобы восстановить соединение.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" onclick="location.reload()">Обновить страницу</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 {% endblock %}
 
 {% block scripts %}
-<!-- Подключение библиотек -->
 <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
-<!-- Основной JavaScript -->
 <script src="{% static 'seller_cabinet/js/reports/reports.js' %}"></script>
 {% endblock %}

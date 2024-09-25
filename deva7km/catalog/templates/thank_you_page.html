@@ -16,26 +16,49 @@
 <div class="container mt-5">
     <h1>{% trans 'Спасибо за ваш заказ!' %}</h1>
     <h3>{% trans 'Номер вашего заказа:' %} <span class="badge badge-danger">{{ order.id }}</span></h3>
-    <div class="alert alert-dismissible alert-primary text-center" data-toggle="collapse" data-target="#social-links" aria-expanded="false" aria-controls="social-links">
-        <strong>
-            {% trans 'Вы также можете связаться с нами в социальных сетях, если у вас есть вопросы или вы хотите быстрее обработать ваш заказ' %}<br><br>
-            <i class="fa-solid fa-angles-down fa-beat fa-lg"></i>
-        </strong>
+
+    <!-- Блок описания для оплаты -->
+    <div class="alert alert-dismissible alert-primary text-center">
+        <strong>{% trans 'Теперь вы можете оплатить заказ!' %}</strong><br><br>
+        <p>{% trans 'Предоплата 150грн или полная оплата. На реквизиты предприятия:' %}</p>
+        <p>{% trans 'ФЛП Жарук Наталья Викторовна' %}</p>
+        <p>{% trans 'IBAN' %}:
+            <button class="btn btn-link" onclick="copyToClipboard('UA343220010000026004310028513')">
+                {% trans 'UA343220010000026004310028513 (скопировать)' %}
+            </button>
+        </p>
+        <p>{% trans 'ЕГРПОУ' %}: 3239507925</p>
+        <p>{% trans 'Комментарий к платежу: оплата за товар' %}</p>
+        <!-- Ссылка на оплату онлайн -->
+        <p>
+            <a href="https://bank.gov.ua/qr/QkNECjAwMgoxClVDVAoK0KTQntCfINCW0JDQoNCj0Jog0J3QkNCi0JDQm9CvINCS0IbQmtCi0J7QoNCG0JLQndCQClVBMzQzMjIwMDEwMDAwMDI2MDA0MzEwMDI4NTEzClVBSDEuMDAKMzIzOTUwNzkyNQoKCtCe0L_Qu9Cw0YLQsCDQt9CwINGC0L7QstCw0YDQuCDRgtCwINC_0L7RgdC70YPQs9C4Cg" target="_blank">
+                {% trans 'Или оплатите онлайн' %}
+            </a> {% trans '(оплата при наличии мобильного приложения украинских банков, необходимо ввести сумму оплаты!)' %}
+        </p>
+        <p>{% trans 'Отправка товара в течение 2х дней после оплаты.' %}</p>
+        <p>{% trans 'После оплаты сообщите о вашей оплате фото или скрин оплаты в соц. сети или по номеру.' %}</p>
+        <p>
+            <button class="btn btn-link" onclick="copyToClipboard('+380930972066')">
+                {% trans 'Наталия +380930972066 (скопировать)' %}
+            </button>
+        </p>
     </div>
-    <div class="collapse" id="social-links">
-        <ul class="list-group list-group-flush">
+
+    <!-- Секция для соц. сетей -->
+    <div class="text-center mt-4">
+        <ul class="list-group list-group-flush mt-3">
             <div class="row mb-3">
                 <div class="col">
                     <li class="list-group-item">
                         <a id="telegram-link" href="https://t.me/Natadeva_7km" target="_blank">
-                            <i class="fa-brands fa-telegram fa-bounce fa-xl" style="color: #0088cc;"></i> Telegram
+                            <i class="fa-brands fa-telegram fa-xl" style="color: #0088cc;"></i> Telegram
                         </a>
                     </li>
                 </div>
                 <div class="col">
                     <li class="list-group-item">
                         <a id="viber-link" href="viber://chat?number=%2B380687876849" target="_blank">
-                            <i class="fa-brands fa-viber fa-bounce fa-xl" style="color: #665cac;"></i> Viber
+                            <i class="fa-brands fa-viber fa-xl" style="color: #665cac;"></i> Viber
                         </a>
                     </li>
                 </div>
@@ -44,14 +67,14 @@
                 <div class="col">
                     <li class="list-group-item">
                         <a id="messenger-link" href="https://m.me/432162513828457" target="_blank">
-                            <i class="fa-brands fa-facebook-messenger fa-bounce fa-xl" style="color: #0084FF;"></i> Messenger
+                            <i class="fa-brands fa-facebook-messenger fa-xl" style="color: #0084FF;"></i> Messenger
                         </a>
                     </li>
                 </div>
                 <div class="col">
                     <li class="list-group-item">
                         <a id="instagram-link" href="https://ig.me/m/deva7km" target="_blank">
-                            <i class="fa-brands fa-instagram fa-bounce fa-xl" style="color: #E4405F;"></i> Instagram
+                            <i class="fa-brands fa-instagram fa-xl" style="color: #E4405F;"></i> Instagram
                         </a>
                     </li>
                 </div>
@@ -59,109 +82,117 @@
         </ul>
     </div>
 </div>
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr class="table-primary">
-                    <th>{% trans 'Изображение' %}</th>
-                    <th>{% trans 'Наименование' %}</th>
-                    <th>{% trans 'Цвет' %}</th>
-                    <th>{% trans 'Размер' %}</th>
-                    <th>{% trans 'Количество' %}</th>
-                    <th>{% trans 'Сумма' %}</th>
+
+<!-- Скрипт для копирования IBAN и телефона -->
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            alert("{% trans 'Информация скопирована!' %}");
+        }, function(err) {
+            console.error('Ошибка копирования', err);
+        });
+    }
+</script>
+
+<div class="table-responsive mt-5">
+    <table class="table">
+        <thead>
+            <tr class="table-primary">
+                <th>{% trans 'Изображение' %}</th>
+                <th>{% trans 'Наименование' %}</th>
+                <th>{% trans 'Цвет' %}</th>
+                <th>{% trans 'Размер' %}</th>
+                <th>{% trans 'Количество' %}</th>
+                <th>{% trans 'Сумма' %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+                <tr class="table-active">
+                    <td>{{ item.product_modification.thumbnail_image_modification }}</td>
+                    <td>{{ item.product_modification.product.title }}</td>
+                    <td>{{ item.product_modification.color }}</td>
+                    <td>{{ item.product_modification.size }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>
+                        {% if item.product_modification.product.retail_sale_price > 0 %}
+                            <del>{{ item.retail_total_price.1 }} грн.</del><br>
+                            {{ item.retail_total_price.0 }} грн.
+                        {% else %}
+                            {{ item.retail_total_price.1 }} грн.
+                        {% endif %}
+                    </td>
                 </tr>
-            </thead>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <p>{% trans 'Общая сумма заказа' %}: {{ total_amount }} грн.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>{% trans 'Информация о заказе' %}:</h2>
+        <table class="table">
             <tbody>
-                {% for item in order.items.all %}
-                    <tr class="table-active">
-                        <td>{{ item.product_modification.thumbnail_image_modification }}</td>
-                        <td>{{ item.product_modification.product.title }}</td>
-                        <td>{{ item.product_modification.color }}</td>
-                        <td>{{ item.product_modification.size }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>
-                            {% if item.product_modification.product.retail_sale_price > 0 %}
-                                <del>{{ item.retail_total_price.1 }} грн.</del><br>
-                                {{ item.retail_total_price.0 }} грн.
-                            {% else %}
-                                {{ item.retail_total_price.1 }} грн.
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
+                <tr>
+                    <th scope="row">{% trans 'Имя' %}</th>
+                    <td>{{ order.name }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans 'Фамилия' %}</th>
+                    <td>{{ order.surname }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans 'Телефон' %}</th>
+                    <td>{{ order.phone }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans 'Email' %}</th>
+                    <td>{{ order.email }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans 'Связь с клиентом' %}</th>
+                    <td>{{ order.contact_method }}</td>
+                </tr>
             </tbody>
         </table>
     </div>
-
-    <div>
-        <p>{% trans 'Общая сумма заказа' %}:
-            {{ total_amount }} грн.
-        </p>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6">
-            <h2>{% trans 'Информация о заказе' %}:</h2>
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <th scope="row">{% trans 'Имя' %}</th>
-                        <td>{{ order.name }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans 'Фамилия' %}</th>
-                        <td>{{ order.surname }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans 'Телефон' %}</th>
-                        <td>{{ order.phone }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans 'Email' %}</th>
-                        <td>{{ order.email }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans 'Связь с клиентом' %}</th>
-                        <td>{{ order.contact_method }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-6">
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <th scope="row">{% trans 'Способ доставки' %}</th>
-                        <td>{{ order.delivery_method }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans 'Населенный пункт' %}</th>
-                        <td>{{ order.city }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans 'Отделение почты' %}</th>
-                        <td>{{ order.post_office }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans 'Способ оплаты' %}</th>
-                        <td>{{ order.payment_method }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans 'Комментарий к заказу' %}</th>
-                        <td>{{ order.comment }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans 'Статус заказа' %}</th>
-                        <td><span class="badge badge-warning">{{ order.get_status_display }}</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="col-md-6">
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th scope="row">{% trans 'Способ доставки' %}</th>
+                    <td>{{ order.delivery_method }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans 'Населенный пункт' %}</th>
+                    <td>{{ order.city }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans 'Отделение почты' %}</th>
+                    <td>{{ order.post_office }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans 'Способ оплаты' %}</th>
+                    <td>{{ order.payment_method }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans 'Комментарий к заказу' %}</th>
+                    <td>{{ order.comment }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans 'Статус заказа' %}</th>
+                    <td><span class="badge badge-warning">{{ order.get_status_display }}</span></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
+
 <div class="container mt-3 mb-5 text-center">
     <a href="/" class="btn btn-primary">{% trans 'Вернуться на главную' %}</a>
 </div>
 {% endblock %}
-
-

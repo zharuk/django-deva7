@@ -4,7 +4,6 @@
 {% block title %}{% trans 'Оформление заказа' %}{% endblock %}
 
 {% block breadcrumbs %}
-    <!-- Хлебные крошки для страницы Оформление заказа -->
     <nav aria-label="breadcrumb" style="margin-top: 5px;">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">{% trans 'Главная' %}</a></li>
@@ -15,10 +14,11 @@
 
 {% block content %}
 
-<div class="container mt-5">
+<div class="container-fluid mt-5">
     <h1>{% trans 'Оформление заказа' %}</h1>
+
     <!-- Секция для списка товаров в заказе -->
-    <div class="container mt-5">
+    <div class="container-fluid mt-5">
         <h2>{% trans 'Ваш заказ' %}</h2>
         <div class="table-responsive">
             <table class="table">
@@ -35,7 +35,7 @@
                 <tbody>
                     {% for item in cart_items %}
                         <tr class="table-active">
-                            <td><a href="{{ item.modification.product.get_absolute_url }}"><img src="{{ item.modification.thumbnail_image_modification_url }}" alt="Миниатюра" class="img-thumbnail"></a></td>
+                            <td><a href="{{ item.modification.product.get_absolute_url }}"><img src="{{ item.modification.thumbnail_image_url }}" alt="Миниатюра" class="img-thumbnail" style="max-width: 50px; height: auto;"></a></td>
                             <td><a href="{{ item.modification.product.get_absolute_url }}">{{ item.modification.product.title }}</a></td>
                             <td>{{ item.modification.color }}</td>
                             <td>{{ item.modification.size }}</td>
@@ -58,64 +58,64 @@
     </div>
 
     <!-- Форма для данных о клиенте и заказе -->
-    {% trans '* обязательные' %}
     <form method="post" onsubmit="trackPurchase();">
         {% csrf_token %}
         <div class="row">
-            <!-- Левая колонка для десктопной версии -->
+            <!-- Левая колонка -->
             <div class="col-md-6">
-                <table class="table">
-                    <tbody>
-                        <tr>
-                            <th scope="row">{% trans 'Имя' %} *</th>
-                            <td>{{ form.name }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans 'Фамилия' %} *</th>
-                            <td>{{ form.surname }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans 'Телефон' %} *</th>
-                            <td>{{ form.phone }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans 'Как с вами связаться?' %}</th>
-                            <td>{{ form.contact_method }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Email</th>
-                            <td>{{ form.email }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="mb-3">
+                    {{ form.name.label_tag }} *
+                    {{ form.name }}
+                </div>
+                <div class="mb-3">
+                    {{ form.surname.label_tag }} *
+                    {{ form.surname }}
+                </div>
+                <div class="mb-3">
+                    {{ form.phone.label_tag }} *
+                    {{ form.phone }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.contact_method.label_tag }}
+                    <div>
+                        {% for checkbox in form.contact_method %}
+                            <div class="form-check form-check-inline">
+                                {{ checkbox.tag }}
+                                {{ checkbox.choice_label }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
-            <!-- Правая колонка для десктопной версии -->
+            <!-- Правая колонка -->
             <div class="col-md-6">
-                <table class="table">
-                    <tbody>
-                        <tr>
-                            <th scope="row">{% trans 'Способ доставки' %} *</th>
-                            <td>{{ form.delivery_method }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans 'Населенный пункт' %} *</th>
-                            <td>{{ form.city }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans 'Отделение' %} *</th>
-                            <td>{{ form.post_office }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans 'Способ оплаты' %} *</th>
-                            <td>{{ form.payment_method }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans 'Комментарий к заказу' %}</th>
-                            <td>{{ form.comment }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="mb-3">
+                    {{ form.delivery_method.label_tag }} *
+                    {{ form.delivery_method }}
+                </div>
+                <div class="mb-3">
+                    {{ form.city.label_tag }} *
+                    {{ form.city }}
+                </div>
+                <div class="mb-3">
+                    {{ form.post_office.label_tag }} *
+                    {{ form.post_office }}
+                </div>
+                <div class="mb-3">
+                    {{ form.payment_method.label_tag }} *
+                    {{ form.payment_method }}
+                </div>
+                <div class="mb-3">
+                    {{ form.comment.label_tag }}
+                    {{ form.comment }}
+                </div>
             </div>
         </div>
 
@@ -128,59 +128,57 @@
 
 <script>
     function trackPurchase() {
-    var contentIds = [
-        {% for item in cart_items %}
-            '{{ item.modification.product.sku }}',
-        {% endfor %}
-    ];
+        var contentIds = [
+            {% for item in cart_items %}
+                '{{ item.modification.product.sku }}',
+            {% endfor %}
+        ];
 
-    var contentType = 'product';
-    var numItems = {{ cart_total_quantity }};
+        var contentType = 'product';
+        var numItems = {{ cart_total_quantity }};
 
-    var purchaseData = {
-        'content_type': contentType,
-        'content_ids': contentIds,
-        'currency': 'UAH',
-        'num_items': numItems,
-        'value': '{{ cart_total_price }}'
-    };
+        var purchaseData = {
+            'content_type': contentType,
+            'content_ids': contentIds,
+            'currency': 'UAH',
+            'num_items': numItems,
+            'value': '{{ cart_total_price }}'
+        };
 
-    fbq('track', 'Purchase', purchaseData);
-}
+        fbq('track', 'Purchase', purchaseData);
+    }
 </script>
 
 <script>
-    // Функция для отслеживания события начала оформления заказа
     function trackInitiateCheckout() {
-    var contentIds = [
+        var contentIds = [
+            {% for item in cart_items %}
+                '{{ item.modification.product.sku }}',
+            {% endfor %}
+        ];
+
+        var contentType = 'product';
+        var numItems = {{ cart_total_quantity }};
+        var totalValue = 0;
+
         {% for item in cart_items %}
-            '{{ item.modification.product.sku }}',
+            totalValue += {{ item.item_total_sale|default:item.item_total_regular }};
         {% endfor %}
-    ];
 
-    var contentType = 'product';
-    var numItems = {{ cart_total_quantity }};
-    var totalValue = 0;
+        var initiateCheckoutData = {
+            'value': totalValue,
+            'currency': 'UAH',
+            'content_ids': contentIds,
+            'content_type': contentType,
+            'num_items': numItems
+        };
 
-    {% for item in cart_items %}
-        totalValue += {{ item.item_total_sale|default:item.item_total_regular }};
-    {% endfor %}
+        fbq('track', 'InitiateCheckout', initiateCheckoutData);
+    }
 
-    var initiateCheckoutData = {
-        'value': totalValue,
-        'currency': 'UAH',
-        'content_ids': contentIds,
-        'content_type': contentType,
-        'num_items': numItems
+    window.onload = function() {
+        trackInitiateCheckout();
     };
-
-    fbq('track', 'InitiateCheckout', initiateCheckoutData);
-}
-
-// Вызов функции для отслеживания события начала оформления заказа при загрузке страницы
-window.onload = function() {
-    trackInitiateCheckout();
-};
 </script>
 
 {% endblock %}

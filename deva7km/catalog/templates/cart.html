@@ -29,7 +29,7 @@
             <tbody>
                 {% for item in cart_items %}
                     <tr class="table-active">
-                        <td><a href="{{ item.modification.product.get_absolute_url }}"><img src="{{ item.modification.thumbnail_image_modification_url }}" alt="Миниатюра" class="img-thumbnail"></a></td>
+                        <td><a href="{{ item.modification.product.get_absolute_url }}"><img src="{{ item.modification.thumbnail_image_url }}" alt="Миниатюра" class="img-thumbnail" style="max-width: 50px; height: auto;"></a></td>
                         <td><a href="{{ item.modification.product.get_absolute_url }}">{{ item.modification.product.title }}</a></td>
                         <td>{{ item.modification.color.name }}</td>
                         <td>{{ item.modification.size.name }}</td>
