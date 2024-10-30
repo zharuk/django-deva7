@@ -132,7 +132,7 @@ LANGUAGE_CODE = 'ru-RU'
 
 USE_TZ = True
 
-TIME_ZONE = 'Europe/Kiev'
+TIME_ZONE = 'Europe/Kyiv'
 
 USE_I18N = True
 
