@@ -3,6 +3,14 @@ deva7km/static
 deva7km/staticfiles
 deva7km/logs
 venv/
+.venv/
+.idea/
+.vscode/
+# Игнорируем кеши Python
+__pycache__/
+*.pyc
+*.pyo
+
 deva7km/deva7km/prod_settings.py
 deva7km/deva7km/local_settings.py
 #deva7km/catalog/migrations/
