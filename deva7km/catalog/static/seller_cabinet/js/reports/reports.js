@@ -76,24 +76,29 @@ document.addEventListener('DOMContentLoaded', function() {
         socket = new WebSocket(`${protocol}//${window.location.host}/ws/reports/`);
 
         socket.onopen = function() {
+            // Находим кнопку "Сегодня" по id
+            const todayButton = document.getElementById('today-button');
+            if (todayButton) {
+                toggleButtonSpinner(todayButton, true);
+            }
             socket.send(JSON.stringify({ type: 'get_initial_data' }));
-            toggleButtonSpinner(document.querySelector('.report-period-button.active'), true); // Показываем спиннер при загрузке
         };
 
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
-
+        
             if (data.event === 'report_data') {
                 const salesData = data.sales_data.sales || null;
                 const returnsData = data.sales_data.returns || null;
                 const netData = data.sales_data.net || null;
-
-                toggleButtonSpinner(document.querySelector('.report-period-button.active'), false); // Скрываем спиннер
-
+        
+                resetAllButtonSpinners(); // Скрываем спиннеры для всех кнопок
+        
                 updateSalesReport(salesData, returnsData, netData);
                 updateCharts(salesData, returnsData);
+        
             } else if (data.event === 'stock_data') {
-                toggleButtonSpinner(stockButton, false); // Скрываем спиннер остатков
+                resetAllButtonSpinners(); // Скрываем спиннеры для всех кнопок
                 resetCharts();
                 updateStockReport(data.stock_data);
             }
@@ -113,21 +118,22 @@ document.addEventListener('DOMContentLoaded', function() {
     applyCustomPeriodButton.addEventListener('click', function() {
         const startDate = startDateInput.value;
         const endDate = endDateInput.value;
-
+    
         if (startDate && endDate) {
+            resetAllButtonSpinners(); // Отключаем все спиннеры перед включением кастомного
             toggleButtonSpinner(customPeriodButton, true);  // Показываем спиннер для кастомного периода
-
+    
             document.querySelectorAll('.report-period-button').forEach(button => {
                 button.classList.remove('btn-primary', 'active');
                 button.classList.add('btn-secondary');
             });
-
+    
             customPeriodButton.classList.remove('btn-secondary');
             customPeriodButton.classList.add('btn-primary', 'active');
-
+    
             stockButton.classList.remove('btn-primary', 'active');
             stockButton.classList.add('btn-secondary');
-
+    
             updateReportTitle('custom', startDate, endDate);
             socket.send(JSON.stringify({
                 type: 'update_period',
@@ -135,10 +141,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 start_date: startDate,
                 end_date: endDate
             }));
-
+    
             customPeriodModal.hide();
         }
     });
+    
 
     // Обновление отчета по продажам
     function updateSalesReport(salesData, returnsData, netData) {
@@ -519,43 +526,54 @@ document.addEventListener('DOMContentLoaded', function() {
     reportControls.addEventListener('click', function(event) {
         const button = event.target.closest('button');
         if (button && button.classList.contains('report-period-button')) {
+            resetAllButtonSpinners(); // Отключаем спиннеры на всех кнопках
+            toggleButtonSpinner(button, true); // Включаем спиннер на активной кнопке
+    
             document.querySelectorAll('.report-period-button').forEach(btn => {
                 btn.classList.remove('btn-primary', 'active');
                 btn.classList.add('btn-secondary');
             });
-
+    
             button.classList.remove('btn-secondary');
             button.classList.add('btn-primary', 'active');
-
+    
             stockButton.classList.remove('btn-primary', 'active');
             stockButton.classList.add('btn-secondary');
-
-            toggleButtonSpinner(button, true);
-
+    
             const period = button.getAttribute('data-period');
             updateReportTitle(period);
             socket.send(JSON.stringify({ type: 'update_period', period }));
         }
     });
+    
 
     stockButton.addEventListener('click', function() {
+        resetAllButtonSpinners(); // Отключаем все спиннеры перед включением на stockButton
+        toggleButtonSpinner(stockButton, true); // Включаем спиннер на кнопке "Остатки"
+    
         document.querySelectorAll('.report-period-button').forEach(btn => {
             btn.classList.remove('btn-primary', 'active');
             btn.classList.add('btn-secondary');
         });
-
+    
         customPeriodButton.classList.remove('btn-primary', 'active');
         customPeriodButton.classList.add('btn-secondary');
-
+    
         stockButton.classList.remove('btn-secondary');
         stockButton.classList.add('btn-primary', 'active');
-
-        toggleButtonSpinner(stockButton, true);
-
+    
         resetCharts(); // Очищаем графики
         reportTitle.textContent = 'Остатки товаров';
         socket.send(JSON.stringify({ type: 'get_stock_data' }));
     });
+    
+
+    // Отключает спиннеры на всех кнопках, связанных с отчетами
+    function resetAllButtonSpinners() {
+        document.querySelectorAll('.report-period-button, #stock-button, #custom-period-button').forEach(button => {
+            toggleButtonSpinner(button, false);
+        });
+    }
 
     // Обновление заголовка отчета
     function updateReportTitle(period, startDate = null, endDate = null) {
