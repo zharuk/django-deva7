@@ -30,7 +30,7 @@
                         {% endwith %}
                         <currencyId>UAH</currencyId>
                         <categoryId>{{ product.category.id }}</categoryId>
-                        {% for image in modification.get_all_large_images %}
+                        {% for image in modification.get_all_large_image_urls %}
                             <picture>{{ image }}</picture>
                         {% endfor %}
                         <vendor>Дева</vendor>

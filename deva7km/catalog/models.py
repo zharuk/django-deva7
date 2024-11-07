@@ -145,17 +145,12 @@ class ProductModification(models.Model):
         url = self.get_first_image_url(image_type)
         return format_html('<img src="{}"/>', url) if url else format_html('<p>No Image</p>')
 
-    def get_all_large_images(self):
-        return self.get_all_image_urls('large_image')
 
-    def get_first_large_image_modification_url(self):
-        return self.get_first_image_url('large_image')
-
-    def get_all_large_images_except_first(self):
+    def get_all_large_image_urls(self):
+        # Получаем все изображения, связанные с этой модификацией
         images = Image.objects.filter(modification=self)
-        if images.exists():
-            return ', '.join([BASE_URL + image.large_image.url for image in images[1:]])
-        return ''
+        # Формируем список URL для каждого изображения
+        return [BASE_URL + image.large_image.url for image in images if image.large_image]
 
     def total_price(self, quantity):
         product = self.product
