@@ -33,16 +33,6 @@ INSTALLED_APPS = [
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
-# Настройки для каналов
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-    },
-}
-
 ADMIN_URL = 'jydndxicxh/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
