@@ -19,14 +19,12 @@
             {% for product in products %}
                 {% for modification in product.modifications.all %}
                     <offer id="{{ product.sku }}-{{ forloop.counter }}" available="{% if modification.stock %}true{% else %}false{% endif %}">
-                        {% with base_price=product.sale_price|default:product.price %}
-                            {% with markup_amount=100 %}
-                                <price>{{ base_price|add:markup_amount }}</price>
-                                {% if modification.sale_price > 0 %}
-                                    <price_old>{{ product.price|add:markup_amount }}</price_old>
-                                    <price_promo>{{ base_price|add:markup_amount }}</price_promo>
-                                {% endif %}
-                            {% endwith %}
+                        {% with base_price=product.retail_sale_price|default:product.retail_price %}
+                            <price>{{ base_price }}</price>
+                            {% if product.retail_sale_price > 0 %}
+                                <price_old>{{ product.retail_price }}</price_old>
+                                <price_promo>{{ product.retail_sale_price }}</price_promo>
+                            {% endif %}
                         {% endwith %}
                         <currencyId>UAH</currencyId>
                         <categoryId>{{ product.category.id }}</categoryId>
