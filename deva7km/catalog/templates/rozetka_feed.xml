@@ -20,10 +20,10 @@
                 {% for modification in product.modifications.all %}
                     <offer id="{{ product.sku }}-{{ forloop.counter }}" available="{% if modification.stock %}true{% else %}false{% endif %}">
                         {% with base_price=product.retail_sale_price|default:product.retail_price %}
-                            <price>{{ base_price }}</price>
+                            <price>{{ base_price|add:100 }}</price>
                             {% if product.retail_sale_price > 0 %}
-                                <price_old>{{ product.retail_price }}</price_old>
-                                <price_promo>{{ product.retail_sale_price }}</price_promo>
+                                <price_old>{{ product.retail_price|add:100 }}</price_old>
+                                <price_promo>{{ product.retail_sale_price|add:100 }}</price_promo>
                             {% endif %}
                         {% endwith %}
                         <currencyId>UAH</currencyId>
