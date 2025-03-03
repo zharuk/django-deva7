@@ -18,7 +18,7 @@
     {% for product in latest_products %}
     <div class="col-md-4 mb-4">
         <div class="card h-100 position-relative">
-            {% if product.is_sale and product.retail_sale_price > 0 %}
+            {% if product.sale_price > 0 %}
             <span class="badge bg-danger position-absolute top-0 start-0 m-2">
                 <span class="text-white">{% trans 'Распродажа' %}</span>
             </span>
@@ -44,15 +44,15 @@
                     <p>{% trans "Цвета" %}: {{ product.get_colors }}</p>
                     <p>{% trans "Размеры" %}: {{ product.get_sizes }}</p>
                     <p>
-                        {% if product.retail_sale_price > 0 %}
+                        {% if product.sale_price > 0 %}
                             <span class="text-danger">
-                                {% if product.retail_price > 0 %}
-                                    <del>{% trans "Цена" %}: {{ product.retail_price }} {{ product.currency }}</del><br>
+                                {% if product.price > 0 %}
+                                    <del>{% trans "Цена" %}: {{ product.price }} {{ product.currency }}</del><br>
                                 {% endif %}
-                                <strong>{% trans "Цена распродажи" %}: {{ product.retail_sale_price }} {{ product.currency }}</strong>
+                                <strong>{% trans "Цена распродажи" %}: {{ product.sale_price }} {{ product.currency }}</strong>
                             </span>
                         {% else %}
-                            <strong>{% trans "Цена" %}: {{ product.retail_price }} {{ product.currency }}</strong>
+                            <strong>{% trans "Цена" %}: {{ product.price }} {{ product.currency }}</strong>
                         {% endif %}
                     </p>
                 </div>

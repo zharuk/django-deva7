@@ -45,16 +45,16 @@
                             <p>{% trans 'Цвета' %}: {{ product.get_colors }}</p>
                             <p>{% trans 'Размеры' %}: {{ product.get_sizes }}</p>
                             <p>
-                                {% if product.retail_sale_price > 0 %}
+                                {% if product.sale_price > 0 %}
                                     <span class="text-danger">
-                                        {% if product.retail_price > 0 %}
-                                            <del>{% trans 'Цена' %}: {{ product.retail_price }} {{ product.currency }}</del><br>
+                                        {% if product.price > 0 %}
+                                            <del>{% trans 'Цена' %}: {{ product.price }} {{ product.currency }}</del><br>
                                         {% endif %}
-                                        <strong>{% trans 'Цена распродажи' %}: {{ product.retail_sale_price }} {{ product.currency }}</strong>
+                                        <strong>{% trans 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }}</strong>
                                     </span>
                                 {% else %}
-                                    {% if product.retail_price > 0 %}
-                                        <strong>{% trans 'Цена' %}: {{ product.retail_price }} {{ product.currency }}</strong>
+                                    {% if product.price > 0 %}
+                                        <strong>{% trans 'Цена' %}: {{ product.price }} {{ product.currency }}</strong>
                                     {% endif %}
                                 {% endif %}
                             </p>

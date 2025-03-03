@@ -24,7 +24,7 @@
     content_type: 'product',
     content_name: '{{ product.title }}',
     content_category: '{{ product.category.name }}',
-    value: {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %},
+    value: {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %},
     currency: 'UAH'
   });
 
@@ -46,7 +46,7 @@
     var sku = '{{ product.sku }}';
     var name = '{{ product.title }}';
     var category = '{{ product.category.name }}';
-    var price = {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %};
+    var price = {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %};
     var currency = 'UAH';
     var num_items = 1; // Предполагаем, что добавляется один товар
 
@@ -81,17 +81,17 @@
                 {% endfor %}
             </p>
             <div class="card-text">
-                {% if product.retail_sale_price > 0 %}
-                        {% if product.retail_price > 0 %}
-                            <del>{% translate 'Цена' %}: {{ product.retail_price }} {{ product.retail_currency }} грн.</del><br>
+                {% if product.sale_price > 0 %}
+                        {% if product.price > 0 %}
+                            <del>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }} грн.</del><br>
                         {% endif %}
                         <p class="text-danger">
-                            <strong>{% translate 'Цена распродажи' %}: {{ product.retail_sale_price }} {{ product.retail_currency }} грн.</strong>
+                            <strong>{% translate 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }} грн.</strong>
                         </p>
                 {% else %}
                     <p>
-                        {% if product.retail_price > 0 %}
-                            <strong>{% translate 'Цена' %}: {{ product.retail_price }} {{ product.retail_currency }} грн.</strong>
+                        {% if product.price > 0 %}
+                            <strong>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }} грн.</strong>
                         {% endif %}
                     </p>
                 {% endif %}
@@ -118,7 +118,7 @@
                                 <td>{{ modification.color.name }}</td>
                                 <td>{{ modification.size.name }}</td>
                                 <td>
-                                    <form action="{% url 'add_to_cart' modification.custom_sku %}" method="post" onsubmit="trackAddToCart('{{ modification.custom_sku }}', '{{ product.title }}', '{{ product.category.name }}', {% if product.retail_sale_price > 0 %}{{ product.retail_sale_price }}{% else %}{{ product.retail_price }}{% endif %}, 'UAH', this.quantity.value); return true;">
+                                    <form action="{% url 'add_to_cart' modification.custom_sku %}" method="post" onsubmit="trackAddToCart('{{ modification.custom_sku }}', '{{ product.title }}', '{{ product.category.name }}', {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}, 'UAH', this.quantity.value); return true;">
                                         {% csrf_token %}
                                         <div class="input-group">
                                             <input type="number" name="quantity" class="form-control form-control-sm col-6 col-sm-4 col-md-3 col-lg-5" value="1" min="1" max="{{ modification.stock }}">

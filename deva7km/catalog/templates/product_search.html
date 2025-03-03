@@ -24,7 +24,20 @@
                             <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
                         </h5>
                         <p class="card-text">{{ product.description|truncatewords:20 }}</p>
-                        <p><strong>Цена: {{ product.price }} {{ product.currency }}</strong></p>
+                        <p>
+                            <strong>Цена:
+                                {% if product.sale_price > 0 %}
+                                    <span class="text-danger">
+                                        {% if product.price > 0 %}
+                                            <del>{{ product.price }} {{ product.currency }}</del>
+                                        {% endif %}
+                                        {{ product.sale_price }} {{ product.currency }}
+                                    </span>
+                                {% else %}
+                                    {{ product.price }} {{ product.currency }}
+                                {% endif %}
+                            </strong>
+                        </p>
                     </div>
                     <div class="card-footer">
                         <a href="{{ product.get_absolute_url }}" class="btn btn-primary w-100">Перейти</a>
