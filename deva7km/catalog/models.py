@@ -635,7 +635,7 @@ class Order(models.Model):
     calculate_total_amount.short_description = 'Общая сумма'
 
     def calculate_total_retail_amount(self):
-        return sum(item.retail_total_price()[0] for item in self.items.all())
+        return sum(item.retail_total_price() for item in self.items.all())
 
     def calculate_total_quantity(self):
         return sum(item.quantity for item in self.items.all())
@@ -669,12 +669,18 @@ class OrderItem(models.Model):
         return self.product_modification.thumbnail_image_url()
 
     def total_price(self):
-        return self.product_modification.total_price(self.quantity)
+        product = self.product_modification.product
+        if product.sale_price > 0:
+            return self.quantity * product.sale_price
+        else:
+            return self.quantity * product.price
 
     def retail_total_price(self):
         product = self.product_modification.product
-        return (self.quantity * product.retail_sale_price if product.retail_sale_price > 0 else 0,
-                self.quantity * product.retail_price)
+        if product.retail_sale_price > 0:
+            return self.quantity * product.retail_sale_price
+        else:
+            return self.quantity * product.retail_price
 
     def get_stock(self):
         return self.product_modification.stock

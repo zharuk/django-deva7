@@ -115,12 +115,7 @@
                     <td>{{ item.product_modification.size }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>
-                        {% if item.product_modification.product.retail_sale_price > 0 %}
-                            <del>{{ item.retail_total_price.1 }} грн.</del><br>
-                            {{ item.retail_total_price.0 }} грн.
-                        {% else %}
-                            {{ item.retail_total_price.1 }} грн.
-                        {% endif %}
+                        {{ item.total_price }} грн.
                     </td>
                 </tr>
             {% endfor %}

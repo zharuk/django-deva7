@@ -201,8 +201,8 @@ def cart_view(request):
 
     for modification in modifications:
         quantity = cart[modification.custom_sku]
-        item_total_regular = modification.product.retail_price * quantity
-        item_total_sale = modification.product.retail_sale_price * quantity if modification.product.retail_sale_price > 0 else 0
+        item_total_regular = modification.product.price * quantity
+        item_total_sale = modification.product.sale_price * quantity if modification.product.sale_price > 0 else 0
         cart_total_price += item_total_sale if item_total_sale > 0 else item_total_regular
         cart_total_quantity += quantity
         cart_items.append({'modification': modification, 'quantity': quantity, 'item_total_regular': item_total_regular,
@@ -221,9 +221,9 @@ def get_cart_info(request):
     modifications = ProductModification.objects.filter(custom_sku__in=custom_skus)
 
     cart_total_price = sum(
-        modification.product.retail_sale_price * cart[modification.custom_sku]
-        if modification.product.retail_sale_price > 0
-        else modification.product.retail_price * cart[modification.custom_sku]
+        modification.product.sale_price * cart[modification.custom_sku]
+        if modification.product.sale_price > 0
+        else modification.product.price * cart[modification.custom_sku]
         for modification in modifications
     )
     cart_total_quantity = sum(cart.values())
@@ -244,8 +244,8 @@ def complete_order(request):
 
     for modification in modifications:
         quantity = cart[modification.custom_sku]
-        item_total_regular = modification.product.retail_price * quantity
-        item_total_sale = modification.product.retail_sale_price * quantity if modification.product.retail_sale_price > 0 else 0
+        item_total_regular = modification.product.price * quantity
+        item_total_sale = modification.product.sale_price * quantity if modification.product.sale_price > 0 else 0
         cart_total_price += item_total_sale if item_total_sale > 0 else item_total_regular
         cart_total_quantity += quantity
         cart_items.append({'modification': modification, 'quantity': quantity, 'item_total_regular': item_total_regular,
@@ -295,7 +295,7 @@ def thank_you_page(request):
     if last_order_id is not None:
         last_order = Order.objects.get(id=last_order_id)
 
-    total_amount = last_order.calculate_total_retail_amount()
+    total_amount = last_order.calculate_total_amount()
 
     return render(request, 'thank_you_page.html',
                   {'order': last_order, 'total_amount': total_amount, 'categories': categories})
