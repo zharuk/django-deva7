@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 from django.utils.translation import gettext_lazy as _
 
@@ -82,6 +83,11 @@ MIDDLEWARE = [
     'catalog.middlewares.FrontendLanguageMiddleware',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',  # Новый бэкенд для django-axes
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 ROOT_URLCONF = 'deva7km.urls'
 
 TEMPLATES = [
@@ -150,30 +156,9 @@ IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic
 IMAGEKIT_DEFAULT_CACHEFILE_BACKEND = 'imagekit.cachefiles.backends.Simple'
 IMAGEKIT_DEFAULT_CACHEFILE_TIMEOUT = 60 * 60 * 24 * 7  # Неделя
 
-# Лимит неудачных попыток входа
 AXES_FAILURE_LIMIT = 5
-
-# Время блокировки после превышения лимита (например, 30 минут)
-from datetime import timedelta
 AXES_COOLOFF_TIME = timedelta(minutes=30)
-
-# Логирование блокировок
-AXES_LOCKOUT_CALLABLE = 'axes.helpers.default_lockout_response'
-
-# Шаблон страницы блокировки (если есть)
-AXES_LOCKOUT_TEMPLATE = 'lockout.html'
-
-# Игнорировать заблокированные IP-адреса при входе админов
-AXES_ONLY_ADMIN_SITE = False
-
-# Игнорировать внутренние IP-адреса
-AXES_INTERNAL_IPS = ['127.0.0.1']
-
-# Настройка по умолчанию — блокировать по IP
-AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
-
-# Сохранение в базу данных
-AXES_USE_DATABASE = True
+AXES_USE_DATABASE = True  # Логирование в базу данных
 
 # логирование
 LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
