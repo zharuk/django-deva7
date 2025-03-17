@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'adminsortable2',
     'channels',
+    'axes',
 ]
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
@@ -68,6 +69,7 @@ ADMIN_REORDER = (
 )
 
 MIDDLEWARE = [
+    'axes.middleware.AxesMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -147,6 +149,31 @@ IMAGEKIT_CACHEFILE_DIR = 'CACHE/'  # Папка для хранения кеши
 IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
 IMAGEKIT_DEFAULT_CACHEFILE_BACKEND = 'imagekit.cachefiles.backends.Simple'
 IMAGEKIT_DEFAULT_CACHEFILE_TIMEOUT = 60 * 60 * 24 * 7  # Неделя
+
+# Лимит неудачных попыток входа
+AXES_FAILURE_LIMIT = 5
+
+# Время блокировки после превышения лимита (например, 30 минут)
+from datetime import timedelta
+AXES_COOLOFF_TIME = timedelta(minutes=30)
+
+# Логирование блокировок
+AXES_LOCKOUT_CALLABLE = 'axes.helpers.default_lockout_response'
+
+# Шаблон страницы блокировки (если есть)
+AXES_LOCKOUT_TEMPLATE = 'lockout.html'
+
+# Игнорировать заблокированные IP-адреса при входе админов
+AXES_ONLY_ADMIN_SITE = False
+
+# Игнорировать внутренние IP-адреса
+AXES_INTERNAL_IPS = ['127.0.0.1']
+
+# Настройка по умолчанию — блокировать по IP
+AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
+
+# Сохранение в базу данных
+AXES_USE_DATABASE = True
 
 # логирование
 LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
