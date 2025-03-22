@@ -395,7 +395,7 @@ def check_telegram_user(view_func):
                     if telegram_user.role in ['admin', 'seller']:
                         logger.debug(f"User role ({telegram_user.role}) allows access.")
                         if telegram_user.user:
-                            django_login(request, telegram_user.user)
+                            django_login(request, telegram_user.user, backend='django.contrib.auth.backends.ModelBackend')
                             logger.debug(f"User {telegram_user.user} logged in.")
                             redirect_url = request.GET.get('next', request.path)
                             logger.debug(f"Redirecting to: {redirect_url}")
