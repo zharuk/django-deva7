@@ -6,7 +6,7 @@ from django.urls import path, include, re_path
 from django.views.generic import TemplateView, RedirectView
 
 from catalog import views
-from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView
+from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView, OptFeedView
 from catalog.views import home, contacts_page, category_detail, product_detail, sales, telegram_page, \
     privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page, product_search, \
     ProfileDetailView, update_tracking_status_view
@@ -25,6 +25,7 @@ urlpatterns = [
     path('feed_fb/', FacebookFeedView.as_view(), name='facebook_feed'),
     path('feed_google/', GoogleFeedView.as_view(), name='google_feed'),
     path('feed_rozetka/', RozetkaFeedView.as_view(), name='rozetka_feed'),
+    path('feed_opt/', OptFeedView.as_view(), name='feed_opt'),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     re_path(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
     re_path(r'^favicon\.ico$', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
