@@ -4,16 +4,13 @@ from django.contrib.auth import login as django_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.db import transaction
 from django.db.models import Count, Q
 from django.http import JsonResponse, HttpResponseForbidden
 from django.urls import reverse
 from django.utils.translation import get_language
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
-from catalog.email_utils import send_new_order_notification_email
-from catalog.forms import PreOrderForm, OrderForm
-from catalog.models import Image, Category, Product, BlogPost, ProductModification, Order, OrderItem, TelegramUser
+from catalog.models import Image, Category, Product, BlogPost, TelegramUser
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from catalog.generate_xlsx import generate_product_xlsx
@@ -43,11 +40,9 @@ def home(request):
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
     latest_products = Product.objects.filter(is_active=True).order_by('-created_at')[:6]
 
-    cart_total_quantity, cart_total_price = get_cart_info(request)
 
     return render(request, 'home.html',
-                  {'categories': categories, 'latest_products': latest_products, 'main_page_post': main_page_post,
-                   'cart_total_quantity': cart_total_quantity, 'cart_total_price': cart_total_price})
+                  {'categories': categories, 'latest_products': latest_products, 'main_page_post': main_page_post,})
 
 
 def category_detail(request, category_slug):
@@ -65,10 +60,7 @@ def category_detail(request, category_slug):
 
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
 
-    cart_total_quantity, cart_total_price = get_cart_info(request)
-
-    context = {'category': category, 'products': products, 'categories': categories,
-               'cart_total_quantity': cart_total_quantity, 'cart_total_price': cart_total_price}
+    context = {'category': category, 'products': products, 'categories': categories,}
     return render(request, 'category_detail.html', context)
 
 
@@ -93,23 +85,17 @@ def product_detail(request, category_slug, product_slug):
 
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
 
-    cart_total_quantity, cart_total_price = get_cart_info(request)
-
     return render(request, 'product_detail.html',
                   {'product': product, 'categories': categories, 'unique_color_images': unique_color_images,
-                   'modifications': modifications, 'product_url': product_url,
-                   'cart_total_quantity': cart_total_quantity, 'cart_total_price': cart_total_price})
+                   'modifications': modifications, 'product_url': product_url,})
 
 
 def sales(request):
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
     sale_products = Product.objects.filter(is_sale=True, is_active=True).order_by('-created_at')
 
-    cart_total_quantity, cart_total_price = get_cart_info(request)
-
     return render(request, 'sales.html',
-                  {'sale_products': sale_products, 'categories': categories, 'cart_total_quantity': cart_total_quantity,
-                   'cart_total_price': cart_total_price})
+                  {'sale_products': sale_products, 'categories': categories,})
 
 
 def contacts_page(request):
@@ -120,11 +106,7 @@ def contacts_page(request):
 
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
 
-    cart_total_quantity, cart_total_price = get_cart_info(request)
-
-    return render(request, 'contacts_page.html', {'categories': categories, 'contacts_page_post': contacts_page_post,
-                                                  'cart_total_quantity': cart_total_quantity,
-                                                  'cart_total_price': cart_total_price})
+    return render(request, 'contacts_page.html', {'categories': categories, 'contacts_page_post': contacts_page_post,})
 
 
 def delivery_payment_page(request):
@@ -134,11 +116,8 @@ def delivery_payment_page(request):
     )
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
 
-    cart_total_quantity, cart_total_price = get_cart_info(request)
-
     return render(request, 'delivery_payment_page.html',
-                  {'categories': categories, 'delivery_payment_page_post': delivery_payment_page_post,
-                   'cart_total_quantity': cart_total_quantity, 'cart_total_price': cart_total_price})
+                  {'categories': categories, 'delivery_payment_page_post': delivery_payment_page_post,})
 
 
 def privacy_policy_page(request):
@@ -149,156 +128,12 @@ def privacy_policy_page(request):
 
     categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
 
-    cart_total_quantity, cart_total_price = get_cart_info(request)
-
     return render(request, 'privacy_policy_page.html',
-                  {'categories': categories, 'privacy_policy_page_post': privacy_policy_page_post,
-                   'cart_total_quantity': cart_total_quantity, 'cart_total_price': cart_total_price})
+                  {'categories': categories, 'privacy_policy_page_post': privacy_policy_page_post,})
 
 
 def telegram_page(request):
     return render(request, 'telegram_page.html')
-
-
-def add_to_cart(request, custom_sku):
-    modification = get_object_or_404(ProductModification, custom_sku=custom_sku)
-    quantity = int(request.POST.get('quantity', 1))
-
-    if modification.stock >= quantity > 0:
-        if 'cart' not in request.session:
-            request.session['cart'] = {}
-
-        cart = request.session['cart']
-        cart[custom_sku] = cart.get(custom_sku, 0) + quantity
-        request.session.modified = True
-
-    return redirect('cart_view')
-
-
-def clear_cart(request):
-    if 'cart' in request.session:
-        del request.session['cart']
-    return redirect('cart_view')
-
-
-def remove_from_cart(request, custom_sku):
-    if 'cart' in request.session:
-        cart = request.session['cart']
-        if custom_sku in cart:
-            del cart[custom_sku]
-            request.session.modified = True
-    return redirect('cart_view')
-
-
-def cart_view(request):
-    cart = request.session.get('cart', {})
-    custom_skus = cart.keys()
-    modifications = ProductModification.objects.filter(custom_sku__in=custom_skus)
-
-    cart_items = []
-    cart_total_price = 0
-    cart_total_quantity = 0
-
-    for modification in modifications:
-        quantity = cart[modification.custom_sku]
-        item_total_regular = modification.product.price * quantity
-        item_total_sale = modification.product.sale_price * quantity if modification.product.sale_price > 0 else 0
-        cart_total_price += item_total_sale if item_total_sale > 0 else item_total_regular
-        cart_total_quantity += quantity
-        cart_items.append({'modification': modification, 'quantity': quantity, 'item_total_regular': item_total_regular,
-                           'item_total_sale': item_total_sale})
-
-    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-
-    return render(request, 'cart.html',
-                  {'categories': categories, 'cart_items': cart_items, 'cart_total_price': cart_total_price,
-                   'cart_total_quantity': cart_total_quantity})
-
-
-def get_cart_info(request):
-    cart = request.session.get('cart', {})
-    custom_skus = cart.keys()
-    modifications = ProductModification.objects.filter(custom_sku__in=custom_skus)
-
-    cart_total_price = sum(
-        modification.product.sale_price * cart[modification.custom_sku]
-        if modification.product.sale_price > 0
-        else modification.product.price * cart[modification.custom_sku]
-        for modification in modifications
-    )
-    cart_total_quantity = sum(cart.values())
-
-    return cart_total_quantity, cart_total_price
-
-
-@transaction.atomic
-def complete_order(request):
-    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-    cart = request.session.get('cart', {})
-    custom_skus = cart.keys()
-    modifications = ProductModification.objects.filter(custom_sku__in=custom_skus)
-
-    cart_items = []
-    cart_total_price = 0
-    cart_total_quantity = 0
-
-    for modification in modifications:
-        quantity = cart[modification.custom_sku]
-        item_total_regular = modification.product.price * quantity
-        item_total_sale = modification.product.sale_price * quantity if modification.product.sale_price > 0 else 0
-        cart_total_price += item_total_sale if item_total_sale > 0 else item_total_regular
-        cart_total_quantity += quantity
-        cart_items.append({'modification': modification, 'quantity': quantity, 'item_total_regular': item_total_regular,
-                           'item_total_sale': item_total_sale})
-
-    if request.method == 'POST':
-        form = OrderForm(request.POST)
-        if form.is_valid():
-            order = Order(
-                name=form.cleaned_data['name'],
-                surname=form.cleaned_data['surname'],
-                phone=form.cleaned_data['phone'],
-                email=form.cleaned_data['email'],
-                contact_method=', '.join(form.cleaned_data['contact_method']),
-                delivery_method=dict(form.fields['delivery_method'].choices)[form.cleaned_data['delivery_method']],
-                city=form.cleaned_data['city'],
-                post_office=form.cleaned_data['post_office'],
-                payment_method=dict(form.fields['payment_method'].choices)[form.cleaned_data['payment_method']],
-                comment=form.cleaned_data['comment'],
-                status='pending',
-            )
-            order.save()
-            request.session['last_order_id'] = order.id
-
-            for modification in modifications:
-                quantity = cart.get(str(modification.custom_sku), 0)
-                if quantity > 0:
-                    OrderItem.objects.create(order=order, product_modification=modification, quantity=quantity)
-
-            send_new_order_notification_email(order, cart_items, cart_total_price, cart_total_quantity)
-            del request.session['cart']
-            return redirect('thank_you_page')
-
-    else:
-        form = OrderForm()
-
-    return render(request, 'complete_order.html',
-                  {'form': form, 'cart_items': cart_items, 'cart_total_price': cart_total_price,
-                   'cart_total_quantity': cart_total_quantity, 'categories': categories})
-
-
-def thank_you_page(request):
-    categories = Category.objects.annotate(product_count=Count('product')).order_by('-product_count')
-    last_order_id = request.session.get('last_order_id')
-
-    last_order = None
-    if last_order_id is not None:
-        last_order = Order.objects.get(id=last_order_id)
-
-    total_amount = last_order.calculate_total_amount()
-
-    return render(request, 'thank_you_page.html',
-                  {'order': last_order, 'total_amount': total_amount, 'categories': categories})
 
 
 def product_search(request):

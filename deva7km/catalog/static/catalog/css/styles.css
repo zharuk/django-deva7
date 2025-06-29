@@ -41,3 +41,58 @@
     color: #fff; /* Цвет текста */
     max-width: calc(100% - 60px); /* Максимальная ширина текста с учетом отступов */
 }
+
+/* Верхний блок с поиском и языками */
+.header-top {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;  /* элементы слева */
+    padding: 0.25rem 1rem; /* отступы слева и справа для мобильных */
+    box-sizing: border-box;
+}
+
+.header-top > * {
+    width: 100%;  /* каждый элемент занимает всю ширину */
+    margin-bottom: 0.5rem;
+}
+
+/* Ограничение ширины формы поиска */
+.search-form {
+    max-width: 400px;
+}
+
+/* Порядок элементов:
+   на мобильных - языки первыми, потом поиск */
+.languages-menu {
+    order: 1;
+}
+
+.search-form {
+    order: 2;
+}
+
+/* Десктоп */
+@media (min-width: 576px) {
+    .header-top {
+        flex-direction: row;
+        justify-content: flex-end; /* выравнивание справа */
+        align-items: center;
+        padding: 0.25rem 2rem;
+    }
+
+    .header-top > * {
+        width: auto; /* по ширине содержимого */
+        margin-bottom: 0;
+    }
+
+    /* Меняем порядок на десктопе: сначала поиск, потом языки */
+    .languages-menu {
+        order: 2;
+        margin-left: 1rem; /* Отступ слева от формы поиска */
+    }
+
+    .search-form {
+        order: 1;
+    }
+}

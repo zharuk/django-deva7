@@ -1,4 +1,8 @@
-<form class="form-inline" method="get" action="{% url 'product_search' %}">
-    <input class="form-control form-control-sm mr-2" type="search" name="query" placeholder="Поиск товаров" aria-label="Search" value="{{ request.GET.query }}">
-    <button class="btn btn-outline-light btn-sm mr-2" type="submit">Искать</button>
+<form method="get" action="{% url 'product_search' %}">
+  <div class="input-group input-group-sm">
+    <input type="search" class="form-control" name="query" placeholder="Поиск товаров" aria-label="Search" value="{{ request.GET.query }}">
+    <div class="input-group-append">
+      <button class="btn btn-outline-light" type="submit">Искать</button>
+    </div>
+  </div>
 </form>

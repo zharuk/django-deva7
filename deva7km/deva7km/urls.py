@@ -8,7 +8,7 @@ from django.views.generic import TemplateView, RedirectView
 from catalog import views
 from catalog.feed_views import FacebookFeedView, GoogleFeedView, RozetkaFeedView, OptFeedView
 from catalog.views import home, contacts_page, category_detail, product_detail, sales, telegram_page, \
-    privacy_policy_page, cart_view, clear_cart, remove_from_cart, thank_you_page, delivery_payment_page, product_search, \
+    privacy_policy_page, delivery_payment_page, product_search, \
     ProfileDetailView, update_tracking_status_view
 
 from django.conf.urls.i18n import i18n_patterns
@@ -51,12 +51,6 @@ urlpatterns += i18n_patterns(
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),
     path('', home, name='home'),
-    path('add-to-cart/<str:custom_sku>/', views.add_to_cart, name='add_to_cart'),
-    path('thank-you/', thank_you_page, name='thank_you_page'),
-    path('cart/', cart_view, name='cart_view'),
-    path('clear-cart/', clear_cart, name='clear_cart'),
-    path('complete_order/', views.complete_order, name='complete_order'),
-    path('remove-from-cart/<str:custom_sku>/', remove_from_cart, name='remove_from_cart'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('sales/', sales, name='sales'),
     path('contacts/', contacts_page, name='contacts'),

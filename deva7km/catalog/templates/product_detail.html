@@ -7,60 +7,27 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    <!-- Хлебные крошки для страницы товара -->
-    <nav aria-label="breadcrumb" style="margin-top: 5px;">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">{% translate 'Главная' %}</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
-        </ol>
-    </nav>
+<!-- Хлебные крошки -->
+<nav aria-label="breadcrumb" style="margin-top: 5px;">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">{% translate 'Главная' %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
+    </ol>
+</nav>
 {% endblock %}
 
 {% block content %}
-<script>
-  fbq('track', 'ViewContent', {
-    content_ids: ['{{ product.sku }}'],
-    content_type: 'product',
-    content_name: '{{ product.title }}',
-    content_category: '{{ product.category.name }}',
-    value: {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %},
-    currency: 'UAH'
-  });
-
-  function trackAddToCart(sku, name, category, price, currency, num_items) {
-    fbq('track', 'AddToCart', {
-      content_ids: ['{{ product.sku }}'],
-      content_type: 'product',
-      content_name: name,
-      content_category: category,
-      value: price * num_items,
-      currency: currency,
-      num_items: num_items
-    });
-  }
-
-    // Функция для отслеживания добавления товара в корзину и перехода на социальную сеть
-  function trackAddToCartAndRedirect(socialMediaLink) {
-    // Получаем информацию о товаре
-    var sku = '{{ product.sku }}';
-    var name = '{{ product.title }}';
-    var category = '{{ product.category.name }}';
-    var price = {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %};
-    var currency = 'UAH';
-    var num_items = 1; // Предполагаем, что добавляется один товар
-
-    // Вызываем функцию отслеживания добавления в корзину
-    trackAddToCart(sku, name, category, price, currency, num_items);
-
-    // Выполняем переход по ссылке на социальную сеть
-    window.open(socialMediaLink, '_blank');
-  }
-</script>
+<!-- Передача данных для Pixel -->
+<div id="product-fb-data"
+     data-product-sku="{{ product.sku }}"
+     data-product-title="{{ product.title }}"
+     data-product-category="{{ product.category.name }}"
+     data-product-price="{% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}">
+</div>
 
 <div class="row">
     <div class="col-lg-8">
-        <!-- Блок с информацией о товаре -->
         <div class="product-details">
             <h1>{{ product.title }}</h1>
             <p><strong>{% translate 'Категория' %}:</strong> <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
@@ -68,26 +35,26 @@
             <p><strong>{% translate 'Артикул' %}:</strong> {{ product.sku }}</p>
             <p><strong>{% translate 'Цвета' %}:</strong>
                 {% for color in product.colors.all %}
-                    {{ color.name }},
+                    {{ color.name }}{% if not forloop.last %}, {% endif %}
                 {% empty %}
                     {% translate 'Нет данных' %}
                 {% endfor %}
             </p>
             <p><strong>{% translate 'Размеры' %}:</strong>
                 {% for size in product.sizes.all %}
-                    {{ size.name }},
+                    {{ size.name }}{% if not forloop.last %}, {% endif %}
                 {% empty %}
                     {% translate 'Нет данных' %}
                 {% endfor %}
             </p>
             <div class="card-text">
                 {% if product.sale_price > 0 %}
-                        {% if product.price > 0 %}
-                            <del>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }} грн.</del><br>
-                        {% endif %}
-                        <p class="text-danger">
-                            <strong>{% translate 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }} грн.</strong>
-                        </p>
+                    {% if product.price > 0 %}
+                        <del>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }} грн.</del><br>
+                    {% endif %}
+                    <p class="text-danger">
+                        <strong>{% translate 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }} грн.</strong>
+                    </p>
                 {% else %}
                     <p>
                         {% if product.price > 0 %}
@@ -100,16 +67,15 @@
     </div>
 
     <div class="col-lg-4">
-        <!-- Таблица с модификациями товаров и кнопками покупки -->
         <div class="product-modifications">
             <h2>{% translate 'Остатки' %}</h2>
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th scope="col">{% translate 'Цвет' %}</th>
-                            <th scope="col">{% translate 'Размер' %}</th>
-                            <th scope="col">{% translate 'Количество' %}</th>
+                            <th>{% translate 'Цвет' %}</th>
+                            <th>{% translate 'Размер' %}</th>
+                            <th>{% translate 'Количество' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,17 +83,7 @@
                             <tr class="{% if modification.stock > 3 %}table-success{% elif modification.stock > 0 %}table-warning{% else %}table-danger{% endif %}">
                                 <td>{{ modification.color.name }}</td>
                                 <td>{{ modification.size.name }}</td>
-                                <td>
-                                    <form action="{% url 'add_to_cart' modification.custom_sku %}" method="post" onsubmit="trackAddToCart('{{ modification.custom_sku }}', '{{ product.title }}', '{{ product.category.name }}', {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}, 'UAH', this.quantity.value); return true;">
-                                        {% csrf_token %}
-                                        <div class="input-group">
-                                            <input type="number" name="quantity" class="form-control form-control-sm col-6 col-sm-4 col-md-3 col-lg-5" value="1" min="1" max="{{ modification.stock }}">
-                                            <div class="input-group-append">
-                                                <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-cart-shopping"></i></button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </td>
+                                <td>{{ modification.stock }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -135,29 +91,33 @@
             </div>
         </div>
 
-        <!-- Блок социальных сетей -->
-        <div class="social-media">
-            <p style="margin-bottom: 5px;">{% translate 'или купите через социальные сети:' %}</p>
+        <!-- Кнопки покупки -->
+        <div class="social-media border rounded p-3">
+            <h5>{% translate 'Купить 🛒' %}</h5>
+            <p style="font-size: 0.95em;">
+                {% translate 'Вы можете купить от 5 единиц разного товара или на сумму, эквивалентную 2000 грн.' %}
+            </p>
+
             <ul class="row mb-3 list-unstyled">
                 <li class="col">
-                    <a class="btn btn-outline-primary btn-block" onclick="trackAddToCartAndRedirect('https://m.me/432162513828457');">
+                    <a class="btn btn-outline-primary btn-block" onclick="trackLeadAndRedirect('https://m.me/432162513828457');">
                         <i class="fa-brands fa-facebook-messenger fa-lg" style="color: #0084ff;"></i> Messenger
                     </a>
                 </li>
                 <li class="col">
-                    <a class="btn btn-outline-primary btn-block" onclick="trackAddToCartAndRedirect('https://ig.me/m/deva7km');">
+                    <a class="btn btn-outline-primary btn-block" onclick="trackLeadAndRedirect('https://ig.me/m/deva7km');">
                         <i class="fa-brands fa-instagram fa-lg" style="color: #E4405F;"></i> Instagram
                     </a>
                 </li>
             </ul>
             <ul class="row mb-3 list-unstyled">
                 <li class="col">
-                    <a class="btn btn-outline-primary btn-block" onclick="trackAddToCartAndRedirect('https://t.me/Natadeva_7km');">
+                    <a class="btn btn-outline-primary btn-block" onclick="trackLeadAndRedirect('https://t.me/Natadeva_7km');">
                         <i class="fa-brands fa-telegram fa-lg" style="color: #0088cc;"></i> Telegram
                     </a>
                 </li>
                 <li class="col">
-                    <a class="btn btn-outline-primary btn-block" onclick="trackAddToCartAndRedirect('viber://chat?number=%2B380687876849');">
+                    <a class="btn btn-outline-primary btn-block" onclick="trackLeadAndRedirect('viber://chat?number=%2B380687876849');">
                         <i class="fa-brands fa-viber fa-lg" style="color: #665cac;"></i> Viber
                     </a>
                 </li>
@@ -166,7 +126,7 @@
     </div>
 </div>
 
-<!-- Отображение изображений товара -->
+<!-- Изображения -->
 <div class="product-image" style="margin-top: 30px;">
     <h2>{% translate 'Все изображения' %}</h2>
     {% for color, images in unique_color_images.items %}
@@ -178,4 +138,38 @@
         <p>{% translate 'Нет изображений' %}</p>
     {% endfor %}
 </div>
+
+<!-- Facebook Pixel Events -->
+<script>
+  // Отслеживание лида
+  function trackLeadAndRedirect(link) {
+  const el = document.getElementById("product-fb-data");
+  if (typeof fbq === 'function' && el) {
+    fbq('track', 'Lead', {
+      content_ids: [el.dataset.productSku],
+      content_type: 'product',
+      content_name: el.dataset.productTitle,
+      content_category: el.dataset.productCategory,
+      value: parseFloat(el.dataset.productPrice),
+      currency: 'UAH'
+    });
+  }
+  window.open(link, '_blank');
+}
+
+  // ViewContent после загрузки DOM
+  document.addEventListener("DOMContentLoaded", function () {
+    const el = document.getElementById("product-fb-data");
+    if (!el || typeof fbq !== 'function') return;
+
+    fbq('track', 'ViewContent', {
+      content_ids: [el.dataset.productSku],
+      content_type: 'product',
+      content_name: el.dataset.productTitle,
+      content_category: el.dataset.productCategory,
+      value: parseFloat(el.dataset.productPrice),
+      currency: 'UAH'
+    });
+  });
+</script>
 {% endblock %}
