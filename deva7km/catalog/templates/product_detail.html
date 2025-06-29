@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block content %}
-<!-- Передача данных для Pixel -->
+<!-- Данные для Facebook Pixel -->
 <div id="product-fb-data"
      data-product-sku="{{ product.sku }}"
      data-product-title="{{ product.title }}"
@@ -28,11 +28,13 @@
 
 <div class="row">
     <div class="col-lg-8">
+        <!-- Информация о товаре -->
         <div class="product-details">
             <h1>{{ product.title }}</h1>
             <p><strong>{% translate 'Категория' %}:</strong> <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a></p>
             <p><strong>{% translate 'Описание' %}:</strong> {{ product.description }}</p>
             <p><strong>{% translate 'Артикул' %}:</strong> {{ product.sku }}</p>
+
             <p><strong>{% translate 'Цвета' %}:</strong>
                 {% for color in product.colors.all %}
                     {{ color.name }}{% if not forloop.last %}, {% endif %}
@@ -40,6 +42,7 @@
                     {% translate 'Нет данных' %}
                 {% endfor %}
             </p>
+
             <p><strong>{% translate 'Размеры' %}:</strong>
                 {% for size in product.sizes.all %}
                     {{ size.name }}{% if not forloop.last %}, {% endif %}
@@ -47,26 +50,24 @@
                     {% translate 'Нет данных' %}
                 {% endfor %}
             </p>
+
             <div class="card-text">
                 {% if product.sale_price > 0 %}
                     {% if product.price > 0 %}
                         <del>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }} грн.</del><br>
                     {% endif %}
-                    <p class="text-danger">
-                        <strong>{% translate 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }} грн.</strong>
-                    </p>
+                    <p class="text-danger"><strong>{% translate 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }} грн.</strong></p>
                 {% else %}
-                    <p>
-                        {% if product.price > 0 %}
-                            <strong>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }} грн.</strong>
-                        {% endif %}
-                    </p>
+                    {% if product.price > 0 %}
+                        <p><strong>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }} грн.</strong></p>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
     </div>
 
     <div class="col-lg-4">
+        <!-- Остатки -->
         <div class="product-modifications">
             <h2>{% translate 'Остатки' %}</h2>
             <div class="table-responsive">
@@ -75,7 +76,7 @@
                         <tr>
                             <th>{% translate 'Цвет' %}</th>
                             <th>{% translate 'Размер' %}</th>
-                            <th>{% translate 'Количество' %}</th>
+                            <th>{% translate 'Наличие' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -83,7 +84,15 @@
                             <tr class="{% if modification.stock > 3 %}table-success{% elif modification.stock > 0 %}table-warning{% else %}table-danger{% endif %}">
                                 <td>{{ modification.color.name }}</td>
                                 <td>{{ modification.size.name }}</td>
-                                <td>{{ modification.stock }}</td>
+                                <td>
+                                    {% if modification.stock > 3 %}
+                                        {% translate 'в наличии' %}
+                                    {% elif modification.stock > 0 %}
+                                        {% translate 'заканчивается' %}
+                                    {% else %}
+                                        {% translate 'нет в наличии' %}
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -141,27 +150,24 @@
 
 <!-- Facebook Pixel Events -->
 <script>
-  // Отслеживание лида
   function trackLeadAndRedirect(link) {
-  const el = document.getElementById("product-fb-data");
-  if (typeof fbq === 'function' && el) {
-    fbq('track', 'Lead', {
-      content_ids: [el.dataset.productSku],
-      content_type: 'product',
-      content_name: el.dataset.productTitle,
-      content_category: el.dataset.productCategory,
-      value: parseFloat(el.dataset.productPrice),
-      currency: 'UAH'
-    });
+    const el = document.getElementById("product-fb-data");
+    if (typeof fbq === 'function' && el) {
+      fbq('track', 'Lead', {
+        content_ids: [el.dataset.productSku],
+        content_type: 'product',
+        content_name: el.dataset.productTitle,
+        content_category: el.dataset.productCategory,
+        value: parseFloat(el.dataset.productPrice),
+        currency: 'UAH'
+      });
+    }
+    window.open(link, '_blank');
   }
-  window.open(link, '_blank');
-}
 
-  // ViewContent после загрузки DOM
   document.addEventListener("DOMContentLoaded", function () {
     const el = document.getElementById("product-fb-data");
     if (!el || typeof fbq !== 'function') return;
-
     fbq('track', 'ViewContent', {
       content_ids: [el.dataset.productSku],
       content_type: 'product',

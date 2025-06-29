@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-29 12:45+0300\n"
+"POT-Creation-Date: 2025-06-29 14:12+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,350 +16,335 @@ msgstr ""
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
 
-#: .\deva7km\catalog\forms.py:33
+#: .\catalog\forms.py:33
 msgid "Поиск"
 msgstr "Пошук"
 
-#: .\deva7km\catalog\models.py:626
+#: .\catalog\models.py:626
 msgid "В ожидании"
 msgstr "В очікуванні"
 
-#: .\deva7km\catalog\models.py:627
+#: .\catalog\models.py:627
 msgid "Завершено"
 msgstr "Завершено"
 
-#: .\deva7km\catalog\models.py:628
+#: .\catalog\models.py:628
 msgid "Отменено"
 msgstr "Скасовано"
 
-#: .\deva7km\catalog\templates\base.html:9
+#: .\catalog\templates\base.html:9
 msgid "Сайт deva7km"
 msgstr "Сайт deva7km"
 
-#: .\deva7km\catalog\templates\base.html:28
+#: .\catalog\templates\base.html:31
+msgid "Поиск товаров"
+msgstr "Пошук товарів"
+
+#: .\catalog\templates\base.html:33
+msgid "Искать"
+msgstr ""
+
+#: .\catalog\templates\base.html:41
 msgid "Дева"
 msgstr "Діва"
 
-#: .\deva7km\catalog\templates\base.html:41
-#: .\deva7km\catalog\templates\registration\profile.html:4
-msgid "Профиль"
-msgstr "Профіль"
+#: .\catalog\templates\base.html:44
+msgid "Toggle navigation"
+msgstr ""
 
-#: .\deva7km\catalog\templates\base.html:42
-#: .\deva7km\catalog\templates\registration\profile.html:8
-msgid "Выйти"
-msgstr "Вийти"
-
-#: .\deva7km\catalog\templates\base.html:44
-#: .\deva7km\catalog\templates\registration\login.html:8
-msgid "Войти"
-msgstr "Увійти"
-
-#: .\deva7km\catalog\templates\category_detail.html:8
-#: .\deva7km\catalog\templates\contacts_page.html:10
-#: .\deva7km\catalog\templates\delivery_page.html:10
-#: .\deva7km\catalog\templates\delivery_payment_page.html:9
-#: .\deva7km\catalog\templates\home.html:4
-#: .\deva7km\catalog\templates\home.html:9
-#: .\deva7km\catalog\templates\privacy_policy_page.html:10
-#: .\deva7km\catalog\templates\product_detail.html:13
+#: .\catalog\templates\category_detail.html:8
+#: .\catalog\templates\contacts_page.html:10
+#: .\catalog\templates\delivery_page.html:10
+#: .\catalog\templates\delivery_payment_page.html:9
+#: .\catalog\templates\home.html:4 .\catalog\templates\home.html:9
+#: .\catalog\templates\privacy_policy_page.html:10
+#: .\catalog\templates\product_detail.html:13
 msgid "Главная"
 msgstr "Головна"
 
-#: .\deva7km\catalog\templates\category_detail.html:25
-#: .\deva7km\catalog\templates\home.html:23
-#: .\deva7km\catalog\templates\main_menu.html:14
-#: .\deva7km\catalog\templates\sales.html:4
-#: .\deva7km\catalog\templates\sales.html:7
-#: .\deva7km\catalog\templates\sales.html:13
+#: .\catalog\templates\category_detail.html:25 .\catalog\templates\home.html:23
+#: .\catalog\templates\main_menu.html:14 .\catalog\templates\sales.html:4
+#: .\catalog\templates\sales.html:7 .\catalog\templates\sales.html:13
 msgid "Распродажа"
 msgstr "Розпродаж"
 
-#: .\deva7km\catalog\templates\category_detail.html:34
-#: .\deva7km\catalog\templates\home.html:32
-#: .\deva7km\catalog\templates\sales.html:21
+#: .\catalog\templates\category_detail.html:34 .\catalog\templates\home.html:32
+#: .\catalog\templates\sales.html:21
 #, fuzzy
 #| msgid "Нет изображений"
 msgid "Нет изображения"
 msgstr "Немає зображень"
 
-#: .\deva7km\catalog\templates\category_detail.html:44
-#: .\deva7km\catalog\templates\home.html:43
-#: .\deva7km\catalog\templates\product_detail.html:68
-#: .\deva7km\catalog\templates\sales.html:32
+#: .\catalog\templates\category_detail.html:44 .\catalog\templates\home.html:43
+#: .\catalog\templates\product_detail.html:36 .\catalog\templates\sales.html:32
 msgid "Артикул"
 msgstr "Артикул"
 
-#: .\deva7km\catalog\templates\category_detail.html:45
-#: .\deva7km\catalog\templates\home.html:44
-#: .\deva7km\catalog\templates\product_detail.html:69
-#: .\deva7km\catalog\templates\sales.html:33
+#: .\catalog\templates\category_detail.html:45 .\catalog\templates\home.html:44
+#: .\catalog\templates\product_detail.html:38 .\catalog\templates\sales.html:33
 msgid "Цвета"
 msgstr "Кольори"
 
-#: .\deva7km\catalog\templates\category_detail.html:46
-#: .\deva7km\catalog\templates\home.html:45
-#: .\deva7km\catalog\templates\product_detail.html:76
-#: .\deva7km\catalog\templates\sales.html:34
+#: .\catalog\templates\category_detail.html:46 .\catalog\templates\home.html:45
+#: .\catalog\templates\product_detail.html:46 .\catalog\templates\sales.html:34
 msgid "Размеры"
 msgstr "Розміри"
 
-#: .\deva7km\catalog\templates\category_detail.html:51
-#: .\deva7km\catalog\templates\category_detail.html:57
-#: .\deva7km\catalog\templates\home.html:50
-#: .\deva7km\catalog\templates\home.html:55
-#: .\deva7km\catalog\templates\product_detail.html:86
-#: .\deva7km\catalog\templates\product_detail.html:94
-#: .\deva7km\catalog\templates\sales.html:37
-#: .\deva7km\catalog\templates\sales.html:40
+#: .\catalog\templates\category_detail.html:51
+#: .\catalog\templates\category_detail.html:57 .\catalog\templates\home.html:50
+#: .\catalog\templates\home.html:55 .\catalog\templates\product_detail.html:57
+#: .\catalog\templates\product_detail.html:62 .\catalog\templates\sales.html:37
+#: .\catalog\templates\sales.html:40
 msgid "Цена"
 msgstr "Ціна"
 
-#: .\deva7km\catalog\templates\category_detail.html:53
-#: .\deva7km\catalog\templates\home.html:52
-#: .\deva7km\catalog\templates\product_detail.html:89
-#: .\deva7km\catalog\templates\sales.html:38
+#: .\catalog\templates\category_detail.html:53 .\catalog\templates\home.html:52
+#: .\catalog\templates\product_detail.html:59 .\catalog\templates\sales.html:38
 msgid "Цена распродажи"
 msgstr "Ціна розпродажу"
 
-#: .\deva7km\catalog\templates\category_detail.html:64
-#: .\deva7km\catalog\templates\home.html:61
-#: .\deva7km\catalog\templates\sales.html:46
+#: .\catalog\templates\category_detail.html:64 .\catalog\templates\home.html:61
+#: .\catalog\templates\sales.html:46
 msgid "Перейти"
 msgstr "Перейти"
 
-#: .\deva7km\catalog\templates\category_detail.html:75
-#: .\deva7km\catalog\templates\sales.html:57
+#: .\catalog\templates\category_detail.html:75
+#: .\catalog\templates\sales.html:57
 msgid "First"
 msgstr "Перша"
 
-#: .\deva7km\catalog\templates\category_detail.html:80
-#: .\deva7km\catalog\templates\sales.html:62
+#: .\catalog\templates\category_detail.html:80
+#: .\catalog\templates\sales.html:62
 msgid "Previous"
 msgstr "Попередня"
 
-#: .\deva7km\catalog\templates\category_detail.html:87
-#: .\deva7km\catalog\templates\sales.html:69
+#: .\catalog\templates\category_detail.html:87
+#: .\catalog\templates\sales.html:69
 msgid "Страница"
 msgstr "Сторінка"
 
-#: .\deva7km\catalog\templates\category_detail.html:87
-#: .\deva7km\catalog\templates\sales.html:69
+#: .\catalog\templates\category_detail.html:87
+#: .\catalog\templates\sales.html:69
 msgid "из"
 msgstr "з"
 
-#: .\deva7km\catalog\templates\category_detail.html:92
-#: .\deva7km\catalog\templates\sales.html:74
+#: .\catalog\templates\category_detail.html:92
+#: .\catalog\templates\sales.html:74
 msgid "Next"
 msgstr "Наступна"
 
-#: .\deva7km\catalog\templates\category_detail.html:97
-#: .\deva7km\catalog\templates\sales.html:79
+#: .\catalog\templates\category_detail.html:97
+#: .\catalog\templates\sales.html:79
 msgid "Last"
 msgstr "Остання"
 
-#: .\deva7km\catalog\templates\category_detail.html:106
+#: .\catalog\templates\category_detail.html:106
 msgid "Нет товаров в этой категории"
 msgstr "Немає товарів в цій категорії"
 
-#: .\deva7km\catalog\templates\contact_menu.html:6
+#: .\catalog\templates\contact_menu.html:6
 msgid "О сайте"
 msgstr "Про сайт"
 
-#: .\deva7km\catalog\templates\contact_menu.html:9
-#: .\deva7km\catalog\templates\contact_menu_bottom.html:5
-#: .\deva7km\catalog\templates\contacts_page.html:4
-#: .\deva7km\catalog\templates\contacts_page.html:11
-#: .\deva7km\catalog\templates\header_links.html:6
+#: .\catalog\templates\contact_menu.html:9
+#: .\catalog\templates\contact_menu_bottom.html:5
+#: .\catalog\templates\contacts_page.html:4
+#: .\catalog\templates\contacts_page.html:11
+#: .\catalog\templates\header_links.html:6
 msgid "Контакты"
 msgstr "Контакти"
 
-#: .\deva7km\catalog\templates\contact_menu.html:12
-#: .\deva7km\catalog\templates\delivery_page.html:11
+#: .\catalog\templates\contact_menu.html:12
+#: .\catalog\templates\delivery_page.html:11
 msgid "Доставка"
 msgstr "Доставка"
 
-#: .\deva7km\catalog\templates\contact_menu.html:15
+#: .\catalog\templates\contact_menu.html:15
 msgid "Оплата"
 msgstr "Оплата"
 
-#: .\deva7km\catalog\templates\contact_menu_bottom.html:6
-#: .\deva7km\catalog\templates\delivery_payment_page.html:10
-#: .\deva7km\catalog\templates\header_links.html:9
+#: .\catalog\templates\contact_menu_bottom.html:6
+#: .\catalog\templates\delivery_payment_page.html:10
+#: .\catalog\templates\header_links.html:9
 msgid "Доставка и оплата"
 msgstr "Доставка і оплата"
 
-#: .\deva7km\catalog\templates\contact_menu_bottom.html:7
+#: .\catalog\templates\contact_menu_bottom.html:7
 msgid "Политика конфиденциальности"
 msgstr "Політика конфіденційності"
 
-#: .\deva7km\catalog\templates\contacts_info.html:11
+#: .\catalog\templates\contacts_info.html:11
 msgid "Email:"
 msgstr "Email:"
 
-#: .\deva7km\catalog\templates\contacts_info.html:12
+#: .\catalog\templates\contacts_info.html:12
 msgid "Телефон:"
 msgstr "Телефон:"
 
-#: .\deva7km\catalog\templates\contacts_info.html:16
+#: .\catalog\templates\contacts_info.html:16
 msgid "Свяжитесь с нами:"
 msgstr "Зв'яжіться з нами:"
 
-#: .\deva7km\catalog\templates\delivery_page.html:4
+#: .\catalog\templates\delivery_page.html:4
 msgid "Информация о доставке"
 msgstr "Інформація про доставку"
 
-#: .\deva7km\catalog\templates\delivery_payment_page.html:3
+#: .\catalog\templates\delivery_payment_page.html:3
 msgid "Информация о доставке и оплате"
 msgstr "Інформація про доставку та оплату"
 
-#: .\deva7km\catalog\templates\home.html:16
+#: .\catalog\templates\home.html:16
 msgid "Новинки"
 msgstr "Новинки"
 
-#: .\deva7km\catalog\templates\home.html:42
-#: .\deva7km\catalog\templates\product_detail.html:66
-#: .\deva7km\catalog\templates\sales.html:31
+#: .\catalog\templates\home.html:42 .\catalog\templates\product_detail.html:34
+#: .\catalog\templates\sales.html:31
 msgid "Категория"
 msgstr "Категорія"
 
-#: .\deva7km\catalog\templates\privacy_policy_page.html:4
+#: .\catalog\templates\privacy_policy_page.html:4
 msgid "Информация о политике конфиденциальности"
 msgstr "Інформація про політику конфіденційності"
 
-#: .\deva7km\catalog\templates\privacy_policy_page.html:11
+#: .\catalog\templates\privacy_policy_page.html:11
 msgid "политика конфиденциальности"
 msgstr "політика конфіденційності"
 
-#: .\deva7km\catalog\templates\product_detail.html:67
+#: .\catalog\templates\product_detail.html:35
 msgid "Описание"
 msgstr "Опис"
 
-#: .\deva7km\catalog\templates\product_detail.html:73
-#: .\deva7km\catalog\templates\product_detail.html:80
+#: .\catalog\templates\product_detail.html:42
+#: .\catalog\templates\product_detail.html:50
 msgid "Нет данных"
 msgstr "Немає даних"
 
-#: .\deva7km\catalog\templates\product_detail.html:105
+#: .\catalog\templates\product_detail.html:72
 msgid "Остатки"
 msgstr "Залишок"
 
-#: .\deva7km\catalog\templates\product_detail.html:110
+#: .\catalog\templates\product_detail.html:77
 msgid "Цвет"
 msgstr "Колір"
 
-#: .\deva7km\catalog\templates\product_detail.html:111
+#: .\catalog\templates\product_detail.html:78
 msgid "Размер"
 msgstr "Розмір"
 
-#: .\deva7km\catalog\templates\product_detail.html:112
-msgid "Количество"
-msgstr "Кількість"
+#: .\catalog\templates\product_detail.html:79
+msgid "Наличие"
+msgstr " Наявність"
 
-#: .\deva7km\catalog\templates\product_detail.html:130
+#: .\catalog\templates\product_detail.html:89
+msgid "в наличии"
+msgstr " у наявності"
+
+#: .\catalog\templates\product_detail.html:91
+msgid "заканчивается"
+msgstr "закінчується"
+
+#: .\catalog\templates\product_detail.html:93
+msgid "нет в наличии"
+msgstr " немає у наявності"
+
+#: .\catalog\templates\product_detail.html:105
 msgid "Купить 🛒"
 msgstr " Купити 🛒"
 
-#: .\deva7km\catalog\templates\product_detail.html:132
+#: .\catalog\templates\product_detail.html:107
 msgid ""
 "Вы можете купить от 5 единиц разного товара или на сумму, эквивалентную 2000 "
 "грн."
 msgstr ""
-"Ви можете купити від 5 одиниць різного товару або на суму, еквівалентну 2000"
-"грн."
+"Ви можете купити від 5 одиниць різного товару або на суму, еквівалентну "
+"2000грн."
 
-#: .\deva7km\catalog\templates\product_detail.html:165
+#: .\catalog\templates\product_detail.html:140
 msgid "Все изображения"
 msgstr "Усі зображення"
 
-#: .\deva7km\catalog\templates\product_detail.html:172
+#: .\catalog\templates\product_detail.html:147
 msgid "Нет изображений"
 msgstr "Немає зображень"
 
-#: .\deva7km\catalog\templates\registration\login.html:4
-msgid "Вход"
-msgstr "Вхід"
-
-#: .\deva7km\catalog\templates\registration\login.html:10
-#, fuzzy
-#| msgid "Очистить корзину"
-msgid "Забыли пароль?"
-msgstr "Очистити корзину"
-
-#: .\deva7km\catalog\templates\registration\password_change_done.html:4
-msgid "Пароль успешно изменен"
-msgstr "Пароль успішно змінено"
-
-#: .\deva7km\catalog\templates\registration\password_change_done.html:5
-msgid "Ваш пароль был успешно изменен."
-msgstr "Ваш пароль успішно змінено."
-
-#: .\deva7km\catalog\templates\registration\password_change_form.html:4
-#: .\deva7km\catalog\templates\registration\password_change_form.html:8
-#: .\deva7km\catalog\templates\registration\profile.html:7
-#, fuzzy
-#| msgid "Сбросить пароль"
-msgid "Изменить пароль"
-msgstr "Скинути пароль"
-
-#: .\deva7km\catalog\templates\registration\password_reset_complete.html:4
-msgid "Сброс пароля завершен"
-msgstr "Скидання пароля завершено"
-
-#: .\deva7km\catalog\templates\registration\password_reset_complete.html:5
-msgid "Ваш пароль был успешно сброшен. Теперь вы можете"
-msgstr "Ваш пароль було успішно скинуто. Тепер ви можете"
-
-#: .\deva7km\catalog\templates\registration\password_reset_complete.html:5
-msgid "войти"
-msgstr "Увійти"
-
-#: .\deva7km\catalog\templates\registration\password_reset_complete.html:5
-msgid "с новым паролем."
-msgstr "з новим паролем."
-
-#: .\deva7km\catalog\templates\registration\password_reset_confirm.html:4
-msgid "Введите новый пароль"
-msgstr "Введіть новий пароль"
-
-#: .\deva7km\catalog\templates\registration\password_reset_confirm.html:8
-msgid "Установить новый пароль"
-msgstr "Встановити новий пароль"
-
-#: .\deva7km\catalog\templates\registration\password_reset_done.html:4
-msgid "Инструкции по сбросу пароля отправлены"
-msgstr "Інструкції зі скидання пароля надіслані"
-
-#: .\deva7km\catalog\templates\registration\password_reset_done.html:5
-msgid ""
-"На ваш адрес электронной почты были отправлены инструкции по сбросу пароля."
-msgstr ""
-"На адресу електронної пошти було надіслано вказівки щодо скидання пароля."
-
-#: .\deva7km\catalog\templates\registration\password_reset_form.html:4
-#: .\deva7km\catalog\templates\registration\password_reset_form.html:8
-msgid "Сбросить пароль"
-msgstr "Скинути пароль"
-
-#: .\deva7km\catalog\templates\registration\profile.html:5
-msgid "Имя пользователя"
-msgstr "Ім'я користувача"
-
-#: .\deva7km\catalog\templates\registration\profile.html:6
-msgid "Email"
-msgstr "Email"
-
-#: .\deva7km\catalog\templates\sales.html:88
+#: .\catalog\templates\sales.html:88
 msgid "Нет товаров в распродаже"
 msgstr "Немає товарів у розпродажі"
 
-#: .\deva7km\deva7km\settings.py:142
+#: .\deva7km\settings.py:142
 msgid "Russian"
 msgstr "Русский"
 
-#: .\deva7km\deva7km\settings.py:143
+#: .\deva7km\settings.py:143
 msgid "Ukrainian"
 msgstr "Українська"
+
+#~ msgid "Профиль"
+#~ msgstr "Профіль"
+
+#~ msgid "Выйти"
+#~ msgstr "Вийти"
+
+#~ msgid "Войти"
+#~ msgstr "Увійти"
+
+#~ msgid "Количество"
+#~ msgstr "Кількість"
+
+#~ msgid "Вход"
+#~ msgstr "Вхід"
+
+#, fuzzy
+#~| msgid "Очистить корзину"
+#~ msgid "Забыли пароль?"
+#~ msgstr "Очистити корзину"
+
+#~ msgid "Пароль успешно изменен"
+#~ msgstr "Пароль успішно змінено"
+
+#~ msgid "Ваш пароль был успешно изменен."
+#~ msgstr "Ваш пароль успішно змінено."
+
+#, fuzzy
+#~| msgid "Сбросить пароль"
+#~ msgid "Изменить пароль"
+#~ msgstr "Скинути пароль"
+
+#~ msgid "Сброс пароля завершен"
+#~ msgstr "Скидання пароля завершено"
+
+#~ msgid "Ваш пароль был успешно сброшен. Теперь вы можете"
+#~ msgstr "Ваш пароль було успішно скинуто. Тепер ви можете"
+
+#~ msgid "войти"
+#~ msgstr "Увійти"
+
+#~ msgid "с новым паролем."
+#~ msgstr "з новим паролем."
+
+#~ msgid "Введите новый пароль"
+#~ msgstr "Введіть новий пароль"
+
+#~ msgid "Установить новый пароль"
+#~ msgstr "Встановити новий пароль"
+
+#~ msgid "Инструкции по сбросу пароля отправлены"
+#~ msgstr "Інструкції зі скидання пароля надіслані"
+
+#~ msgid ""
+#~ "На ваш адрес электронной почты были отправлены инструкции по сбросу "
+#~ "пароля."
+#~ msgstr ""
+#~ "На адресу електронної пошти було надіслано вказівки щодо скидання пароля."
+
+#~ msgid "Сбросить пароль"
+#~ msgstr "Скинути пароль"
+
+#~ msgid "Имя пользователя"
+#~ msgstr "Ім'я користувача"
+
+#~ msgid "Email"
+#~ msgstr "Email"
 
 #~ msgid "Корзина"
 #~ msgstr "Кошик"
@@ -552,9 +537,6 @@ msgstr "Українська"
 #~ msgid "Отделение"
 #~ msgstr "Відділення"
 
-#~ msgid "Поиск товаров"
-#~ msgstr "Пошук товарів"
-
 #~ msgid "Результаты поиска:"
 #~ msgstr "Результати пошуку:"
 
@@ -669,9 +651,6 @@ msgstr "Українська"
 #~| msgid "Корзина"
 #~ msgid "Корзинa"
 #~ msgstr "Кошик"
-
-#~ msgid " нет в наличии"
-#~ msgstr " немає у наявності"
 
 #~ msgid "Купить в Telegram"
 #~ msgstr "Купити у Telegram"
