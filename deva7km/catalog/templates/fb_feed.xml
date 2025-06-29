@@ -17,9 +17,9 @@
             <g:additional_image_link>{{ additional_images }}</g:additional_image_link>
           {% endif %}
         {% endwith %}
-        <g:price>{{ product.retail_price }} {{ product.currency }}</g:price>
-        {% if product.retail_sale_price > 0 %}
-        <g:sale_price>{{ product.retail_sale_price }} {{ product.currency }}</g:sale_price>
+        <g:price>{{ product.price }} {{ product.currency }}</g:price>
+        {% if product.sale_price > 0 %}
+        <g:sale_price>{{ product.sale_price }} {{ product.currency }}</g:sale_price>
         {% endif %}
         <g:availability>{% if product.get_total_stock %}in stock{% else %}out of stock{% endif %}</g:availability>
         <g:quantity_to_sell_on_facebook>{{ product.get_total_stock }}</g:quantity_to_sell_on_facebook>
