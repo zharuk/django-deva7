@@ -54,12 +54,12 @@
             <div class="card-text">
                 {% if product.sale_price > 0 %}
                     {% if product.price > 0 %}
-                        <del>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }} грн.</del><br>
+                        <del>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }}</del><br>
                     {% endif %}
-                    <p class="text-danger"><strong>{% translate 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }} грн.</strong></p>
+                    <p class="text-danger"><strong>{% translate 'Цена распродажи' %}: {{ product.sale_price }} {{ product.currency }}</strong></p>
                 {% else %}
                     {% if product.price > 0 %}
-                        <p><strong>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }} грн.</strong></p>
+                        <p><strong>{% translate 'Цена' %}: {{ product.price }} {{ product.currency }}</strong></p>
                     {% endif %}
                 {% endif %}
             </div>
