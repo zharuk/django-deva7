@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
-  <channel>
-    <title>Товарный фид для facebook интернет-магазина Дева</title>
+<channel>
+    <title>{% load i18n %}{% trans "Товарный фид для facebook интернет-магазина Дева" %}</title>
     <link>http://deva7km.com.ua/feed_fb/</link>
-    <description>Фид товаров для отображения в Facebook</description>
-    <language>ru</language>
+    <description>{% trans "Фид товаров для отображения в Facebook" %}</description>
+    <language>{{ language|default:"uk" }}</language>
     {% for product in products %}
-      <item>
+    <item>
         <g:id>{{ product.sku }}</g:id>
         <title>{{ product.title }}</title>
         <description>{{ product.description }}</description>
-        <link>{{ product.get_absolute_url }}</link>
+        <link>{{ request.scheme }}://{{ request.get_host }}{{ product.get_absolute_url }}</link>
         <g:image_link>{{ product.collage_image_url }}</g:image_link>
         {% with additional_images=product.get_all_large_images|join:", " %}
-          {% if additional_images %}
-            <g:additional_image_link>{{ additional_images }}</g:additional_image_link>
-          {% endif %}
+        {% if additional_images %}
+        <g:additional_image_link>{{ additional_images }}</g:additional_image_link>
+        {% endif %}
         {% endwith %}
         <g:price>{{ product.price }} {{ product.currency }}</g:price>
         {% if product.sale_price > 0 %}
@@ -30,13 +30,13 @@
         <g:age_group>adult</g:age_group>
         <g:gender>female</g:gender>
         <g:condition>new</g:condition>
-        <g:product_type>Clothing</g:product_type>
+        <g:product_type>{% trans "Clothing" %}</g:product_type>
         {% if product.is_active %}
-          <g:status>active</g:status>
+        <g:status>active</g:status>
         {% else %}
-          <g:status>archived</g:status>
+        <g:status>archived</g:status>
         {% endif %}
-      </item>
+    </item>
     {% endfor %}
-  </channel>
+</channel>
 </rss>
