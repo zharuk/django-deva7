@@ -150,13 +150,13 @@
                             <tr>
                                 <th>Дроп:</th>
                                 <td>
-                                    <img src="{% static 'admin/img/icon-' %}{{ obj.drop|yesno:'yes,no' }}.svg" alt="{% if obj.drop %}Да{% else %}Нет{% endif %}">
+                                    <img src="{% static 'admin/img/icon-'|add:obj.drop|yesno:'yes,no'|add:'.svg' %}" alt="{% if obj.drop %}Да{% else %}Нет{% endif %}">
                                 </td>
                             </tr>
                             <tr>
                                 <th>Чек:</th>
                                 <td>
-                                    <img src="{% static 'admin/img/icon-' %}{{ obj.receipt_issued|yesno:'yes,no' }}.svg" alt="{% if obj.receipt_issued %}Да{% else %}Нет{% endif %}">
+                                    <img src="{% static 'admin/img/icon-'|add:obj.receipt_issued|yesno:'yes,no'|add:'.svg' %}" alt="{% if obj.receipt_issued %}Да{% else %}Нет{% endif %}">
                                 </td>
                             </tr>
                             <tr>
@@ -166,7 +166,7 @@
                             <tr>
                                 <th>Отправлен:</th>
                                 <td>
-                                    <img src="{% static 'admin/img/icon-' %}{{ obj.shipped_to_customer|yesno:'yes,no' }}.svg" alt="{% if obj.shipped_to_customer %}Да{% else %}Нет{% endif %}">
+                                    <img src="{% static 'admin/img/icon-'|add:obj.shipped_to_customer|yesno:'yes,no'|add:'.svg' %}" alt="{% if obj.shipped_to_customer %}Да{% else %}Нет{% endif %}">
                                 </td>
                             </tr>
                             <tr>
