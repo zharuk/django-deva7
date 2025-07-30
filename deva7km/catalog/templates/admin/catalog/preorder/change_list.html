@@ -23,90 +23,90 @@
             }
 
             .preorder-block {
-                margin-bottom: 10px; /* Space after each block */
+                margin-bottom: 10px;
                 padding: 15px;
-                border-radius: 5px; /* Rounded corners */
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow */
-                font-size: 14px; /* Smaller font size for better fit */
+                border-radius: 5px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                font-size: 14px;
             }
 
             .preorder-table {
                 width: 100%;
-                border-collapse: collapse; /* Consistent borders */
+                border-collapse: collapse;
             }
 
             .preorder-table th, .preorder-table td {
-                padding: 8px; /* Padding for table cells */
+                padding: 8px;
                 text-align: left;
             }
 
             .preorder-table th {
-                width: 40%; /* Fixed width for headers */
+                width: 40%;
             }
 
             .button {
                 display: inline-block;
                 padding: 10px 20px;
-                border: none; /* Remove border */
+                border: none;
                 text-align: center;
                 text-decoration: none;
                 font-size: 14px;
                 border-radius: 4px;
                 transition: background-color 0.3s ease;
-                margin-top: 10px; /* Space above */
-                margin-bottom: 20px; /* Space below */
+                margin-top: 10px;
+                margin-bottom: 20px;
             }
 
             /* Light Theme */
             body.light-mode .preorder-block {
-                background-color: #ffffff; /* Light background */
-                color: #333333; /* Dark text */
-                border: 1px solid #e0e0e0; /* Light border */
+                background-color: #ffffff;
+                color: #333333;
+                border: 1px solid #e0e0e0;
             }
 
             body.light-mode .preorder-table th {
-                background-color: #f2f2f2; /* Light background for headers */
-                color: #333; /* Dark text */
+                background-color: #f2f2f2;
+                color: #333;
             }
 
             body.light-mode .preorder-table td {
-                background-color: #ffffff; /* Light background for cells */
-                color: #333; /* Dark text */
+                background-color: #ffffff;
+                color: #333;
             }
 
             body.light-mode .button {
-                background-color: #007bff; /* Main button color */
-                color: #fff; /* White text */
+                background-color: #007bff;
+                color: #fff;
             }
 
             body.light-mode .button:hover {
-                background-color: #0056b3; /* Dark blue on hover */
+                background-color: #0056b3;
             }
 
             /* Dark Theme */
             body.dark-mode .preorder-block {
-                background-color: #333333; /* Slightly lighter dark background */
-                color: #f1f1f1; /* Light text */
-                border: 1px solid #555555; /* Slightly lighter dark border */
+                background-color: #333333;
+                color: #f1f1f1;
+                border: 1px solid #555555;
             }
 
             body.dark-mode .preorder-table th {
-                background-color: #444444; /* Dark background for table headers */
-                color: #f1f1f1; /* Light text */
+                background-color: #444444;
+                color: #f1f1f1;
             }
 
             body.dark-mode .preorder-table td {
-                background-color: #333333; /* Match the block background */
-                color: #e0e0e0; /* Light text for table data */
+                background-color: #333333;
+                color: #e0e0e0;
             }
 
             body.dark-mode .button {
-                background-color: #505050; /* Dark grey button */
-                color: #fff; /* White text */
+                background-color: #505050;
+                color: #fff;
             }
 
             body.dark-mode .button:hover {
-                background-color: #6c757d; /* Lighter grey on hover */
+                background-color: #6c757d;
             }
         }
 
@@ -150,13 +150,17 @@
                             <tr>
                                 <th>Дроп:</th>
                                 <td>
-                                    <img src="{% static 'admin/img/icon-'|add:obj.drop|yesno:'yes,no'|add:'.svg' %}" alt="{% if obj.drop %}Да{% else %}Нет{% endif %}">
+                                    {% with icon_name="admin/img/icon-"|add:obj.drop|yesno:"yes,no"|add:".svg" %}
+                                        <img src="{% static icon_name %}" alt="{% if obj.drop %}Да{% else %}Нет{% endif %}">
+                                    {% endwith %}
                                 </td>
                             </tr>
                             <tr>
                                 <th>Чек:</th>
                                 <td>
-                                    <img src="{% static 'admin/img/icon-'|add:obj.receipt_issued|yesno:'yes,no'|add:'.svg' %}" alt="{% if obj.receipt_issued %}Да{% else %}Нет{% endif %}">
+                                    {% with icon_name="admin/img/icon-"|add:obj.receipt_issued|yesno:"yes,no"|add:".svg" %}
+                                        <img src="{% static icon_name %}" alt="{% if obj.receipt_issued %}Да{% else %}Нет{% endif %}">
+                                    {% endwith %}
                                 </td>
                             </tr>
                             <tr>
@@ -166,7 +170,9 @@
                             <tr>
                                 <th>Отправлен:</th>
                                 <td>
-                                    <img src="{% static 'admin/img/icon-'|add:obj.shipped_to_customer|yesno:'yes,no'|add:'.svg' %}" alt="{% if obj.shipped_to_customer %}Да{% else %}Нет{% endif %}">
+                                    {% with icon_name="admin/img/icon-"|add:obj.shipped_to_customer|yesno:"yes,no"|add:".svg" %}
+                                        <img src="{% static icon_name %}" alt="{% if obj.shipped_to_customer %}Да{% else %}Нет{% endif %}">
+                                    {% endwith %}
                                 </td>
                             </tr>
                             <tr>
