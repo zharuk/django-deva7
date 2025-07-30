@@ -244,7 +244,6 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 class PreOrderAdmin(admin.ModelAdmin):
-    change_list_template = "admin/catalog/preorder/change_list.html"
     list_display = (
         'id', 'full_name', 'text', 'drop', 'receipt_issued', 'ttn', 'shipped_to_customer', 'status', 'created_at',
         'updated_at',)
