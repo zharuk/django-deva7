@@ -11,7 +11,6 @@
         <g:id>{{ product.sku }}</g:id>
         <title>{{ product.title }}</title>
         <description>{{ product.description }}</description>
-        <link>{{ request.scheme }}://{{ request.get_host }}{{ product.get_absolute_url }}</link>
         <g:image_link>{{ product.collage_image_url }}</g:image_link>
         {% with additional_images=product.get_all_large_images|join:", " %}
         {% if additional_images %}
