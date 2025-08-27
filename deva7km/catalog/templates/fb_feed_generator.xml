@@ -3,7 +3,7 @@
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
 <channel>
     <title>{% trans "Товарный фид для facebook интернет-магазина Дева" %}</title>
-    <link>http://deva7km.com.ua/feed_fb/</link>
+    <link>http://deva7km.com.ua/xml/</link>
     <description>{% trans "Фид товаров для отображения в Facebook" %}</description>
     <language>{{ language|default:"uk" }}</language>
     {% for product in products %}

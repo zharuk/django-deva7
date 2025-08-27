@@ -3,7 +3,7 @@
     <shop>
         <name>{% trans "Интернет магазин Дева" %}</name>
         <company>{% trans "Дева" %}</company>
-        <url>https://deva7km.com.ua/</url>
+        <url>https://deva7km.com.ua/xml</url>
         <currencies>
             <currency id="UAH" rate="1"/>
         </currencies>
