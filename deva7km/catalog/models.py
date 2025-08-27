@@ -74,12 +74,6 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     def get_total_stock(self):
-        total_stock = sum(modification.stock for modification in self.modifications.all())
-        self.is_active = total_stock > 0
-        self.save()
-        return total_stock
-
-    def calculate_total_stock(self):
         """
         Подсчитывает и возвращает общее количество остатков по всем модификациям.
         Этот метод абсолютно безопасен и не сохраняет никаких изменений в базу данных.

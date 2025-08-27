@@ -1,6 +1,4 @@
-from aiogram.enums import ParseMode
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from asgiref.sync import async_to_sync, sync_to_async
+from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.db.models.signals import m2m_changed, post_save, pre_save, pre_delete, post_delete
 from django.dispatch import receiver
@@ -16,13 +14,38 @@ from .models import Product, ProductModification, Image, Category, Sale, SaleIte
 from .utils import format_ttn, notify_preorder_change
 
 
-# сигнал который устанавливает атрибут is_sale для товара если sale_price > 0, иначе False.
 @receiver(pre_save, sender=Product)
-def set_is_sale(sender, instance, **kwargs):
-    if instance.sale_price > 0 or instance.retail_sale_price > 0:
-        instance.is_sale = True
-    else:
-        instance.is_sale = False
+def update_product_flags(sender, instance, **kwargs):
+    """
+    Обновляет флаги is_sale и is_active перед сохранением продукта.
+    - is_sale = True, если есть sale_price или retail_sale_price > 0
+    - is_active = True, если суммарный остаток всех модификаций > 0
+    """
+    # is_sale
+    instance.is_sale = bool(instance.sale_price > 0 or instance.retail_sale_price > 0)
+
+    # is_active
+    # Важно: если изменения остатков происходят через ProductModification,
+    # то get_total_stock() учитывает актуальные остатки
+    instance.is_active = instance.get_total_stock() > 0
+
+
+def update_product_is_active(product):
+    """
+    Проверяем суммарный остаток по всем модификациям и обновляем is_active.
+    """
+    total_stock = product.get_total_stock()
+    product.is_active = total_stock > 0
+    # используем update, чтобы не зациклить сигналы
+    Product.objects.filter(pk=product.pk).update(is_active=product.is_active)
+
+@receiver(post_save, sender=ProductModification)
+def product_modification_saved(sender, instance, **kwargs):
+    update_product_is_active(instance.product)
+
+@receiver(post_delete, sender=ProductModification)
+def product_modification_deleted(sender, instance, **kwargs):
+    update_product_is_active(instance.product)
 
 
 # метод для списания, вычитающий остаток
