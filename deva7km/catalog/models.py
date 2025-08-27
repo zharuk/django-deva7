@@ -79,6 +79,13 @@ class Product(models.Model):
         self.save()
         return total_stock
 
+    def calculate_total_stock(self):
+        """
+        Подсчитывает и возвращает общее количество остатков по всем модификациям.
+        Этот метод абсолютно безопасен и не сохраняет никаких изменений в базу данных.
+        """
+        return sum(modification.stock for modification in self.modifications.all())
+
     get_total_stock.short_description = 'Общие остатки'
 
     def get_colors(self):

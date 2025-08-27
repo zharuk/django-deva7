@@ -24,8 +24,8 @@
         <g:sale_price>{{ product.sale_price }} {{ product.currency }}</g:sale_price>
         {% endif %}
 
-        <g:availability>{% if product.get_total_stock %}{% trans "in stock" %}{% else %}{% trans "out of stock" %}{% endif %}</g:availability>
-        <g:quantity_to_sell_on_facebook>{{ product.get_total_stock }}</g:quantity_to_sell_on_facebook>
+        <g:availability>{% if product.calculate_total_stock %}{% trans "in stock" %}{% else %}{% trans "out of stock" %}{% endif %}</g:availability>
+        <g:quantity_to_sell_on_facebook>{{ product.calculate_total_stock }}</g:quantity_to_sell_on_facebook>
         <g:brand>{% trans "Дева" %}</g:brand>
         <g:colors>{{ product.get_colors }}</g:colors>
         <g:sizes>{{ product.get_sizes }}</g:sizes>
