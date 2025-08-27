@@ -15,7 +15,8 @@
                     <p>{% trans "Выберите необходимые параметры, чтобы сгенерировать персональную ссылку на фид для выгрузки товаров." %}</p>
 
                     <form id="xml-generator-form">
-                        <div class="form-group mb-4">
+                        <!-- Тип фида -->
+                        <div class="form-group mb-3">
                             <label class="form-label fw-bold">{% trans "Тип фида" %}:</label>
                             <div>
                                 <div class="form-check form-check-inline">
@@ -29,6 +30,21 @@
                             </div>
                         </div>
 
+                        <!-- Описание фида (оба текста в DOM; показываем нужный) -->
+                        <div id="feed-descriptions" class="mb-4">
+                            <div id="desc-rozetka" class="alert alert-primary small" role="note">
+                                {% blocktrans %}
+                                Фид в формате YML подходит для prom, rozetka и других сервисов, где каждый товар это отдельная разновидность. Например, платье в размерах 42 и 44 с цветами черный и белый это 4 отдельных товара. В этом фиде цвета товара соответствуют цветам фото. Выгружаются товары только, которые есть в наличии. Обновляется в режиме реального времени.
+                                {% endblocktrans %}
+                            </div>
+                            <div id="desc-facebook" class="alert alert-primary small d-none" role="note">
+                                {% blocktrans %}
+                                Фид в формате XML используется в google и facebook в основном, но может и импортироваться в другие сервисы. В нем единица товара включает в себя все цвета и размеры. Например, платье с размерами 42 и 44 и цветами черный и белый это один товар. В каждом таком товаре выгружены все фото доступных его цветов, первое фото - коллаж, если есть разные цвета товара то цветной коллаж. Выгружаются товары только те у которых есть положительные остатки. Например, у товара есть 4 разновидности, но в наличии только одна разновидность - этот товар будет выгружен. В фиде указаны общие остатки по сумме всех разновидностей. Обновляется в режиме реального времени.
+                                {% endblocktrans %}
+                            </div>
+                        </div>
+
+                        <!-- Тип наценки -->
                         <div class="form-group mb-3">
                             <label class="form-label fw-bold">{% trans "Тип наценки" %}:</label>
                             <div>
@@ -43,12 +59,14 @@
                             </div>
                         </div>
 
+                        <!-- Значение наценки -->
                         <div class="form-group mb-4">
                             <label for="markup" class="form-label fw-bold">{% trans "Значение наценки" %}:</label>
                             <input type="number" class="form-control" id="markup" name="markup" value="0" min="0">
                             <small class="form-text text-muted">{% trans "Укажите значение для выбранного типа наценки." %}</small>
                         </div>
 
+                        <!-- Язык -->
                         <div class="form-group mb-4">
                             <label class="form-label fw-bold">{% trans "Язык" %}:</label>
                             <div>
@@ -63,12 +81,14 @@
                             </div>
                         </div>
 
+                        <!-- Кнопка -->
                         <div class="d-grid gap-2">
                             <button type="button" id="generate-btn" class="btn btn-primary">{% trans "Получить ссылку на фид" %}</button>
                         </div>
                         <p id="generate-success" class="text-success mt-2 text-center" style="display: none;">{% trans "Ссылка сгенерирована!" %}</p>
                     </form>
 
+                    <!-- Результат -->
                     <div id="result-container" class="mt-4" style="display: none;">
                         <label for="generated-url" class="form-label fw-bold">{% trans "Ваша ссылка" %}:</label>
                         <div class="input-group">
@@ -77,12 +97,12 @@
                         </div>
                         <p id="copy-success" class="text-success mt-2" style="display: none;">{% trans "Ссылка скопирована!" %}</p>
                     </div>
+
                     <br>
                     <p>
                         {% trans "По техническим вопросам пишите на" %}
                         <a href="mailto:deva7km@gmail.com" class="fw-bold text-decoration-none">deva7km@gmail.com</a>
                     </p>
-
                 </div>
             </div>
         </div>
@@ -98,6 +118,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const copySuccessMessage = document.getElementById('copy-success');
     const generateSuccessMessage = document.getElementById('generate-success');
 
+    // Переключение описаний
+    const radios = document.querySelectorAll('input[name="feed_type"]');
+    const descRozetka = document.getElementById('desc-rozetka');
+    const descFacebook = document.getElementById('desc-facebook');
+
+    function updateDescription() {
+        const value = document.querySelector('input[name="feed_type"]:checked').value;
+        descRozetka.classList.toggle('d-none', value !== 'rozetka');
+        descFacebook.classList.toggle('d-none', value !== 'facebook');
+    }
+    updateDescription();
+    radios.forEach(r => r.addEventListener('change', updateDescription));
+
+    // Генерация ссылки
     generateBtn.addEventListener('click', function() {
         const form = document.getElementById('xml-generator-form');
         const feedType = form.querySelector('input[name="feed_type"]:checked').value;
@@ -106,14 +140,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const lang = form.querySelector('input[name="lang"]:checked').value;
 
         const baseUrl = `${window.location.origin}/generate_custom_feed/`;
-
         const params = new URLSearchParams({
             feed_type: feedType,
             markup_type: markupType,
             markup: markup,
             lang: lang
         });
-
         const finalUrl = `${baseUrl}?${params.toString()}`;
 
         generatedUrlInput.value = finalUrl;
@@ -121,20 +153,26 @@ document.addEventListener('DOMContentLoaded', function() {
         copySuccessMessage.style.display = 'none';
 
         generateSuccessMessage.style.display = 'block';
-        setTimeout(() => {
-            generateSuccessMessage.style.display = 'none';
-        }, 2000);
+        setTimeout(() => { generateSuccessMessage.style.display = 'none'; }, 2000);
 
         generateBtn.blur();
     });
 
-    copyBtn.addEventListener('click', function() {
-        generatedUrlInput.select();
-        document.execCommand('copy');
-        copySuccessMessage.style.display = 'block';
-        setTimeout(() => {
-            copySuccessMessage.style.display = 'none';
-        }, 2000);
+    // Копирование ссылки (Clipboard API с fallback)
+    copyBtn.addEventListener('click', async function() {
+        const text = generatedUrlInput.value;
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                generatedUrlInput.select();
+                document.execCommand('copy');
+            }
+            copySuccessMessage.style.display = 'block';
+            setTimeout(() => { copySuccessMessage.style.display = 'none'; }, 2000);
+        } catch (e) {
+            alert('Не удалось скопировать ссылку');
+        }
     });
 });
 </script>

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-27 16:10+0300\n"
+"POT-Creation-Date: 2025-08-27 18:33+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -428,72 +428,118 @@ msgstr ""
 "Виберіть необхідні параметри, щоб створити персональне посилання на ФІД для "
 "вивантаження товарів."
 
-#: .\catalog\templates\xml_generator_page.html:19
+#: .\catalog\templates\xml_generator_page.html:20
 msgid "Тип фида"
 msgstr "Тип фіда"
 
-#: .\catalog\templates\xml_generator_page.html:23
+#: .\catalog\templates\xml_generator_page.html:24
 msgid "Rozetka YML"
 msgstr "Rozetka YML"
 
-#: .\catalog\templates\xml_generator_page.html:27
+#: .\catalog\templates\xml_generator_page.html:28
 msgid "Facebook XML"
 msgstr "Facebook XML"
 
-#: .\catalog\templates\xml_generator_page.html:33
+#: .\catalog\templates\xml_generator_page.html:36
+msgid ""
+"\n"
+"                                Фид в формате YML подходит для prom, rozetka "
+"и других сервисов, где каждый товар это отдельная разновидность. Например, "
+"платье в размерах 42 и 44 с цветами черный и белый это 4 отдельных товара. В "
+"этом фиде цвета товара соответствуют цветам фото. Выгружаются товары только, "
+"которые есть в наличии. Обновляется в режиме реального времени.\n"
+"                                "
+msgstr ""
+"\n"
+" Фід у форматі YML підходить для prom, rozetka та інших сервісів, де кожен "
+"товар це окремий різновид. Наприклад, сукня у розмірах 42 та 44 з квітами "
+"чорний та білий це 4 окремі товари. У цьому фіді кольори товару відповідають "
+"кольорам фото. Вивантажуються товари тільки, які є в наявності. Оновлюється "
+"в режимі реального часу.\n"
+"                                "
+
+#: .\catalog\templates\xml_generator_page.html:41
+msgid ""
+"\n"
+"                                Фид в формате XML используется в google и "
+"facebook в основном, но может и импортироваться в другие сервисы. В нем "
+"единица товара включает в себя все цвета и размеры. Например, платье с "
+"размерами 42 и 44 и цветами черный и белый это один товар. В каждом таком "
+"товаре выгружены все фото доступных его цветов, первое фото - коллаж, если "
+"есть разные цвета товара то цветной коллаж. Выгружаются товары только те у "
+"которых есть положительные остатки. Например, у товара есть 4 разновидности, "
+"но в наличии только одна разновидность - этот товар будет выгружен. В фиде "
+"указаны общие остатки по сумме всех разновидностей. Обновляется в режиме "
+"реального времени.\n"
+"                                "
+msgstr ""
+"\n"
+" Фід у форматі XML використовується в Google і "
+" facebook в основному, але може і імпортуватися в інші сервіси. У ньому"
+" одиниця товару включає в себе всі кольори та розміри. Наприклад, сукня з "
+" розмірами 42 та 44 та кольорами чорний та білий це один товар. У кожному такому"
+" товару вивантажені всі фото доступних його кольорів, перше фото - колаж, якщо "
+" є різні кольори товару то кольоровий колаж. Вивантажуються товари тільки ті у "
+" яких є позитивні залишки. Наприклад, у товару є 4 різновиди,"
+" але в наявності тільки один різновид - цей товар буде вивантажений. У фіді"
+" зазначено загальні залишки за сумою всіх різновидів. Оновлюється в режимі "
+" реального часу.\n"
+" "
+
+#: .\catalog\templates\xml_generator_page.html:49
 msgid "Тип наценки"
 msgstr "Тип націнки"
 
-#: .\catalog\templates\xml_generator_page.html:37
+#: .\catalog\templates\xml_generator_page.html:53
 #, python-format
 msgid "Процент (%%)"
 msgstr "Відсоток (%%)"
 
-#: .\catalog\templates\xml_generator_page.html:41
+#: .\catalog\templates\xml_generator_page.html:57
 msgid "Фиксированная сумма (грн)"
 msgstr "Фіксована сума (грн)"
 
-#: .\catalog\templates\xml_generator_page.html:47
+#: .\catalog\templates\xml_generator_page.html:64
 msgid "Значение наценки"
 msgstr "Значення націнки"
 
-#: .\catalog\templates\xml_generator_page.html:49
+#: .\catalog\templates\xml_generator_page.html:66
 msgid "Укажите значение для выбранного типа наценки."
 msgstr "Вкажіть значення для вибраного типу націнки."
 
-#: .\catalog\templates\xml_generator_page.html:53
+#: .\catalog\templates\xml_generator_page.html:71
 msgid "Язык"
 msgstr "Мова"
 
-#: .\catalog\templates\xml_generator_page.html:57
+#: .\catalog\templates\xml_generator_page.html:75
 msgid "Украинский"
 msgstr "Українська"
 
-#: .\catalog\templates\xml_generator_page.html:61
+#: .\catalog\templates\xml_generator_page.html:79
 msgid "Русский"
 msgstr "Російська"
 
-#: .\catalog\templates\xml_generator_page.html:67
+#: .\catalog\templates\xml_generator_page.html:86
 msgid "Получить ссылку на фид"
 msgstr "Отримати посилання на фід"
 
-#: .\catalog\templates\xml_generator_page.html:69
+#: .\catalog\templates\xml_generator_page.html:88
 msgid "Ссылка сгенерирована!"
 msgstr "Посилання згенероване!"
 
-#: .\catalog\templates\xml_generator_page.html:73
+#: .\catalog\templates\xml_generator_page.html:93
 msgid "Ваша ссылка"
 msgstr "Ваше посилання"
 
-#: .\catalog\templates\xml_generator_page.html:76
+#: .\catalog\templates\xml_generator_page.html:96
 msgid "Копировать"
 msgstr "Копіювати"
 
-#: .\catalog\templates\xml_generator_page.html:78
+#: .\catalog\templates\xml_generator_page.html:98
 msgid "Ссылка скопирована!"
 msgstr "Посилання скопійоване!"
 
-#: .\catalog\templates\xml_generator_page.html:82
+#: .\catalog\templates\xml_generator_page.html:103
 msgid "По техническим вопросам пишите на"
 msgstr "З технічних питань пишіть на"
 
