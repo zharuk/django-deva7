@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+{% load i18n %}
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+<channel>
+    <title>{% trans "Товарный фид для facebook интернет-магазина Дева" %}</title>
+    <link>http://deva7km.com.ua/feed_fb/</link>
+    <description>{% trans "Фид товаров для отображения в Facebook" %}</description>
+    <language>{{ language|default:"uk" }}</language>
+    {% for product in products %}
+    <item>
+        <g:id>{{ product.sku }}</g:id>
+        <title>{{ product.title }}</title>
+        <description>{{ product.description }}</description>
+        <link>{{ request.scheme }}://{{ request.get_host }}{{ product.get_absolute_url }}</link>
+        <g:image_link>{{ product.collage_image_url }}</g:image_link>
+        {% with additional_images=product.get_all_large_images|join:", " %}
+        {% if additional_images %}
+        <g:additional_image_link>{{ additional_images }}</g:additional_image_link>
+        {% endif %}
+        {% endwith %}
+
+        <g:price>{{ product.price }} {{ product.currency }}</g:price>
+        {% if product.sale_price > 0 %}
+        <g:sale_price>{{ product.sale_price }} {{ product.currency }}</g:sale_price>
+        {% endif %}
+
+        <g:availability>{% if product.get_total_stock %}{% trans "in stock" %}{% else %}{% trans "out of stock" %}{% endif %}</g:availability>
+        <g:quantity_to_sell_on_facebook>{{ product.get_total_stock }}</g:quantity_to_sell_on_facebook>
+        <g:brand>{% trans "Дева" %}</g:brand>
+        <g:colors>{{ product.get_colors }}</g:colors>
+        <g:sizes>{{ product.get_sizes }}</g:sizes>
+        <g:fb_product_category>455</g:fb_product_category>
+        <g:age_group>{% trans "adult" %}</g:age_group>
+        <g:gender>{% trans "female" %}</g:gender>
+        <g:condition>{% trans "new" %}</g:condition>
+        <g:product_type>{% trans "Clothing" %}</g:product_type>
+        {% if product.is_active %}
+        <g:status>{% trans "active" %}</g:status>
+        {% else %}
+        <g:status>{% trans "archived" %}</g:status>
+        {% endif %}
+    </item>
+    {% endfor %}
+</channel>
+</rss>

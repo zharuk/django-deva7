@@ -1,0 +1,48 @@
+{% load i18n %}
+<yml_catalog date="{% now 'Y-m-d H:i' %}">
+    <shop>
+        <name>{% trans "Интернет магазин Дева" %}</name>
+        <company>{% trans "Дева" %}</company>
+        <url>https://deva7km.com.ua/</url>
+        <currencies>
+            <currency id="UAH" rate="1"/>
+        </currencies>
+        <categories>
+            {% for category in categories %}
+                {% if category.rz_id > 0 %}
+                    <category id="{{ category.id }}" rz_id="{{ category.rz_id }}">{{ category.name }}</category>
+                {% else %}
+                    <category id="{{ category.id }}">{{ category.name }}</category>
+                {% endif %}
+            {% endfor %}
+        </categories>
+        <offers>
+            {% for product in products %}
+                {% for modification in product.modifications.all %}
+                    <offer id="{{ product.sku }}-{{ forloop.counter }}" available="{% if modification.stock %}true{% else %}false{% endif %}">
+
+                        <price>{{ product.sale_price|default:product.price }}</price>
+                        {% if product.sale_price > 0 %}
+                            <price_old>{{ product.price }}</price_old>
+                        {% endif %}
+
+                        <currencyId>UAH</currencyId>
+                        <categoryId>{{ product.category.id }}</categoryId>
+                        {% for image in modification.get_all_large_image_urls %}
+                            <picture>{{ image }}</picture>
+                        {% endfor %}
+                        <vendor>{% trans "Дева" %}</vendor>
+                        <article>{{ product.sku }}-{{ forloop.counter }}</article>
+                        <stock_quantity>{% if modification.stock %}{{ modification.stock }}{% else %}0{% endif %}</stock_quantity>
+                        <name>{{ product.title }} {% trans "Дева" %} ({{ modification.color.name }} {{ modification.size.name }}) ({{ product.sku }})</name>
+                        <description>{{ product.description }}</description>
+                        <state>{% trans "new" %}</state>
+                        <param name="{% trans 'Цвет' %}">{{ modification.color }}</param>
+                        <param name="{% trans 'Размер' %}">{{ modification.size }}</param>
+                        <param name="{% trans 'Страна-производитель товара' %}">{% trans "Украина" %}</param>
+                    </offer>
+                {% endfor %}
+            {% endfor %}
+        </offers>
+    </shop>
+</yml_catalog>

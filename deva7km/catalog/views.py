@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequest, HttpResponse
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import get_language
 from django.views.decorators.csrf import csrf_exempt
@@ -15,7 +16,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from catalog.generate_xlsx import generate_product_xlsx
 from django.contrib import messages
-from django.utils import timezone
+from django.utils import timezone, translation
 from datetime import timedelta
 from .management.commands.update_tracking_status import update_tracking_status
 from .models import PreOrder
@@ -285,3 +286,84 @@ def preorders(request):
 @check_telegram_user
 def seller_cabinet_reports(request):
     return render(request, 'seller_cabinet/reports/seller_reports.html')
+
+
+def xml_generator_page(request):
+    """
+    Отображает страницу с формой для генерации XML-фида.
+    """
+    return render(request, 'xml_generator_page.html')
+
+
+def generate_custom_feed(request):
+    """
+    Генерирует XML-фид на лету на основе GET-параметров.
+    Параметры:
+    - feed_type: 'rozetka' или 'facebook'
+    - markup_type: 'percent' или 'fixed'
+    - markup: целочисленное значение наценки
+    - lang: 'uk' или 'ru'
+    """
+    # 1. Получаем и валидируем параметры (без изменений)
+    feed_type = request.GET.get('feed_type', 'facebook')
+    markup_type = request.GET.get('markup_type', 'percent')
+    markup_str = request.GET.get('markup', '0')
+    language = request.GET.get('lang', 'uk')
+
+    if feed_type not in ['rozetka', 'facebook']:
+        return HttpResponseBadRequest("Неверный тип фида. Доступные: 'rozetka', 'facebook'.")
+
+    if markup_type not in ['percent', 'fixed']:
+        return HttpResponseBadRequest("Неверный тип наценки. Доступные: 'percent', 'fixed'.")
+
+    if language not in ['uk', 'ru']:
+        return HttpResponseBadRequest("Неверный язык. Доступные: 'uk', 'ru'.")
+
+    try:
+        markup = int(markup_str)
+        if markup < 0:
+            markup = 0
+    except (ValueError, TypeError):
+        markup = 0
+
+    # 2. Активируем нужный язык (без изменений)
+    translation.activate(language)
+
+    # 3. Получаем все активные товары (без изменений)
+    products = Product.objects.filter(is_active=True).prefetch_related(
+        'modifications__color', 'modifications__size', 'category'
+    )
+
+    # 4. ЛОГИКА ПРИМЕНЕНИЯ НАЦЕНКИ (теперь применяется только к оптовым ценам)
+    if markup > 0:
+        if markup_type == 'percent':
+            markup_multiplier = 1 + (markup / 100.0)
+            for product in products:
+                product.price = int(product.price * markup_multiplier)
+                if product.sale_price > 0:
+                    product.sale_price = int(product.sale_price * markup_multiplier)
+
+        elif markup_type == 'fixed':
+            for product in products:
+                product.price += markup
+                if product.sale_price > 0:
+                    product.sale_price += markup
+
+    # 5. ОБНОВЛЕННЫЙ ВЫБОР ШАБЛОНА
+    if feed_type == 'rozetka':
+        template_name = 'rozetka_feed_generator.xml'  # <-- ИСПОЛЬЗУЕМ НОВЫЙ ШАБЛОН
+        categories = Category.objects.all()
+        context = {'products': products, 'categories': categories}
+        content_type = 'application/xml; charset=utf-8'
+    else:  # По умолчанию Facebook
+        template_name = 'fb_feed_generator.xml'  # <-- ИСПОЛЬЗУЕМ НОВЫЙ ШАБЛОН
+        context = {
+            'products': products,
+            'language': language,
+            'request': request
+        }
+        content_type = 'text/xml; charset=utf-8'
+
+    # 6. Рендерим XML и возвращаем ответ (без изменений)
+    xml_content = render_to_string(template_name, context)
+    return HttpResponse(xml_content, content_type=content_type)

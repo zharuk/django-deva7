@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-29 14:12+0300\n"
+"POT-Creation-Date: 2025-08-27 16:10+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,22 +16,6 @@ msgstr ""
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
 
-#: .\catalog\forms.py:33
-msgid "Поиск"
-msgstr "Пошук"
-
-#: .\catalog\models.py:626
-msgid "В ожидании"
-msgstr "В очікуванні"
-
-#: .\catalog\models.py:627
-msgid "Завершено"
-msgstr "Завершено"
-
-#: .\catalog\models.py:628
-msgid "Отменено"
-msgstr "Скасовано"
-
 #: .\catalog\templates\base.html:9
 msgid "Сайт deva7km"
 msgstr "Сайт deva7km"
@@ -42,15 +26,19 @@ msgstr "Пошук товарів"
 
 #: .\catalog\templates\base.html:33
 msgid "Искать"
-msgstr ""
+msgstr "Шукати"
 
 #: .\catalog\templates\base.html:41
+#: .\catalog\templates\fb_feed_generator.xml:29
+#: .\catalog\templates\rozetka_feed_generator.xml:5
+#: .\catalog\templates\rozetka_feed_generator.xml:34
+#: .\catalog\templates\rozetka_feed_generator.xml:37
 msgid "Дева"
 msgstr "Діва"
 
 #: .\catalog\templates\base.html:44
 msgid "Toggle navigation"
-msgstr ""
+msgstr "Toggle navigation"
 
 #: .\catalog\templates\category_detail.html:8
 #: .\catalog\templates\contacts_page.html:10
@@ -173,6 +161,12 @@ msgstr "Доставка і оплата"
 msgid "Политика конфиденциальности"
 msgstr "Політика конфіденційності"
 
+#: .\catalog\templates\contact_menu_bottom.html:8
+#, fuzzy
+#| msgid "Генератор XML/YML фидов"
+msgid "Генератор XML/YML"
+msgstr "Генератор XML/YML фідів"
+
 #: .\catalog\templates\contacts_info.html:11
 msgid "Email:"
 msgstr "Email:"
@@ -192,6 +186,50 @@ msgstr "Інформація про доставку"
 #: .\catalog\templates\delivery_payment_page.html:3
 msgid "Информация о доставке и оплате"
 msgstr "Інформація про доставку та оплату"
+
+#: .\catalog\templates\fb_feed.xml:4
+#: .\catalog\templates\fb_feed_generator.xml:5
+msgid "Товарный фид для facebook интернет-магазина Дева"
+msgstr "Товарний фід для facebook інтернет-магазину Діва"
+
+#: .\catalog\templates\fb_feed.xml:6
+#: .\catalog\templates\fb_feed_generator.xml:7
+msgid "Фид товаров для отображения в Facebook"
+msgstr "Фід товарів для відображення у Facebook"
+
+#: .\catalog\templates\fb_feed.xml:33
+#: .\catalog\templates\fb_feed_generator.xml:36
+msgid "Clothing"
+msgstr "Clothing"
+
+#: .\catalog\templates\fb_feed_generator.xml:27
+msgid "in stock"
+msgstr "in stock"
+
+#: .\catalog\templates\fb_feed_generator.xml:27
+msgid "out of stock"
+msgstr "out of stock"
+
+#: .\catalog\templates\fb_feed_generator.xml:33
+msgid "adult"
+msgstr "adult"
+
+#: .\catalog\templates\fb_feed_generator.xml:34
+msgid "female"
+msgstr "female"
+
+#: .\catalog\templates\fb_feed_generator.xml:35
+#: .\catalog\templates\rozetka_feed_generator.xml:39
+msgid "new"
+msgstr "new"
+
+#: .\catalog\templates\fb_feed_generator.xml:38
+msgid "active"
+msgstr "active"
+
+#: .\catalog\templates\fb_feed_generator.xml:40
+msgid "archived"
+msgstr "archived"
 
 #: .\catalog\templates\home.html:16
 msgid "Новинки"
@@ -224,10 +262,12 @@ msgid "Остатки"
 msgstr "Залишок"
 
 #: .\catalog\templates\product_detail.html:77
+#: .\catalog\templates\rozetka_feed_generator.xml:40
 msgid "Цвет"
 msgstr "Колір"
 
 #: .\catalog\templates\product_detail.html:78
+#: .\catalog\templates\rozetka_feed_generator.xml:41
 msgid "Размер"
 msgstr "Розмір"
 
@@ -267,84 +307,216 @@ msgstr "Усі зображення"
 msgid "Нет изображений"
 msgstr "Немає зображень"
 
+#: .\catalog\templates\registration\login.html:4
+msgid "Вход"
+msgstr "Вхід"
+
+#: .\catalog\templates\registration\login.html:8
+msgid "Войти"
+msgstr "Увійти"
+
+#: .\catalog\templates\registration\login.html:10
+#, fuzzy
+#| msgid "Очистить корзину"
+msgid "Забыли пароль?"
+msgstr "Очистити корзину"
+
+#: .\catalog\templates\registration\password_change_done.html:4
+msgid "Пароль успешно изменен"
+msgstr "Пароль успішно змінено"
+
+#: .\catalog\templates\registration\password_change_done.html:5
+msgid "Ваш пароль был успешно изменен."
+msgstr "Ваш пароль успішно змінено."
+
+#: .\catalog\templates\registration\password_change_form.html:4
+#: .\catalog\templates\registration\password_change_form.html:8
+#: .\catalog\templates\registration\profile.html:7
+#, fuzzy
+#| msgid "Сбросить пароль"
+msgid "Изменить пароль"
+msgstr "Скинути пароль"
+
+#: .\catalog\templates\registration\password_reset_complete.html:4
+msgid "Сброс пароля завершен"
+msgstr "Скидання пароля завершено"
+
+#: .\catalog\templates\registration\password_reset_complete.html:5
+msgid "Ваш пароль был успешно сброшен. Теперь вы можете"
+msgstr "Ваш пароль було успішно скинуто. Тепер ви можете"
+
+#: .\catalog\templates\registration\password_reset_complete.html:5
+msgid "войти"
+msgstr "Увійти"
+
+#: .\catalog\templates\registration\password_reset_complete.html:5
+msgid "с новым паролем."
+msgstr "з новим паролем."
+
+#: .\catalog\templates\registration\password_reset_confirm.html:4
+msgid "Введите новый пароль"
+msgstr "Введіть новий пароль"
+
+#: .\catalog\templates\registration\password_reset_confirm.html:8
+msgid "Установить новый пароль"
+msgstr "Встановити новий пароль"
+
+#: .\catalog\templates\registration\password_reset_done.html:4
+msgid "Инструкции по сбросу пароля отправлены"
+msgstr "Інструкції зі скидання пароля надіслані"
+
+#: .\catalog\templates\registration\password_reset_done.html:5
+msgid ""
+"На ваш адрес электронной почты были отправлены инструкции по сбросу пароля."
+msgstr ""
+"На адресу електронної пошти було надіслано вказівки щодо скидання пароля."
+
+#: .\catalog\templates\registration\password_reset_form.html:4
+#: .\catalog\templates\registration\password_reset_form.html:8
+msgid "Сбросить пароль"
+msgstr "Скинути пароль"
+
+#: .\catalog\templates\registration\profile.html:4
+msgid "Профиль"
+msgstr "Профіль"
+
+#: .\catalog\templates\registration\profile.html:5
+msgid "Имя пользователя"
+msgstr "Ім'я користувача"
+
+#: .\catalog\templates\registration\profile.html:6
+msgid "Email"
+msgstr "Email"
+
+#: .\catalog\templates\registration\profile.html:8
+msgid "Выйти"
+msgstr "Вийти"
+
+#: .\catalog\templates\rozetka_feed_generator.xml:4
+msgid "Интернет магазин Дева"
+msgstr "Інтернет магазин Діва"
+
+#: .\catalog\templates\rozetka_feed_generator.xml:42
+#, fuzzy
+#| msgid "Наименование"
+msgid "Страна-производитель товара"
+msgstr "Найменування"
+
+#: .\catalog\templates\rozetka_feed_generator.xml:42
+#, fuzzy
+#| msgid "Украинский"
+msgid "Украина"
+msgstr "Українська"
+
 #: .\catalog\templates\sales.html:88
 msgid "Нет товаров в распродаже"
 msgstr "Немає товарів у розпродажі"
 
-#: .\deva7km\settings.py:142
-msgid "Russian"
-msgstr "Русский"
+#: .\catalog\templates\xml_generator_page.html:4
+msgid "Генератор XML/YML фидов"
+msgstr "Генератор XML/YML фідів"
 
-#: .\deva7km\settings.py:143
-msgid "Ukrainian"
+#: .\catalog\templates\xml_generator_page.html:12
+msgid "Генератор XML/YML фидов для Вашего магазина"
+msgstr "Генератор XML/YML фідів для Вашого магазину"
+
+#: .\catalog\templates\xml_generator_page.html:15
+msgid ""
+"Выберите необходимые параметры, чтобы сгенерировать персональную ссылку на "
+"фид для выгрузки товаров."
+msgstr ""
+"Виберіть необхідні параметри, щоб створити персональне посилання на ФІД для "
+"вивантаження товарів."
+
+#: .\catalog\templates\xml_generator_page.html:19
+msgid "Тип фида"
+msgstr "Тип фіда"
+
+#: .\catalog\templates\xml_generator_page.html:23
+msgid "Rozetka YML"
+msgstr "Rozetka YML"
+
+#: .\catalog\templates\xml_generator_page.html:27
+msgid "Facebook XML"
+msgstr "Facebook XML"
+
+#: .\catalog\templates\xml_generator_page.html:33
+msgid "Тип наценки"
+msgstr "Тип націнки"
+
+#: .\catalog\templates\xml_generator_page.html:37
+#, python-format
+msgid "Процент (%%)"
+msgstr "Відсоток (%%)"
+
+#: .\catalog\templates\xml_generator_page.html:41
+msgid "Фиксированная сумма (грн)"
+msgstr "Фіксована сума (грн)"
+
+#: .\catalog\templates\xml_generator_page.html:47
+msgid "Значение наценки"
+msgstr "Значення націнки"
+
+#: .\catalog\templates\xml_generator_page.html:49
+msgid "Укажите значение для выбранного типа наценки."
+msgstr "Вкажіть значення для вибраного типу націнки."
+
+#: .\catalog\templates\xml_generator_page.html:53
+msgid "Язык"
+msgstr "Мова"
+
+#: .\catalog\templates\xml_generator_page.html:57
+msgid "Украинский"
 msgstr "Українська"
 
-#~ msgid "Профиль"
-#~ msgstr "Профіль"
+#: .\catalog\templates\xml_generator_page.html:61
+msgid "Русский"
+msgstr "Російська"
 
-#~ msgid "Выйти"
-#~ msgstr "Вийти"
+#: .\catalog\templates\xml_generator_page.html:67
+msgid "Получить ссылку на фид"
+msgstr "Отримати посилання на фід"
 
-#~ msgid "Войти"
-#~ msgstr "Увійти"
+#: .\catalog\templates\xml_generator_page.html:69
+msgid "Ссылка сгенерирована!"
+msgstr "Посилання згенероване!"
+
+#: .\catalog\templates\xml_generator_page.html:73
+msgid "Ваша ссылка"
+msgstr "Ваше посилання"
+
+#: .\catalog\templates\xml_generator_page.html:76
+msgid "Копировать"
+msgstr "Копіювати"
+
+#: .\catalog\templates\xml_generator_page.html:78
+msgid "Ссылка скопирована!"
+msgstr "Посилання скопійоване!"
+
+#: .\catalog\templates\xml_generator_page.html:82
+msgid "По техническим вопросам пишите на"
+msgstr "З технічних питань пишіть на"
+
+#~ msgid "Поиск"
+#~ msgstr "Пошук"
+
+#~ msgid "В ожидании"
+#~ msgstr "В очікуванні"
+
+#~ msgid "Завершено"
+#~ msgstr "Завершено"
+
+#~ msgid "Отменено"
+#~ msgstr "Скасовано"
+
+#~ msgid "Russian"
+#~ msgstr "Русский"
+
+#~ msgid "Ukrainian"
+#~ msgstr "Українська"
 
 #~ msgid "Количество"
 #~ msgstr "Кількість"
-
-#~ msgid "Вход"
-#~ msgstr "Вхід"
-
-#, fuzzy
-#~| msgid "Очистить корзину"
-#~ msgid "Забыли пароль?"
-#~ msgstr "Очистити корзину"
-
-#~ msgid "Пароль успешно изменен"
-#~ msgstr "Пароль успішно змінено"
-
-#~ msgid "Ваш пароль был успешно изменен."
-#~ msgstr "Ваш пароль успішно змінено."
-
-#, fuzzy
-#~| msgid "Сбросить пароль"
-#~ msgid "Изменить пароль"
-#~ msgstr "Скинути пароль"
-
-#~ msgid "Сброс пароля завершен"
-#~ msgstr "Скидання пароля завершено"
-
-#~ msgid "Ваш пароль был успешно сброшен. Теперь вы можете"
-#~ msgstr "Ваш пароль було успішно скинуто. Тепер ви можете"
-
-#~ msgid "войти"
-#~ msgstr "Увійти"
-
-#~ msgid "с новым паролем."
-#~ msgstr "з новим паролем."
-
-#~ msgid "Введите новый пароль"
-#~ msgstr "Введіть новий пароль"
-
-#~ msgid "Установить новый пароль"
-#~ msgstr "Встановити новий пароль"
-
-#~ msgid "Инструкции по сбросу пароля отправлены"
-#~ msgstr "Інструкції зі скидання пароля надіслані"
-
-#~ msgid ""
-#~ "На ваш адрес электронной почты были отправлены инструкции по сбросу "
-#~ "пароля."
-#~ msgstr ""
-#~ "На адресу електронної пошти було надіслано вказівки щодо скидання пароля."
-
-#~ msgid "Сбросить пароль"
-#~ msgstr "Скинути пароль"
-
-#~ msgid "Имя пользователя"
-#~ msgstr "Ім'я користувача"
-
-#~ msgid "Email"
-#~ msgstr "Email"
 
 #~ msgid "Корзина"
 #~ msgstr "Кошик"
@@ -384,11 +556,6 @@ msgstr "Українська"
 
 #~ msgid "Ваш заказ"
 #~ msgstr "Ваше замовлення"
-
-#, fuzzy
-#~| msgid "Наименование"
-#~ msgid "Наименование товара"
-#~ msgstr "Найменування"
 
 #~ msgid "Завершить заказ"
 #~ msgstr "Завершити замовлення"
@@ -451,11 +618,6 @@ msgstr "Українська"
 
 #~ msgid "Наталия +380930972066 (скопировать)"
 #~ msgstr "Наталія +380930972066 (скопіювати)"
-
-#, fuzzy
-#~| msgid "Информация о заказе"
-#~ msgid "Информация скопирована!"
-#~ msgstr "Інформація про замовлення"
 
 #~ msgid "Общая сумма заказа"
 #~ msgstr "Загальна сума замовлення"
@@ -564,9 +726,6 @@ msgstr "Українська"
 #~| msgid "Цена распродажи"
 #~ msgid "цена распродажи:"
 #~ msgstr "Ціна розпродажу"
-
-#~ msgid "Ничего не найдено"
-#~ msgstr "Нічого не знайдено"
 
 #~ msgid "Найти"
 #~ msgstr "Знайти"

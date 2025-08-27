@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Генератор XML/YML фидов" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">{% trans "Генератор XML/YML фидов для Вашего магазина" %}</h3>
+                </div>
+                <div class="card-body">
+                    <p>{% trans "Выберите необходимые параметры, чтобы сгенерировать персональную ссылку на фид для выгрузки товаров." %}</p>
+
+                    <form id="xml-generator-form">
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-bold">{% trans "Тип фида" %}:</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="feed_type" id="rozetka-xml" value="rozetka" checked>
+                                    <label class="form-check-label" for="rozetka-xml">{% trans "Rozetka YML" %}</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="feed_type" id="facebook-xml" value="facebook">
+                                    <label class="form-check-label" for="facebook-xml">{% trans "Facebook XML" %}</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-bold">{% trans "Тип наценки" %}:</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="markup_type" id="markup-percent" value="percent" checked>
+                                    <label class="form-check-label" for="markup-percent">{% trans "Процент (%)" %}</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="markup_type" id="markup-fixed" value="fixed">
+                                    <label class="form-check-label" for="markup-fixed">{% trans "Фиксированная сумма (грн)" %}</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="markup" class="form-label fw-bold">{% trans "Значение наценки" %}:</label>
+                            <input type="number" class="form-control" id="markup" name="markup" value="0" min="0">
+                            <small class="form-text text-muted">{% trans "Укажите значение для выбранного типа наценки." %}</small>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-bold">{% trans "Язык" %}:</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="lang" id="lang-uk" value="uk" checked>
+                                    <label class="form-check-label" for="lang-uk">{% trans "Украинский" %}</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="lang" id="lang-ru" value="ru">
+                                    <label class="form-check-label" for="lang-ru">{% trans "Русский" %}</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="button" id="generate-btn" class="btn btn-primary">{% trans "Получить ссылку на фид" %}</button>
+                        </div>
+                        <p id="generate-success" class="text-success mt-2 text-center" style="display: none;">{% trans "Ссылка сгенерирована!" %}</p>
+                    </form>
+
+                    <div id="result-container" class="mt-4" style="display: none;">
+                        <label for="generated-url" class="form-label fw-bold">{% trans "Ваша ссылка" %}:</label>
+                        <div class="input-group">
+                            <input type="text" id="generated-url" class="form-control" readonly>
+                            <button class="btn btn-outline-secondary" type="button" id="copy-btn">{% trans "Копировать" %}</button>
+                        </div>
+                        <p id="copy-success" class="text-success mt-2" style="display: none;">{% trans "Ссылка скопирована!" %}</p>
+                    </div>
+                    <br>
+                    <p>
+                        {% trans "По техническим вопросам пишите на" %}
+                        <a href="mailto:deva7km@gmail.com" class="fw-bold text-decoration-none">deva7km@gmail.com</a>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const generateBtn = document.getElementById('generate-btn');
+    const resultContainer = document.getElementById('result-container');
+    const generatedUrlInput = document.getElementById('generated-url');
+    const copyBtn = document.getElementById('copy-btn');
+    const copySuccessMessage = document.getElementById('copy-success');
+    const generateSuccessMessage = document.getElementById('generate-success');
+
+    generateBtn.addEventListener('click', function() {
+        const form = document.getElementById('xml-generator-form');
+        const feedType = form.querySelector('input[name="feed_type"]:checked').value;
+        const markupType = form.querySelector('input[name="markup_type"]:checked').value;
+        const markup = document.getElementById('markup').value;
+        const lang = form.querySelector('input[name="lang"]:checked').value;
+
+        const baseUrl = `${window.location.origin}/generate_custom_feed/`;
+
+        const params = new URLSearchParams({
+            feed_type: feedType,
+            markup_type: markupType,
+            markup: markup,
+            lang: lang
+        });
+
+        const finalUrl = `${baseUrl}?${params.toString()}`;
+
+        generatedUrlInput.value = finalUrl;
+        resultContainer.style.display = 'block';
+        copySuccessMessage.style.display = 'none';
+
+        generateSuccessMessage.style.display = 'block';
+        setTimeout(() => {
+            generateSuccessMessage.style.display = 'none';
+        }, 2000);
+
+        generateBtn.blur();
+    });
+
+    copyBtn.addEventListener('click', function() {
+        generatedUrlInput.select();
+        document.execCommand('copy');
+        copySuccessMessage.style.display = 'block';
+        setTimeout(() => {
+            copySuccessMessage.style.display = 'none';
+        }, 2000);
+    });
+});
+</script>
+{% endblock %}

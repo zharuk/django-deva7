@@ -37,6 +37,8 @@ urlpatterns = [
     path('seller_cabinet/write-offs/', views.seller_cabinet_write_off, name='seller_cabinet_write_off'),
     path('seller_cabinet/preorders/', views.preorders, name='seller_cabinet_preorders'),
     path('seller_cabinet/reports/', views.seller_cabinet_reports, name='seller_cabinet_reports'),
+    path('xml/', views.xml_generator_page, name='xml_generator_page'),
+    path('generate_custom_feed/', views.generate_custom_feed, name='generate_custom_feed'),
 
 ]
 
