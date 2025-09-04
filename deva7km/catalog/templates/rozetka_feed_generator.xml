@@ -36,7 +36,9 @@
             <categoryId>{{ product.category.id }}</categoryId>
 
             {% for image in modification.get_all_large_image_urls %}
-              <picture>{{ image }}</picture>
+              {% if forloop.counter <= 10 %}
+                <picture>{{ image }}</picture>
+              {% endif %}
             {% endfor %}
 
             <barcode>{{ product.sku }}-{{ forloop.counter }}</barcode>
