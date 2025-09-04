@@ -54,7 +54,7 @@ class Product(models.Model):
         relative_url = reverse('product_detail', args=[self.category.slug, self.slug])
         return BASE_URL + relative_url
 
-    def get_images_by_colors_limited(self, max_photos=10, min_per_color=2):
+    def get_images_by_colors_limited(self, max_photos=9, min_per_color=2):
         """
         Возвращает список изображений с учетом лимита:
         - минимум min_per_color фото с каждого цвета
