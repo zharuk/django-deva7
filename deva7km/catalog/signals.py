@@ -14,20 +14,20 @@ from .models import Product, ProductModification, Image, Category, Sale, SaleIte
 from .utils import format_ttn, notify_preorder_change
 
 
-@receiver(pre_save, sender=Product)
-def update_product_flags(sender, instance, **kwargs):
+@receiver(post_save, sender=Product)
+def update_product_flags(sender, instance, created, **kwargs):
     """
-    Обновляет флаги is_sale и is_active перед сохранением продукта.
-    - is_sale = True, если есть sale_price или retail_sale_price > 0
-    - is_active = True, если суммарный остаток всех модификаций > 0
+    Обновляет флаги is_sale и is_active после сохранения продукта.
     """
-    # is_sale
-    instance.is_sale = bool(instance.sale_price > 0 or instance.retail_sale_price > 0)
+    is_sale = bool(instance.sale_price > 0 or instance.retail_sale_price > 0)
+    is_active = instance.get_total_stock() > 0 if instance.pk else False
 
-    # is_active
-    # Важно: если изменения остатков происходят через ProductModification,
-    # то get_total_stock() учитывает актуальные остатки
-    instance.is_active = instance.get_total_stock() > 0
+    # Чтобы избежать лишних сигналов — обновляем только если изменилось
+    if instance.is_sale != is_sale or instance.is_active != is_active:
+        Product.objects.filter(pk=instance.pk).update(
+            is_sale=is_sale,
+            is_active=is_active
+        )
 
 
 def update_product_is_active(product):
