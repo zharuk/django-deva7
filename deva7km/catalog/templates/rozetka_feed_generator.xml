@@ -27,14 +27,22 @@
             <vendor>{% trans "Дева" %}</vendor>
             <name>{{ product.title }} {% trans "Дева" %} ({{ modification.color.name }} {{ modification.size.name }}) ({{ product.sku }})</name>
 
-            <price>{{ product.sale_price|default:product.price }}</price>
-            {% if product.sale_price > 0 %}
+            <!-- Цена и старая цена -->
+            <price>
+              {% if product.sale_price and product.sale_price < product.price %}
+                {{ product.sale_price }}
+              {% else %}
+                {{ product.price }}
+              {% endif %}
+            </price>
+            {% if product.sale_price and product.sale_price < product.price and modification.stock %}
               <oldprice>{{ product.price }}</oldprice>
             {% endif %}
 
             <currencyId>UAH</currencyId>
             <categoryId>{{ product.category.id }}</categoryId>
 
+            <!-- Фотографии: максимум 10 -->
             {% for image in modification.get_all_large_image_urls %}
               {% if forloop.counter <= 10 %}
                 <picture>{{ image }}</picture>
