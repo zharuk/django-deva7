@@ -48,7 +48,7 @@
             {% if product.collage_image_url and product.collage_image_url != "None" %}
             <image>{{ product.collage_image_url }}</image>
             {% endif %}
-            {% for image in product.get_images_by_colors %}
+            {% for image in product.get_images_by_colors_limited %}
             <image>{{ image }}</image>
             {% endfor %}
 

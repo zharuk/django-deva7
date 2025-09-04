@@ -54,14 +54,15 @@ class Product(models.Model):
         relative_url = reverse('product_detail', args=[self.category.slug, self.slug])
         return BASE_URL + relative_url
 
-    def get_images_by_colors(self):
+    def get_images_by_colors_limited(self, max_photos=10, min_per_color=2):
         """
-        Возвращает список изображений, сгруппированных по цветам.
-        Для каждого уникального цвета берется только одна модификация (первая найденная)
-        и все её изображения.
+        Возвращает список изображений с учетом лимита:
+        - минимум min_per_color фото с каждого цвета
+        - всего не более max_photos
         """
         seen_colors = set()
-        image_urls = []
+        result_images = []
+        remaining_images = []
 
         # Получаем все модификации товара, упорядоченные по цвету
         modifications = self.modifications.select_related('color').order_by('color__name')
@@ -69,15 +70,25 @@ class Product(models.Model):
         for modification in modifications:
             color_name = modification.color.name
 
-            # Если цвет еще не обработан
             if color_name not in seen_colors:
                 seen_colors.add(color_name)
 
-                # Добавляем все изображения этой модификации
-                modification_images = modification.get_all_large_image_urls()
-                image_urls.extend(modification_images)
+                # Все изображения этой модификации
+                images = modification.get_all_large_image_urls()
 
-        return image_urls
+                # Берем минимум min_per_color фото для каждого цвета
+                result_images.extend(images[:min_per_color])
+
+                # Остальные фото оставляем для добавления, если останутся слоты
+                remaining_images.extend(images[min_per_color:])
+
+        # Считаем сколько осталось мест до max_photos
+        remaining_slots = max_photos - len(result_images)
+        if remaining_slots > 0:
+            result_images.extend(remaining_images[:remaining_slots])
+
+        # Обрезаем на всякий случай
+        return result_images[:max_photos]
 
     def large_image_url(self):
         return self.get_first_image_url('large_image')
