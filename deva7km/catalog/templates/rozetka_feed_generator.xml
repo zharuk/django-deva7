@@ -25,7 +25,7 @@
             group_id="{{ product.id }}"
           >
             <vendor>{% trans "Дева" %}</vendor>
-            <name>{{ product.title }} {% trans "Дева" %} ({{ modification.color.name }} {{ modification.size.name }}) ({{ product.sku }})</name>
+            <name>{{ product.title }} ({{ modification.color.name }} {{ modification.size.name }}) ({{ product.sku }})</name>
 
             <!-- Цена и старая цена -->
             <price>

@@ -20,7 +20,9 @@
         {% for product in products %}
         <item id="{{ product.sku }}" selling_type="u">
             <itemId>{{ product.sku }}</itemId>
-            <name>{{ product.title }}</name>
+            <name>
+                {{ product.title }} ({{ product.sku }})
+            </name>
             <description>{{ product.description }}</description>
             <categoryId>{{ product.category_id }}</categoryId>
 
