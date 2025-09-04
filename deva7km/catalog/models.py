@@ -54,6 +54,31 @@ class Product(models.Model):
         relative_url = reverse('product_detail', args=[self.category.slug, self.slug])
         return BASE_URL + relative_url
 
+    def get_images_by_colors(self):
+        """
+        Возвращает список изображений, сгруппированных по цветам.
+        Для каждого уникального цвета берется только одна модификация (первая найденная)
+        и все её изображения.
+        """
+        seen_colors = set()
+        image_urls = []
+
+        # Получаем все модификации товара, упорядоченные по цвету
+        modifications = self.modifications.select_related('color').order_by('color__name')
+
+        for modification in modifications:
+            color_name = modification.color.name
+
+            # Если цвет еще не обработан
+            if color_name not in seen_colors:
+                seen_colors.add(color_name)
+
+                # Добавляем все изображения этой модификации
+                modification_images = modification.get_all_large_image_urls()
+                image_urls.extend(modification_images)
+
+        return image_urls
+
     def large_image_url(self):
         return self.get_first_image_url('large_image')
 

@@ -1,44 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 {% load i18n %}
-<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
-<channel>
-    <title>{% trans "Товарный фид для facebook интернет-магазина Дева" %}</title>
-    <link>http://deva7km.com.ua/xml/</link>
-    <description>{% trans "Фид товаров для отображения в Facebook" %}</description>
-    <language>{{ language|default:"uk" }}</language>
-    {% for product in products %}
-    <item>
-        <g:id>{{ product.sku }}</g:id>
-        <title>{{ product.title }}</title>
-        <description>{{ product.description }}</description>
-        <g:image_link>{{ product.collage_image_url }}</g:image_link>
-        {% with additional_images=product.get_all_large_images|join:", " %}
-        {% if additional_images %}
-        <g:additional_image_link>{{ additional_images }}</g:additional_image_link>
-        {% endif %}
-        {% endwith %}
+<price>
+    <date>{{ current_date|date:"Y-m-d H:i" }}</date>
+    <firmName>{% trans "Дева" %}</firmName>
+    <firmId>{{ firm_id|default:"" }}</firmId>
+    <rate>{{ exchange_rate|default:"1" }}</rate>
 
-        <g:price>{{ product.price }} {{ product.currency }}</g:price>
-        {% if product.sale_price > 0 %}
-        <g:sale_price>{{ product.sale_price }} {{ product.currency }}</g:sale_price>
-        {% endif %}
+    <categories>
+        {% for category in categories %}
+        <category>
+            <categoryId>{{ category.id }}</categoryId>
+            <categoryName>{{ category.name }}</categoryName>
+            <parentId>{{ category.parent_id|default:"" }}</parentId>
+        </category>
+        {% endfor %}
+    </categories>
 
-        <g:availability>{% if product.get_total_stock %}{% trans "in stock" %}{% else %}{% trans "out of stock" %}{% endif %}</g:availability>
-        <g:quantity_to_sell_on_facebook>{{ product.get_total_stock }}</g:quantity_to_sell_on_facebook>
-        <g:brand>{% trans "Дева" %}</g:brand>
-        <g:colors>{{ product.get_colors }}</g:colors>
-        <g:sizes>{{ product.get_sizes }}</g:sizes>
-        <g:fb_product_category>455</g:fb_product_category>
-        <g:age_group>{% trans "adult" %}</g:age_group>
-        <g:gender>{% trans "female" %}</g:gender>
-        <g:condition>{% trans "new" %}</g:condition>
-        <g:product_type>{% trans "Clothing" %}</g:product_type>
-        {% if product.is_active %}
-        <g:status>{% trans "active" %}</g:status>
-        {% else %}
-        <g:status>{% trans "archived" %}</g:status>
-        {% endif %}
-    </item>
-    {% endfor %}
-</channel>
-</rss>
+    <items>
+        {% for product in products %}
+        <item>
+            <itemId>{{ product.sku }}</itemId>
+            <name>{{ product.title }}</name>
+            <description>{{ product.description }}</description>
+            <categoryId>{{ product.category_id }}</categoryId>
+
+            <price>{{ product.price }}</price>
+            {% if product.sale_price > 0 %}
+            <priceRUAH>{{ product.sale_price }}</priceRUAH>
+            {% endif %}
+
+            <currency>{{ product.currency|default:"UAH" }}</currency>
+
+            {% if product.get_total_stock > 0 %}
+            <inStock>{{ product.get_total_stock }}</inStock>
+            <available>true</available>
+            {% else %}
+            <inStock>0</inStock>
+            <available>false</available>
+            {% endif %}
+
+            <guarantee>
+                <guaranteeType>{% blocktrans %}гарантия производителя{% endblocktrans %}</guaranteeType>
+                <guaranteeLength>{{ product.guarantee_period|default:"1" }}</guaranteeLength>
+            </guarantee>
+
+            {% if product.collage_image_url and product.collage_image_url != "None" %}
+            <image>{{ product.collage_image_url }}</image>
+            {% endif %}
+            {% for image in product.get_images_by_colors %}
+            <image>{{ image }}</image>
+            {% endfor %}
+
+            <vendor>{% trans "Дева" %}</vendor>
+            <vendorCode>{{ product.sku }}</vendorCode>
+
+            {% if product.get_colors %}
+            <param name="{% trans 'Цвет' %}">{{ product.get_colors }}</param>
+            {% endif %}
+            {% if product.get_sizes %}
+            <param name="{% trans 'Размер' %}">{{ product.get_sizes }}</param>
+            {% endif %}
+            <param name="{% trans 'Состояние' %}">{% trans "новое" %}</param>
+            <param name="{% trans 'Пол' %}">{% trans "женский" %}</param>
+            <param name="{% trans 'Возрастная группа' %}">{% trans "взрослый" %}</param>
+
+            <keywords>{{ product.keywords|default:"" }}</keywords>
+
+            {% if product.is_active %}
+            <status>{% trans "active" %}</status>
+            {% else %}
+            <status>{% trans "not active" %}</status>
+            {% endif %}
+
+            <minimum_order_quantity>1</minimum_order_quantity>
+            <quantum>1</quantum>
+
+        </item>
+        {% endfor %}
+    </items>
+</price>

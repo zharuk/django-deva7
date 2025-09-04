@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-27 18:33+0300\n"
+"POT-Creation-Date: 2025-09-04 14:34+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,6 +15,22 @@ msgstr ""
 "11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+
+#: .\catalog\forms.py:33
+msgid "Поиск"
+msgstr "Пошук"
+
+#: .\catalog\models.py:652
+msgid "В ожидании"
+msgstr "В очікуванні"
+
+#: .\catalog\models.py:653
+msgid "Завершено"
+msgstr "Завершено"
+
+#: .\catalog\models.py:654
+msgid "Отменено"
+msgstr "Скасовано"
 
 #: .\catalog\templates\base.html:9
 msgid "Сайт deva7km"
@@ -28,11 +44,11 @@ msgstr "Пошук товарів"
 msgid "Искать"
 msgstr "Шукати"
 
-#: .\catalog\templates\base.html:41
-#: .\catalog\templates\fb_feed_generator.xml:29
-#: .\catalog\templates\rozetka_feed_generator.xml:5
-#: .\catalog\templates\rozetka_feed_generator.xml:34
-#: .\catalog\templates\rozetka_feed_generator.xml:37
+#: .\catalog\templates\base.html:41 .\catalog\templates\fb_feed_generator.xml:5
+#: .\catalog\templates\fb_feed_generator.xml:54
+#: .\catalog\templates\rozetka_feed_generator.xml:7
+#: .\catalog\templates\rozetka_feed_generator.xml:27
+#: .\catalog\templates\rozetka_feed_generator.xml:28
 msgid "Дева"
 msgstr "Діва"
 
@@ -58,8 +74,6 @@ msgstr "Розпродаж"
 
 #: .\catalog\templates\category_detail.html:34 .\catalog\templates\home.html:32
 #: .\catalog\templates\sales.html:21
-#, fuzzy
-#| msgid "Нет изображений"
 msgid "Нет изображения"
 msgstr "Немає зображень"
 
@@ -162,10 +176,8 @@ msgid "Политика конфиденциальности"
 msgstr "Політика конфіденційності"
 
 #: .\catalog\templates\contact_menu_bottom.html:8
-#, fuzzy
-#| msgid "Генератор XML/YML фидов"
 msgid "Генератор XML/YML"
-msgstr "Генератор XML/YML фідів"
+msgstr "Генератор XML/YML"
 
 #: .\catalog\templates\contacts_info.html:11
 msgid "Email:"
@@ -188,48 +200,66 @@ msgid "Информация о доставке и оплате"
 msgstr "Інформація про доставку та оплату"
 
 #: .\catalog\templates\fb_feed.xml:4
-#: .\catalog\templates\fb_feed_generator.xml:5
 msgid "Товарный фид для facebook интернет-магазина Дева"
 msgstr "Товарний фід для facebook інтернет-магазину Діва"
 
 #: .\catalog\templates\fb_feed.xml:6
-#: .\catalog\templates\fb_feed_generator.xml:7
 msgid "Фид товаров для отображения в Facebook"
 msgstr "Фід товарів для відображення у Facebook"
 
 #: .\catalog\templates\fb_feed.xml:33
-#: .\catalog\templates\fb_feed_generator.xml:36
 msgid "Clothing"
 msgstr "Clothing"
 
-#: .\catalog\templates\fb_feed_generator.xml:27
-msgid "in stock"
-msgstr "in stock"
+#: .\catalog\templates\fb_feed_generator.xml:43
+msgid "гарантия производителя"
+msgstr "гарантія виробника"
 
-#: .\catalog\templates\fb_feed_generator.xml:27
-msgid "out of stock"
-msgstr "out of stock"
+#: .\catalog\templates\fb_feed_generator.xml:58
+#: .\catalog\templates\product_detail.html:77
+#: .\catalog\templates\rozetka_feed_generator.xml:60
+#: .\catalog\templates\rozetka_feed_generator.xml:63
+msgid "Цвет"
+msgstr "Колір"
 
-#: .\catalog\templates\fb_feed_generator.xml:33
-msgid "adult"
-msgstr "adult"
+#: .\catalog\templates\fb_feed_generator.xml:61
+#: .\catalog\templates\product_detail.html:78
+#: .\catalog\templates\rozetka_feed_generator.xml:69
+#: .\catalog\templates\rozetka_feed_generator.xml:72
+msgid "Размер"
+msgstr "Розмір"
 
-#: .\catalog\templates\fb_feed_generator.xml:34
-msgid "female"
-msgstr "female"
+#: .\catalog\templates\fb_feed_generator.xml:63
+msgid "Состояние"
+msgstr "Стан"
 
-#: .\catalog\templates\fb_feed_generator.xml:35
-#: .\catalog\templates\rozetka_feed_generator.xml:39
-msgid "new"
-msgstr "new"
+#: .\catalog\templates\fb_feed_generator.xml:63
+msgid "новое"
+msgstr "нове"
 
-#: .\catalog\templates\fb_feed_generator.xml:38
+#: .\catalog\templates\fb_feed_generator.xml:64
+msgid "Пол"
+msgstr "стать"
+
+#: .\catalog\templates\fb_feed_generator.xml:64
+msgid "женский"
+msgstr "жіночий"
+
+#: .\catalog\templates\fb_feed_generator.xml:65
+msgid "Возрастная группа"
+msgstr "Вікова група"
+
+#: .\catalog\templates\fb_feed_generator.xml:65
+msgid "взрослый"
+msgstr "дорослий"
+
+#: .\catalog\templates\fb_feed_generator.xml:70
 msgid "active"
 msgstr "active"
 
-#: .\catalog\templates\fb_feed_generator.xml:40
-msgid "archived"
-msgstr "archived"
+#: .\catalog\templates\fb_feed_generator.xml:72
+msgid "not active"
+msgstr "not active"
 
 #: .\catalog\templates\home.html:16
 msgid "Новинки"
@@ -260,16 +290,6 @@ msgstr "Немає даних"
 #: .\catalog\templates\product_detail.html:72
 msgid "Остатки"
 msgstr "Залишок"
-
-#: .\catalog\templates\product_detail.html:77
-#: .\catalog\templates\rozetka_feed_generator.xml:40
-msgid "Цвет"
-msgstr "Колір"
-
-#: .\catalog\templates\product_detail.html:78
-#: .\catalog\templates\rozetka_feed_generator.xml:41
-msgid "Размер"
-msgstr "Розмір"
 
 #: .\catalog\templates\product_detail.html:79
 msgid "Наличие"
@@ -316,10 +336,8 @@ msgid "Войти"
 msgstr "Увійти"
 
 #: .\catalog\templates\registration\login.html:10
-#, fuzzy
-#| msgid "Очистить корзину"
 msgid "Забыли пароль?"
-msgstr "Очистити корзину"
+msgstr "Забули свій пароль?"
 
 #: .\catalog\templates\registration\password_change_done.html:4
 msgid "Пароль успешно изменен"
@@ -332,10 +350,8 @@ msgstr "Ваш пароль успішно змінено."
 #: .\catalog\templates\registration\password_change_form.html:4
 #: .\catalog\templates\registration\password_change_form.html:8
 #: .\catalog\templates\registration\profile.html:7
-#, fuzzy
-#| msgid "Сбросить пароль"
 msgid "Изменить пароль"
-msgstr "Скинути пароль"
+msgstr "Змінити парольь"
 
 #: .\catalog\templates\registration\password_reset_complete.html:4
 msgid "Сброс пароля завершен"
@@ -392,21 +408,13 @@ msgstr "Email"
 msgid "Выйти"
 msgstr "Вийти"
 
-#: .\catalog\templates\rozetka_feed_generator.xml:4
+#: .\catalog\templates\rozetka_feed_generator.xml:6
 msgid "Интернет магазин Дева"
 msgstr "Інтернет магазин Діва"
 
-#: .\catalog\templates\rozetka_feed_generator.xml:42
-#, fuzzy
-#| msgid "Наименование"
-msgid "Страна-производитель товара"
-msgstr "Найменування"
-
-#: .\catalog\templates\rozetka_feed_generator.xml:42
-#, fuzzy
-#| msgid "Украинский"
+#: .\catalog\templates\rozetka_feed_generator.xml:55
 msgid "Украина"
-msgstr "Українська"
+msgstr "Україна"
 
 #: .\catalog\templates\sales.html:88
 msgid "Нет товаров в распродаже"
@@ -433,133 +441,155 @@ msgid "Тип фида"
 msgstr "Тип фіда"
 
 #: .\catalog\templates\xml_generator_page.html:24
-msgid "Rozetka YML"
-msgstr "Rozetka YML"
+msgid "YML отдельные модификации товаров"
+msgstr "YML окремі модифікації товарів"
 
 #: .\catalog\templates\xml_generator_page.html:28
-msgid "Facebook XML"
-msgstr "Facebook XML"
+msgid "XML все в одном товаре"
+msgstr "XML все в одному товарі"
 
-#: .\catalog\templates\xml_generator_page.html:36
+#: .\catalog\templates\xml_generator_page.html:38
+msgid ""
+"Для корректной загрузки на prom у вас должны быть включены «разновидности "
+"товара» в приложениях prom."
+msgstr ""
+"Для коректного завантаження на prom у вас повинні бути включені «різновиди "
+"товару» в додатках prom."
+
+#: .\catalog\templates\xml_generator_page.html:42
 msgid ""
 "\n"
-"                                Фид в формате YML подходит для prom, rozetka "
-"и других сервисов, где каждый товар это отдельная разновидность. Например, "
-"платье в размерах 42 и 44 с цветами черный и белый это 4 отдельных товара. В "
-"этом фиде цвета товара соответствуют цветам фото. Выгружаются товары только, "
-"которые есть в наличии. Обновляется в режиме реального времени.\n"
-"                                "
+"                                    Фид в формате YML подходит для prom, "
+"rozetka и других сервисов, где каждый товар это отдельная разновидность. "
+"Например, платье в размерах 42 и 44 с цветами черный и белый это 4 отдельных "
+"товара. В этом фиде цвета товара соответствуют цветам фото. Выгружаются все "
+"модификации товара, если хотя бы в одной есть позитивные остатки. "
+"Обновляется в режиме реального времени.\n"
+"                                    "
 msgstr ""
 "\n"
 " Фід у форматі YML підходить для prom, rozetka та інших сервісів, де кожен "
-"товар це окремий різновид. Наприклад, сукня у розмірах 42 та 44 з квітами "
-"чорний та білий це 4 окремі товари. У цьому фіді кольори товару відповідають "
-"кольорам фото. Вивантажуються товари тільки, які є в наявності. Оновлюється "
-"в режимі реального часу.\n"
-"                                "
-
-#: .\catalog\templates\xml_generator_page.html:41
-msgid ""
-"\n"
-"                                Фид в формате XML используется в google и "
-"facebook в основном, но может и импортироваться в другие сервисы. В нем "
-"единица товара включает в себя все цвета и размеры. Например, платье с "
-"размерами 42 и 44 и цветами черный и белый это один товар. В каждом таком "
-"товаре выгружены все фото доступных его цветов, первое фото - коллаж, если "
-"есть разные цвета товара то цветной коллаж. Выгружаются товары только те у "
-"которых есть положительные остатки. Например, у товара есть 4 разновидности, "
-"но в наличии только одна разновидность - этот товар будет выгружен. В фиде "
-"указаны общие остатки по сумме всех разновидностей. Обновляется в режиме "
-"реального времени.\n"
-"                                "
-msgstr ""
-"\n"
-" Фід у форматі XML використовується в Google і "
-" facebook в основному, але може і імпортуватися в інші сервіси. У ньому"
-" одиниця товару включає в себе всі кольори та розміри. Наприклад, сукня з "
-" розмірами 42 та 44 та кольорами чорний та білий це один товар. У кожному такому"
-" товару вивантажені всі фото доступних його кольорів, перше фото - колаж, якщо "
-" є різні кольори товару то кольоровий колаж. Вивантажуються товари тільки ті у "
-" яких є позитивні залишки. Наприклад, у товару є 4 різновиди,"
-" але в наявності тільки один різновид - цей товар буде вивантажений. У фіді"
-" зазначено загальні залишки за сумою всіх різновидів. Оновлюється в режимі "
-" реального часу.\n"
+"товар це окремий різновид.Наприклад, сукня в розмірах 42 та 44 з квітами "
+"чорний та білий це 4 окремихтовари. У цьому фіді кольори товару відповідають "
+"кольорам фото. Вивантажуються всімодифікації товару, якщо хоча б в одній є "
+"позитивні залишки.Оновлюється в режимі реального часу.\n"
 " "
 
 #: .\catalog\templates\xml_generator_page.html:49
+msgid ""
+"\n"
+"                                Фид в формате XML используется в price.ua, "
+"facebook, google и другие сервисы в основном, но может и импортироваться в "
+"другие сервисы. В нем единица товара включает в себя все цвета и размеры. "
+"Например, платье с размерами 42 и 44 и цветами черный и белый это один "
+"товар. В каждом таком товаре выгружены все фото доступных его цветов, первое "
+"фото - коллаж, если есть разные цвета товара то цветной коллаж. Выгружаются "
+"товары только те у которых есть положительные остатки. Например, у товара "
+"есть 4 разновидности, но в наличии только одна разновидность - этот товар "
+"будет выгружен. В фиде указаны общие остатки по сумме всех разновидностей. "
+"Обновляется в режиме реального времени.\n"
+"                                "
+msgstr ""
+"\n"
+" Фід у форматі XML використовується в price.ua, facebook, google та інші "
+"сервіси в основному, але може і імпортуватися в інші сервіси. У ньому "
+"одиниця товару включає всі кольори і розміри. Наприклад, сукня з розмірами "
+"42 та 44 та квітами чорний та білий це одинтовар. У кожному такому товарі "
+"вивантажені всі фото доступних його кольорів, першефото - колаж, якщо є "
+"різні кольори товару, то кольоровий колаж. Вивантажуютьсятовари тільки ті, у "
+"яких є позитивні залишки. Наприклад, у товару є 4 різновиди, але в наявності "
+"тільки один різновид - цей товарбуде вивантажений. У фіді вказані загальні "
+"залишки за сумою всіх різновидів.Оновлюється в режимі реального часу.\n"
+" "
+
+#: .\catalog\templates\xml_generator_page.html:57
 msgid "Тип наценки"
 msgstr "Тип націнки"
 
-#: .\catalog\templates\xml_generator_page.html:53
+#: .\catalog\templates\xml_generator_page.html:61
 #, python-format
 msgid "Процент (%%)"
 msgstr "Відсоток (%%)"
 
-#: .\catalog\templates\xml_generator_page.html:57
+#: .\catalog\templates\xml_generator_page.html:65
 msgid "Фиксированная сумма (грн)"
 msgstr "Фіксована сума (грн)"
 
-#: .\catalog\templates\xml_generator_page.html:64
+#: .\catalog\templates\xml_generator_page.html:72
 msgid "Значение наценки"
 msgstr "Значення націнки"
 
-#: .\catalog\templates\xml_generator_page.html:66
+#: .\catalog\templates\xml_generator_page.html:74
 msgid "Укажите значение для выбранного типа наценки."
 msgstr "Вкажіть значення для вибраного типу націнки."
 
-#: .\catalog\templates\xml_generator_page.html:71
+#: .\catalog\templates\xml_generator_page.html:79
 msgid "Язык"
 msgstr "Мова"
 
-#: .\catalog\templates\xml_generator_page.html:75
+#: .\catalog\templates\xml_generator_page.html:83
 msgid "Украинский"
 msgstr "Українська"
 
-#: .\catalog\templates\xml_generator_page.html:79
+#: .\catalog\templates\xml_generator_page.html:87
 msgid "Русский"
 msgstr "Російська"
 
-#: .\catalog\templates\xml_generator_page.html:86
+#: .\catalog\templates\xml_generator_page.html:94
 msgid "Получить ссылку на фид"
 msgstr "Отримати посилання на фід"
 
-#: .\catalog\templates\xml_generator_page.html:88
+#: .\catalog\templates\xml_generator_page.html:96
 msgid "Ссылка сгенерирована!"
 msgstr "Посилання згенероване!"
 
-#: .\catalog\templates\xml_generator_page.html:93
+#: .\catalog\templates\xml_generator_page.html:101
 msgid "Ваша ссылка"
 msgstr "Ваше посилання"
 
-#: .\catalog\templates\xml_generator_page.html:96
+#: .\catalog\templates\xml_generator_page.html:104
 msgid "Копировать"
 msgstr "Копіювати"
 
-#: .\catalog\templates\xml_generator_page.html:98
+#: .\catalog\templates\xml_generator_page.html:106
 msgid "Ссылка скопирована!"
 msgstr "Посилання скопійоване!"
 
-#: .\catalog\templates\xml_generator_page.html:103
+#: .\catalog\templates\xml_generator_page.html:111
 msgid "По техническим вопросам пишите на"
 msgstr "З технічних питань пишіть на"
 
-#~ msgid "Поиск"
-#~ msgstr "Пошук"
+#: .\deva7km\settings.py:142
+msgid "Russian"
+msgstr "Русский"
 
-#~ msgid "В ожидании"
-#~ msgstr "В очікуванні"
+#: .\deva7km\settings.py:143
+msgid "Ukrainian"
+msgstr "Українська"
 
-#~ msgid "Завершено"
-#~ msgstr "Завершено"
+#~ msgid "Rozetka YML"
+#~ msgstr "Rozetka YML"
 
-#~ msgid "Отменено"
-#~ msgstr "Скасовано"
+#~ msgid "Facebook XML"
+#~ msgstr "Facebook XML"
 
-#~ msgid "Russian"
-#~ msgstr "Русский"
+#~ msgid "in stock"
+#~ msgstr "in stock"
 
-#~ msgid "Ukrainian"
-#~ msgstr "Українська"
+#~ msgid "out of stock"
+#~ msgstr "out of stock"
+
+#~ msgid "adult"
+#~ msgstr "adult"
+
+#~ msgid "female"
+#~ msgstr "female"
+
+#~ msgid "new"
+#~ msgstr "new"
+
+#~ msgid "archived"
+#~ msgstr "archived"
 
 #~ msgid "Количество"
 #~ msgstr "Кількість"
@@ -578,9 +608,6 @@ msgstr "З технічних питань пишіть на"
 
 #~ msgid "Удалить"
 #~ msgstr "Видалити"
-
-#~ msgid "Итого количество товаров"
-#~ msgstr "Загальна кількість товарів"
 
 #~ msgid "Итоговая цена:"
 #~ msgstr "Кінцева ціна:"
@@ -731,10 +758,8 @@ msgstr "З технічних питань пишіть на"
 #~ msgid "цена"
 #~ msgstr "ціна"
 
-#, fuzzy
-#~| msgid "Цена распродажи"
 #~ msgid "цена распродажи"
-#~ msgstr "Ціна розпродажу"
+#~ msgstr "ціна розпродажу"
 
 #~ msgid "* обязательные"
 #~ msgstr "* обов'язкові"

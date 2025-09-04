@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-25 12:42+0300\n"
+"POT-Creation-Date: 2025-09-04 14:34+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,19 +19,20 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
+
 #: .\catalog\forms.py:33
 msgid "Поиск"
 msgstr ""
 
-#: .\catalog\models.py:631
+#: .\catalog\models.py:652
 msgid "В ожидании"
 msgstr ""
 
-#: .\catalog\models.py:632
+#: .\catalog\models.py:653
 msgid "Завершено"
 msgstr ""
 
-#: .\catalog\models.py:633
+#: .\catalog\models.py:654
 msgid "Отменено"
 msgstr ""
 
@@ -39,101 +40,34 @@ msgstr ""
 msgid "Сайт deva7km"
 msgstr ""
 
-#: .\catalog\templates\base.html:28
+#: .\catalog\templates\base.html:31
+msgid "Поиск товаров"
+msgstr ""
+
+#: .\catalog\templates\base.html:33
+msgid "Искать"
+msgstr ""
+
+#: .\catalog\templates\base.html:41 .\catalog\templates\fb_feed_generator.xml:5
+#: .\catalog\templates\fb_feed_generator.xml:54
+#: .\catalog\templates\rozetka_feed_generator.xml:7
+#: .\catalog\templates\rozetka_feed_generator.xml:27
+#: .\catalog\templates\rozetka_feed_generator.xml:28
 msgid "Дева"
 msgstr ""
 
 #: .\catalog\templates\base.html:44
-#: .\catalog\templates\registration\profile.html:4
-msgid "Профиль"
+msgid "Toggle navigation"
 msgstr ""
 
-#: .\catalog\templates\base.html:45
-#: .\catalog\templates\registration\profile.html:8
-msgid "Выйти"
-msgstr ""
-
-#: .\catalog\templates\base.html:47
-#: .\catalog\templates\registration\login.html:8
-msgid "Войти"
-msgstr ""
-
-#: .\catalog\templates\cart.html:4 .\catalog\templates\cart.html:10
-#: .\catalog\templates\cart.html:15
-msgid "Корзина"
-msgstr ""
-
-#: .\catalog\templates\cart.html:9 .\catalog\templates\category_detail.html:8
-#: .\catalog\templates\complete_order.html:9
+#: .\catalog\templates\category_detail.html:8
 #: .\catalog\templates\contacts_page.html:10
 #: .\catalog\templates\delivery_page.html:10
 #: .\catalog\templates\delivery_payment_page.html:9
 #: .\catalog\templates\home.html:4 .\catalog\templates\home.html:9
 #: .\catalog\templates\privacy_policy_page.html:10
 #: .\catalog\templates\product_detail.html:13
-#: .\catalog\templates\thank_you_page.html:9
 msgid "Главная"
-msgstr ""
-
-#: .\catalog\templates\cart.html:20 .\catalog\templates\complete_order.html:27
-#: .\catalog\templates\thank_you_page.html:101
-msgid "Изображение"
-msgstr ""
-
-#: .\catalog\templates\cart.html:21 .\catalog\templates\thank_you_page.html:102
-msgid "Наименование"
-msgstr ""
-
-#: .\catalog\templates\cart.html:22 .\catalog\templates\complete_order.html:29
-#: .\catalog\templates\product_detail.html:110
-#: .\catalog\templates\thank_you_page.html:103
-msgid "Цвет"
-msgstr ""
-
-#: .\catalog\templates\cart.html:23 .\catalog\templates\complete_order.html:30
-#: .\catalog\templates\product_detail.html:111
-#: .\catalog\templates\thank_you_page.html:104
-msgid "Размер"
-msgstr ""
-
-#: .\catalog\templates\cart.html:24 .\catalog\templates\complete_order.html:31
-#: .\catalog\templates\product_detail.html:112
-#: .\catalog\templates\thank_you_page.html:105
-msgid "Количество"
-msgstr ""
-
-#: .\catalog\templates\cart.html:25 .\catalog\templates\cart_info.html:7
-#: .\catalog\templates\complete_order.html:32
-#: .\catalog\templates\thank_you_page.html:106
-msgid "Сумма"
-msgstr ""
-
-#: .\catalog\templates\cart.html:26 .\catalog\templates\cart.html:49
-msgid "Удалить"
-msgstr ""
-
-#: .\catalog\templates\cart.html:57 .\catalog\templates\complete_order.html:56
-msgid "Итого количество товаров"
-msgstr ""
-
-#: .\catalog\templates\cart.html:58 .\catalog\templates\complete_order.html:57
-msgid "Итоговая цена:"
-msgstr ""
-
-#: .\catalog\templates\cart.html:62
-msgid "Очистить корзину"
-msgstr ""
-
-#: .\catalog\templates\cart.html:64
-msgid "Продолжить покупки"
-msgstr ""
-
-#: .\catalog\templates\cart.html:66
-msgid "Оформить заказ"
-msgstr ""
-
-#: .\catalog\templates\cart_info.html:7
-msgid "Товаров"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:25 .\catalog\templates\home.html:23
@@ -148,87 +82,70 @@ msgid "Нет изображения"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:44 .\catalog\templates\home.html:43
-#: .\catalog\templates\product_detail.html:68 .\catalog\templates\sales.html:32
+#: .\catalog\templates\product_detail.html:36 .\catalog\templates\sales.html:32
 msgid "Артикул"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:45 .\catalog\templates\home.html:44
-#: .\catalog\templates\product_detail.html:69 .\catalog\templates\sales.html:33
+#: .\catalog\templates\product_detail.html:38 .\catalog\templates\sales.html:33
 msgid "Цвета"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:46 .\catalog\templates\home.html:45
-#: .\catalog\templates\product_detail.html:76 .\catalog\templates\sales.html:34
+#: .\catalog\templates\product_detail.html:46 .\catalog\templates\sales.html:34
 msgid "Размеры"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:51
 #: .\catalog\templates\category_detail.html:57 .\catalog\templates\home.html:50
-#: .\catalog\templates\home.html:55 .\catalog\templates\product_detail.html:86
-#: .\catalog\templates\product_detail.html:94 .\catalog\templates\sales.html:36
+#: .\catalog\templates\home.html:55 .\catalog\templates\product_detail.html:57
+#: .\catalog\templates\product_detail.html:62 .\catalog\templates\sales.html:37
+#: .\catalog\templates\sales.html:40
 msgid "Цена"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:53 .\catalog\templates\home.html:52
-#: .\catalog\templates\product_detail.html:89 .\catalog\templates\sales.html:37
+#: .\catalog\templates\product_detail.html:59 .\catalog\templates\sales.html:38
 msgid "Цена распродажи"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:64 .\catalog\templates\home.html:61
-#: .\catalog\templates\sales.html:42
+#: .\catalog\templates\sales.html:46
 msgid "Перейти"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:75
-#: .\catalog\templates\sales.html:53
+#: .\catalog\templates\sales.html:57
 msgid "First"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:80
-#: .\catalog\templates\sales.html:58
+#: .\catalog\templates\sales.html:62
 msgid "Previous"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:87
-#: .\catalog\templates\sales.html:65
+#: .\catalog\templates\sales.html:69
 msgid "Страница"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:87
-#: .\catalog\templates\sales.html:65
+#: .\catalog\templates\sales.html:69
 msgid "из"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:92
-#: .\catalog\templates\sales.html:70
+#: .\catalog\templates\sales.html:74
 msgid "Next"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:97
-#: .\catalog\templates\sales.html:75
+#: .\catalog\templates\sales.html:79
 msgid "Last"
 msgstr ""
 
 #: .\catalog\templates\category_detail.html:106
 msgid "Нет товаров в этой категории"
-msgstr ""
-
-#: .\catalog\templates\complete_order.html:4
-#: .\catalog\templates\complete_order.html:10
-#: .\catalog\templates\complete_order.html:18
-msgid "Оформление заказа"
-msgstr ""
-
-#: .\catalog\templates\complete_order.html:22
-msgid "Ваш заказ"
-msgstr ""
-
-#: .\catalog\templates\complete_order.html:28
-msgid "Наименование товара"
-msgstr ""
-
-#: .\catalog\templates\complete_order.html:124
-msgid "Завершить заказ"
 msgstr ""
 
 #: .\catalog\templates\contact_menu.html:6
@@ -262,6 +179,10 @@ msgstr ""
 msgid "Политика конфиденциальности"
 msgstr ""
 
+#: .\catalog\templates\contact_menu_bottom.html:8
+msgid "Генератор XML/YML"
+msgstr ""
+
 #: .\catalog\templates\contacts_info.html:11
 msgid "Email:"
 msgstr ""
@@ -282,11 +203,73 @@ msgstr ""
 msgid "Информация о доставке и оплате"
 msgstr ""
 
+#: .\catalog\templates\fb_feed.xml:4
+msgid "Товарный фид для facebook интернет-магазина Дева"
+msgstr ""
+
+#: .\catalog\templates\fb_feed.xml:6
+msgid "Фид товаров для отображения в Facebook"
+msgstr ""
+
+#: .\catalog\templates\fb_feed.xml:33
+msgid "Clothing"
+msgstr ""
+
+#: .\catalog\templates\fb_feed_generator.xml:43
+msgid "гарантия производителя"
+msgstr ""
+
+#: .\catalog\templates\fb_feed_generator.xml:58
+#: .\catalog\templates\product_detail.html:77
+#: .\catalog\templates\rozetka_feed_generator.xml:60
+#: .\catalog\templates\rozetka_feed_generator.xml:63
+msgid "Цвет"
+msgstr ""
+
+#: .\catalog\templates\fb_feed_generator.xml:61
+#: .\catalog\templates\product_detail.html:78
+#: .\catalog\templates\rozetka_feed_generator.xml:69
+#: .\catalog\templates\rozetka_feed_generator.xml:72
+msgid "Размер"
+msgstr ""
+
+#: .\catalog\templates\fb_feed_generator.xml:63
+msgid "Состояние"
+msgstr ""
+
+#: .\catalog\templates\fb_feed_generator.xml:63
+msgid "новое"
+msgstr ""
+
+#: .\catalog\templates\fb_feed_generator.xml:64
+msgid "Пол"
+msgstr ""
+
+#: .\catalog\templates\fb_feed_generator.xml:64
+msgid "женский"
+msgstr ""
+
+#: .\catalog\templates\fb_feed_generator.xml:65
+msgid "Возрастная группа"
+msgstr ""
+
+#: .\catalog\templates\fb_feed_generator.xml:65
+msgid "взрослый"
+msgstr ""
+
+#: .\catalog\templates\fb_feed_generator.xml:70
+msgid "active"
+msgstr ""
+
+#: .\catalog\templates\fb_feed_generator.xml:72
+msgid "not active"
+msgstr ""
+
 #: .\catalog\templates\home.html:16
 msgid "Новинки"
 msgstr ""
 
-#: .\catalog\templates\home.html:42 .\catalog\templates\product_detail.html:66
+#: .\catalog\templates\home.html:42 .\catalog\templates\product_detail.html:34
 #: .\catalog\templates\sales.html:31
 msgid "Категория"
 msgstr ""
@@ -299,33 +282,59 @@ msgstr ""
 msgid "политика конфиденциальности"
 msgstr ""
 
-#: .\catalog\templates\product_detail.html:67
+#: .\catalog\templates\product_detail.html:35
 msgid "Описание"
 msgstr ""
 
-#: .\catalog\templates\product_detail.html:73
-#: .\catalog\templates\product_detail.html:80
+#: .\catalog\templates\product_detail.html:42
+#: .\catalog\templates\product_detail.html:50
 msgid "Нет данных"
 msgstr ""
 
-#: .\catalog\templates\product_detail.html:105
+#: .\catalog\templates\product_detail.html:72
 msgid "Остатки"
 msgstr ""
 
-#: .\catalog\templates\product_detail.html:140
-msgid "или купите через социальные сети:"
+#: .\catalog\templates\product_detail.html:79
+msgid "Наличие"
 msgstr ""
 
-#: .\catalog\templates\product_detail.html:171
+#: .\catalog\templates\product_detail.html:89
+msgid "в наличии"
+msgstr ""
+
+#: .\catalog\templates\product_detail.html:91
+msgid "заканчивается"
+msgstr ""
+
+#: .\catalog\templates\product_detail.html:93
+msgid "нет в наличии"
+msgstr ""
+
+#: .\catalog\templates\product_detail.html:105
+msgid "Купить 🛒"
+msgstr ""
+
+#: .\catalog\templates\product_detail.html:107
+msgid ""
+"Вы можете купить от 5 единиц разного товара или на сумму, эквивалентную 2000 "
+"грн."
+msgstr ""
+
+#: .\catalog\templates\product_detail.html:140
 msgid "Все изображения"
 msgstr ""
 
-#: .\catalog\templates\product_detail.html:178
+#: .\catalog\templates\product_detail.html:147
 msgid "Нет изображений"
 msgstr ""
 
 #: .\catalog\templates\registration\login.html:4
 msgid "Вход"
+msgstr ""
+
+#: .\catalog\templates\registration\login.html:8
+msgid "Войти"
 msgstr ""
 
 #: .\catalog\templates\registration\login.html:10
@@ -384,147 +393,155 @@ msgstr ""
 msgid "Сбросить пароль"
 msgstr ""
 
+#: .\catalog\templates\registration\profile.html:4
+msgid "Профиль"
+msgstr ""
+
 #: .\catalog\templates\registration\profile.html:5
 msgid "Имя пользователя"
 msgstr ""
 
 #: .\catalog\templates\registration\profile.html:6
-#: .\catalog\templates\thank_you_page.html:153
 msgid "Email"
 msgstr ""
 
-#: .\catalog\templates\sales.html:84
+#: .\catalog\templates\registration\profile.html:8
+msgid "Выйти"
+msgstr ""
+
+#: .\catalog\templates\rozetka_feed_generator.xml:6
+msgid "Интернет магазин Дева"
+msgstr ""
+
+#: .\catalog\templates\rozetka_feed_generator.xml:55
+msgid "Украина"
+msgstr ""
+
+#: .\catalog\templates\sales.html:88
 msgid "Нет товаров в распродаже"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:4
-msgid "Спасибо за заказ!"
+#: .\catalog\templates\xml_generator_page.html:4
+msgid "Генератор XML/YML фидов"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:10
-msgid "Спасибо за заказ"
+#: .\catalog\templates\xml_generator_page.html:12
+msgid "Генератор XML/YML фидов для Вашего магазина"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:17
-msgid "Спасибо за ваш заказ!"
-msgstr ""
-
-#: .\catalog\templates\thank_you_page.html:18
-msgid "Номер вашего заказа:"
-msgstr ""
-
-#: .\catalog\templates\thank_you_page.html:22
-msgid "Теперь вы можете оплатить заказ!"
-msgstr ""
-
-#: .\catalog\templates\thank_you_page.html:23
-msgid "Предоплата 150грн или полная оплата. На реквизиты предприятия:"
-msgstr ""
-
-#: .\catalog\templates\thank_you_page.html:24
-msgid "ФЛП Жарук Наталья Викторовна"
-msgstr ""
-
-#: .\catalog\templates\thank_you_page.html:25
-msgid "IBAN"
-msgstr ""
-
-#: .\catalog\templates\thank_you_page.html:27
-msgid "UA343220010000026004310028513 (скопировать)"
-msgstr ""
-
-#: .\catalog\templates\thank_you_page.html:30
-msgid "ЕГРПОУ"
-msgstr ""
-
-#: .\catalog\templates\thank_you_page.html:31
-msgid "Комментарий к платежу: оплата за товар"
-msgstr ""
-
-#: .\catalog\templates\thank_you_page.html:35
-msgid "Или оплатите онлайн"
-msgstr ""
-
-#: .\catalog\templates\thank_you_page.html:36
+#: .\catalog\templates\xml_generator_page.html:15
 msgid ""
-"(оплата при наличии мобильного приложения украинских банков, необходимо "
-"ввести сумму оплаты!)"
+"Выберите необходимые параметры, чтобы сгенерировать персональную ссылку на "
+"фид для выгрузки товаров."
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:38
-msgid "Отправка товара в течение 2х дней после оплаты."
+#: .\catalog\templates\xml_generator_page.html:20
+msgid "Тип фида"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:39
+#: .\catalog\templates\xml_generator_page.html:24
+msgid "YML отдельные модификации товаров"
+msgstr ""
+
+#: .\catalog\templates\xml_generator_page.html:28
+msgid "XML все в одном товаре"
+msgstr ""
+
+#: .\catalog\templates\xml_generator_page.html:38
 msgid ""
-"После оплаты сообщите о вашей оплате фото или скрин оплаты в соц. сети или "
-"по номеру."
+"Для корректной загрузки на prom у вас должны быть включены «разновидности "
+"товара» в приложениях prom."
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:42
-msgid "Наталия +380930972066 (скопировать)"
+#: .\catalog\templates\xml_generator_page.html:42
+msgid ""
+"\n"
+"                                    Фид в формате YML подходит для prom, "
+"rozetka и других сервисов, где каждый товар это отдельная разновидность. "
+"Например, платье в размерах 42 и 44 с цветами черный и белый это 4 отдельных "
+"товара. В этом фиде цвета товара соответствуют цветам фото. Выгружаются все "
+"модификации товара, если хотя бы в одной есть позитивные остатки. "
+"Обновляется в режиме реального времени.\n"
+"                                    "
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:90
-msgid "Информация скопирована!"
+#: .\catalog\templates\xml_generator_page.html:49
+msgid ""
+"\n"
+"                                Фид в формате XML используется в price.ua, "
+"facebook, google и другие сервисы в основном, но может и импортироваться в "
+"другие сервисы. В нем единица товара включает в себя все цвета и размеры. "
+"Например, платье с размерами 42 и 44 и цветами черный и белый это один "
+"товар. В каждом таком товаре выгружены все фото доступных его цветов, первое "
+"фото - коллаж, если есть разные цвета товара то цветной коллаж. Выгружаются "
+"товары только те у которых есть положительные остатки. Например, у товара "
+"есть 4 разновидности, но в наличии только одна разновидность - этот товар "
+"будет выгружен. В фиде указаны общие остатки по сумме всех разновидностей. "
+"Обновляется в режиме реального времени.\n"
+"                                "
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:132
-msgid "Общая сумма заказа"
+#: .\catalog\templates\xml_generator_page.html:57
+msgid "Тип наценки"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:137
-msgid "Информация о заказе"
+#: .\catalog\templates\xml_generator_page.html:61
+#, python-format
+msgid "Процент (%%)"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:141
-msgid "Имя"
+#: .\catalog\templates\xml_generator_page.html:65
+msgid "Фиксированная сумма (грн)"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:145
-msgid "Фамилия"
+#: .\catalog\templates\xml_generator_page.html:72
+msgid "Значение наценки"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:149
-msgid "Телефон"
+#: .\catalog\templates\xml_generator_page.html:74
+msgid "Укажите значение для выбранного типа наценки."
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:157
-msgid "Связь с клиентом"
+#: .\catalog\templates\xml_generator_page.html:79
+msgid "Язык"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:167
-msgid "Способ доставки"
+#: .\catalog\templates\xml_generator_page.html:83
+msgid "Украинский"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:171
-msgid "Населенный пункт"
+#: .\catalog\templates\xml_generator_page.html:87
+msgid "Русский"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:175
-msgid "Отделение почты"
+#: .\catalog\templates\xml_generator_page.html:94
+msgid "Получить ссылку на фид"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:179
-msgid "Способ оплаты"
+#: .\catalog\templates\xml_generator_page.html:96
+msgid "Ссылка сгенерирована!"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:183
-msgid "Комментарий к заказу"
+#: .\catalog\templates\xml_generator_page.html:101
+msgid "Ваша ссылка"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:187
-msgid "Статус заказа"
+#: .\catalog\templates\xml_generator_page.html:104
+msgid "Копировать"
 msgstr ""
 
-#: .\catalog\templates\thank_you_page.html:196
-msgid "Вернуться на главную"
+#: .\catalog\templates\xml_generator_page.html:106
+msgid "Ссылка скопирована!"
 msgstr ""
 
-#: .\deva7km\settings.py:144
+#: .\catalog\templates\xml_generator_page.html:111
+msgid "По техническим вопросам пишите на"
+msgstr ""
+
+#: .\deva7km\settings.py:142
 msgid "Russian"
 msgstr ""
 
-#: .\deva7km\settings.py:145
+#: .\deva7km\settings.py:143
 msgid "Ukrainian"
 msgstr ""
