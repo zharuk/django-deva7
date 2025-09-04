@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-04 14:34+0300\n"
+"POT-Creation-Date: 2025-09-04 15:29+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,15 +24,15 @@ msgstr ""
 msgid "Поиск"
 msgstr ""
 
-#: .\catalog\models.py:652
+#: .\catalog\models.py:663
 msgid "В ожидании"
 msgstr ""
 
-#: .\catalog\models.py:653
+#: .\catalog\models.py:664
 msgid "Завершено"
 msgstr ""
 
-#: .\catalog\models.py:654
+#: .\catalog\models.py:665
 msgid "Отменено"
 msgstr ""
 
@@ -49,7 +49,7 @@ msgid "Искать"
 msgstr ""
 
 #: .\catalog\templates\base.html:41 .\catalog\templates\fb_feed_generator.xml:5
-#: .\catalog\templates\fb_feed_generator.xml:54
+#: .\catalog\templates\fb_feed_generator.xml:55
 #: .\catalog\templates\rozetka_feed_generator.xml:7
 #: .\catalog\templates\rozetka_feed_generator.xml:27
 #: .\catalog\templates\rozetka_feed_generator.xml:28
@@ -215,53 +215,53 @@ msgstr ""
 msgid "Clothing"
 msgstr ""
 
-#: .\catalog\templates\fb_feed_generator.xml:43
+#: .\catalog\templates\fb_feed_generator.xml:44
 msgid "гарантия производителя"
 msgstr ""
 
-#: .\catalog\templates\fb_feed_generator.xml:58
+#: .\catalog\templates\fb_feed_generator.xml:59
 #: .\catalog\templates\product_detail.html:77
 #: .\catalog\templates\rozetka_feed_generator.xml:60
 #: .\catalog\templates\rozetka_feed_generator.xml:63
 msgid "Цвет"
 msgstr ""
 
-#: .\catalog\templates\fb_feed_generator.xml:61
+#: .\catalog\templates\fb_feed_generator.xml:62
 #: .\catalog\templates\product_detail.html:78
 #: .\catalog\templates\rozetka_feed_generator.xml:69
 #: .\catalog\templates\rozetka_feed_generator.xml:72
 msgid "Размер"
 msgstr ""
 
-#: .\catalog\templates\fb_feed_generator.xml:63
+#: .\catalog\templates\fb_feed_generator.xml:65
 msgid "Состояние"
 msgstr ""
 
-#: .\catalog\templates\fb_feed_generator.xml:63
+#: .\catalog\templates\fb_feed_generator.xml:65
 msgid "новое"
 msgstr ""
 
-#: .\catalog\templates\fb_feed_generator.xml:64
+#: .\catalog\templates\fb_feed_generator.xml:66
 msgid "Пол"
 msgstr ""
 
-#: .\catalog\templates\fb_feed_generator.xml:64
+#: .\catalog\templates\fb_feed_generator.xml:66
 msgid "женский"
 msgstr ""
 
-#: .\catalog\templates\fb_feed_generator.xml:65
+#: .\catalog\templates\fb_feed_generator.xml:67
 msgid "Возрастная группа"
 msgstr ""
 
-#: .\catalog\templates\fb_feed_generator.xml:65
+#: .\catalog\templates\fb_feed_generator.xml:67
 msgid "взрослый"
 msgstr ""
 
-#: .\catalog\templates\fb_feed_generator.xml:70
+#: .\catalog\templates\fb_feed_generator.xml:73
 msgid "active"
 msgstr ""
 
-#: .\catalog\templates\fb_feed_generator.xml:72
+#: .\catalog\templates\fb_feed_generator.xml:75
 msgid "not active"
 msgstr ""
 
@@ -465,7 +465,13 @@ msgid ""
 "                                    "
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:49
+#: .\catalog\templates\xml_generator_page.html:51
+msgid ""
+"Фид сделан в первую очередь для площадки price.ua, но может быть использован "
+"и на prom.ua, если у вас не используются модификации товаров"
+msgstr ""
+
+#: .\catalog\templates\xml_generator_page.html:53
 msgid ""
 "\n"
 "                                Фид в формате XML используется в price.ua, "
@@ -481,60 +487,60 @@ msgid ""
 "                                "
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:57
+#: .\catalog\templates\xml_generator_page.html:61
 msgid "Тип наценки"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:61
+#: .\catalog\templates\xml_generator_page.html:65
 #, python-format
 msgid "Процент (%%)"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:65
+#: .\catalog\templates\xml_generator_page.html:69
 msgid "Фиксированная сумма (грн)"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:72
+#: .\catalog\templates\xml_generator_page.html:76
 msgid "Значение наценки"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:74
+#: .\catalog\templates\xml_generator_page.html:78
 msgid "Укажите значение для выбранного типа наценки."
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:79
+#: .\catalog\templates\xml_generator_page.html:83
 msgid "Язык"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:83
+#: .\catalog\templates\xml_generator_page.html:87
 msgid "Украинский"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:87
+#: .\catalog\templates\xml_generator_page.html:91
 msgid "Русский"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:94
+#: .\catalog\templates\xml_generator_page.html:98
 msgid "Получить ссылку на фид"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:96
+#: .\catalog\templates\xml_generator_page.html:100
 msgid "Ссылка сгенерирована!"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:101
+#: .\catalog\templates\xml_generator_page.html:105
 msgid "Ваша ссылка"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:104
+#: .\catalog\templates\xml_generator_page.html:108
 msgid "Копировать"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:106
+#: .\catalog\templates\xml_generator_page.html:110
 msgid "Ссылка скопирована!"
 msgstr ""
 
-#: .\catalog\templates\xml_generator_page.html:111
+#: .\catalog\templates\xml_generator_page.html:115
 msgid "По техническим вопросам пишите на"
 msgstr ""
 
