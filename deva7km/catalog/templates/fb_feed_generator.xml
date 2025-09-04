@@ -18,20 +18,21 @@
 
     <items>
         {% for product in products %}
-        <item>
+        <item id="{{ product.sku }}" selling_type="u">
             <itemId>{{ product.sku }}</itemId>
             <name>{{ product.title }}</name>
             <description>{{ product.description }}</description>
             <categoryId>{{ product.category_id }}</categoryId>
 
-            <price>{{ product.price }}</price>
-            {% if product.sale_price > 0 %}
-            <priceRUAH>{{ product.sale_price }}</priceRUAH>
-            {% endif %}
+            <priceuah>
+                {% if product.sale_price|default:0 > 0 %}
+                    {{ product.sale_price }}
+                {% else %}
+                    {{ product.price }}
+                {% endif %}
+            </priceuah>
 
-            <currency>{{ product.currency|default:"UAH" }}</currency>
-
-            {% if product.get_total_stock > 0 %}
+            {% if product.get_total_stock|default:0 > 0 %}
             <inStock>{{ product.get_total_stock }}</inStock>
             <available>true</available>
             {% else %}
@@ -60,21 +61,23 @@
             {% if product.get_sizes %}
             <param name="{% trans 'Размер' %}">{{ product.get_sizes }}</param>
             {% endif %}
+
             <param name="{% trans 'Состояние' %}">{% trans "новое" %}</param>
             <param name="{% trans 'Пол' %}">{% trans "женский" %}</param>
             <param name="{% trans 'Возрастная группа' %}">{% trans "взрослый" %}</param>
 
             <keywords>{{ product.keywords|default:"" }}</keywords>
 
-            {% if product.is_active %}
-            <status>{% trans "active" %}</status>
-            {% else %}
-            <status>{% trans "not active" %}</status>
-            {% endif %}
+            <status>
+                {% if product.is_active %}
+                    {% trans "active" %}
+                {% else %}
+                    {% trans "not active" %}
+                {% endif %}
+            </status>
 
             <minimum_order_quantity>1</minimum_order_quantity>
             <quantum>1</quantum>
-
         </item>
         {% endfor %}
     </items>
