@@ -3,43 +3,73 @@
         <name>Интернет магазин Дева</name>
         <company>Дева</company>
         <url>https://deva7km.com.ua/</url>
+
         <currencies>
             <currency id="UAH" rate="1"/>
         </currencies>
+
         <categories>
             {% for category in categories %}
                 {% if category.rz_id > 0 %}
-                    <category id="{{ category.id }}" rz_id="{{ category.rz_id }}">{{ category.name }}</category>
+                    <category id="{{ category.id }}" rz_id="{{ category.rz_id }}">
+                        {{ category.name }}
+                    </category>
                 {% else %}
-                    <category id="{{ category.id }}">{{ category.name }}</category>
+                    <category id="{{ category.id }}">
+                        {{ category.name }}
+                    </category>
                 {% endif %}
             {% endfor %}
         </categories>
+
         <offers>
             {% for product in products %}
                 {% for modification in product.modifications.all %}
-                    <offer id="{{ product.sku }}-{{ forloop.counter }}" available="{% if modification.stock %}true{% else %}false{% endif %}">
-                        {% with base_price=product.retail_sale_price|default:product.retail_price %}
-                            <price>{{ base_price|add:100 }}</price>
-                            {% if product.retail_sale_price > 0 %}
-                                <price_old>{{ product.retail_price|add:100 }}</price_old>
-                                <price_promo>{{ product.retail_sale_price|add:100 }}</price_promo>
-                            {% endif %}
-                        {% endwith %}
+                    <offer
+                        id="{{ product.sku }}-{{ forloop.counter }}"
+                        available="{% if modification.stock %}true{% else %}false{% endif %}"
+                    >
+
+                        {# ===== ЦЕНЫ (+200) ===== #}
+                        {% if product.retail_sale_price > 0 %}
+                            <price>{{ product.retail_sale_price|add:200 }}</price>
+                            <price_old>{{ product.retail_price|add:200 }}</price_old>
+                            <price_promo>{{ product.retail_sale_price|add:200 }}</price_promo>
+                        {% else %}
+                            <price>{{ product.retail_price|add:200 }}</price>
+                        {% endif %}
+
                         <currencyId>UAH</currencyId>
                         <categoryId>{{ product.category.id }}</categoryId>
+
                         {% for image in modification.get_all_large_image_urls %}
                             <picture>{{ image }}</picture>
                         {% endfor %}
+
                         <vendor>Дева</vendor>
                         <article>{{ product.sku }}-{{ forloop.counter }}</article>
-                        <stock_quantity>{% if modification.stock %}{{ modification.stock }}{% else %}0{% endif %}</stock_quantity>
-                        <name>{{ product.title }} Дева ({{ modification.color.name }} {{ modification.size.name }}) ({{ product.sku }})</name>
+
+                        <stock_quantity>
+                            {% if modification.stock %}
+                                {{ modification.stock }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </stock_quantity>
+
+                        <name>
+                            {{ product.title }} Дева
+                            ({{ modification.color.name }} {{ modification.size.name }})
+                            ({{ product.sku }})
+                        </name>
+
                         <description>{{ product.description }}</description>
                         <state>new</state>
+
                         <param name="Цвет">{{ modification.color }}</param>
                         <param name="Размер">{{ modification.size }}</param>
                         <param name="Страна-производитель товара">Украина</param>
+
                     </offer>
                 {% endfor %}
             {% endfor %}
