@@ -18,12 +18,8 @@ from .novaposhta import update_tracking_status
 
 class PreorderConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        if self.scope["user"].is_authenticated:
-            await self.channel_layer.group_add('preorder_updates', self.channel_name)
-            await self.accept()
-        else:
-            await self.close()
-            return
+        await self.channel_layer.group_add('preorder_updates', self.channel_name)
+        await self.accept()
         self.active_filter = 'all'
         await self.send_preorders_update()
 
@@ -229,10 +225,7 @@ class PreorderConsumer(AsyncWebsocketConsumer):
 
 class SalesConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        if self.scope["user"].is_authenticated:
-            await self.accept()
-        else:
-            await self.close()
+        await self.accept()
 
     async def disconnect(self, close_code):
         pass
@@ -827,11 +820,7 @@ class WriteOffConsumer(AsyncWebsocketConsumer):
 
 class ReportConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        if self.scope["user"].is_authenticated:
-            await self.accept()
-        else:
-            await self.close()
-            return
+        await self.accept()
         self.period = 'today'
         self.start_date = None
         self.end_date = None
