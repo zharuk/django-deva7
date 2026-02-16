@@ -6,13 +6,14 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 
-import deva7km.routing
-
 logger = logging.getLogger(__name__)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'deva7km.settings')
 
 http_application = get_asgi_application()
+
+# Import websocket routing only after Django app initialization.
+import deva7km.routing
 
 application = ProtocolTypeRouter({
     'http': http_application,
