@@ -1,6 +1,5 @@
 import logging
 from functools import wraps
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login as django_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,7 +9,7 @@ from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequ
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import get_language
-from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
 from catalog.models import Image, Category, Product, BlogPost, TelegramUser
 from django.shortcuts import render, get_object_or_404, redirect
@@ -20,7 +19,6 @@ from django.contrib import messages
 from django.utils import timezone, translation
 from datetime import timedelta
 from .management.commands.update_tracking_status import update_tracking_status
-from .auth_tokens import consume_telegram_auth_token, TelegramAuthTokenError
 from .models import PreOrder
 from asgiref.sync import sync_to_async
 import asyncio
@@ -180,8 +178,6 @@ def export_products_xlsx(request):
     return response
 
 
-@staff_member_required
-@require_POST
 async def update_tracking_status_view(request):
     try:
         ten_days_ago = timezone.now() - timedelta(days=10)
@@ -200,9 +196,9 @@ async def update_tracking_status_view(request):
 def check_telegram_user(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
-        telegram_auth_token = request.GET.get('tg_auth')
+        telegram_id = request.GET.get('telegram_id')
         current_path = request.GET.get('next', request.get_full_path())
-        logger.debug(f"Extracted tg_auth token: {bool(telegram_auth_token)}")
+        logger.debug(f"Extracted telegram_id: {telegram_id}")
         logger.debug(f"Current path: {current_path}")
         logger.debug(f"Request user: {request.user}")
 
@@ -226,10 +222,9 @@ def check_telegram_user(view_func):
                 return HttpResponseForbidden("У вас нет связанного аккаунта Telegram.")
 
         if not request.user.is_authenticated:
-            if telegram_auth_token:
-                logger.debug("Processing tg_auth token for unauthenticated user.")
+            if telegram_id:
+                logger.debug("Processing with telegram_id for unauthenticated user.")
                 try:
-                    telegram_id = consume_telegram_auth_token(telegram_auth_token)
                     telegram_user = TelegramUser.objects.get(telegram_id=telegram_id)
                     logger.debug(f"Found TelegramUser: {telegram_user}")
 
@@ -247,14 +242,11 @@ def check_telegram_user(view_func):
                     else:
                         logger.debug(f"User role ({telegram_user.role}) does not allow access.")
                         return redirect('login')
-                except TelegramAuthTokenError:
-                    logger.debug("Telegram auth token is invalid, expired, or already used.")
-                    return HttpResponseForbidden("Недействительный или устаревший токен авторизации.")
                 except TelegramUser.DoesNotExist:
                     logger.debug("TelegramUser does not exist.")
                     return HttpResponseForbidden("У вас нет связанного аккаунта Telegram.")
             else:
-                logger.debug("User not authenticated and no tg_auth provided. Redirecting to login.")
+                logger.debug("User not authenticated and no telegram_id provided. Redirecting to login.")
                 return redirect(f"{reverse('login')}?next={current_path}")
 
     return _wrapped_view
@@ -290,6 +282,7 @@ def preorders(request):
     return render(request, 'seller_cabinet/preorders/seller_preorders.html', {'user_id': request.user.id})
 
 
+@csrf_exempt
 @check_telegram_user
 def seller_cabinet_reports(request):
     return render(request, 'seller_cabinet/reports/seller_reports.html')
