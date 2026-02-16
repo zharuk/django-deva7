@@ -19,6 +19,7 @@ sitemaps = get_sitemaps()
 
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
+    path('admin/', RedirectView.as_view(url='/' + settings.ADMIN_URL, permanent=False)),
     path('export-products-xlsx/', views.export_products_xlsx, name='export_products_xlsx'),
     path('admin/update_tracking_status/', update_tracking_status_view, name='update_tracking_status'),
     path('i18n/', include('django.conf.urls.i18n')),
@@ -65,4 +66,3 @@ urlpatterns += i18n_patterns(
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
