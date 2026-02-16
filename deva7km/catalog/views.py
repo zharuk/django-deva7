@@ -1,6 +1,5 @@
 import logging
 from functools import wraps
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login as django_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,7 +10,6 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import get_language
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
 from django.views.generic import DetailView
 from catalog.models import Image, Category, Product, BlogPost, TelegramUser
 from django.shortcuts import render, get_object_or_404, redirect
@@ -180,8 +178,6 @@ def export_products_xlsx(request):
     return response
 
 
-@staff_member_required
-@require_POST
 async def update_tracking_status_view(request):
     try:
         ten_days_ago = timezone.now() - timedelta(days=10)
