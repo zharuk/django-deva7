@@ -15,6 +15,11 @@ from catalog.models import Image, Category, Product, BlogPost, TelegramUser
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from catalog.generate_xlsx import generate_product_xlsx
+from catalog.auth_tokens import (
+    consume_telegram_auth_token,
+    resolve_telegram_id_from_signed_token,
+    TelegramAuthTokenError,
+)
 from django.contrib import messages
 from django.utils import timezone, translation
 from datetime import timedelta
@@ -197,8 +202,10 @@ def check_telegram_user(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         telegram_id = request.GET.get('telegram_id')
+        tg_auth_token = request.GET.get('tg_auth')
         current_path = request.GET.get('next', request.get_full_path())
         logger.debug(f"Extracted telegram_id: {telegram_id}")
+        logger.debug(f"Extracted tg_auth token: {'present' if tg_auth_token else 'missing'}")
         logger.debug(f"Current path: {current_path}")
         logger.debug(f"Request user: {request.user}")
 
@@ -222,10 +229,31 @@ def check_telegram_user(view_func):
                 return HttpResponseForbidden("У вас нет связанного аккаунта Telegram.")
 
         if not request.user.is_authenticated:
-            if telegram_id:
+            resolved_telegram_id = telegram_id
+
+            if tg_auth_token:
+                logger.debug("Processing tg_auth token for unauthenticated user.")
+                try:
+                    resolved_telegram_id = str(consume_telegram_auth_token(tg_auth_token))
+                    logger.debug(f"Resolved telegram_id from token: {resolved_telegram_id}")
+                except TelegramAuthTokenError as exc:
+                    logger.debug(f"Invalid tg_auth token: {exc}")
+
+                    try:
+                        resolved_telegram_id = str(resolve_telegram_id_from_signed_token(tg_auth_token))
+                        logger.debug(
+                            "Resolved telegram_id from signed tg_auth token without TTL/one-time checks."
+                        )
+                    except TelegramAuthTokenError:
+                        if telegram_id:
+                            logger.debug("Falling back to telegram_id query param due to invalid token.")
+                        else:
+                            return HttpResponseForbidden("Недействительный Telegram токен.")
+
+            if resolved_telegram_id:
                 logger.debug("Processing with telegram_id for unauthenticated user.")
                 try:
-                    telegram_user = TelegramUser.objects.get(telegram_id=telegram_id)
+                    telegram_user = TelegramUser.objects.get(telegram_id=resolved_telegram_id)
                     logger.debug(f"Found TelegramUser: {telegram_user}")
 
                     if telegram_user.role in ['admin', 'seller']:

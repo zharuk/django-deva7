@@ -32,3 +32,15 @@ def consume_telegram_auth_token(token):
         raise TelegramAuthTokenError('Token already used.')
 
     return telegram_id
+
+
+def resolve_telegram_id_from_signed_token(token):
+    """Return telegram_id from a signed token without TTL or one-time checks."""
+    signer = signing.TimestampSigner(salt=TOKEN_SALT)
+
+    try:
+        telegram_id_raw = signer.unsign(token)
+        return int(telegram_id_raw)
+    except (signing.BadSignature, ValueError) as exc:
+        raise TelegramAuthTokenError('Invalid token.') from exc
+
