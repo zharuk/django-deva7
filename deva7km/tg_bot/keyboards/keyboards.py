@@ -16,7 +16,7 @@ async def create_main_menu_kb(telegram_id=None) -> ReplyKeyboardMarkup:
         url = f'{base_url}{path}'
         if telegram_id:
             tg_auth_token = create_telegram_auth_token(telegram_id)
-            query_params = urlencode({'tg_auth': tg_auth_token})
+            query_params = urlencode({'tg_auth': tg_auth_token, 'telegram_id': telegram_id})
             url += f'?{query_params}'
         return url
 
